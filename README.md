@@ -1,11 +1,13 @@
-# Standard Project
-A template repo for the standard RSE project
+# Website backend for a new claytontv
+
+This is a django based webapp that will scrape videos and their metadata from curated christian media sites, providing a searchable interface as well as an alternative platform for viewing sunday service livestreams.
 
 ## About
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sollicitudin ante at eleifend eleifend. Sed non vestibulum nisi. Aliquam vel condimentum quam. Donec fringilla et purus at auctor. Praesent euismod vitae metus non consectetur. Sed interdum aliquet nisl at efficitur. Nulla urna quam, gravida eget elementum eget, mattis nec tortor. Fusce ut neque tellus. Integer at magna feugiat lacus porta posuere eget vitae metus.
+NB: beginning by following this tutorial to throw together a starting point:
+https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/skeleton_website
 
-Curabitur a tempus arcu. Maecenas blandit risus quam, quis convallis justo pretium in. Suspendisse rutrum, elit at venenatis cursus, dolor ligula iaculis dui, ut dignissim enim justo at ligula. Donec interdum dignissim egestas. Nullam nec ultrices enim. Nam quis arcu tincidunt, auctor purus sit amet, aliquam libero. Fusce rhoncus lectus ac imperdiet varius. Sed gravida urna eros, ac luctus justo condimentum nec. Integer ultrices nibh in neque sagittis, at pretium erat pretium. Praesent feugiat purus id iaculis laoreet. Proin in tellus tristique, congue ante in, sodales quam. Sed imperdiet est tortor, eget vestibulum tortor pulvinar volutpat. In et pretium nisl.
+
 
 ### Project Team
 
@@ -74,19 +76,5 @@ https://nvie.com/posts/a-successful-git-branching-model/
 
 ## License
 
-## Citation
-
-Please cite the associated papers for this work if you use this code:
-
-```
-@article{xxx2023paper,
-  title={Title},
-  author={Author},
-  journal={arXiv},
-  year={2023}
-}
-```
-
 
 ## Acknowledgements
-This work was funded by a grant from the UK Research Councils, EPSRC grant ref. EP/L012345/1, “Example project title, please update”.
