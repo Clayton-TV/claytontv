@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Clayton TV Home</h1>
+  <p>
+    Welcome to Clayton TV, a website cataloguing and disseminating video resources for Christian teaching
+  </p>
+  <h2>Dynamic content</h2>
+  <p>The video archive has the following record counts:</p>
+  <ul>
+    <li><strong>Videos:</strong> {{ num_videos }}</li>
+    <li><strong>Series:</strong> {{ num_series }}</li>
+  </ul>
+{% endblock %}
