@@ -6,7 +6,7 @@
     <ul>
       {% for series in series_list %}
       <li>
-        <a href="{{ series.get_absolute_url }}">{{ series.title }}</a>
+        <a href="{{ series.get_absolute_url }}">{{ series.name }}</a>
       </li>
       {% endfor %}
     </ul>

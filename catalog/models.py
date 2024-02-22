@@ -61,7 +61,7 @@ class Channel(models.Model):
     
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the channel"""
-        return reverse("channel_detail", args=[str(self.id)])
+        return reverse("channel-detail", args=[str(self.id)])
     
 class Speaker(models.Model):
     """Model representing speakers"""
@@ -75,7 +75,7 @@ class Speaker(models.Model):
     
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the speaker"""
-        return reverse("speaker_detail", args=[str(self.id)])
+        return reverse("speaker-detail", args=[str(self.id)])
     
 class Series(models.Model):
     """Model representing series"""
@@ -89,7 +89,7 @@ class Series(models.Model):
     
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the series"""
-        return reverse("series_detail", args=[str(self.id)])
+        return reverse("series-detail", args=[str(self.id)])
     
     class Meta:
         ordering = ['name']

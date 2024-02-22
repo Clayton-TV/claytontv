@@ -11,9 +11,11 @@
 
     {% for vid in series.video_set.all  %}
       <hr />
-      <p> <a href="{{ vid.embedding_url }}">{{ vid.name }}</a>
+      <p> <a href="{{ vid.embedding_url }}">{{ vid.title }}</a>
       </p>
+      <!-- Need to either remove the below line or have it conditional on whether the number field exists:
       <p><strong>Number in series:</strong> {{ vid.series_number }}</p>
+      -->
     {% endfor %}
   </div>
 {% endblock %}
