@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Title: {{ series.title }}</h1>
+
+  <p><strong>Summary:</strong> {{ series.summary }}</p>
+  <p><strong>Topic:</strong> {{ series.topic.all|join:", " }}</p>
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Videos</h4>
+
+    {% for vid in series.video_set.all  %}
+      <hr />
+      <p> <a href="{{ vid.embedding_url }}">{{ vid.name }}</a>
+      </p>
+      <p><strong>Number in series:</strong> {{ vid.series_number }}</p>
+    {% endfor %}
+  </div>
+{% endblock %}

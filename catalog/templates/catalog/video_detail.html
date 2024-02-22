@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Title: {{ video.title }}</h1>
+
+  <p><strong>Series:</strong> <a href="{{ video.series.get_absolute_url }}">{{ video.series }}</a></p>
+  <p><strong>Summary:</strong> {{ video.summary }}</p>
+  <p><strong>Speaker:</strong> {{ video.speaker }}</p>
+  <p><strong>Date Added:</strong> {{ video.date_created }}</p>
+  <p><strong>Topic:</strong> {{ video.topic.all|join:", " }}</p>
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Watch Now:</h4> 
+    <p>Link{{video.embedding_url}}</p>
+
+  </div>
+{% endblock %}

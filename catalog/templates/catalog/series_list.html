@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Series Listings</h1>
+  {% if series_list %}
+    <ul>
+      {% for series in series_list %}
+      <li>
+        <a href="{{ series.get_absolute_url }}">{{ series.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>There are no videos in the archive.</p>
+  {% endif %}
+{% endblock %}

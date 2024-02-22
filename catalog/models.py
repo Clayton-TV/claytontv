@@ -80,6 +80,7 @@ class Speaker(models.Model):
 class Series(models.Model):
     """Model representing series"""
     name = models.CharField(max_length=200)
+    summary = models.TextField(max_length=100, null=True, blank=True)
     topic = models.ManyToManyField(Topic)
     
     def __str__(self):
@@ -89,6 +90,9 @@ class Series(models.Model):
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the series"""
         return reverse("series_detail", args=[str(self.id)])
+    
+    class Meta:
+        ordering = ['name']
     
     
     

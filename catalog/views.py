@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.views import generic
+
 
 # Create your views here.
 from .models import Video, Topic, Series, Speaker
@@ -17,3 +19,15 @@ def index(request):
 
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
+class VideoListView(generic.ListView):
+    model = Video
+    
+class SeriesListView(generic.ListView):
+    model = Series
+    
+class VideoDetailView(generic.DetailView):
+    model = Video
+    
+class SeriesDetailView(generic.DetailView):
+    model = Series
