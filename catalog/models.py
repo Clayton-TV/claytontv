@@ -30,7 +30,8 @@ class Video(models.Model):
     series_number = models.IntegerField(help_text="If part of a series provide the number in the series", null=True, blank=True)
     date_created = models.DateField()
     livestream_date = models.DateField(null=True, blank=True)
-    embedding_url = models.URLField(unique=True) 
+    embedding_url = models.URLField(unique=True)
+    bible_book = models.CharField(max_length=100, null=True, blank=True) 
     
     class Meta:
         ordering = ['date_created']
@@ -42,6 +43,12 @@ class Video(models.Model):
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the video"""
         return reverse('video-detail', args=[str(self.id)])
+    
+    def display_topic(self):
+        """Create a string for the topics. This is required to display topics in Admin."""
+        return ', '.join(topic.name for topic in self.topic.all()[:3])
+    
+    display_topic.short_description = 'Topics'
    
 class Channel(models.Model):
     """Model representing a channel that uploads videos"""
@@ -53,19 +60,21 @@ class Channel(models.Model):
         return self.name
     
     def get_absolute_url(self):
+        """Returns the URL to access a detailed record for the channel"""
         return reverse("channel_detail", args=[str(self.id)])
     
 class Speaker(models.Model):
     """Model representing speakers"""
     name = models.CharField(max_length=200)
     bio = models.TextField(max_length=1000)
-    series = models.ManyToManyField('Series')
+    series = models.ManyToManyField('Series',null=True, blank=True)
     
     def __str__(self):
         """String for representing model object"""
         return self.name
     
     def get_absolute_url(self):
+        """Returns the URL to access a detailed record for the speaker"""
         return reverse("speaker_detail", args=[str(self.id)])
     
 class Series(models.Model):
@@ -78,6 +87,7 @@ class Series(models.Model):
         return self.name
     
     def get_absolute_url(self):
+        """Returns the URL to access a detailed record for the series"""
         return reverse("series_detail", args=[str(self.id)])
     
     
