@@ -36,6 +36,13 @@ How to build or install the application.
 
 How to run the application on your local system.
 
+NB:
+`python3 manage.py makemigrations`
+`python3 manage.py migrate`
+
+Need to run these commands every time your models change in a way that will affect the structure of the data that needs to be stored (including both addition and removal of whole models and individual fields).
+
+
 ### Running Tests
 
 How to run tests on your local system.
