@@ -31,7 +31,8 @@ class Video(models.Model):
     date_created = models.DateField()
     livestream_date = models.DateField(null=True, blank=True)
     embedding_url = models.URLField(unique=True)
-    bible_book = models.CharField(max_length=100, null=True, blank=True) 
+    bible_book = models.CharField(max_length=100, null=True, blank=True)
+    ministry = models.ManyToManyField('Ministy',on_delete=models.RESTRICT, null=True)
     
     class Meta:
         ordering = ['date_created']
@@ -95,5 +96,20 @@ class Series(models.Model):
         ordering = ['name']
     
     
+class Ministry(models.Model):
+    """Model representing ministy types"""
+    name = models.CharField(max_length=200)
+    summary = models.TextField(max_length=100, null=True, blank=True)
+    topic = models.ManyToManyField(Topic)
     
+    def __str__(self):
+        """String for representing model object"""
+        return self.name
+    
+    def get_absolute_url(self):
+        """Returns the URL to access a detailed record for the series"""
+        return reverse("series-detail", args=[str(self.id)])
+    
+    class Meta:
+        ordering = ['name']
     
