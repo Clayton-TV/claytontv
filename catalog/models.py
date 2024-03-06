@@ -32,7 +32,7 @@ class Video(models.Model):
     livestream_date = models.DateField(null=True, blank=True)
     embedding_url = models.URLField(unique=True)
     bible_book = models.CharField(max_length=100, null=True, blank=True)
-    ministry = models.ManyToManyField('Ministy',on_delete=models.RESTRICT, null=True)
+    ministry = models.ManyToManyField('Ministry', null=True, blank=True)
     
     class Meta:
         ordering = ['date_created']

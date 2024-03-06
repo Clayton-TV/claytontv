@@ -3,7 +3,7 @@ from django.views import generic
 
 
 # Create your views here.
-from .models import Video, Topic, Series, Speaker
+from .models import Video, Topic, Series, Speaker, Ministry
 
 def index(request):
     """View function for home page of site."""
