@@ -34,8 +34,11 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY','django-insecure-&psk#na51=p3q8_
 #DEBUG = True
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = []
+# site url for deployment here!
+ALLOWED_HOSTS = ['fhing.pythonanywhere.com','127.0.0.1']
 
+# site url for CSRF protection:
+CSRF_TRUSTED_ORIGINS= ['https://fing.pythonanywhere.com']
 
 # Application definition
 
