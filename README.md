@@ -55,7 +55,8 @@ Deploying to a production-style setup but on the local system. Examples of this 
 
 ### Production
 
-Deploying to the production system. Examples of this would include cloud, HPC or virtual machine. 
+Current demo deployment on fhing.pythonanywhere.com
+
 
 ## Usage
 
