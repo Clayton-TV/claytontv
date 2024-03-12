@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Clayton TV Home</h1>
+  <p>
+    Welcome to Clayton TV, a website cataloguing and disseminating video resources for Christian teaching
+  </p>
+  <h2> Archive links </h2>
+  <p>The video archive has the following record counts:</p>
+  <ul>
+    <li><a href="{% url 'videos' %}"><strong>Videos:</strong></a> {{ num_videos }}</li>
+    <li><a href="{% url 'series' %}"><strong>Series:</strong></a> {{ num_series }}</li>
+  </ul>
+  <h2> Search </h2>
+  <p>
+    Search for content in the archive here
+  </p>
+  <h2> Most recent </h2>
+  <p>
+    Embed most recent video from the database here?
+  </p>
+{% endblock %}
