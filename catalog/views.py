@@ -31,3 +31,33 @@ class VideoDetailView(generic.DetailView):
     
 class SeriesDetailView(generic.DetailView):
     model = Series
+
+def about(request):
+    """View function for about page of site."""
+    return render(request, 'about.html')
+
+def donate(request):
+    """View function for the donation page of site."""
+    # NB will likely need to include either here or a seperate view 
+    # functionality to make the donate button actually work.
+    return render(request, 'donate.html')
+
+def helppage(request):
+    """
+    View function for help page of site. 
+    NB: called helppage instead of help to avoid overwriting a built in function.
+    """
+    return render(request, 'help.html')
+
+def subscribe(request):
+    """View function for subscribe page of site."""
+    # as with donate, will need to figure out how to get the subscribe button to work.
+    return render(request, 'subscribe.html')
+
+def contact(request):
+    """View function for contact page of site."""
+    return render(request, 'contact.html')
+
+def privacy(request):
+    """View function for privacy policy page of site."""
+    return render(request, 'privacy.html')
