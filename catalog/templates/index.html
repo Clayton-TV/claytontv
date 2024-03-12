@@ -1,22 +1,153 @@
-{% extends "base_generic.html" %}
-
+{% extends 'base_generic.html' %}
+{% load static %}
 {% block content %}
-  <h1>Clayton TV Home</h1>
-  <p>
-    Welcome to Clayton TV, a website cataloguing and disseminating video resources for Christian teaching
-  </p>
-  <h2> Archive links </h2>
-  <p>The video archive has the following record counts:</p>
-  <ul>
-    <li><a href="{% url 'videos' %}"><strong>Videos:</strong></a> {{ num_videos }}</li>
-    <li><a href="{% url 'series' %}"><strong>Series:</strong></a> {{ num_series }}</li>
-  </ul>
-  <h2> Search </h2>
-  <p>
-    Search for content in the archive here
-  </p>
-  <h2> Most recent </h2>
-  <p>
-    Embed most recent video from the database here?
-  </p>
+
+  <!-- Services -->
+  <section class="page-section" id="services">
+    <div class="container">
+      <div class="text-center">
+        <h2 class="section-heading text-uppercase">Clayton TV Home</h2>
+        <h3 class="section-subheading text-muted">Welcome to Clayton TV, a website cataloguing and disseminating video resources for Christian teaching</h3>
+      </div>
+      <div class="row text-center">
+        <div class="col-md-4">
+          <span class="fa-stack fa-4x">
+            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+            <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+          <h4 class="my-3"><a href="{% url 'videos' %}">Search</a></h4>
+          <p class="text-muted">Search the entire database for the content you need</p>
+        </div>
+        <div class="col-md-4">
+          <span class="fa-stack fa-4x">
+            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+            <i class="fas fa-youtube-play fa-stack-1x fa-inverse"></i>
+          </span>
+          <h4 class="my-3">Latest Sunday Service</h4>
+          <p class="text-muted">Watch the most recent sunday service online here</p>
+        </div>
+        <div class="col-md-4">
+          <span class="fa-stack fa-4x">
+            <i class="fas fa-circle fa-stack-2x text-primary"></i>
+            <i class="fas fa-sort-amount-asc fa-stack-1x fa-inverse"></i>
+          </span>
+          <h4 class="my-3"><a href="{% url 'series' %}">Series</a></h4>
+          <p class="text-muted">Browse video series sorted by ministry area</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Portfolio Grid -->
+  <section class="page-section bg-light" id="portfolio">
+    <div class="container">
+      <div class="text-center">
+        <h2 class="section-heading text-uppercase">Recommendations</h2>
+        <h3 class="section-subheading text-muted">Videos we think you will love</h3>
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <!-- Portfolio item 1 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal1">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/jpc.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Sunday Service</div>
+              <div class="portfolio-caption-subheading text-muted">The latest church service from Jesmond Parish Church</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <!-- Portfolio item 2 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal2">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/music.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Music</div>
+              <div class="portfolio-caption-subheading text-muted">The playlist of the moment for praise and devotion</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-4">
+          <!-- Portfolio item 3 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal3">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/training.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Training</div>
+              <div class="portfolio-caption-subheading text-muted">We recommend this teaching series on church leadership</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-4 mb-lg-0">
+          <!-- Portfolio item 4 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal4">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/kids.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Kids</div>
+              <div class="portfolio-caption-subheading text-muted">Videos your children will love and learn from</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6 mb-4 mb-sm-0">
+          <!-- Portfolio item 5 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal5">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/youth.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Youth</div>
+              <div class="portfolio-caption-subheading text-muted">Topical teaching for teens</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-sm-6">
+          <!-- Portfolio item 6 -->
+          <div class="portfolio-item">
+            <a class="portfolio-link" data-bs-toggle="modal" href="#portfolioModal6">
+              <div class="portfolio-hover">
+                <div class="portfolio-hover-content">
+                  <i class="fas fa-plus fa-3x"></i>
+                </div>
+              </div>
+              <img class="img-fluid" src="{% static "assets/img/portfolio/deepdive.jpg" %}" alt="..." />
+            </a>
+            <div class="portfolio-caption">
+              <div class="portfolio-caption-heading">Deep Dive</div>
+              <div class="portfolio-caption-subheading text-muted">A series taking a deep dive into biblical hermeneutics</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 {% endblock %}
