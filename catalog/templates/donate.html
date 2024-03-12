@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Donate</h1>
+  <p>
+    <strong>THANK YOU SO MUCH FOR SUPPORTING US</strong>
+All our content is free so your donations are vital to the continuing work of Clayton TV. 
+We'd love it if you'd like to partner with us financially - either as a one off or as a regular supporter.
+  </p>
+<button name="donate_button" id="donate_button">Donate</button>
+
+<p>
+  <strong>TO MAKE PAYMENTS VIA YOUR BANK</strong>
+Set up a one off gift or a standing order directly with your bank
+
+Account Name: The Jesmond Trust
+Sort Code: 30 93 71
+Account Number: 00258445
+Reference: Clayton TV
+
+Please email enquiries@clayton.tv let us know
+
+</p>
+
+<p>
+  Clayton TV is a ministry of the Jesmond Trust, registered charity 1193725. 
+  All donations are administered by the Jesmond Trust and online donations are processed through CAF.
+</p>
+
+<a href="{% url 'privacy' %}">privacy practices please click here.</a>
+
+{% endblock %}
