@@ -51,11 +51,28 @@ How to run tests on your local system.
 
 ### Local
 
-Deploying to a production-style setup but on the local system. Examples of this would include `venv`, `anaconda`, `Docker` or `minikube`. 
+Deploying to a production-style setup but on the local system. 
+Todo this:
+- cd into the ClaytonWeb folder
+- make sure you are working in the correct virtual environment (`workon claytontv_env`)
+- run `python3 manage.py runserver`
+
+This should launch the site to your localhost ip and give you this ip address in the console output. Click the address to launch a webpage displaying the site.
 
 ### Production
 
 Current demo deployment on fhing.pythonanywhere.com
+
+To update following a new pull request to main:
+- Open a bash terminal using the console link on the main page
+- make sure you are in the correct environment `workon locallibraryenv`
+- cd into the fhings.pythonanywhere.com folder
+- pull changes from github with `git pull`
+- fix any conflicts and commit
+- switch to the web view (burger menu to the top right)
+- Reload the site
+- test changes clicking the url link to launch in browser
+- Make sure to push any changes back to main if a merge was required.
 
 
 ## Usage
