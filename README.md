@@ -99,6 +99,10 @@ A branch per feature that is being worked on.
 
 https://nvie.com/posts/a-successful-git-branching-model/
 
+Check your current branch by typing `git branch` in the terminal (canopen one in vs code from the top menu bar).
+
+To switch branch type `git checkout branchname` where branchname is the branch you want.
+
 ## License
 
 
