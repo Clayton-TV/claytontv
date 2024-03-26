@@ -10,7 +10,6 @@ class Topic(models.Model):
     #sub_topic needed, maybe a class inheriting from Topic? Eg. am/pm for services and bible books for 'bible teaching' topic?
     # or possibly add these as a nested json? Need tothink about this.
     summary = models.TextField(max_length=1000,null=True,blank=True)
-    series = models.ManyToManyField('Series')
     
     
     def __str__(self):
@@ -28,7 +27,7 @@ class Video(models.Model):
     NB: making all of these except the id to allow null (i.e. blank) to make importing old data from the spreadsheet
     more viable. This may want to be restricted later?
     """
-    IDnum = models.CharField(unique=True,max_length=20)
+    IDnum = models.CharField(unique=True,max_length=20,null=True)
     title = models.CharField(max_length=200)
     channel = models.ForeignKey('Channel',on_delete=models.RESTRICT, null=True)
     summary = models.TextField(max_length=1000, help_text="Enter a brief description of the video",null=True, blank=True)
