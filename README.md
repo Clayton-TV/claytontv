@@ -14,13 +14,21 @@ Join our project discord: https://discord.gg/cFV6MG3TKj
 ### Project Team
 
 Ettie Tate - ettie@clayton.tv, discord @ettie
+
+
 Frances Turner - f.e.hutchings@gmail.com, discord @eineau
 
 ## Built With
 
 [Python 3.10.12](https://www.python.org/)
+
+
 [Django](https://www.djangoproject.com/)
+
+
 [Bootstrap](https://getbootstrap.com/)  
+
+
 [sqlite](https://www.sqlite.org/)
 
 ## Getting Started
