@@ -18,6 +18,8 @@ Ettie Tate - ettie@clayton.tv, discord @ettie
 
 Frances Turner - f.e.hutchings@gmail.com, discord @eineau
 
+Jamie Gardner – jamie@tgo.dev, discord @thatgardnerone
+
 ## Built With
 
 [Python 3.10.12](https://www.python.org/)
