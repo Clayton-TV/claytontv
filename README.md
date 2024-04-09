@@ -1,28 +1,33 @@
 # Website backend for a new claytontv
 
-This is a django based webapp that will scrape videos and their metadata from curated christian media sites, providing a searchable interface as well as an alternative platform for viewing sunday service livestreams.
-
 ## About
+This is a django based webapp to provide a searchable interface to a large database of Christian video content as well as an alternative platform for viewing sunday service livestreams and livestream content from Christian conventions such as Keswick.
+Ideally we want to have this database expanding regularly via automated scraping of videos and their metadata from curated christian media sites, although the current database is manually curated.
 
-NB: beginning by following this tutorial to throw together a starting point:
+NB: began by following this tutorial to throw together a starting point:
 https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/skeleton_website
 
+Initial design ideas here: https://www.canva.com/design/DAFZWNS5evs/_cdyY1Pc6UjTNt1YSaPCCg/edit?utm_content=DAFZWNS5evs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
 
+Join our project discord: https://discord.gg/cFV6MG3TKj   
 
 ### Project Team
 
+Ettie Tate - ettie@clayton.tv, discord @ettie
+Frances Turner - f.e.hutchings@gmail.com, discord @eineau
 
 ## Built With
 
-This section is intended to list the frameworks and tools you're using to develop this software. Please link to the home page or documentation in each case.
-
-Thinking Django backend and need to decide on frontend. Angular, React, tailwind?? https://medium.com/@StartXLabs/choosing-the-best-front-end-framework-for-django-5beb7a89cf87 
-
-[Framework 1](https://something.com)  
-[Framework 2](https://something.com)  
-[Framework 3](https://something.com)  
+[Python 3.10.12](https://www.python.org/)
+[Django](https://www.djangoproject.com/)
+[Bootstrap](https://getbootstrap.com/)  
+[sqlite](https://www.sqlite.org/)
 
 ## Getting Started
+
+- Make sure you have a python and a git installation on your pc
+- clone this repository
+  
 
 ### Prerequisites
 
