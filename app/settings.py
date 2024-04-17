@@ -35,8 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_vite',
+    'inertia',
     'catalogue.apps.CatalogueConfig',
-    'livestreams.apps.LivestreamsConfig'
+    'livestreams.apps.LivestreamsConfig',
 ]
 
 MIDDLEWARE = [
@@ -109,12 +111,24 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'resources/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Vite settings
+DJANGO_VITE_DEV_MODE = True
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / 'resources' / 'dist'
+DJANGO_VITE_MANIFEST_PATH = DJANGO_VITE_ASSETS_PATH / 'manifest.json'
+DJANGO_VITE_DEV_SERVER_PORT = 5173
+
+# Inertia settings
+CSRF_HEADER_NAME = 'HTTP_X_XSRF_TOKEN'
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+INERTIA_LAYOUT = 'app.html'
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.0/howto/static-files/
+STATIC_URL = 'resources/'
+STATIC_ROOT = BASE_DIR / 'resources'
+STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
