@@ -1,5 +1,10 @@
+import django
 from inertia import render
 
 
 def index(request):
-    return render(request, 'Welcome')
+    django_version = django.get_version()
+
+    return render(request, 'Welcome', {
+        'djangoVersion': django_version,
+    })
