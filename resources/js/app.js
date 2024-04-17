@@ -1,21 +1,19 @@
 import '../css/app.css'
 
-import { createInertiaApp } from "@inertiajs/vue3"
+import { createInertiaApp } from '@inertiajs/vue3'
 import { createApp, h } from 'vue'
 import { resolvePageComponent } from './inertia-helpers.js'
 
-console.log('Hello, world!')
-
 import AppLayout from '@/Layouts/AppLayout.vue'
 
-const appName = window.document.getElementsByTagName("title")[0]?.innerText || "ClaytonTV";
+const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'ClaytonTV'
 
 createInertiaApp({
     title: (title) => title.trim() === '' ? appName : `${title} - ${appName}`,
     resolve: (name) => {
         const page = resolvePageComponent(
             `./Components/Pages/${name}.vue`,
-            import.meta.glob('./Components/Pages/**/*.vue')
+            import.meta.glob('./Components/Pages/**/*.vue'),
         )
 
         page.then((module) => {
@@ -31,8 +29,7 @@ createInertiaApp({
 
         return page
     },
-    setup({ el, App, props, plugin }) {
-        console.log(el)
+    setup ({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) })
 
         app.use(plugin)
@@ -41,5 +38,5 @@ createInertiaApp({
     },
     progress: {
         color: '#3b82f6',
-    }
+    },
 })

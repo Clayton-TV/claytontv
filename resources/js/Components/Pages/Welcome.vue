@@ -1,9 +1,9 @@
 <script setup>
-import { Head } from '@inertiajs/vue3'
+import { Head } from "@inertiajs/vue3"
 </script>
 
 <template>
-    <Head title="Welcome"/>
+    <Head title="Welcome" />
 
     <div>
         <h1 class="text-4xl">Welcome</h1>
