@@ -3,6 +3,7 @@
 </script>
 
 <template>
+    <!-- Components and styles for all app pages -->
     <slot />
 </template>
 
