@@ -266,6 +266,7 @@ dist
 .pnp.*
 
 ### Vue
+.vite
 .DS_Store
 node_modules
 /dist
