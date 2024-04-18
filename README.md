@@ -1,6 +1,7 @@
 # The official website for Clayton TV
 
-![a2e55012-3068-4d45-83e3-9d4888a456be](https://github.com/Clayton-TV/ClaytonTV/assets/14878653/f3ed6f9c-f5b8-4d5f-95f4-5482eec9ed01)
+<img width="1672" alt="image" src="https://github.com/Clayton-TV/claytontv/assets/14878653/c2c09122-1118-4b3c-bfbb-3d3b9516915d">
+
 \*This is a demo site, soon to undergo substantial changes! Join our hackathon!
 
 ## Getting Started
@@ -27,6 +28,56 @@ Node.js (for the front-end design of our app)
 - [Node 20.1.2 LTS](https://nodejs.org/en/download) (Long-Term Support, or LTS, means that it will get features and security updates for longer)
 - Alternatively, for Mac or Linux users, check out [Node Version Manager](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating). This requires technical skill to set up.
 
+### Install instructions
+
+Clone the repo in Github Desktop, or with the following command
+```sh
+git clone git@github.com:Clayton-TV/claytontv
+```
+
+Open the project in your editor, or change directory into the project
+```sh
+cd claytontv
+```
+
+Set up python environment
+```sh
+# Install pipenv
+python3.12 -m pip install pipenv
+
+# Start pipenv
+pipenv shell
+```
+
+Install python dependencies
+```sh
+pipenv install
+```
+
+Install the node dependencies
+```sh
+npm install
+```
+
+Run the migrations
+```sh
+python manage.py migrate
+```
+
+Launch the app
+```sh
+# Open a new terminal window each for the following commands
+
+# Run the python server (backend)
+python manage.py runserver
+# Or, you can specify the address
+python manage.py runserver localhost:8001
+
+# Run the vite server (frontend)
+npm run dev
+```
+
 ## Contributing
+
 
 ## Licence
