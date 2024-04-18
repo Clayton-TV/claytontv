@@ -64,20 +64,22 @@ Run the migrations
 python manage.py migrate
 ```
 
-Launch the app
+Launch the app (open a new terminal window each for the following commands)
 ```sh
-# Open a new terminal window each for the following commands
-
 # Run the python server (backend)
 python manage.py runserver
-# Or, you can specify the address
-python manage.py runserver localhost:8001
-
+```
+```sh
 # Run the vite server (frontend)
 npm run dev
 ```
 
 ## Contributing
 
+To report a bug, please [raise an issue](https://github.com/Clayton-TV/claytontv/issues/new). Include steps to replicate and a screenshot of the error.
+
+To suggest a feature, please [raise an issue](https://github.com/Clayton-TV/claytontv/issues/new). Add a brief summary of the changes and any additional details.
+
+To commit changes, please create a branch in the pattern of `bug/title-of-bug` or `feature/title-of-feature`. 
 
 ## Licence
