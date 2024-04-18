@@ -15,7 +15,7 @@ One of the following code editors (aka an Integrated Development Environment, or
 - [PyCharm](https://www.jetbrains.com/toolbox-app/) (Pycharm Community is free, Pycharm Pro is Paid/Trial. Or, download the toolbox and install the Release Candidate, which is free but not always stable.)
 - If you dare, you can use Atom, Sublime, or (please don't) Notepad++.
 
-GitHub Desktop (optional. A nice UI for git, the version management software. It will install git for you if you don't already have it.)
+GitHub Desktop (A nice UI for git, the version management software. It will install git for you if you don't already have it.)
 - https://desktop.github.com/ (Mac and Windows only. Linux users, you're likely familiar with terminal commands anyway, but check out [Oh-My-Zsh](https://github.com/ohmyzsh/ohmyzsh?tab=readme-ov-file#basic-installation) and their [git plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git))
 
 Python (the programming language that our Django app uses)
