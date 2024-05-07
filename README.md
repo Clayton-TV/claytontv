@@ -30,7 +30,7 @@ Node.js (for the front-end design of our app)
 
 ### Install instructions
 
-Clone the repo in Github Desktop, or with the following command
+Clone the repo in Github Desktop, or run the following command in a terminal window (`Note:` you may need to use a Command Prompt on Windows, as a git shell or PowerShell may not work).
 ```sh
 git clone git@github.com:Clayton-TV/claytontv
 ```
