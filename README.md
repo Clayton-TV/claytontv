@@ -73,7 +73,12 @@ python manage.py runserver
 # Run the vite server (frontend)
 npm run dev
 ```
+### Troubleshooting
 
+1. npm install error - Check you're in the right place - "cd" or do from VSCode
+2. python not found - check environment variables - add python to the path and restart
+3. commands need "pipenv run" prefix
+   
 ## Contributing
 
 To report a bug, please [raise an issue](https://github.com/Clayton-TV/claytontv/issues/new). Include steps to replicate and a screenshot of the error.
