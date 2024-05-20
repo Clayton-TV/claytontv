@@ -1,4 +1,3 @@
-Mtbu
-Missive
-Kiguli
-rozzerspb
+- Mtbu
+- Missive
+- Kiguli
