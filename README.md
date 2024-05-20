@@ -45,6 +45,9 @@ Set up python environment
 # Install pipenv
 python3.12 -m pip install pipenv
 
+#Above command may fail in MacOS (x86_64 intel chip) - instead this works, then continue as before.
+brew install pipenv
+
 # Start pipenv
 pipenv shell
 ```
