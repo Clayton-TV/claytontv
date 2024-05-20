@@ -67,11 +67,12 @@ Run the migrations
 python manage.py migrate
 ```
 
-Launch the app (open a new terminal window each for the following commands)
+Launch the app
 ```sh
 # Run the python server (backend)
 python manage.py runserver
 ```
+open a new terminal window for the following commands
 ```sh
 # Run the vite server (frontend)
 npm run dev
