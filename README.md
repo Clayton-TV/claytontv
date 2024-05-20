@@ -72,7 +72,7 @@ Launch the app
 # Run the python server (backend)
 python manage.py runserver
 ```
-open a new terminal window for the following commands
+Open a new terminal window, using the virtual environment as before, and run:
 ```sh
 # Run the vite server (frontend)
 npm run dev
