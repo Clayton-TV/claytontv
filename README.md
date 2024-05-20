@@ -77,7 +77,7 @@ open a new terminal window for the following commands
 # Run the vite server (frontend)
 npm run dev
 ```
-Go to [https://localhost:8000](https://localhost:8000) and you should see the image at the top of this README file.
+Go to [http://localhost:8000](http://localhost:8000) and you should see the image at the top of this README file.
 
 ### Troubleshooting
 
