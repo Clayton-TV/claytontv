@@ -23,5 +23,6 @@ urlpatterns = [
     path('', index, name='home'),
     path('catalogue/', include('catalogue.urls'), name='catalogue'),
     path('livestreams/', include('livestreams.urls'), name='livestreams'),
+    path('staff/', include('staff.urls'), name='staff'),
     path('admin/', admin.site.urls),
 ]
