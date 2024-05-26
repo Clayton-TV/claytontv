@@ -11,5 +11,5 @@ def index(request):
     })
 
 def create(request):
-    return render(request, 'Staff.Videos.Create')
+    return render(request, 'Staff/Create')
 
