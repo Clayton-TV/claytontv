@@ -84,6 +84,9 @@ Go to [http://localhost:8000](http://localhost:8000) and you should see the imag
 1. npm install error - Check you're in the right place - "cd" or do from VSCode
 2. python not found - check environment variables - add python to the path and restart
 3. commands need "pipenv run" prefix
+
+### Useful Tips
+1. On windows you can open cmd at a specific folder by navigating there and typing CMD in the location bar of the explorer window.
    
 ## Contributing
 
