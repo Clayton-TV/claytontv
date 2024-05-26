@@ -13,3 +13,9 @@ def index(request):
 def create(request):
     return render(request, 'Staff/Create')
 
+def update(request):
+    return render(request, 'Staff/Update')
+
+def delete(request):
+    return render(request, 'Staff/Delete')
+
