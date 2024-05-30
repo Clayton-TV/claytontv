@@ -1,6 +1,10 @@
 from django.db import models
 from django.urls import reverse # generate urls by reversing url pattern
 
+from .series import Series
+from .topic import Topic
+from .video import Video
+
 class Demographic(models.Model):
     """Model representing the demographic table, intended to allow easy segregation of the website for different user types."""
     name = models.CharField(max_length=200) # e.g. kids, searchers

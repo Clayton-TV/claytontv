@@ -1,6 +1,9 @@
 from django.db import models
 from django.urls import reverse # generate urls by reversing url pattern
 
+from .video import Video
+from .series import Series
+
 class Speaker(models.Model):
     """Model representing speakers"""
     name = models.CharField(max_length=200)
