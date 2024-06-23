@@ -85,7 +85,7 @@ BIBLE_BOOK_TYPES = (
 
 class Bible_Book(models.Model):
     """Model representing a channel that uploads videos"""
-    id = models.CharField(max_length=3)
+    order = models.CharField(max_length=3)
     name = models.CharField(max_length=4, choices=BIBLE_BOOKS, unique=True)
     summary = models.TextField(max_length=5000, null=True, blank=True)
     type = models.CharField(max_length=3, choices=BIBLE_BOOK_TYPES, unique=True)
@@ -99,4 +99,4 @@ class Bible_Book(models.Model):
         return reverse("channel-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ['name']
+        ordering = ['order']

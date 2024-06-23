@@ -1,9 +1,9 @@
 [x] bible_book 
-[x] channel
-[x] demographic
+[ ] channel
+[ ] demographic
 [x] label
-[x] ministry
-[x] series
+[ ] ministry
+[ ] series
 [x] speaker
-[x] topic (Categories are currently a string but could be a data type)
-[x] video
+[x] topic 
+[ ] video
