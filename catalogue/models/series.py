@@ -6,7 +6,7 @@ from django.urls import reverse # generate urls by reversing url pattern
 class Series(models.Model):
     """Model representing series"""
     name = models.CharField(max_length=200)
-    summary = models.TextField(max_length=100, null=True, blank=True)
+    summary = models.TextField(max_length=5000, null=True, blank=True)
     topic = models.ManyToManyField('Topic', null=True, blank=True)
     speaker = models.ManyToManyField('Speaker', null=True, blank=True)
     ministry = models.ManyToManyField('Ministry', null=True, blank=True)
