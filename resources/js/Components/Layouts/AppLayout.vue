@@ -1,12 +1,13 @@
 <script setup>
 import Navigation from './Navigation.vue'
+import Footer from './Footer.vue';
 </script>
 
 <template>
     <!-- Components and styles for all app pages -->
     <Navigation/>
     <slot />
-    <footer>Footer</footer>
+    <Footer/>
 </template>
 
 <style scoped>
