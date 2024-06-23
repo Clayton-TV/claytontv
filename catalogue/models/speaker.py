@@ -8,8 +8,8 @@ class Speaker(models.Model):
     """Model representing speakers"""
     name = models.CharField(max_length=200)
     bio = models.TextField(max_length=5000)
-    videos = models.ManyToManyField('Video',null=True,blank=True)
-    series = models.ManyToManyField('Series',null=True, blank=True)
+    videos = models.ManyToManyField(Video,null=True,blank=True)
+    series = models.ManyToManyField(Series,null=True, blank=True)
     thumbnail = models.CharField(max_length=200)
     
     def __str__(self):

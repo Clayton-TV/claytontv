@@ -5,7 +5,7 @@ class Label(models.Model):
     """Model representing a table for the admin labels to denote the video type and storage"""
     #ese are admin labels so strings are correct
     label_series = models.CharField(max_length=1000)
-    label_subseries = modeThls.CharField(max_length=1000)
+    label_subseries = models.CharField(max_length=1000)
     label_episode = models.CharField(max_length=1000)
     
     def __str__(self):

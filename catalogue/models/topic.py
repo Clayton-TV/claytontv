@@ -9,8 +9,8 @@ class Topic(models.Model):
     name = models.CharField(max_length=200, unique=True, help_text="Enter a topic or theme")
     summary = models.TextField(max_length=5000, help_text="Enter a brief summary of the topic")
     category = models.CharField(max_length=200, unique=True, help_text="Enter the categpry of he topic") #could be a many to many?
-    videos = models.ManyToManyField('Video', help_text="Select topics for this video")
-    series = models.ManyToManyField('Series', help_text="Select topics for this video")
+    videos = models.ManyToManyField(Video, help_text="Select topics for this video")
+    series = models.ManyToManyField(Series, help_text="Select topics for this video")
     #sub_topic needed, maybe a class inheriting from Topic? Eg. am/pm for services and bible books for 'bible teaching' topic?
 
     def __str__(self):
