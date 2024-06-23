@@ -1,0 +1,9 @@
+[x] bible_book 
+[ ] channel
+[ ] demographic
+[x] label
+[ ] ministry
+[ ] series
+[x] speaker
+[x] topic 
+[ ] video
