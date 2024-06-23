@@ -5,8 +5,11 @@ class Ministry(models.Model):
     """Model representing ministy types"""
     name = models.CharField(max_length=200)
     summary = models.TextField(max_length=100, null=True, blank=True)
-    topic = models.ManyToManyField(Topic)
-    
+    videos = models.ManyToManyField('Video', null=True, blank=True)
+    series = models.ManyToManyField('Series', null=True, blank=True)
+    channel = models.ManyToManyField('Channel', null=True, blank=True)
+    thumbnail = models.CharField(max_length=200)
+
     def __str__(self):
         """String for representing model object"""
         return self.name
