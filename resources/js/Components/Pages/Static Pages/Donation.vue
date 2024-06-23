@@ -12,6 +12,8 @@
   }
   ```
 -->
+
+<template>
 <H1>DONATE</H1>
 
 <H2>THANK YOU SO MUCH FOR SUPPORTING US</H2>
@@ -31,7 +33,8 @@ Please email enquiries@clayton.tv let us know
 
 Clayton TV is a ministry of the Jesmond Trust, registered charity 1193725. All donations are administered by the Jesmond Trust and online donations are processed through CAF.</p>
   
-  <script setup>
-  import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
+</template>
+<script setup>
+import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 
-  </script>
+</script>

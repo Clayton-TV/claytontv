@@ -12,6 +12,8 @@
   }
   ```
 -->
+
+<template>
 <H1>CONTACT US</H1> 
 
 <p>You can write to us at:
@@ -26,7 +28,8 @@ Alternatively, please email us: enquiries@clayton.tv
 </p>
 
   
-  <script setup>
-  import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
+</template>
+<script setup>
+import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 
-  </script>
+</script>

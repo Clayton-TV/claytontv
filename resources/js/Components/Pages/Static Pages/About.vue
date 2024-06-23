@@ -12,6 +12,8 @@
   }
   ```
 -->
+
+<template>
 <H1>ABOUT</H1>
 <p>Clayton TV - broadcasting excellent, free, Bible teaching, music and courses for Christians around the world. New programmes and live content weekly.
 
@@ -31,7 +33,8 @@ For more information about our privacy practices please click here.
 </p>
 
 
-  <script setup>
-  import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
+</template>
+<script setup>
+import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 
-  </script>
+</script>
