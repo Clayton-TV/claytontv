@@ -24,5 +24,6 @@ urlpatterns = [
     path('catalogue/', include('catalogue.urls'), name='catalogue'),
     path('livestreams/', include('livestreams.urls'), name='livestreams'),
     path('staff/', include('staff.urls'), name='staff'),
+    path('', include('static.urls'), name='static'),
     path('admin/', admin.site.urls),
 ]
