@@ -14,3 +14,6 @@ def update(request):
 def delete(request):
     return render(request, 'Staff/Delete')
 
+def embedtestyt(request):
+    return render(request, 'Staff/EmbedTestYT')
+
