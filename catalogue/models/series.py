@@ -10,7 +10,7 @@ from .bible_book import Bible_Book
 
 class Series(models.Model):
     """Model representing series"""
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, help_text="The name of the series.")
     summary = models.TextField(max_length=5000, null=True, blank=True)
     topic = models.ManyToManyField('Topic', null=True, blank=True, related_name='+')
     speaker = models.ManyToManyField('Speaker', null=True, blank=True, related_name='+')

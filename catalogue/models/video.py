@@ -16,23 +16,23 @@ from .label import Label
 class Video(models.Model): 
     """Model representing the database table for videos,
     where each table entry is an individual video"""
-    demographic = models.ManyToManyField('Demographic', null=True, blank=True)
-    url = models.URLField(unique=True)
-    id_number = models.CharField(max_length=100,unique=True)
-    labels = models.ForeignKey(Label,null=True, blank=True, on_delete=models.RESTRICT)
-    ministry = models.ManyToManyField('Ministry', null=True, blank=True)
-    series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True)
-    number_in_series = models.IntegerField(help_text="If part of a series provide the number in the series", null=True, blank=True)
-    name = models.CharField(max_length=200) # check max title length on popular upload sites
-    description = models.TextField(max_length=5000, help_text="Enter a brief description of the video")
-    speaker = models.ManyToManyField('Speaker', null=True, blank=True)
-    bible_book = models.ManyToManyField(Bible_Book, null=True, blank=True)
-    date_recorded = models.DateField(null=True, blank=True)
-    date_created = models.DateField()
-    date_modified = models.DateField(null=True, blank=True)
-    is_livestream = models.BooleanField(default=False)
-    channel = models.ForeignKey('Channel',on_delete=models.RESTRICT, null=True)
-    topic = models.ManyToManyField('Topic', help_text="Select topics for this video")
+    demographic = models.ManyToManyField('Demographic', null=True, blank=True , help_text="The video's demographic.")
+    url = models.URLField(unique=True, help_text="A link to where the video is hosted.")
+    id_number = models.CharField(max_length=100,unique=True, help_text="A unique video identifier generated e.g.YT1234")
+    labels = models.ForeignKey(Label,null=True, blank=True, on_delete=models.RESTRICT, help_text="Labels for internal admin use.")
+    ministry = models.ManyToManyField('Ministry', null=True, blank=True, help_text="The ministries associated with the video.")
+    series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True, help_text="The series the video is part of.")
+    number_in_series = models.IntegerField(help_text="If part of a series provide the number in the series.", null=True, blank=True)
+    name = models.CharField(max_length=200,help_text="The title of the video.") # check max title length on popular upload sites ->>> Youtube 100 characters, Vimeo 128.
+    description = models.TextField(max_length=5000, help_text="Enter a brief description of the video <5000 chars.")
+    speaker = models.ManyToManyField('Speaker', null=True, blank=True, help_text="The speakers in the video.")
+    bible_book = models.ManyToManyField(Bible_Book, null=True, blank=True,help_text="The bible books covered in the video.")
+    date_recorded = models.DateField(null=True, blank=True,help_text="The date the video was recorded.")
+    date_created = models.DateField(help_text="The date a video is uploaded.")
+    date_modified = models.DateField(null=True, blank=True, help_text=" The last time the video data was edited.")
+    is_livestream = models.BooleanField(default=False, help_text="Whether the video was a live stream.")
+    channel = models.ForeignKey('Channel',on_delete=models.RESTRICT, null=True, help_text="The channel for the video.")
+    topic = models.ManyToManyField('Topic', help_text="Select topics for this video.")
 
     
     class Meta:
