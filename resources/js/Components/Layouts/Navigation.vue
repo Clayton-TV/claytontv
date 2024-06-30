@@ -50,7 +50,7 @@
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Marketplace</a>
           <a href="#" class="text-sm font-semibold leading-6 text-gray-900">Company</a>
 
-          
+ <!-- Search Box -->         
 <form class="max-w-md mx-auto">   
     <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
     <div class="relative">
