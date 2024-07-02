@@ -38,3 +38,4 @@ Alternatively, please email us: enquiries@clayton.tv
 import { PhotoIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 
 </script>
+
