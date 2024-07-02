@@ -22,6 +22,7 @@ from .views import index
 urlpatterns = [
     path('', index, name='home'),
     path('about/', include('about.urls'), name='about'),
+    path('getinvolved/', include('getinvolved.urls'), name='getinvolved'),
     path('catalogue/', include('catalogue.urls'), name='catalogue'),
     path('livestreams/', include('livestreams.urls'), name='livestreams'),
     path('staff/', include('staff.urls'), name='staff'),
