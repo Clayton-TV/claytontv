@@ -16,7 +16,21 @@ def index(request):
         108: ('Galatians 6:1-18 - Living in the Light of the Cross - Jesmond Parish - Sermon ', "24 March '24 Ian Garrett - Don’t evaluate your Christian life by comparing yourself with your Christian neighbour"),
     }
 
+    # Get value of a HTTP request parameter ?sort=xyz
+    sort_mode = request.GET.get("sort")
+
+    # Use a lambda to sort based on a specific field from the dictionary
+    # The sorted() function passes the lambda a dictionary key,
+    # it looks up that key and returns one of the fields attached to it
+    if sort_mode == "title" :
+        video_list_sorted = [video_info[i] for i in sorted(video_info, key=lambda i: video_info[i][0])]
+    elif sort_mode == "summary" :
+        video_list_sorted = [video_info[i] for i in sorted(video_info, key=lambda i: video_info[i][1])]
+    else : # Unsorted
+        video_list_sorted = [video_info[i] for i in video_info.keys()]
+
     return render(request, 'Welcome', {
         'djangoVersion': django_version,
-        'videoInfo': video_info,
+        'videoInfo': video_list_sorted,
+        'sortMode': sort_mode,
     })

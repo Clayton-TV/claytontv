@@ -19,6 +19,7 @@ defineOptions({
 defineProps({
     djangoVersion: String,
     videoInfo: Array,
+    sortMode: String,
 })
 
 const navigation = [
@@ -268,9 +269,21 @@ const mobileMenuOpen = ref(false)
                             <p class="mt-6 text-lg leading-8 text-gray-600">
                                 Powered by Django {{ djangoVersion }}
                             </p>
-                            <p>
-                                Some video info {{ videoInfo }}
+
+
+                            <form action="/" id="sortForm">
+                            <select name="sort" id="sort" onchange="document.getElementById('sortForm').submit()" >
+                                <option value="">No sorting</option>
+                                <option value="title">Title</option>
+                                <option value="summary">Summary</option>
+                            </select>
+                            <input type="submit"/>
+                            </form>
+                            <p style="font-family: monospace">
+                                Sorted video info by "{{ sortMode }}": {{ videoInfo }}
                             </p>
+
+
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6">
                                 <a
