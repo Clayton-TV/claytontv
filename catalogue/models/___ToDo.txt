@@ -2,8 +2,8 @@
 [ ] channel
 [ ] demographic
 [x] label
-[ ] ministry
+[x] ministry
 [ ] series
-[x] speaker
+[ ] speaker
 [x] topic 
-[ ] video
+[x] video

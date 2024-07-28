@@ -85,10 +85,10 @@ BIBLE_BOOK_TYPES = (
 
 class Bible_Book(models.Model):
     """Model representing a channel that uploads videos"""
-    order = models.CharField(max_length=3)
-    name = models.CharField(max_length=4, choices=BIBLE_BOOKS, unique=True)
-    summary = models.TextField(max_length=5000, null=True, blank=True)
-    type = models.CharField(max_length=3, choices=BIBLE_BOOK_TYPES, unique=True)
+    order = models.CharField(max_length=3,help_text="Integer used to sort books into order.")
+    name = models.CharField(max_length=4, choices=BIBLE_BOOKS, unique=True, help_text="Three or four letter code related to each bible book.")
+    summary = models.TextField(max_length=5000, null=True, blank=True, help_text="Summary of book of the bible.")
+    type = models.CharField(max_length=3, choices=BIBLE_BOOK_TYPES, unique=True, help_text="Three letter code related to the type of book, e.g. Law, History, Poetry, Prophecy, Gospel, Epistle, Apocalyptica.")
 
     def __str__(self):
         """String for representing channel object"""

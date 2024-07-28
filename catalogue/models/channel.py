@@ -14,14 +14,14 @@ CHANNEL_TYPE = (
 
 class Channel(models.Model):
     """Model representing a channel that uploads videos"""
-    name = models.CharField(max_length=200)
-    summary = models.TextField(max_length=1000, null=True, blank=True)
-    type = models.CharField(max_length=200)
-    channel_url = models.URLField(unique=True)
-    trusted = models.BooleanField()
-    ministry = models.ManyToManyField('Ministry', null=True, blank=True, related_name='+')
-    videos = models.ManyToManyField('Video', null=True, blank=True, related_name='+')
-    series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True, related_name='+')
+    name = models.CharField(max_length=200, help_text="The channel name.")
+    summary = models.TextField(max_length=5000, null=True, blank=True , help_text="The summary of the channel")
+    type = models.CharField(max_length=200, help_text="The channel type.")
+    channel_url = models.URLField(unique=True, help_text="The channel url.")
+    trusted = models.BooleanField(help_text="Whether the channel is trusted.")
+    ministry = models.ManyToManyField('Ministry', null=True, blank=True, related_name='+', help_text="The ministries related to the channel.")
+    videos = models.ManyToManyField('Video', null=True, blank=True, related_name='+', help_text="The videos related to the channel.")
+    series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True, related_name='+',help_text="The series related to the channel.")
 
     def __str__(self):
         """String for representing channel object"""

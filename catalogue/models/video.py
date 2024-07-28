@@ -23,7 +23,7 @@ class Video(models.Model):
     ministry = models.ManyToManyField('Ministry', null=True, blank=True, help_text="The ministries associated with the video.")
     series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True, help_text="The series the video is part of.")
     number_in_series = models.IntegerField(help_text="If part of a series provide the number in the series.", null=True, blank=True)
-    name = models.CharField(max_length=200,help_text="The title of the video.") # check max title length on popular upload sites ->>> Youtube 100 characters, Vimeo 128.
+    title = models.CharField(max_length=200,help_text="The title of the video.") # check max title length on popular upload sites ->>> Youtube 100 characters, Vimeo 128.
     description = models.TextField(max_length=5000, help_text="Enter a brief description of the video <5000 chars.")
     speaker = models.ManyToManyField('Speaker', null=True, blank=True, help_text="The speakers in the video.")
     bible_book = models.ManyToManyField(Bible_Book, null=True, blank=True,help_text="The bible books covered in the video.")
