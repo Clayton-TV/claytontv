@@ -11,6 +11,7 @@ import {
     XMarkIcon,
 } from "@heroicons/vue/24/outline"
 import { CheckIcon } from "@heroicons/vue/20/solid"
+import VideoCardList from "@/Organisms/VideoCardList.vue"
 
 defineOptions({
     layout: null,
@@ -18,6 +19,9 @@ defineOptions({
 
 defineProps({
     djangoVersion: String,
+    videos: {
+        type: Array,
+    },
 })
 
 const navigation = [
@@ -322,6 +326,8 @@ const mobileMenuOpen = ref(false)
                         " />
                 </div>
             </div>
+
+            <VideoCardList videos="{{ videos }}" />
 
             <!-- Logo cloud -->
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
