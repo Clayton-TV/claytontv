@@ -5,7 +5,7 @@ from inertia import render
 def index(request):
     django_version = django.get_version()
 
-    video_info = {
+    videos = {
         101: ('Galatians 1:1-23 - No Other Gospel - Jesmond Parish - Sermon', "7 Jan '24 Jonathan Pryke - The gospel rescues us from the curse. If we teach a distorted gospel that destroys the blessing of the gospel"),
         102: ('Galatians 2:1-14 - Paul: An Apostle - Jesmond Parish - Sermon', "14 Jan '24 Jonathan Pryke - What's your spiritual history? Jonathan explores Paul's apostolic authority through the lens of his persecution of the church"),
         103: ('Galatians 2:15-21 - Is Jesus Enough? - Jesmond Parish - Sermon', "21 Jan '24 Ian Garrett - Galatians is a 'spiritual vaccine' to protect you from those who tell you that Jesus isn't enough. Ian Garrett explores a situation where this was happening in the early church"),
@@ -18,5 +18,5 @@ def index(request):
 
     return render(request, 'Welcome', {
         'djangoVersion': django_version,
-        'videoInfo': video_info,
+        'videos': videos,
     })
