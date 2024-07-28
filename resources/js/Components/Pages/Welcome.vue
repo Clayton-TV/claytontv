@@ -327,7 +327,7 @@ const mobileMenuOpen = ref(false)
                 </div>
             </div>
 
-            <VideoCardList videos="{{ videos }}" />
+            <VideoCardList :videos="videos" />
 
             <!-- Logo cloud -->
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
