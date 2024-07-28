@@ -6,11 +6,11 @@ from django.urls import reverse # generate urls by reversing url pattern
 
 class Speaker(models.Model):
     """Model representing speakers"""
-    name = models.CharField(max_length=200)
-    bio = models.TextField(max_length=5000)
-    videos = models.ManyToManyField('Video',null=True,blank=True,related_name='+')
-    series = models.ManyToManyField('Series',null=True, blank=True,related_name='+')
-    thumbnail = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, help_text= 'The name of the speaker.')
+    bio = models.TextField(max_length=5000, help_text = 'The biography of the speaker.')
+    videos = models.ManyToManyField('Video',null=True,blank=True,related_name='+', help_text= "The videos related to video.")
+    series = models.ManyToManyField('Series',null=True, blank=True,related_name='+', help_text= "The videos related to series.")
+    thumbnail = models.CharField(max_length=200, help_text= "The thumbnail for the speaker.")
     
     def __str__(self):
         """String for representing model object"""

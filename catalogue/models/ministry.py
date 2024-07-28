@@ -8,12 +8,12 @@ from django.urls import reverse # generate urls by reversing url pattern
 
 class Ministry(models.Model):
     """Model representing ministy types"""
-    name = models.CharField(max_length=200)
-    summary = models.TextField(max_length=5000, null=True, blank=True)
-    videos = models.ManyToManyField('Video', null=True, blank=True,related_name='+')
-    series = models.ManyToManyField('Series', null=True, blank=True,related_name='+')
-    channel = models.ManyToManyField('Channel', null=True, blank=True,related_name='+')
-    thumbnail = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, help_text="The ministry's name.")
+    summary = models.TextField(max_length=5000, null=True, blank=True , help_text="A brief summary of the ministry.")
+    videos = models.ManyToManyField('Video', null=True, blank=True,related_name='+', help_text="The videos associated with ministry.")
+    series = models.ManyToManyField('Series', null=True, blank=True,related_name='+', help_text="The series associated with minsitry.")
+    channel = models.ManyToManyField('Channel', null=True, blank=True,related_name='+', help_text="The channels associated with minsitry.")
+    thumbnail = models.CharField(max_length=200, help_text="The thumbnail for the ministry area.")
 
     def __str__(self):
         """String for representing model object"""
