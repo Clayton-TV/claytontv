@@ -11,13 +11,16 @@ import {
     XMarkIcon,
 } from "@heroicons/vue/24/outline"
 import { CheckIcon } from "@heroicons/vue/20/solid"
+import VideoCardList from "@/Organisms/VideoCardList.vue"
 
 defineOptions({
     layout: null,
 })
 
 defineProps({
-    djangoVersion: String,
+    videos: {
+        type: Array,
+    },
 })
 
 const navigation = [
@@ -264,9 +267,6 @@ const mobileMenuOpen = ref(false)
                                 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
                                 Clayton TV
                             </h1>
-                            <p class="mt-6 text-lg leading-8 text-gray-600">
-                                Powered by Django {{ djangoVersion }}
-                            </p>
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6">
                                 <a
@@ -322,6 +322,8 @@ const mobileMenuOpen = ref(false)
                         " />
                 </div>
             </div>
+
+            <VideoCardList :videos="videos" />
 
             <!-- Logo cloud -->
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
