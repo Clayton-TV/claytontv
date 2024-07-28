@@ -18,6 +18,7 @@ defineOptions({
 
 defineProps({
     djangoVersion: String,
+    videoInfo: Array,
 })
 
 const navigation = [
@@ -266,6 +267,9 @@ const mobileMenuOpen = ref(false)
                             </h1>
                             <p class="mt-6 text-lg leading-8 text-gray-600">
                                 Powered by Django {{ djangoVersion }}
+                            </p>
+                            <p>
+                                Some video info {{ videoInfo }}
                             </p>
                             <div
                                 class="mt-10 flex items-center justify-center gap-x-6">
