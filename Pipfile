@@ -6,11 +6,11 @@ name = "pypi"
 [packages]
 django = "*"
 django-vite = "*"
-django-seed = "*"
 inertia-django = "*"
 psycopg2-binary = "*"
 
 [dev-packages]
+django-seed = "*"
 
 [requires]
 python_version = "3.12"
