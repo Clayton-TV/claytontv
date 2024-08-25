@@ -1,8 +1,7 @@
 from django.db import models
-from django.urls import reverse # generate urls by reversing url pattern
+from django.urls import reverse  # generate urls by reversing url pattern
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
-
 
 BIBLE_BOOKS = (
     ('GEN', 'Genesis'),
@@ -33,7 +32,7 @@ BIBLE_BOOKS = (
     ('EZE', 'Ezekiel'),
     ('DAN', 'Daniel'),
     ('HOS', 'Hosea'),
-    ('JOEL', 'Joel'),
+    ('JOE', 'Joel'),
     ('AMO', 'Amos'),
     ('OBA', 'Obadiah'),
     ('JON', 'Jonah'),
@@ -42,12 +41,12 @@ BIBLE_BOOKS = (
     ('HAB', 'Habakkuk'),
     ('ZEP', 'Zephaniah'),
     ('HAG', 'Haggai'),
-    ('ZECH', 'Zechariah'),
+    ('ZEC', 'Zechariah'),
     ('MAL', 'Malachi'),
     ('MAT', 'Matthew'),
     ('MAR', 'Mark'),
-    ('LUKE', 'Luke'),
-    ('JOHN', 'John'),
+    ('LUK', 'Luke'),
+    ('JOH', 'John'),
     ('ACT', 'Acts'),
     ('ROM', 'Romans'),
     ('1CO', '1 Corinthians'),
@@ -83,12 +82,30 @@ BIBLE_BOOK_TYPES = (
     ('APO', 'Apocalyptic')
 )
 
+
 class Bible_Book(models.Model):
     """Model representing a channel that uploads videos"""
-    order = models.CharField(max_length=3,help_text="Integer used to sort books into order.")
-    name = models.CharField(max_length=4, choices=BIBLE_BOOKS, unique=True, help_text="Three or four letter code related to each bible book.")
-    summary = models.TextField(max_length=5000, null=True, blank=True, help_text="Summary of book of the bible.")
-    type = models.CharField(max_length=3, choices=BIBLE_BOOK_TYPES, unique=True, help_text="Three letter code related to the type of book, e.g. Law, History, Poetry, Prophecy, Gospel, Epistle, Apocalyptica.")
+    order = models.CharField(
+        max_length=3,
+        help_text="Integer used to sort books into order."
+    )
+    name = models.CharField(
+        max_length=4,
+        choices=BIBLE_BOOKS,
+        unique=True,
+        help_text="Three letter code related to each bible book."
+    )
+    summary = models.TextField(
+        max_length=5000,
+        null=True,
+        blank=True,
+        help_text="Summary of book of the bible."
+    )
+    type = models.CharField(
+        max_length=3,
+        choices=BIBLE_BOOK_TYPES,
+        help_text="Three letter code related to the type of book, e.g. Law, History, Poetry etc."
+    )
 
     def __str__(self):
         """String for representing channel object"""
