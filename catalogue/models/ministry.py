@@ -21,21 +21,18 @@ class Ministry(models.Model):
     )
     videos = models.ManyToManyField(
         'Video',
-        null=True,
         blank=True,
         related_name='+',
         help_text="The videos associated with ministry."
     )
     series = models.ManyToManyField(
         'Series',
-        null=True,
         blank=True,
         related_name='+',
         help_text="The series associated with minsitry."
     )
     channel = models.ManyToManyField(
         'Channel',
-        null=True,
         blank=True,
         related_name='+',
         help_text="The channels associated with minsitry."
