@@ -4,9 +4,14 @@ from catalogue.models.bible_book import Bible_Book
 
 
 class Command(BaseCommand):
-    def Importer(self):
+    help = "Imports data from a CSV"
+
+    def add_arguments(self, parser):
+        parser.add_argument()
+
+    def handle(self,*args, **options ):
         Bible_CSV_Path = 'CSV/Bible Books.csv'
-        with open(bible_path, 'r') as file:
+        with open(Bible_CSV_Path, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 Bible_Book.objects.create(

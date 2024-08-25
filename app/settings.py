@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'catalogue.apps.CatalogueConfig',
     'livestreams.apps.LivestreamsConfig',
     'django_seed',
-  
+
 
 ]
 
