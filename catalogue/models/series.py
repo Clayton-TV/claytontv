@@ -11,14 +11,14 @@ from catalogue.models.bible_book import Bible_Book
 class Series(models.Model):
     """Moel representing series"""
     name = models.CharField(max_length=200, help_text="The name of the series.")
-    summary = models.TextField(max_length=5000, null=True, blank=True, help_text= 'The summary/description of the series.')
-    topic = models.ManyToManyField('Topic', null=True, blank=True, related_name='+', help_text= 'The topic related to the series.')
-    speaker = models.ManyToManyField('Speaker', null=True, blank=True, related_name='+', help_text= 'The speaker related to the series.')
-    ministry = models.ManyToManyField('Ministry', null=True, blank=True, related_name='+', help_text= 'The ministry related to the series.')
-    videos = models.ManyToManyField('Video', null=True, blank=True, related_name='+', help_text= 'The videos related to the series.')
-    bible_book = models.ManyToManyField(Bible_Book, null=True, blank=True, help_text= 'The Bible books related to the series.')
-    year_start = models.CharField(max_length=100, help_text= 'The year the series started.')
-    year_end = models.CharField(max_length=100, help_text= 'The year the series ended.')
+    summary = models.TextField(max_length=5000, null=True, blank=True, help_text='The summary/description of the series.')
+    topic = models.ManyToManyField('Topic', blank=True, related_name='+', help_text='The topic related to the series.')
+    speaker = models.ManyToManyField('Speaker', blank=True, related_name='+', help_text='The speaker related to the series.')
+    ministry = models.ManyToManyField('Ministry', blank=True, related_name='+', help_text='The ministry related to the series.')
+    videos = models.ManyToManyField('Video', blank=True, related_name='+', help_text='The videos related to the series.')
+    bible_book = models.ManyToManyField(Bible_Book, blank=True, help_text='The Bible books related to the series.')
+    year_start = models.CharField(max_length=100, help_text='The year the series started.')
+    year_end = models.CharField(max_length=100, help_text='The year the series ended.')
 
     def __str__(self):
         """String for representing model object"""

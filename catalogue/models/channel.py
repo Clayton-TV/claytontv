@@ -19,8 +19,8 @@ class Channel(models.Model):
     type = models.CharField(max_length=200, help_text="The channel type.")
     channel_url = models.URLField(unique=True, help_text="The channel url.")
     trusted = models.BooleanField(help_text="Whether the channel is trusted.")
-    ministry = models.ManyToManyField('Ministry', null=True, blank=True, related_name='+', help_text="The ministries related to the channel.")
-    videos = models.ManyToManyField('Video', null=True, blank=True, related_name='+', help_text="The videos related to the channel.")
+    ministry = models.ManyToManyField('Ministry', blank=True, related_name='+', help_text="The ministries related to the channel.")
+    videos = models.ManyToManyField('Video', blank=True, related_name='+', help_text="The videos related to the channel.")
     series = models.ForeignKey('Series', on_delete=models.RESTRICT, null=True, blank=True, related_name='+',help_text="The series related to the channel.")
 
     def __str__(self):
