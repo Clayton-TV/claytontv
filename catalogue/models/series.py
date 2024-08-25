@@ -4,12 +4,12 @@ from django.urls import reverse # generate urls by reversing url pattern
 #from .speaker import Speaker
 #from .ministry import Ministry
 #from .video import Video
-from .bible_book import Bible_Book
+from catalogue.models.bible_book import Bible_Book
 
 
 
 class Series(models.Model):
-    """Model representing series"""
+    """Moel representing series"""
     name = models.CharField(max_length=200, help_text="The name of the series.")
     summary = models.TextField(max_length=5000, null=True, blank=True, help_text= 'The summary/description of the series.')
     topic = models.ManyToManyField('Topic', null=True, blank=True, related_name='+', help_text= 'The topic related to the series.')

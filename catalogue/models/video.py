@@ -6,10 +6,10 @@ from django.urls import reverse # generate urls by reversing url pattern
 from .topic import Topic
 #from .series import Series
 #from .speaker import Speaker
-from .bible_book import Bible_Book
+from catalogue.models.bible_book import Bible_Book
 #from .ministry import Ministry
 #from .demograpic import Demographic
-from .label import Label
+from catalogue.models.label import Label
 
 
 # Now the actual class definition for the model (database table):

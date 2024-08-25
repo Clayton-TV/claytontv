@@ -1,7 +1,3 @@
-import os
-import sys
-import django
-from django.urls import reverse  # generate urls by reversing url pattern
 import csv
 from catalogue.models.bible_book import Bible_Book
 
@@ -20,5 +16,4 @@ def import_bible(bible_path):
 
 if __name__ == '__main__':
     Bible_CSV_Path = 'CSV/Bible Books.csv'
-    django.setup()
     import_bible(Bible_CSV_Path)
