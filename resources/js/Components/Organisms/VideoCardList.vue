@@ -7,10 +7,15 @@ defineProps({
 })
 
 const videoThumbnail = (vid) => {
-    var urlParts = vid.url.split("/");
-    if (urlParts[2] == "www.youtube.com") { // If youtube URL
+    var urlParts = vid.url.split("/")
+    if (urlParts[2] == "www.youtube.com") {
+        // If youtube URL
         // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
-        return "https://i.ytimg.com/vi/" + urlParts[3].split("=")[1] + "/hqdefault.jpg"
+        return (
+            "https://i.ytimg.com/vi/" +
+            urlParts[3].split("=")[1] +
+            "/hqdefault.jpg"
+        )
     } else {
         return "https://via.placeholder.com/1080x640"
     }
@@ -35,13 +40,13 @@ const videoThumbnail = (vid) => {
                             class="absolute inset-0 focus:outline-none"
                             type="button">
                             <span class="sr-only">
-                                View details for {{ video.title }}
+                                View details for {{ video.name }}
                             </span>
                         </button>
                     </div>
                     <p
                         class="pointer-events-none mt-2 block truncate text-xl font-semibold text-gray-800">
-                        {{ video.title }}
+                        {{ video.name }}
                     </p>
                     <p
                         class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500">
@@ -50,11 +55,13 @@ const videoThumbnail = (vid) => {
                     <div class="flex gap-x-2">
                         <span
                             class="pointer-events-none text-xs font-normal text-gray-400"
-                            >{{ "Speaker Name" }}</span
+                            >{{
+                                video.speaker?.[0]?.name ?? "Speaker Name"
+                            }}</span
                         >
                         <span
                             class="pointer-events-none text-xs font-normal text-gray-400"
-                            >{{ video.date ?? "01/01/01" }}</span
+                            >{{ video.date_created ?? "01/01/01" }}</span
                         >
                         <span
                             class="pointer-events-none text-xs font-normal text-gray-400"
