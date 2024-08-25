@@ -6,8 +6,14 @@ defineProps({
     },
 })
 
-const videoSource = (source) => {
-    return source || "https://via.placeholder.com/1080x640"
+const videoThumbnail = (vid) => {
+    var urlParts = vid.url.split("/");
+    if (urlParts[2] == "www.youtube.com") { // If youtube URL
+        // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
+        return "https://i.ytimg.com/vi/" + urlParts[3].split("=")[1] + "/hqdefault.jpg"
+    } else {
+        return "https://via.placeholder.com/1080x640"
+    }
 }
 </script>
 
@@ -22,7 +28,7 @@ const videoSource = (source) => {
                     <div
                         class="aspect-h-7 aspect-w-10 focus-within:ring-indigo-500 group block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
                         <img
-                            :src="videoSource(video.source)"
+                            :src="videoThumbnail(video)"
                             alt=""
                             class="pointer-events-none object-cover group-hover:opacity-75" />
                         <button
