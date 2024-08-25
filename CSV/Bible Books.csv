@@ -1,0 +1,67 @@
+﻿order,name,summary,type
+1,Genesis,,Law
+2,Exodus,,Law
+3,Leviticus,,Law
+4,Numbers,,Law
+5,Deuteronomy,,Law
+6,Joshua,,History
+7,Judges,,History
+8,Ruth,,History
+9,1 Samuel,,History
+10,2 Samuel,,History
+11,1 Kings,,History
+12,2 Kings,,History
+13,1 Chronicles,,History
+14,2 Chronicles,,History
+15,Ezra,,History
+16,Nehemiah,,History
+17,Esther,,History
+18,Job,,Poetry
+19,Psalms,,Poetry
+20,Proverbs,,Poetry
+21,Ecclesiastes,,Poetry
+22,Song of Solomon,,Prophecy
+23,Isaiah,,Prophecy
+24,Jeremiah,,Prophecy
+25,Lamentations,,Prophecy
+26,Ezekiel,,Prophecy
+27,Daniel,,Prophecy
+28,Hosea,,Prophecy
+29,Joel,,Prophecy
+30,Amos,,Prophecy
+31,Obadiah,,Prophecy
+32,Jonah,,Prophecy
+33,Micah,,Prophecy
+34,Nahum,,Prophecy
+35,Habakkuk,,Prophecy
+36,Zephaniah,,Prophecy
+37,Haggai,,Prophecy
+38,Zechariah,,Prophecy
+39,Malachi,,Prophecy
+40,Matthew,,Gospel
+41,Mark,,Gospel
+42,Luke,,Gospel
+43,John,,Gospel
+44,Acts,,Epistle
+45,Romans,,Epistle
+46,1 Corinthians,,Epistle
+47,2 Corinthians,,Epistle
+48,Galatians,,Epistle
+49,Ephesians,,Epistle
+50,Philippians,,Epistle
+51,Colossians,,Epistle
+52,1 Thessalonians,,Epistle
+53,2 Thessalonians,,Epistle
+54,1 Timothy,,Epistle
+55,2 Timothy,,Epistle
+56,Titus,,Epistle
+57,Philemon,,Epistle
+58,Hebrews,,Epistle
+59,James,,Epistle
+60,1 Peter,,Epistle
+61,2 Peter,,Epistle
+62,1 John,,Epistle
+63,2 John,,Epistle
+64,3 John,,Epistle
+65,Jude,,Epistle
+66,Revelation,,Apocalyptic
