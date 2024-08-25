@@ -92,6 +92,7 @@ class Bible_Book(models.Model):
     name = models.CharField(
         max_length=4,
         choices=BIBLE_BOOKS,
+        unique=True,
         help_text="Three letter code related to each bible book."
     )
     summary = models.TextField(
