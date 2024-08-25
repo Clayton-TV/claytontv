@@ -9,7 +9,7 @@ defineProps({
 const videoThumbnail = (videoUrl) => {
     const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const youtubeId = videoUrl.match(youtubeRegex)?.[2];
-    if (youtubeId?.length == 11) {
+    if (youtubeId) {
         // If youtube URL
         // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
         return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
