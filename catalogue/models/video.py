@@ -18,14 +18,14 @@ class Video(models.Model):
     where each table entry is an individual video"""
     id_number = models.CharField(max_length=100,unique=True, help_text="A unique video identifier generated e.g.YT1234")
 
-    bible_book = models.ManyToManyField(Bible_Book, null=True, blank=True,help_text="The bible books covered in the video.")
-    demographic = models.ManyToManyField('Demographic', null=True, blank=True , help_text="The video's demographic.")
+    bible_book = models.ManyToManyField(Bible_Book, blank=True,help_text="The bible books covered in the video.")
+    demographic = models.ManyToManyField('Demographic', blank=True , help_text="The video's demographic.")
     description = models.TextField(max_length=5000, help_text="Enter a brief description of the video <5000 chars.")
     url = models.URLField(unique=True, help_text="A link to where the video is hosted.")
-    ministry = models.ManyToManyField('Ministry', null=True, blank=True, help_text="The ministries associated with the video.")
+    ministry = models.ManyToManyField('Ministry', blank=True, help_text="The ministries associated with the video.")
     number_in_series = models.IntegerField(help_text="If part of a series provide the number in the series.", null=True, blank=True)
     name = models.CharField(max_length=200,help_text="The title of the video.") # check max title length on popular upload sites ->>> Youtube 100 characters, Vimeo 128.
-    speaker = models.ManyToManyField('Speaker', null=True, blank=True, help_text="The speakers/artist in the video.")
+    speaker = models.ManyToManyField('Speaker', blank=True, help_text="The speakers/artist in the video.")
     is_livestream = models.BooleanField(default=False, help_text="Whether the video was a live stream.")
     topic = models.ManyToManyField('Topic', help_text="Select topics for this video.")
    
