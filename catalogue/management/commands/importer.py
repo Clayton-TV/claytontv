@@ -20,7 +20,7 @@ class Command(BaseCommand):
         if Debug:
             print("The command ran and:") # Debug Text
         Bible_Book.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
-        with open(filepath, 'r') as file: # Opens the file path at "filepath" readonly as the variable "file".
+        with open(filepath, 'r', encoding='utf-8-sig') as file: # Opens the file path at "filepath" readonly as the variable "file".
             reader = csv.DictReader(file) #opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
             for row in reader: # cycles through the row of the dictionary previously created.
                 if Debug: # Debug Text
