@@ -10,7 +10,7 @@ BIBLE_BOOKS = (
     ('NUM', 'Numbers'),
     ('DEU', 'Deuteronomy'),
     ('JOS', 'Joshua'),
-    ('JUD', 'Judges'),
+    ('JUG', 'Judges'),
     ('RUT', 'Ruth'),
     ('1SA', '1 Samuel'),
     ('2SA', '2 Samuel'),
