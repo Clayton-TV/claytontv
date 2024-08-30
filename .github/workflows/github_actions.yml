@@ -24,7 +24,9 @@ jobs:
       run: python3.12 -m pip install pipenv
       
     - name: Install Python dependencies
-      run: pipenv install --dev
+      run: | 
+        pipenv install --dev
+        pipenv install pytest-django
 
     - name: Install Node.js dependencies
       run: npm install
