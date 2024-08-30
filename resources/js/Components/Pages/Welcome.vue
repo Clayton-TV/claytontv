@@ -21,6 +21,23 @@ defineProps({
     videos: {
         type: Array,
     },
+    pagingMetadata: {
+        nextPage: {
+            type: Number,
+        },
+        pageNumber: {
+            type: Number,
+        },
+        pageCount: {
+            type: Number,
+        },
+        pageLimit: {
+            type: Number,
+        },
+        totalCount: {
+            type: Number,
+        }
+    }
 })
 
 const navigation = [
@@ -323,7 +340,7 @@ const mobileMenuOpen = ref(false)
                 </div>
             </div>
 
-            <VideoCardList :videos="videos" />
+            <VideoCardList :videos="videos" :pagingMetadata="pagingMetadata" />
 
             <!-- Logo cloud -->
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
