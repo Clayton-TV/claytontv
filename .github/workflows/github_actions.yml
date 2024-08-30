@@ -24,7 +24,7 @@ jobs:
       run: python3.12 -m pip install pipenv
       
     - name: Install Python dependencies
-      run: pipenv install
+      run: pipenv install --dev
 
     - name: Install Node.js dependencies
       run: npm install
