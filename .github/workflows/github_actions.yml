@@ -5,7 +5,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: checkout code
       uses: actions/checkout@v4
@@ -31,6 +31,9 @@ jobs:
 
     - name: Run migrations
       run: pipenv run python manage.py migrate
+
+    - name: Set DJANGO_SETTINGS_MODULE environment variable
+      run: echo "DJANGO_SETTINGS_MODULE=app.settings" >> $GITHUB_ENV
 
     - name: Run tests
       run: pipenv run pytest catalogue/tests.py
