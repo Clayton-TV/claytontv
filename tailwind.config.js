@@ -9,6 +9,7 @@ export default {
     theme: {
         colors: {
             gray: colors.zinc,
+            red: colors.red,
         },
         extend: {},
     },
