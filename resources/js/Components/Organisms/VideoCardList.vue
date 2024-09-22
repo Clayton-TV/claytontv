@@ -4,6 +4,11 @@ defineProps({
         type: Array,
         required: true,
     },
+
+    heading: {
+        type: String,
+        required: false,
+    },
 })
 
 const videoThumbnail = (videoUrl) => {
@@ -21,7 +26,7 @@ const videoThumbnail = (videoUrl) => {
 
 <template>
     <div class="mx-4 pb-8">
-        <h1 class="my-4 text-4xl font-bold text-gray-800">Latest Videos</h1>
+        <h1 class="my-4 text-4xl font-bold text-gray-800" v-if="heading">{{ heading }}</h1>
         <ul
             class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8"
             role="list">
