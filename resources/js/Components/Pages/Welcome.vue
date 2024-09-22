@@ -14,7 +14,7 @@ defineProps({
     <Head title="Welcome" />
     <div class="main-container">
         <main class="isolate">
-            <VideoCardList :videos="videos" class="p-8" />
+            <VideoCardList :videos="videos" :heading="`Latest Videos`" class="p-8" />
         </main>
     </div>
 </template>
