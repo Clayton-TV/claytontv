@@ -1,7 +1,6 @@
 import csv
 from django.core.management.base import BaseCommand, CommandError
-from catalogue.models.topic import Topic
-
+from catalogue.models.demograpic import Demographic
 
 
 class Command(BaseCommand):
@@ -15,12 +14,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.imp_topics("CSV/Topics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.imp_demographics("CSV/Demographics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
-    def imp_topics(self,filepath,Debug):
+    def imp_demographics(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
-        Topic.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
+        Demographic.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
         with open(filepath, 'r', encoding='utf-8-sig') as file: # Opens the file path at "filepath" readonly as the variable "file".
             reader = csv.DictReader(file) #opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
             for row in reader: # cycles through the row of the dictionary previously created.
@@ -30,7 +29,9 @@ class Command(BaseCommand):
                 Ministry.objects.create(
                     name=row['Name'],
                     summary=row['Summary'],
-                    Category=row['Category']
-                    # videos=row['Videos'], Not added at this point
-                    # series=row['Series'], Not added at this point
+                    #series=row['Series'], Not added at this point
+                    #topic=row['Topics'], Not added at this point
+                    #videos=row['Videos'], Not added at this point
+                    #channel=row['Channel'], Not added at this point
+                    thumbnail=row['Thumbnail']
                 )
