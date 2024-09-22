@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from catalogue.models.ministry import Ministry
 
 
+
 class Command(BaseCommand):
     help = "Imports data from a CSV"
 
