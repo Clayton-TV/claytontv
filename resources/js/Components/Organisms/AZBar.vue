@@ -35,7 +35,7 @@
             <!-- Full list will be visible on larger screens -->
             <div id="fullList" class="hidden lg:contents xl:contents 2xl:contents">
                 <div v-for="lettersGroup in letters" class="contents">
-                    <li v-for="x in lettersGroup" class="m-0.5 border-2 rounded border-gray-400 hover:border-red-600">
+                    <li v-for="x in lettersGroup" class="m-0.5 border-2 rounded border-gray-400 hover:border-claytonRed">
                         {{ x }}
                     </li>
                 </div>
@@ -50,7 +50,7 @@
                 </div>
                 <!-- Create a div per letter group, each with its own id, and only show one to start with -->
                 <div v-for="(lettersGroup, lettersIndex) in letters" v-bind:id="'lettersDiv' + lettersIndex" v-bind:style="lettersSet == lettersIndex ? 'display: contents' : 'display: none'">
-                    <li v-for="x in lettersGroup" class="m-0.5 border-2 rounded border-gray-400 hover:border-red-600">
+                    <li v-for="x in lettersGroup" class="m-0.5 border-2 rounded border-gray-400 hover:border-claytonRed">
                         {{ x }}
                     </li>
                 </div>
