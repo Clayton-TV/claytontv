@@ -14,9 +14,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.imp_ministries("CSV/Ministry.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.imp_topics("CSV/Topics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
-    def imp_ministries(self,filepath,Debug):
+    def imp_topics(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
         Ministry.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
@@ -29,8 +29,7 @@ class Command(BaseCommand):
                 Ministry.objects.create(
                     name=row['Name'],
                     summary=row['Summary'],
-                    #videos=row['Videos'], Not added at this point
-                    #series=row['Series'], Not added at this point
-                    #channel=row['Channel'], Not added at this point
-                    thumbnail=row['Thumbnail']
+                    Category=row['Category']
+                    # videos=row['Videos'], Not added at this point
+                    # series=row['Series'], Not added at this point
                 )
