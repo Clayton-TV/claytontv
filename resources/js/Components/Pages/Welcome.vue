@@ -14,7 +14,7 @@ defineProps({
     <div class="main-container">
         <main class="isolate">
             <!-- <VideoCardList :videos="videos" :heading="`Latest Videos`" class="p-8" /> -->
-            <VideoCarousel :videos="videos" />
+            <VideoCarousel :videos="videos" class="my-2" />
         </main>
     </div>
 </template>
