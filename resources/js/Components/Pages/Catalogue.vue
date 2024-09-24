@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3"
-import VideoCarousel from "@/Organisms/VideoCarousel.vue"
+import VideoCardList from "../Organisms/VideoCardList.vue"
 
 defineProps({
     videos: {
@@ -10,11 +10,10 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <Head title="Video Catalogue" />
     <div class="main-container">
         <main class="isolate p-8">
-            <h1 class="mb-4 text-4xl font-bold text-gray-800">Latest Videos</h1>
-            <VideoCarousel :videos="videos" />
+            <VideoCardList :videos="videos" heading="Video Catalogue" />
         </main>
     </div>
 </template>

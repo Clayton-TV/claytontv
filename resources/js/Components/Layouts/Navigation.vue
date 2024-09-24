@@ -1,9 +1,13 @@
+<script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+</script>
+
 <template>
     <header class="bg-claytonBlack text-claytonRed">
         <nav
             class="mx-auto flex flex-wrap items-center justify-between p-6 lg:px-8"
             aria-label="Global">
-            <h1 class="my-4 ml-4 text-5xl font-bold">Clayton&nbsp;TV</h1>
+            <Link href="/"><h1 class="my-4 ml-4 text-5xl font-bold">Clayton&nbsp;TV</h1></Link>
             <form class="relative my-2 mr-4 rounded-2xl">
                 <input
                     type="search"

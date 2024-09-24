@@ -1,7 +1,13 @@
 <script setup>
 import VideoCard from "@/Organisms/VideoCard.vue"
 import "vue3-carousel/dist/carousel.css"
-import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel" // Vue3-carousel docs: https://ismail9k.github.io/vue3-carousel/
+import {
+    Carousel,
+    Slide as CarouselSlide,
+    Pagination as CarouselPagination,
+    Navigation as CarouselNavigation,
+} from "vue3-carousel" // Vue3-carousel docs: https://ismail9k.github.io/vue3-carousel/
+import { Link } from "@inertiajs/vue3"
 
 const carouselBreakpoints = {
     // 700px and up
@@ -21,7 +27,7 @@ defineProps({
 <template>
     <div class="h-[200px]">
         <carousel :items-to-show="1.5" :breakpoints="carouselBreakpoints">
-            <slide
+            <carousel-slide
                 v-for="(video, videoIndex) in [...videos, {}]"
                 :key="videoIndex">
                 <div class="h-full w-full p-2">
@@ -31,17 +37,18 @@ defineProps({
                     <div
                         v-else
                         class="flex h-full items-center justify-center rounded-lg bg-gray-100">
-                        <button
-                            class="p-5 text-3xl hover:text-gray-500 md:text-5xl">
+                        <Link
+                            class="p-5 text-3xl hover:text-gray-500 md:text-5xl"
+                            href="/catalogue/">
                             See more...
-                        </button>
+                        </Link>
                     </div>
                 </div>
-            </slide>
+            </carousel-slide>
 
             <template #addons>
-                <navigation />
-                <pagination />
+                <carousel-navigation />
+                <carousel-pagination />
             </template>
         </carousel>
     </div>
