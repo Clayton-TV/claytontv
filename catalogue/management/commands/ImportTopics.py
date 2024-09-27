@@ -26,11 +26,11 @@ class Command(BaseCommand):
             for row in reader: # cycles through the row of the dictionary previously created.
                 if Debug: # Debug Text
                     print(row) # Debug Text
-                    print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
-                Ministry.objects.create(
+                    print("Imported " + row['Name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
+                Topic.objects.create(
                     name=row['Name'],
                     summary=row['Summary'],
-                    Category=row['Category']
+                    category=row['Category']
                     # videos=row['Videos'], Not added at this point
                     # series=row['Series'], Not added at this point
                 )
