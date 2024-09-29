@@ -1,26 +1,33 @@
 <style type="text/css">
-#menuCheckboxLabel {
+/* Pointing-finger cursor to make it obvious the labels are clickable */
+#browseMenuCheckboxLabel, #moreMenuCheckboxLabel {
     cursor: pointer;
 }
-/* Make the menuDiv visible whenever the menuCheckbox is ticked. Tailwind classes make it always visible on larger screens */
-#menuCheckbox:checked ~ #menuDiv {
+/* Make the menu div visible whenever its checkbox is ticked. Tailwind classes make it always visible on larger screens */
+#browseMenuCheckbox:checked ~ #browseMenuDiv {
     display: contents;
+}
+#moreMenuCheckbox:checked ~ #moreMenuDiv {
+    display: block;
 }
 </style>
 
 <template>
     <header class="bg-claytonBlack text-claytonRed">
         <nav
-            class="flex flex-wrap items-center justify-between px-6 py-4 lg:px-8"
+            class="flex flex-wrap items-center justify-between px-4 py-4 lg:px-6"
             aria-label="Global">
             <h1 class="my-4 text-4xl md:text-5xl lg:text-6xl font-bold">Clayton&nbsp;TV</h1>
 
             <!-- Use so-called "checkbox hack" for the menu. Label is used as menu button and is hidden on larger screens, checkbox itself is always hidden -->
-            <input type="checkbox" id="menuCheckbox" hidden></input>
-            <label id="menuCheckboxLabel" for="menuCheckbox" class="border border-claytonRed rounded p-2 lg:hidden">MENU</label>
+            <input type="checkbox" id="browseMenuCheckbox" hidden></input>
+            <label id="browseMenuCheckboxLabel" for="browseMenuCheckbox" class="border border-claytonRed rounded p-2 lg:hidden">Browse</label>
 
-            <div id="menuDiv" class="hidden lg:contents">
-                <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:pl-2">
+            <input type="checkbox" id="moreMenuCheckbox" hidden></input>
+            <label id="moreMenuCheckboxLabel" for="moreMenuCheckbox" class="order-9 border border-claytonRed rounded p-2">More</label>
+
+            <div id="browseMenuDiv" class="hidden lg:contents">
+                <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:px-2 order-last lg:order-none">
                     <a href="#" class="underline font-bold m-3 flex">Categories</a>
                     <a href="#" class="underline font-bold m-3 flex">Browse All A-Z</a>
                     <a href="#" class="underline font-bold m-3 flex">Latest Videos</a>
@@ -41,6 +48,15 @@
                             </button>
                         </form>
                     </div>
+                </div>
+            </div>
+
+            <div id="moreMenuDiv" class="hidden lg:relative w-full order-10">
+                <div class="w-full items-center lg:w-60 lg:absolute bg-claytonBlack border-claytonRed lg:border-2 rounded-tl-xl rounded-b-xl right-0 z-50">
+                    <a href="#" class="underline font-bold m-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">About</a>
+                    <a href="#" class="underline font-bold m-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Contact</a>
+                    <a href="#" class="underline font-bold m-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Subscribe</a>
+                    <a href="#" class="underline font-bold m-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Another item</a>
                 </div>
             </div>
         </nav>
