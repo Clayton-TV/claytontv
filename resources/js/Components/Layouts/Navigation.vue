@@ -1,13 +1,12 @@
-<script setup>
-const toggleMenuVisibility = () => {
-    let menuDiv = document.getElementById("menuDiv");
-    if (menuDiv.style.display == "none") {
-        menuDiv.style.display = "contents";
-    } else {
-        menuDiv.style.display = "none";
-    }
+<style type="text/css">
+#menuCheckboxLabel {
+    cursor: pointer;
 }
-</script>
+/* Make the menuDiv visible whenever the menuCheckbox is ticked. Tailwind classes make it always visible on larger screens */
+#menuCheckbox:checked ~ #menuDiv {
+    display: contents;
+}
+</style>
 
 <template>
     <header class="bg-claytonBlack text-claytonRed">
@@ -16,10 +15,11 @@ const toggleMenuVisibility = () => {
             aria-label="Global">
             <h1 class="my-4 text-4xl md:text-5xl lg:text-6xl font-bold">Clayton&nbsp;TV</h1>
 
-            <!-- Button for the menu, hidden on larger screens -->
-            <button class="border rounded p-2 lg:hidden" @click="toggleMenuVisibility()">Menu</button>
+            <!-- Use so-called "checkbox hack" for the menu. Label is used as menu button and is hidden on larger screens, checkbox itself is always hidden -->
+            <input type="checkbox" id="menuCheckbox" hidden></input>
+            <label id="menuCheckboxLabel" for="menuCheckbox" class="border border-claytonRed rounded p-2 lg:hidden">MENU</label>
 
-            <div id="menuDiv" class="contents">
+            <div id="menuDiv" class="hidden lg:contents">
             <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:pl-2">
                 <a href="#" class="underline font-bold m-3 flex">Categories</a>
                 <a href="#" class="underline font-bold m-3 flex">Browse All A-Z</a>
