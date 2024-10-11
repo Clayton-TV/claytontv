@@ -21,10 +21,10 @@
 
             <!-- Use so-called "checkbox hack" for the menu. Label is used as menu button and is hidden on larger screens, checkbox itself is always hidden -->
             <input type="checkbox" id="browseMenuCheckbox" hidden></input>
-            <label id="browseMenuCheckboxLabel" for="browseMenuCheckbox" class="border border-claytonRed rounded p-2 lg:hidden">Browse</label>
+            <label id="browseMenuCheckboxLabel" for="browseMenuCheckbox" onclick="document.getElementById('moreMenuCheckbox').checked=false" class="border border-claytonRed rounded p-2 lg:hidden">Browse</label>
 
             <input type="checkbox" id="moreMenuCheckbox" hidden></input>
-            <label id="moreMenuCheckboxLabel" for="moreMenuCheckbox" class="order-9 border border-claytonRed rounded p-2">More</label>
+            <label id="moreMenuCheckboxLabel" for="moreMenuCheckbox" onclick="document.getElementById('browseMenuCheckbox').checked=false" class="order-9 border border-claytonRed rounded p-2">More</label>
 
             <div id="browseMenuDiv" class="hidden lg:contents">
                 <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:px-2 order-last lg:order-none">
