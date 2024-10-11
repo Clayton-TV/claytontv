@@ -53,7 +53,7 @@
 
             <div id="moreMenuDiv" class="hidden lg:relative w-full order-10">
                 <div class="w-full items-center lg:w-60 lg:absolute bg-claytonBlack border-claytonRed lg:border-2 rounded-tl-xl rounded-b-xl right-0 z-50">
-                    <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">About</a>
+                    <a href="#" class="underline font-bold mx-2 mb-3 lg:mt-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">About</a>
                     <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Contact</a>
                     <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Subscribe</a>
                     <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Another item</a>
