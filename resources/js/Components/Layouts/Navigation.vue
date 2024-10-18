@@ -3,6 +3,12 @@
 #browseMenuCheckboxLabel, #moreMenuCheckboxLabel {
     cursor: pointer;
 }
+#browseMenuCheckbox:checked ~ #browseMenuCheckboxLabel {
+    box-shadow: inset 0px 0px 0px 2px;
+}
+#moreMenuCheckbox:checked ~ #moreMenuCheckboxLabel {
+    box-shadow: inset 0px 0px 0px 2px;
+}
 /* Make the menu div visible whenever its checkbox is ticked. Tailwind classes make it always visible on larger screens */
 #browseMenuCheckbox:checked ~ #browseMenuDiv {
     display: contents;
