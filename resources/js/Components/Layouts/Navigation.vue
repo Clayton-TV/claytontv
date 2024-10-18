@@ -1,8 +1,4 @@
 <style type="text/css">
-/* Pointing-finger cursor to make it obvious the labels are clickable */
-#browseMenuCheckboxLabel, #moreMenuCheckboxLabel {
-    cursor: pointer;
-}
 #browseMenuCheckbox:checked ~ #browseMenuCheckboxLabel {
     box-shadow: inset 0px 0px 0px 2px;
 }
@@ -22,37 +18,15 @@
 const browseMenuItems = [
     {
         url: "#",
-        name: "Categories",
+        name: "Series",
     },
     {
         url: "#",
-        name: "Browse All A-Z",
+        name: "Topics",
     },
     {
         url: "#",
-        name: "Latest Videos",
-    },
-    {
-        url: "#",
-        name: "Livestreams",
-    },
-]
-const moreMenuItems = [
-    {
-        url: "#",
-        name: "About",
-    },
-    {
-        url: "#",
-        name: "Contact",
-    },
-    {
-        url: "#",
-        name: "Subscribe",
-    },
-    {
-        url: "#",
-        name: "Another Item",
+        name: "Livestream",
     },
 ]
 </script>
@@ -62,20 +36,17 @@ const moreMenuItems = [
         <nav
             class="flex flex-wrap items-center justify-between px-4 py-4 lg:px-6 select-none"
             aria-label="Global">
-            <h1 class="my-4 text-4xl md:text-5xl lg:text-6xl font-bold">Clayton&nbsp;TV</h1>
+            <h1 class="my-4 text-2xl md:text-3xl lg:text-4xl font-bold">Clayton&nbsp;TV</h1>
 
             <!-- Use so-called "checkbox hack" for the menu. Label is used as menu button and is hidden on larger screens, checkbox itself is always hidden -->
             <input type="checkbox" id="browseMenuCheckbox" hidden></input>
-            <label id="browseMenuCheckboxLabel" for="browseMenuCheckbox" onclick="document.getElementById('moreMenuCheckbox').checked=false" class="border border-claytonRed rounded p-2 mx-1 ml-auto lg:hidden">Browse</label>
+            <label id="browseMenuCheckboxLabel" for="browseMenuCheckbox" class="cursor-pointer border border-claytonRed rounded p-2 mx-1 ml-auto md:hidden">Browse</label>
 
-            <input type="checkbox" id="moreMenuCheckbox" hidden></input>
-            <label id="moreMenuCheckboxLabel" for="moreMenuCheckbox" onclick="document.getElementById('browseMenuCheckbox').checked=false" class="order-9 border border-claytonRed rounded p-2 mx-1">Menu</label>
+            <div id="browseMenuDiv" class="hidden md:contents">
+                <div class="block w-full items-center md:w-auto md:flex md:grow md:place-content-end md:px-2 order-last md:order-none">
+                    <a v-for="(item, index) in browseMenuItems" :key="index" :href="item.url" class="hover:underline mb-3 md:mx-2 md:my-0 flex">{{ item.name }}</a>
 
-            <div id="browseMenuDiv" class="hidden lg:contents">
-                <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:px-2 order-last lg:order-none">
-                    <a v-for="(item, index) in browseMenuItems" :key="index" :href="item.url" class="underline font-bold mx-2 mb-3 lg:my-0 flex">{{ item.name }}</a>
-
-                    <div id="searchBox" class="mx-2 mb-1 mt-5 lg:my-0 lg:mr-0 lg:flex grow min-w-40 lg:max-w-96">
+                    <div id="searchBox" class="mb-1 mt-5 md:my-0 md:ml-2 md:mr-0 md:flex grow min-w-40 md:max-w-96">
                         <form class="rounded-xl hover:outline-claytonRed focus-within:outline-claytonRed bg-gray-800 hover:outline focus-within:outline focus-within:bg-gray-700 flex flex-wrap shrink grow">
                             <input
                                 type="search"
@@ -90,12 +61,6 @@ const moreMenuItems = [
                             </button>
                         </form>
                     </div>
-                </div>
-            </div>
-
-            <div id="moreMenuDiv" class="hidden lg:relative w-full order-10">
-                <div class="w-full items-center lg:w-60 lg:absolute bg-claytonBlack border-claytonRed lg:border-2 rounded-tl-xl rounded-b-xl right-0 z-50">
-                    <a v-for="(item, index) in moreMenuItems" :key="index" :href="item.url" class="underline font-bold mx-2 mb-3 lg:mt-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">{{ item.name }}</a>
                 </div>
             </div>
         </nav>
