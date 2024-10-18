@@ -18,6 +18,45 @@
 }
 </style>
 
+<script setup>
+const browseMenuItems = [
+    {
+        url: "#",
+        name: "Categories",
+    },
+    {
+        url: "#",
+        name: "Browse All A-Z",
+    },
+    {
+        url: "#",
+        name: "Latest Videos",
+    },
+    {
+        url: "#",
+        name: "Livestreams",
+    },
+]
+const moreMenuItems = [
+    {
+        url: "#",
+        name: "About",
+    },
+    {
+        url: "#",
+        name: "Contact",
+    },
+    {
+        url: "#",
+        name: "Subscribe",
+    },
+    {
+        url: "#",
+        name: "Another Item",
+    },
+]
+</script>
+
 <template>
     <header class="bg-claytonBlack text-claytonRed">
         <nav
@@ -34,10 +73,7 @@
 
             <div id="browseMenuDiv" class="hidden lg:contents">
                 <div class="block w-full items-center lg:w-auto lg:flex lg:grow lg:place-content-end lg:px-2 order-last lg:order-none">
-                    <a href="#" class="underline font-bold mx-2 mb-3 lg:my-0 flex">Categories</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 lg:my-0 flex">Browse All A-Z</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 lg:my-0 flex">Latest Videos</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 lg:my-0 flex">Livestreams</a>
+                    <a v-for="(item, index) in browseMenuItems" :key="index" :href="item.url" class="underline font-bold mx-2 mb-3 lg:my-0 flex">{{ item.name }}</a>
 
                     <div id="searchBox" class="mx-2 mb-1 mt-5 lg:my-0 lg:mr-0 lg:flex grow min-w-40 lg:max-w-96">
                         <form class="rounded-xl hover:outline-claytonRed focus-within:outline-claytonRed bg-gray-800 hover:outline focus-within:outline focus-within:bg-gray-700 flex flex-wrap shrink grow">
@@ -59,10 +95,7 @@
 
             <div id="moreMenuDiv" class="hidden lg:relative w-full order-10">
                 <div class="w-full items-center lg:w-60 lg:absolute bg-claytonBlack border-claytonRed lg:border-2 rounded-tl-xl rounded-b-xl right-0 z-50">
-                    <a href="#" class="underline font-bold mx-2 mb-3 lg:mt-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">About</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Contact</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Subscribe</a>
-                    <a href="#" class="underline font-bold mx-2 mb-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">Another item</a>
+                    <a v-for="(item, index) in moreMenuItems" :key="index" :href="item.url" class="underline font-bold mx-2 mb-3 lg:mt-3 flex" onclick="document.getElementById('moreMenuCheckbox').checked = false;">{{ item.name }}</a>
                 </div>
             </div>
         </nav>
