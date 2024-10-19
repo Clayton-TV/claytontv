@@ -6,7 +6,6 @@ export default {
     theme: {
         extend: {
             colors: {
-                gray: colors.zinc,
                 claytonBlack: "#15062b",
                 claytonRed: "#c21212",
                 claytonGreen: "#68ed98",

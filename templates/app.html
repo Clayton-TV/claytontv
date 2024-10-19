@@ -1,14 +1,14 @@
 {% load django_vite %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="h-full bg-gray-950" lang="en">
 <!--suppress HtmlRequiredTitleElement-->
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" name="viewport">
 
     {% vite_asset 'js/app.js' %}
 </head>
-<body>
+<body class="antialiased h-full text-gray-100">
 {% block inertia %}Missing inertia...{% endblock %}
 </body>
 </html>
