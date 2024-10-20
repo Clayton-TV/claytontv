@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue"
+import {IconCircleFilled} from "@tabler/icons-vue"
 
 const props = defineProps({
     videos: {
@@ -22,19 +23,27 @@ const livestreams = computed(() => {
             </p>
         </div>
 
-        <div class="w-full overflow-x-hidden">
+        <div class="w-full overflow-x-hidden mt-2">
             <ul class="flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-2">
                 <li
                     v-for="video in livestreams"
                     :key="video.id"
-                    class="shrink-0 snap-center overflow-clip rounded-md bg-gray-700">
+                    class="shrink-0 snap-center overflow-clip rounded-md bg-gradient-to-br from-gray-700 to-gray-900 mb-3">
                     <div
-                        class="flex aspect-[10/16] max-h-[60dvh] w-auto max-w-[86vw] flex-col justify-end p-2">
-                        <h3 class="text-gray-100 font-bold text-2xl truncate">
-                            10:30 AM Sunday 20th Oct
-                        </h3>
-                        <p class="text-sm line-clamp-2">
+                        class="flex gap-y-2 aspect-[10/16] w-auto max-w-[90vw] max-h-[78dvh] flex-col justify-end px-3.5 py-5">
+                        <p class="flex gap-x-1 items-center text-xs font-bold tracking-wide uppercase bg-claytonRed rounded w-fit px-2 py-1">
+                             <span class="relative">
+                                 <IconCircleFilled class="absolute opacity-25 animate-ping h-3 w-3" />
+                                 <IconCircleFilled class="h-3 w-3" />
+                             </span>
+                            <span class="pb-px">Live</span>
+                        </p>
+                        <h3
+                            class="line-clamp-2 text-2xl font-bold text-gray-100">
                             {{ video.name }}
+                        </h3>
+                        <p class="line-clamp-1 truncate text-sm text-gray-300">
+                            10:30 AM Sunday 20th Oct
                         </p>
                     </div>
                 </li>
