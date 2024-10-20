@@ -34,7 +34,7 @@ function subscribeToNewsletter() {
 
 <template>
     <div class="flex min-h-full flex-col">
-        <div class="relative mx-2 my-2">
+        <div class="h-16 sticky top-2 mx-2 my-2">
             <Disclosure
                 v-slot="{ open }"
                 as="nav"
@@ -76,7 +76,7 @@ function subscribeToNewsletter() {
                             class="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
                             <div class="w-full max-w-lg lg:max-w-xs">
                                 <label class="sr-only" for="search"
-                                    >Search</label
+                                >Search</label
                                 >
                                 <div class="relative">
                                     <div
@@ -117,8 +117,8 @@ function subscribeToNewsletter() {
                                     type="button">
                                     <span class="absolute -inset-1.5" />
                                     <span class="sr-only">
-                                        View notifications
-                                    </span>
+                                    View notifications
+                                </span>
                                     <BellIcon
                                         aria-hidden="true"
                                         class="h-6 w-6" />
@@ -133,8 +133,8 @@ function subscribeToNewsletter() {
                                             class="relative flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                             <span class="absolute -inset-1.5" />
                                             <span class="sr-only">
-                                                Open user menu
-                                            </span>
+                                            Open user menu
+                                        </span>
                                             <img
                                                 alt=""
                                                 class="h-8 w-8 rounded-full"
@@ -153,11 +153,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                        active
-                                                            ? 'bg-gray-100'
-                                                            : '',
-                                                        'block px-4 py-2 text-sm text-gray-700',
-                                                    ]"
+                                                    active
+                                                        ? 'bg-gray-100'
+                                                        : '',
+                                                    'block px-4 py-2 text-sm text-gray-700',
+                                                ]"
                                                     href="#">
                                                     Your Profile
                                                 </a>
@@ -165,11 +165,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                        active
-                                                            ? 'bg-gray-100'
-                                                            : '',
-                                                        'block px-4 py-2 text-sm text-gray-700',
-                                                    ]"
+                                                    active
+                                                        ? 'bg-gray-100'
+                                                        : '',
+                                                    'block px-4 py-2 text-sm text-gray-700',
+                                                ]"
                                                     href="#">
                                                     Settings
                                                 </a>
@@ -177,11 +177,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                        active
-                                                            ? 'bg-gray-100'
-                                                            : '',
-                                                        'block px-4 py-2 text-sm text-gray-700',
-                                                    ]"
+                                                    active
+                                                        ? 'bg-gray-100'
+                                                        : '',
+                                                    'block px-4 py-2 text-sm text-gray-700',
+                                                ]"
                                                     href="#">
                                                     Sign out
                                                 </a>
@@ -200,10 +200,10 @@ function subscribeToNewsletter() {
                             v-for="option in navOptions"
                             :key="option.name"
                             :class="
-                                isCurrent(option.href)
-                                    ? 'bg-gray-800 text-white'
-                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                            "
+                            isCurrent(option.href)
+                                ? 'bg-gray-800 text-white'
+                                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                        "
                             :href="option.href"
                             as="a"
                             class="block rounded-md px-3 py-2 text-base font-medium text-white">
