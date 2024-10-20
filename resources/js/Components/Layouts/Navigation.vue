@@ -27,7 +27,7 @@ const browseMenuItems = [
 </script>
 
 <template>
-    <header class="bg-claytonBlack text-claytonRed rounded-lg m-1 md:m-2">
+    <header class="bg-claytonBlack text-claytonRed rounded-lg mx-1 md:mx-2 z-50 sticky top-1 md:top-2">
         <nav
             class="flex flex-wrap items-center justify-between p-3 select-none"
             aria-label="Global">
