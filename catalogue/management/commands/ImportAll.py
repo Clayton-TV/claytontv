@@ -16,8 +16,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        Bible.imp_bible(self,"CSV/Bible Books.csv",options["DEBUG"])
-        Demographics.imp_demographics(self,"CSV/Demographics.csv", options["DEBUG"])
-        Ministries.imp_ministries(self,"CSV/Ministry.csv", options["DEBUG"])
-        Topics.imp_topics(self,"CSV/Topics.csv", options["DEBUG"])
+        self.myimport(options["DEBUG"])
 
+    def myimport(self,Options):
+        Bible.imp_bible(self,"CSV/Bible Books.csv",Options)
+        Demographics.imp_demographics(self,"CSV/Demographics.csv", Options)
+        Ministries.imp_ministries(self,"CSV/Ministry.csv", Options)
+        Topics.imp_topics(self,"CSV/Topics.csv", Options)
