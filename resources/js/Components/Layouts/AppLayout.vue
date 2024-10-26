@@ -34,7 +34,7 @@ function subscribeToNewsletter() {
 
 <template>
     <div class="flex min-h-full flex-col">
-        <div class="h-16 sticky top-2 mx-2 my-2">
+        <div class="h-16 sticky isolate z-10 top-2 mx-2 my-2">
             <Disclosure
                 v-slot="{ open }"
                 as="nav"
