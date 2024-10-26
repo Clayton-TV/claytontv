@@ -38,7 +38,7 @@ function subscribeToNewsletter() {
             <Disclosure
                 v-slot="{ open }"
                 as="nav"
-                class="absolute w-full flex-none rounded-md bg-gray-900 shadow-2xl">
+                class="w-full max-w-6xl mx-auto flex-none rounded-md bg-gray-900 shadow-2xl">
                 <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
                     <div
                         class="relative flex h-16 items-center justify-between">
