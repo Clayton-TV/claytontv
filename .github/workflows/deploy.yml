@@ -3,7 +3,7 @@ name: Deploy Django project
 on:
   push:
     branches:
-#      - main
+      #      - main
       - jamie/deploy-workflow
 
 jobs:
@@ -12,13 +12,68 @@ jobs:
 
     steps:
       - name: Configure SSH
+
         env:
-            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-            SSH_HOST: ${{ secrets.SSH_HOST }}
-            SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+
+        # TODO: remove strict host key checking
         run: |
-            mkdir -p ~/.ssh
-            echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
-            chmod 600 ~/.ssh/github
-            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
-            ssh -T -i ~/.ssh/github $SSH_USER@$SSH_HOST "echo Successfully authenticated with SSH key"
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+          cat >> ~/.ssh/config <<EOF
+          Host target
+             HostName $SSH_HOST
+             User $SSH_USER
+             IdentityFile ~/.ssh/github
+             LogLevel ERROR
+             StrictHostKeyChecking no
+          EOF
+
+      # -- TODO: refactor duplicate setup code into a reusable action
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+          cache: 'pipenv'
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install Python dependencies
+        run: pipenv install
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.12.2'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Run Django migrations
+        run: pipenv run python manage.py migrate
+
+      - name: Get timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create release directory
+        run: ssh target "mkdir -p /srv/beta.claytontv.co.uk/releases/${{ steps.timestamp.outputs.TIMESTAMP }}"
+
+      - name: Copy files to server
+        run: rsync -avz --delete -e "ssh" . target:/srv/beta.claytontv.co.uk/releases/${{ steps.timestamp.outputs.TIMESTAMP }}
+
+      - name: Symlink current release
+        run: ssh target "ln -sfn /srv/beta.claytontv.co.uk/releases/${{ steps.timestamp.outputs.TIMESTAMP }} /srv/beta.claytontv.co.uk/current"
+
+      - name: Delete old releases
+        run: ssh target "ls -1 /srv/beta.claytontv.co.uk/releases | sort -r | tail -n +4 | xargs -I {} rm -rf /srv/beta.claytontv.co.uk/releases/{}"

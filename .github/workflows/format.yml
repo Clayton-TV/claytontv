@@ -23,14 +23,15 @@ jobs:
           cache: 'pipenv'
 
       - name: Install pipenv
-        run: |
-          curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+        run: pip install pipenv
 
       - name: Install Python dependencies
         run: pipenv install
 
       - name: Format code with Black
         run: pipenv run black .
+
+      # TODO: npm install and run prettier w/ tailwindcss plugin
 
       - name: Commit Changes (if any)
         run: |
