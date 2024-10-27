@@ -3,13 +3,13 @@ import { computed } from "vue"
 import { IconCircleFilled, IconPlayerPlay } from "@tabler/icons-vue"
 
 const props = defineProps({
-    videos: {
+    livestreams: {
         type: Array,
     },
-})
-
-const livestreams = computed(() => {
-    return props.videos.filter((video) => video.is_livestream)
+    latestVideos: {
+        type: Array,
+        required: true,
+    },
 })
 
 const playVideo = (id) => {

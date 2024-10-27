@@ -16,6 +16,7 @@ import {
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import LogoMark from "@/Atoms/LogoMark.vue"
+import {Link} from "@inertiajs/vue3"
 
 const navOptions = [
     { name: "Livestreams", href: "#livestreams" },
@@ -34,11 +35,11 @@ function subscribeToNewsletter() {
 
 <template>
     <div class="flex min-h-full flex-col">
-        <div class="h-16 sticky isolate z-10 top-2 mx-2 my-2">
+        <div class="sticky top-2 isolate z-10 mx-2 my-2 h-16">
             <Disclosure
                 v-slot="{ open }"
                 as="nav"
-                class="w-full max-w-6xl mx-auto flex-none rounded-md bg-gray-900 shadow-2xl">
+                class="mx-auto w-full max-w-6xl flex-none rounded-md bg-gray-900 shadow-2xl">
                 <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
                     <div
                         class="relative flex h-16 items-center justify-between">
@@ -48,27 +49,17 @@ function subscribeToNewsletter() {
                             </div>
                             <div class="hidden lg:ml-6 lg:block">
                                 <div class="flex space-x-4">
-                                    <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                                    <a
-                                        class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                                    <!-- Current: "", Default: "" -->
+                                    <Link
+                                        v-for="option in navOptions"
+                                        :key="option.name"
+                                        :class="
+                                            isCurrent(option.href) ? 'bg-gray-900 text-white' : ''
+                                        "
+                                        class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                                         href="#">
-                                        Dashboard
-                                    </a>
-                                    <a
-                                        class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                        href="#">
-                                        Team
-                                    </a>
-                                    <a
-                                        class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                        href="#">
-                                        Projects
-                                    </a>
-                                    <a
-                                        class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                        href="#">
-                                        Calendar
-                                    </a>
+                                        {{ option.name }}
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -76,7 +67,7 @@ function subscribeToNewsletter() {
                             class="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
                             <div class="w-full max-w-lg lg:max-w-xs">
                                 <label class="sr-only" for="search"
-                                >Search</label
+                                    >Search</label
                                 >
                                 <div class="relative">
                                     <div
@@ -117,8 +108,8 @@ function subscribeToNewsletter() {
                                     type="button">
                                     <span class="absolute -inset-1.5" />
                                     <span class="sr-only">
-                                    View notifications
-                                </span>
+                                        View notifications
+                                    </span>
                                     <BellIcon
                                         aria-hidden="true"
                                         class="h-6 w-6" />
@@ -133,8 +124,8 @@ function subscribeToNewsletter() {
                                             class="relative flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                             <span class="absolute -inset-1.5" />
                                             <span class="sr-only">
-                                            Open user menu
-                                        </span>
+                                                Open user menu
+                                            </span>
                                             <img
                                                 alt=""
                                                 class="h-8 w-8 rounded-full"
@@ -153,11 +144,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                    active
-                                                        ? 'bg-gray-100'
-                                                        : '',
-                                                    'block px-4 py-2 text-sm text-gray-700',
-                                                ]"
+                                                        active
+                                                            ? 'bg-gray-100'
+                                                            : '',
+                                                        'block px-4 py-2 text-sm text-gray-700',
+                                                    ]"
                                                     href="#">
                                                     Your Profile
                                                 </a>
@@ -165,11 +156,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                    active
-                                                        ? 'bg-gray-100'
-                                                        : '',
-                                                    'block px-4 py-2 text-sm text-gray-700',
-                                                ]"
+                                                        active
+                                                            ? 'bg-gray-100'
+                                                            : '',
+                                                        'block px-4 py-2 text-sm text-gray-700',
+                                                    ]"
                                                     href="#">
                                                     Settings
                                                 </a>
@@ -177,11 +168,11 @@ function subscribeToNewsletter() {
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     :class="[
-                                                    active
-                                                        ? 'bg-gray-100'
-                                                        : '',
-                                                    'block px-4 py-2 text-sm text-gray-700',
-                                                ]"
+                                                        active
+                                                            ? 'bg-gray-100'
+                                                            : '',
+                                                        'block px-4 py-2 text-sm text-gray-700',
+                                                    ]"
                                                     href="#">
                                                     Sign out
                                                 </a>
@@ -200,10 +191,10 @@ function subscribeToNewsletter() {
                             v-for="option in navOptions"
                             :key="option.name"
                             :class="
-                            isCurrent(option.href)
-                                ? 'bg-gray-800 text-white'
-                                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                        "
+                                isCurrent(option.href)
+                                    ? 'bg-gray-800 text-white'
+                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                            "
                             :href="option.href"
                             as="a"
                             class="block rounded-md px-3 py-2 text-base font-medium text-white">
