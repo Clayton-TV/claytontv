@@ -1,0 +1,44 @@
+name: Format and Commit Django Project
+
+on:
+  pull_request:
+
+jobs:
+  format-and-commit:
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+          cache: 'pipenv'
+
+      - name: Install pipenv
+        run: |
+          curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+
+      - name: Install Python dependencies
+        run: pipenv install
+
+      - name: Install Black
+        run: pipenv install black
+
+      - name: Format code with Black
+        run: pipenv run black .
+
+      - name: Commit Changes (if any)
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'githubbot@claytontv.co.uk'
+          git add .
+          git commit -m "Apply code formatting" || exit 0
+          git push

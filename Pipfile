@@ -9,6 +9,7 @@ django-vite = "*"
 inertia-django = "*"
 psycopg2-binary = "*"
 django-seed = "*"
+black = "*"
 
 [dev-packages]
 django-seed = "*"
