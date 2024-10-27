@@ -89,10 +89,10 @@ const playVideo = (id) => {
                     <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1">
                         <p
                             class="flex w-fit items-center gap-x-1.5 rounded bg-claytonRed/90 px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-bold uppercase tracking-wide">
-                            <span class="relative">
-                                <IconCircleFilled
-                                    class="absolute h-3 w-3 animate-ping opacity-50" />
-                                <IconCircleFilled class="h-3 w-3" />
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span
+                                    class="absolute h-full w-full animate-ping inline-flex opacity-50 bg-white rounded-full" />
+                                <span class="h-full w-full inline-flex relative bg-white rounded-full" />
                             </span>
                             <span class="pb-[1.5px]">Live</span>
                         </p>
