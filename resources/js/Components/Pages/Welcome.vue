@@ -56,5 +56,6 @@ const playVideo = (id) => {
 </script>
 
 <template>
-    <VideoCardList :videos="livestreams" is_livestreams />
+    <VideoCardList :videos="livestreams" title="Watch Live" description="We're live! Check out the current live streams below." is_livestreams />
+    <VideoCardList :videos="latest_videos" title="Latest Videos" description="Watch our most recent videos here." />
 </template>

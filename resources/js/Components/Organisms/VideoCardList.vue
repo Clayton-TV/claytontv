@@ -10,7 +10,15 @@ defineProps({
     is_livestreams: {
       type: Boolean,
       required: false,
-  },
+    },
+    title: {
+        type: String,
+        required: false,
+    },
+    description: {
+        type: String,
+        required: false,
+    },
 })
 
 const getVideoThumbnail = (videoUrl) => {
@@ -69,13 +77,10 @@ const playVideo = (id) => {
 <template>
     <section class="my-10 flex flex-col items-center gap-y-6">
         <div class="space-y-2">
-            <h2 class="text-center text-3xl font-bold text-gray-100">
-                Watch Live
+            <h2 class="text-center text-3xl font-bold text-gray-100" v-if="title">
+                {{ title }}
             </h2>
-            <p class="text-center text-gray-400">
-                We're live! Check out the current <br />
-                live streams below.
-            </p>
+            <p class="text-center text-gray-400" v-if="description" v-html="description"></p>
         </div>
 
         <div class="mt-2 w-full overflow-x-hidden">
