@@ -16,3 +16,8 @@ def index(request):
         'livestreams': livestreams,
         'latest_videos': latest_videos,
     })
+
+def video(request, id):
+    return render(request, 'Video', {
+        'video': Video.objects.get(id=id)
+    })
