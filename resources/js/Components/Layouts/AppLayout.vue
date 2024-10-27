@@ -44,9 +44,9 @@ function subscribeToNewsletter() {
                     <div
                         class="relative flex h-16 items-center justify-between">
                         <div class="flex items-center px-2 lg:px-0">
-                            <div class="flex-shrink-0">
+                            <Link href="/" class="flex-shrink-0">
                                 <LogoMark class="h-6" />
-                            </div>
+                            </Link>
                             <div class="hidden lg:ml-6 lg:block">
                                 <div class="flex space-x-4">
                                     <!-- Current: "", Default: "" -->
