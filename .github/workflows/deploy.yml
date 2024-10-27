@@ -70,15 +70,15 @@ jobs:
       - name: Create release directory
         run: ssh target "mkdir -p /srv/beta.claytontv.co.uk/releases/next_release"
 
-      - name: Copy files to server
-        run: rsync -avz --delete -e "ssh" . target:/srv/beta.claytontv.co.uk/releases/next_release
-
-      - name: Symlink current release
-        run: ssh target "ln -sfn /srv/beta.claytontv.co.uk/releases/next_release /srv/beta.claytontv.co.uk/current"
-
       - name: Delete Old Releases
         run: |
           ssh target "
             cd /srv/beta.claytontv.co.uk/releases
-            ls -d */ | grep -Ev 'current|next_release' | xargs rm -rf
+            ls -d */ | grep -Ev 'current' | xargs rm -rf
           "
+
+      - name: Copy files to server
+        run: rsync -avz --delete -e "ssh" . target:/srv/beta.claytontv.co.uk/releases/next_release --exclude=node_modules --exclude=.git
+
+      - name: Symlink current release
+        run: ssh target "ln -sfn /srv/beta.claytontv.co.uk/releases/next_release /srv/beta.claytontv.co.uk/current"
