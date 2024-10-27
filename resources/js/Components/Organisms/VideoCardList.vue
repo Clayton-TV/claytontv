@@ -100,6 +100,9 @@ const playVideo = (id) => {
                                     @click="playVideo(video.id)" />
                             </div>
                         </div>
+                        <span class="sr-only">
+                            View video for {{ video.name }}
+                        </span>
                     </Link>
 
 
