@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue"
 import { IconCircleFilled, IconPlayerPlay } from "@tabler/icons-vue"
+import { Link } from "@inertiajs/vue3"
 
 const props = defineProps({
     livestreams: {
@@ -70,21 +71,20 @@ const playVideo = (id) => {
                 <li
                     v-for="video in livestreams"
                     :key="video.id"
-                    class="relative isolate mb-3 flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video">
-                    <video
+                    class="relative isolate mb-3 flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video hover:opacity-75">
+                    <Link :href="`/video/`+video.id"
                         :id="video.id"
-                        :src="video.url"
-                        class="absolute inset-0 h-full w-full rounded-md object-cover"
-                        poster=""></video>
-
-                    <div class="absolute inset-0 place-self-center">
-                        <div
-                            class="group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
-                            <IconPlayerPlay
-                                class="h-14 w-14 stroke-1 text-gray-100"
-                                @click="playVideo(video.id)" />
+                        class="absolute inset-0 h-full w-full rounded-md object-cover">
+                        <div class="absolute inset-0 place-self-center">
+                            <div
+                                class="group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
+                                <IconPlayerPlay
+                                    class="h-14 w-14 stroke-1 text-gray-100"
+                                    @click="playVideo(video.id)" />
+                            </div>
                         </div>
-                    </div>
+                    </Link>
+
 
                     <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1">
                         <p
