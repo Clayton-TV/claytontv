@@ -4,16 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-django-vite = "*"
-inertia-django = "*"
-psycopg2-binary = "*"
-django-seed = "*"
-black = "*"
+django = "~=5.1.2"
+django-vite = "~=3.0.5"
+inertia-django = "~=0.6.0"
+psycopg2-binary = "~=2.9.10"
+black = "~=24.10"
+pytest = "~=8.3.3"
 
 [dev-packages]
-django-seed = "*"
-pytest = "*"
+django-seed = "~=0.3.1"
 
 [requires]
 python_version = "3.12"
