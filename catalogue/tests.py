@@ -6,19 +6,20 @@ import csv
 class BibleBookTest(TestCase):
 
     def setUp(self):
-        file_path = 'books.csv'
+        file_path = "books.csv"
 
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             reader = csv.DictReader(file)
 
             for row in reader:
                 Bible_Book.objects.create(
-                    order=row['order'],
-                    name=row['name'],
-                    summary=row['name'],
-                    type=row['type'])
+                    order=row["order"],
+                    name=row["name"],
+                    summary=row["name"],
+                    type=row["type"],
+                )
 
     def test_bible_book_order(self):
-        book = Bible_Book.objects.get(name='Genesis')
+        book = Bible_Book.objects.get(name="Genesis")
 
-        self.assertEqual(book.order, '1')
+        self.assertEqual(book.order, "1")
