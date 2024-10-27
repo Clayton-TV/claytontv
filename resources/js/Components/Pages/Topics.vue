@@ -721,54 +721,58 @@ function selectCategory(category) {
 </script>
 
 <template>
-    <div class="w-full items-center justify-center overflow-x-hidden">
-        <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
-            <li
-                v-for="(category, index) in sortedCategories"
-                :key="index"
-                class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
-                <button
-                    class="me-4 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400 md:me-6"
-                    :class="
-                        category === selectedCategory
-                            ? 'bg-claytonRed'
-                            : 'bg-gray-700'
-                    "
-                    @click="selectCategory(category)">
-                    {{ category }}
-                </button>
-            </li>
-        </ul>
-    </div>
-    <div class="w-full px-4">
-        <LoadingSpinner
-            v-if="isLoadingSubCategories"
-            class="h-[100vh] w-[100vw]"></LoadingSpinner>
-        <div v-else>
-            <h1 class="mb-4 text-lg md:text-3xl">
-                Subcategories for:
-                <span class="text-xl font-bold md:text-4xl">{{
-                    selectedCategory
-                }}</span>
-            </h1>
-            <ul
-                class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+    <section class="my-10 flex flex-col items-center gap-y-6">
+        <div class="w-full items-center justify-center overflow-x-hidden">
+            <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
                 <li
-                    v-for="(subcategory, index) in filteredSubCategories"
+                    v-for="(category, index) in sortedCategories"
                     :key="index"
-                    class="relative">
-                    <div class="aspect-[5/1] rounded-lg bg-blue-950 p-4">
-                        <div class="my-auto">
-                            <h2 class="font-bold">{{ subcategory.name }}</h2>
-                            <div class="block">
-                                {{ subcategory.videosCount }} programme{{
-                                    subcategory.videosCount > 1 ? "s" : ""
-                                }}
-                            </div>
-                        </div>
-                    </div>
+                    class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
+                    <button
+                        class="me-4 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400 md:me-6"
+                        :class="
+                            category === selectedCategory
+                                ? 'bg-claytonRed'
+                                : 'bg-gray-700'
+                        "
+                        @click="selectCategory(category)">
+                        {{ category }}
+                    </button>
                 </li>
             </ul>
         </div>
-    </div>
+        <div class="w-full px-4">
+            <LoadingSpinner
+                v-if="isLoadingSubCategories"
+                class="h-[100vh] w-[100vw]"></LoadingSpinner>
+            <div v-else>
+                <h1 class="mb-4 text-lg md:text-3xl">
+                    Subcategories for:
+                    <span class="text-xl font-bold md:text-4xl">{{
+                        selectedCategory
+                    }}</span>
+                </h1>
+                <ul
+                    class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+                    <li
+                        v-for="(subcategory, index) in filteredSubCategories"
+                        :key="index"
+                        class="relative">
+                        <div class="aspect-[5/1] rounded-lg bg-blue-950 p-4">
+                            <div class="my-auto">
+                                <h2 class="font-bold">
+                                    {{ subcategory.name }}
+                                </h2>
+                                <div class="block">
+                                    {{ subcategory.videosCount }} programme{{
+                                        subcategory.videosCount > 1 ? "s" : ""
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
 </template>

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "inertia",
     "catalogue.apps.CatalogueConfig",
     "livestreams.apps.LivestreamsConfig",
+    "topics.apps.TopicsConfig",
     "django_seed",
 ]
 
