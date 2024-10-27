@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'claytontv.test',
     'claytontv.co.uk',
+    'beta.claytontv.co.uk',
 ]
 
 # Application definition
