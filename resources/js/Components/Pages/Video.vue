@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3"
-import VideoCard from "@/Atoms/VideoCard.vue"
+import VideoViewer from "@/Organisms/VideoViewer.vue"
 
 defineProps({
     video: {
@@ -15,7 +15,7 @@ defineProps({
     <Head :title="video.name" />
     <div class="main-container">
         <main class="isolate">
-            <VideoCard :video="video" />
+            <VideoViewer :video="video" />
         </main>
     </div>
 </template>
