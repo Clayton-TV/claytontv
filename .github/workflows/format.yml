@@ -29,9 +29,6 @@ jobs:
       - name: Install Python dependencies
         run: pipenv install
 
-      - name: Install Black
-        run: pipenv install black
-
       - name: Format code with Black
         run: pipenv run black .
 
