@@ -24,7 +24,12 @@ SECRET_KEY = 'django-insecure-b09-nvcu%@o$hq2t!^6v@hfi9bl!#v1rwl&b3l39)^lzf85r$q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'claytontv.test',
+    'claytontv.co.uk',
+]
 
 # Application definition
 
