@@ -285,3 +285,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+#CSVs
+CSV/*
+CSV

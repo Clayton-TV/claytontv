@@ -4,6 +4,7 @@ from catalogue.management.commands.ImportTopics import Command as Topics
 from catalogue.management.commands.ImportBibleBooks import Command as Bible
 from catalogue.management.commands.ImportDemographics import Command as Demographics
 from catalogue.management.commands.ImportMinistries import Command as Ministries
+from catalogue.management.commands.ImportSpeakers import Command as Speakers
 
 class Command(BaseCommand):
     help = "Imports data from a CSV"
@@ -23,3 +24,4 @@ class Command(BaseCommand):
         Demographics.imp_demographics(self,"CSV/Demographics.csv", Options)
         Ministries.imp_ministries(self,"CSV/Ministry.csv", Options)
         Topics.imp_topics(self,"CSV/Topics.csv", Options)
+        Speakers.imp_speakers(self, "CSV/Speakers.csv", Options)
