@@ -10,6 +10,7 @@ inertia-django = "~=0.6.0"
 psycopg2-binary = "~=2.9.10"
 pytest = "~=8.3.3"
 black = "*"
+gunicorn = "~=23.0.0"
 
 [dev-packages]
 django-seed = "~=0.3.1"
