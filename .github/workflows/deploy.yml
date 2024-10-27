@@ -67,6 +67,9 @@ jobs:
       - name: Run Django migrations
         run: pipenv run python manage.py migrate
 
+      - name: Collect static files
+        run: pipenv run python manage.py collectstatic --noinput
+
       - name: Create release directory
         run: ssh target "mkdir -p /srv/beta.claytontv.co.uk/releases/next_release"
 
@@ -79,6 +82,9 @@ jobs:
 
       - name: Copy files to server
         run: rsync -avz --delete -e "ssh" . target:/srv/beta.claytontv.co.uk/releases/next_release --exclude=node_modules --exclude=.git
+
+      - name: Install Python dependencies on server
+        run: ssh target "cd /srv/beta.claytontv.co.uk/releases/next_release && /home/dev/.local/bin/pipenv install"
 
       - name: Symlink current release
         run: ssh target "ln -sfn /srv/beta.claytontv.co.uk/releases/next_release /srv/beta.claytontv.co.uk/current"
