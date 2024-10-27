@@ -97,7 +97,7 @@ const playVideo = (id) => {
                             <span class="pb-[1.5px]">Live</span>
                         </p>
                         <h3
-                            class="line-clamp-2 text-lg leading-snug sm:text-2xl font-bold text-gray-100">
+                            class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-gray-100">
                             {{ video.name }}
                         </h3>
                         <p class="line-clamp-1 truncate text-sm text-gray-400">
