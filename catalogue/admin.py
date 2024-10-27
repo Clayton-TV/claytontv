@@ -1,7 +1,17 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Video, Bible_Book, Channel, Demographic, Label, Ministry, Series, Speaker, Topic
+from .models import (
+    Video,
+    Bible_Book,
+    Channel,
+    Demographic,
+    Label,
+    Ministry,
+    Series,
+    Speaker,
+    Topic,
+)
 
 admin.site.register(Video)
 admin.site.register(Bible_Book)

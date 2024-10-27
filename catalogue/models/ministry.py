@@ -9,37 +9,34 @@ from django.urls import reverse  # generate urls by reversing url pattern
 
 class Ministry(models.Model):
     """Model representing ministry types"""
-    name = models.CharField(
-        max_length=200,
-        help_text="The ministry's name."
-    )
+
+    name = models.CharField(max_length=200, help_text="The ministry's name.")
     summary = models.TextField(
         max_length=5000,
         null=True,
         blank=True,
-        help_text="A brief summary of the ministry."
+        help_text="A brief summary of the ministry.",
     )
     videos = models.ManyToManyField(
-        'Video',
+        "Video",
         blank=True,
-        related_name='+',
-        help_text="The videos associated with ministry."
+        related_name="+",
+        help_text="The videos associated with ministry.",
     )
     series = models.ManyToManyField(
-        'Series',
+        "Series",
         blank=True,
-        related_name='+',
-        help_text="The series associated with minsitry."
+        related_name="+",
+        help_text="The series associated with minsitry.",
     )
     channel = models.ManyToManyField(
-        'Channel',
+        "Channel",
         blank=True,
-        related_name='+',
-        help_text="The channels associated with minsitry."
+        related_name="+",
+        help_text="The channels associated with minsitry.",
     )
     thumbnail = models.CharField(
-        max_length=200,
-        help_text="The thumbnail for the ministry area."
+        max_length=200, help_text="The thumbnail for the ministry area."
     )
 
     def __str__(self):
@@ -51,4 +48,4 @@ class Ministry(models.Model):
         return reverse("series-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
