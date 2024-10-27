@@ -11,9 +11,9 @@ psycopg2-binary = "~=2.9.10"
 pytest = "~=8.3.3"
 black = "*"
 gunicorn = "~=23.0.0"
+django-seed = "~=0.3.1"
 
 [dev-packages]
-django-seed = "~=0.3.1"
 
 [requires]
 python_version = "3.12"
