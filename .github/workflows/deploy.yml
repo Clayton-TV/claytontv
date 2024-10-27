@@ -1,0 +1,24 @@
+name: Deploy Django project
+
+on:
+  push:
+    branches:
+#      - main
+      - jamie/deploy-workflow
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure SSH
+        env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            SSH_HOST: ${{ secrets.SSH_HOST }}
+            SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+            mkdir -p ~/.ssh
+            echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+            chmod 600 ~/.ssh/github
+            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+            ssh -T -i ~/.ssh/github $SSH_USER@$SSH_HOST "echo Successfully authenticated with SSH key"
