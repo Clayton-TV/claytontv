@@ -68,7 +68,9 @@ jobs:
         run: pipenv run python manage.py migrate
 
       - name: Increment deploy counter
-        run: ssh target "echo $((1 + $(ssh target 'cat /srv/beta.claytontv.co.uk/.deploy_counter 2>/dev/null || echo 0)')) > /srv/beta.claytontv.co.uk/.deploy_counter"
+        run: |
+          ssh target "touch /srv/beta.claytontv.co.uk/.deploy_counter"
+          ssh target "echo $(( $(ssh target 'cat /srv/beta.claytontv.co.uk/.deploy_counter 2>/dev/null || echo 0) + 1 )) > /srv/beta.claytontv.co.uk/.deploy_counter"
 
       - name: Get deploy count
         id: get_deploy_count
