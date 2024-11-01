@@ -96,8 +96,7 @@ const playVideo = (id) => {
                             <div
                                 class="group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
                                 <IconPlayerPlay
-                                    class="h-14 w-14 stroke-1 text-gray-100"
-                                    @click="playVideo(video.id)" />
+                                    class="h-14 w-14 stroke-1 text-gray-100"/>
                             </div>
                         </div>
                         <span class="sr-only">
