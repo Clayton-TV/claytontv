@@ -45,26 +45,28 @@ const videoThumbnail = (videoUrl) => {
                 </a>
             </div>
         </div>
-        <h1 class="pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
-        <p
-            class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description">
-            {{ video.description }}
-        </p>
-        <div class="grid grid-cols-4 gap-1">
-            <span
-                class="pointer-events-none col-span-2 text-xs font-normal text-gray-400"
-                >{{
-                    video.speaker?.[0]?.name ?? "Speaker Name"
-                }}</span
-            >
-            <span
-                class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
-                >{{ video.date_created ?? "01/01/01" }}</span
-            >
-            <span
-                class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
-                >{{ video.duration ?? "00:00" }}</span
-            >
+        <div class="mx-auto w-[calc(min(100vw-4rem,((100vh-10rem)*1.67)))]">
+            <h1 class="pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
+            <p
+                class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description">
+                {{ video.description }}
+            </p>
+            <div class="grid grid-cols-4 gap-1">
+                <span
+                    class="pointer-events-none col-span-2 text-xs font-normal text-gray-400"
+                    >{{
+                        video.speaker?.[0]?.name ?? "Speaker Name"
+                    }}</span
+                >
+                <span
+                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
+                    >{{ video.date_created ?? "01/01/01" }}</span
+                >
+                <span
+                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
+                    >{{ video.duration ?? "00:00" }}</span
+                >
+            </div>
         </div>
     </div>
 </template>
