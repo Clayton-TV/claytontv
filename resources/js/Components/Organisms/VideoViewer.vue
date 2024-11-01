@@ -15,7 +15,7 @@ const getYoutubeId = (videoUrl) => {
 const getEmbedUrl = (videoUrl) => {
     const youtubeId = getYoutubeId(videoUrl)
     if (youtubeId) {
-        return `https://www.youtube-nocookie.com/embed/${youtubeId}`
+        return `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=0&playsinline=1`
     } else {
         return false
     }
@@ -34,18 +34,18 @@ const videoThumbnail = (videoUrl) => {
 </script>
 
 <template>
-    <div class="mx-4 p-2 mb-0 lg:p-0">
-        <h1 class="my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
-        <div class="aspect-video w-auto mx-auto max-h-[80dvh] bg-gray-900">
-            <iframe class="aspect-video w-full" :src="getEmbedUrl(video.url) + `?autoplay=1`" allow="autoplay; clipboard-write" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen v-if="getEmbedUrl(video.url)">
+    <div class="mx-4 p-2 mb-0 lg:p-0 flex flex-col max-h-[calc(100vh-6rem)] mb-2">
+        <div class="aspect-video">
+            <iframe class="aspect-video mx-auto h-full" :src="getEmbedUrl(video.url)" allow="autoplay; clipboard-write" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen v-if="getEmbedUrl(video.url)">
             </iframe>
-            <div class="p-4" v-else> <!-- Shown if there was an error generating the embedded video iframe -->
-                Error loading embedded video for
+            <div class="p-4 bg-gray-900 h-full" v-else> <!-- Shown if there was a problem generating the embedded video iframe src -->
+                Unable to load embedded video for
                 <a :href="video.url" class="underline">
                     {{ video.url }}
                 </a>
             </div>
         </div>
+        <h1 class="pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
         <p
             class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description">
             {{ video.description }}
