@@ -34,7 +34,7 @@ const videoThumbnail = (videoUrl) => {
 </script>
 
 <template>
-    <div class="mx-4 p-2 mb-0 lg:p-0 flex flex-col max-h-[calc(100vh-6rem)] mb-2">
+    <div class="mx-4 p-2 mb-0 lg:p-0 flex flex-col max-h-[max(calc(100vh-6rem),85vh)] mb-2">
         <div class="aspect-video">
             <iframe class="aspect-video mx-auto h-full" :src="getEmbedUrl(video.url)" allow="autoplay; clipboard-write" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen v-if="getEmbedUrl(video.url)">
             </iframe>
@@ -45,8 +45,8 @@ const videoThumbnail = (videoUrl) => {
                 </a>
             </div>
         </div>
-        <div class="mx-auto w-[calc(min(100vw-4rem,((100vh-10rem)*1.67)))]">
-            <h1 class="pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
+        <div class="w-full">
+            <h1 class="border-t border-gray-800 divide-grey-900 pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
             <p
                 class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description">
                 {{ video.description }}
