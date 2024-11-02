@@ -18,11 +18,10 @@ def index(request):
         },
     )
 
+
 def video(request, id):
     return render(
         request,
         "Video",
-        {
-            "video": Video.objects.get(id=id)
-        },
+        {"video": Video.objects.get(id=id)},
     )
