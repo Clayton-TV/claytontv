@@ -34,8 +34,8 @@ const videoThumbnail = (videoUrl) => {
 </script>
 
 <template>
-    <div class="mx-4 p-2 mb-0 lg:p-0 flex flex-col max-h-[max(calc(100vh-6rem),85vh)] mb-2">
-        <div class="aspect-video">
+    <div class="mx-4 p-2 mb-0 lg:p-0 flex flex-col mb-2">
+        <div class="aspect-video max-h-[max(calc(100vh-20rem),85vh)]">
             <iframe class="aspect-video mx-auto h-full" :src="getEmbedUrl(video.url)" allow="autoplay; clipboard-write" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen v-if="getEmbedUrl(video.url)">
             </iframe>
             <div class="p-4 bg-gray-900 h-full" v-else> <!-- Shown if there was a problem generating the embedded video iframe src -->
