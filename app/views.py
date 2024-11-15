@@ -17,3 +17,16 @@ def index(request):
             "latest_videos": latest_videos,
         },
     )
+
+def search(request):
+    searchquery = request.GET["search"]
+    results = []
+    results += Video.objects.filter(name__icontains=searchquery)
+    results += Video.objects.filter(description__icontains=searchquery)
+    return render(
+        request,
+        "Search",
+        {
+            "results": results,
+            "searchquery": searchquery,
+        })
