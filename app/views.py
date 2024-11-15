@@ -18,6 +18,7 @@ def index(request):
         },
     )
 
+
 def search(request):
     searchquery = request.GET["search"]
     results = []
@@ -29,4 +30,5 @@ def search(request):
         {
             "results": results,
             "searchquery": searchquery,
-        })
+        },
+    )
