@@ -16,7 +16,8 @@ import {
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import LogoMark from "@/Atoms/LogoMark.vue"
-import {Link} from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
+import { reactive } from "vue"
 
 const navOptions = [
     { name: "Livestreams", href: "#livestreams" },
@@ -30,6 +31,16 @@ const isCurrent = (href) => {
 
 function subscribeToNewsletter() {
     //
+}
+
+const searchForm = reactive({
+    search: null,
+})
+
+const submitSearch = () => {
+    if (searchForm.search) {
+        router.get("/search", searchForm)
+    }
 }
 </script>
 
@@ -66,7 +77,7 @@ function subscribeToNewsletter() {
                         </div>
                         <div
                             class="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
-                            <div class="w-full max-w-lg lg:max-w-xs">
+                            <form @submit.prevent="submitSearch" class="w-full max-w-lg lg:max-w-xs">
                                 <label class="sr-only" for="search"
                                     >Search</label
                                 >
@@ -80,11 +91,11 @@ function subscribeToNewsletter() {
                                     <input
                                         id="search"
                                         class="block h-9 w-full rounded-md border-0 bg-gray-700 py-1.5 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                                        name="search"
+                                        name="search" v-model="searchForm.search"
                                         placeholder="Search"
                                         type="search" />
                                 </div>
-                            </div>
+                            </form>
                         </div>
                         <div class="flex lg:hidden">
                             <!-- Mobile menu button -->

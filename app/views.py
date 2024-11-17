@@ -19,6 +19,25 @@ def index(request):
     )
 
 
+def search(request):
+    searchquery = request.GET["search"]
+    results = []
+    results += Video.objects.filter(name__icontains=searchquery)
+    results += [
+        v
+        for v in Video.objects.filter(description__icontains=searchquery)
+        if not v in results
+    ]
+    return render(
+        request,
+        "Search",
+        {
+            "results": results,
+            "searchquery": searchquery,
+        },
+    )
+
+
 def video(request, id):
     return render(
         request,
