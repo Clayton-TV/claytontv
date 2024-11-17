@@ -24,6 +24,7 @@ urlpatterns = [
     path("", index, name="home"),
     path("catalogue/", include("catalogue.urls"), name="catalogue"),
     path("livestreams/", include("livestreams.urls"), name="livestreams"),
+    path("topics/", include("topics.urls"), name="topics"),
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("video/<int:id>", video, name="video"),

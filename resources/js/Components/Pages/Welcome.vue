@@ -10,7 +10,6 @@ const props = defineProps({
     },
     latest_videos: {
         type: Array,
-        required: true,
     },
 })
 </script>
