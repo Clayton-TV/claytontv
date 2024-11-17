@@ -55,9 +55,10 @@ const submitSearch = () => {
                     <div
                         class="relative flex h-16 items-center justify-between">
                         <div class="flex items-center px-2 lg:px-0">
-                            <div class="flex-shrink-0">
-                                <LogoMark class="h-6" />
-                            </div>
+                            <Link href="/" class="flex items-center">
+                                <LogoMark class="size-8 fill-claytonRed" />
+                                <!--<h1 class="mx-3 mb-1 hidden lg:block text-2xl font-bold">Clayton&nbsp;TV</h1>-->
+                            </Link>
                             <div class="hidden lg:ml-6 lg:block">
                                 <div class="flex space-x-4">
                                     <!-- Current: "", Default: "" -->
@@ -290,7 +291,7 @@ const submitSearch = () => {
             <div class="space-y-3 text-center">
                 <div class="flex flex-col items-center">
                     <div class="flex items-center gap-x-2.5">
-                        <LogoMark class="h-7" />
+                        <LogoMark class="size-10 fill-claytonRed" />
                         <h1 class="text-3xl font-bold">Clayton TV</h1>
                     </div>
                     <p class="mt-1 text-sm text-gray-300">
