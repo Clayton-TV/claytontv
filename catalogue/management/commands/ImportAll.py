@@ -5,6 +5,10 @@ from catalogue.management.commands.ImportBibleBooks import Command as Bible
 from catalogue.management.commands.ImportDemographics import Command as Demographics
 from catalogue.management.commands.ImportMinistries import Command as Ministries
 from catalogue.management.commands.ImportSpeakers import Command as Speakers
+from catalogue.management.commands.ImportVideos import Command as Videos
+from catalogue.management.commands.ImportSeries import Command as Series
+
+
 
 class Command(BaseCommand):
     help = "Imports data from a CSV"
@@ -20,8 +24,11 @@ class Command(BaseCommand):
         self.myimport(options["DEBUG"])
 
     def myimport(self,Options):
+        #the order here is important, some of the imports might have link functionality
         Bible.imp_bible(self,"CSV/Bible Books.csv",Options)
         Demographics.imp_demographics(self,"CSV/Demographics.csv", Options)
         Ministries.imp_ministries(self,"CSV/Ministry.csv", Options)
         Topics.imp_topics(self,"CSV/Topics.csv", Options)
         Speakers.imp_speakers(self, "CSV/Speakers.csv", Options)
+        Videos.imp_videos(self, "CSV/Videos.csv", Options)
+        Series.imp_series(self, "CSV/SSeries.csv", Options)
