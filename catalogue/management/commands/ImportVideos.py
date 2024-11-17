@@ -28,18 +28,19 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Video.objects.create(
-                    id_number=row['id_number'],
+                    id = row['ID'],
+                    id_number=row['ID Number'],
                     #bible_book=row['bible_book'],
-                    description=row['description'],
-                    url = row['url'],
+                    description=row['Description'],
+                    url = row['URL'],
                     #ministry = row['ministry'],
-                    number_in_series = row['number_in_series'],
-                    name = row['name'],
+                    #number_in_series = row['number_in_series'],
+                    name = row['Name'],
                     #speaker = row['speaker'],
-                    is_livestream = row['is_livestream'],
+                    is_livestream = row['Is_Livestream'],
                     #topic = row['topic']
 
-                    thumbnail = row['thumbnail'],
+                    thumbnail = row['Thumbnail'],
 
                     date_recorded = row['date_recorded'], #Year-Month-Date
                     date_created = row['date_created'],

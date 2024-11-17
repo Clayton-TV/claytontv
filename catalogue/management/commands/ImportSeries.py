@@ -28,16 +28,17 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Series.objects.create(
-                    name = row['name'],
+                    name = row['Title'],
+                    id_number = row['ID'],
                     summary = row['summary'],
-                    topic = row['topic'],
+                    #topic = row['topic'],
                     #speaker = row[speaker],
                     #ministry = row['ministry'],
                     #videos = row[videos],
                     #bible_book = row[bible_bool],
 
-                    year_start = row['year_start'], #Year-Month-Date
-                    year_end = row['year_end'],
+                    year_start = row['Year_Start'], #Year-Month-Date
+                    year_end = row['Year_End'],
 
 
                 )

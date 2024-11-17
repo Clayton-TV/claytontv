@@ -2,6 +2,9 @@ import csv
 from django.core.management.base import BaseCommand, CommandError
 
 from catalogue.management.commands.LinkDemographics import Command as Demographics
+from catalogue.management.commands.LinkMinistry import Command as Ministry
+from catalogue.management.commands.LinkVideos import Command as Video
+from catalogue.management.commands.LinkSeries import Command as Series
 
 
 class Command(BaseCommand):
@@ -19,5 +22,8 @@ class Command(BaseCommand):
 
     def mylink(self,Options):
         Demographics.link_demographics(self,"CSV/Demographics.csv", Options)
+        Ministry.link_ministries(self, "CSV/Ministries.csv", Options)
+        Video.link_videos(self, "CSV/Videos.csv", Options)
+        Series.link_series("CSV/Series.csv", Options)
 
 

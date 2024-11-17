@@ -1,9 +1,11 @@
 import csv
 from django.core.management.base import BaseCommand, CommandError
 import django.core.exceptions
-from catalogue.models.demograpic import Demographic
-from catalogue.models.topic import Topic
+
+
 from catalogue.models.series import Series
+from catalogue.models.topic import Topic
+from catalogue.models.speaker import Speaker
 from catalogue.models.video import Video
 
 
@@ -18,9 +20,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.link_demographics("CSV/Demographics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.link_series("CSV/Series.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
-    def link_demographics(self,filepath,Debug):
+    def link_series(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
 
@@ -31,12 +33,13 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Linked " + row['Name'])# Debug Text, note that the rows are referred to by the column headers in the dict
 
-                topics = row['Topics'].split(',')
-                series = row['Series'].split(',')
+
+                topics = row['Topic'].split(',')
+                speaker = row['Speaker'].split(',')
                 videos = row['Videos'].split(',')
 
                 try:
-                    Dem = Demographic.objects.get(name = row['Name'])
+                    Series = Series.objects.get(id = row['ID'])
 
                 except django.core.exceptions.ObjectDoesNotExist:
                     print("The entry " + row['Name'] + " does not exist" )
@@ -46,33 +49,38 @@ class Command(BaseCommand):
 
                 else:
 
-                    Dem.topics.clear()
-                    Dem.series.clear()
-                    Dem.videos.clear()
+                    Series.topic.clear()
+                    Series.speaker.clear()
+                    Series.Videos.clear()
+
 
                     for i in topics:
                         try:
-                            Dem.topics.add(Topic.objects.get(name = i))
+                            Series.videos.add(Topic.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
-                            print("The topic " + i + " does not exist")
+                            print("The Topic " + i + " does not exist")
 
                         except django.core.exceptions.MultipleObjectsReturned:
-                            print("The topic " + i + " returned duplicate elements")
+                            print("The Topic " + i + " returned duplicate elements")
 
-                    for i in series:
+
+
+                    for i in speaker:
                         try:
-                            Dem.series.add(Series.objects.get(id_number = i))
+                            Series.videos.add(Speaker.objects.get(id=i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
-                            print("The Series " + i + " does not exist")
+                            print("The Speaker " + i + " does not exist")
 
                         except django.core.exceptions.MultipleObjectsReturned:
-                            print("The Series " + i + " returned duplicate elements")
+                            print("The Speaker " + i + " returned duplicate elements")
+
+
 
                     for i in videos:
                         try:
-                            Dem.videos.add(Video.objects.get(id = i))
+                            Series.videos.add(Video.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Video " + i + " does not exist")

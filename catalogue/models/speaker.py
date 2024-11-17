@@ -6,6 +6,7 @@ from django.urls import reverse # generate urls by reversing url pattern
 
 class Speaker(models.Model):
     """Model representing speakers"""
+    id = models.CharField(max_length=10, unique = True, help_text="An ID number used for linking")
     name = models.CharField(max_length=200, help_text='The name of the speaker.')
     bio = models.TextField(max_length=5000, help_text ='The biography of the speaker.')
     videos = models.ManyToManyField('Video',blank=True,related_name='+', help_text="The videos related to video.")

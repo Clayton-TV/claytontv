@@ -9,6 +9,7 @@ from django.urls import reverse # generate urls by reversing url pattern
 
 class Topic(models.Model):
     """Model representing video topics"""
+    id = models.CharField(max_length=10, unique = True, help_text="An ID number used for linking")
     name = models.CharField(max_length=200, unique=True, help_text="Enter a topic or theme")
     summary = models.TextField(max_length=5000, help_text="Enter a brief summary of the topic", null=True, blank=True)
     category = models.CharField(max_length=200, help_text="Enter the category of the topic")

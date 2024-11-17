@@ -1,7 +1,7 @@
 import csv
 from django.core.management.base import BaseCommand, CommandError
 import django.core.exceptions
-from catalogue.models.demograpic import Demographic
+from catalogue.models.ministry import Ministry
 from catalogue.models.topic import Topic
 from catalogue.models.series import Series
 from catalogue.models.video import Video
@@ -18,9 +18,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.link_demographics("CSV/Demographics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.link_ministries("CSV/Ministry.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
-    def link_demographics(self,filepath,Debug):
+    def link_ministries(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
 
@@ -31,12 +31,11 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Linked " + row['Name'])# Debug Text, note that the rows are referred to by the column headers in the dict
 
-                topics = row['Topics'].split(',')
-                series = row['Series'].split(',')
+
                 videos = row['Videos'].split(',')
 
                 try:
-                    Dem = Demographic.objects.get(name = row['Name'])
+                    Min = Ministry.objects.get(name = row['Name'])
 
                 except django.core.exceptions.ObjectDoesNotExist:
                     print("The entry " + row['Name'] + " does not exist" )
@@ -46,33 +45,11 @@ class Command(BaseCommand):
 
                 else:
 
-                    Dem.topics.clear()
-                    Dem.series.clear()
-                    Dem.videos.clear()
-
-                    for i in topics:
-                        try:
-                            Dem.topics.add(Topic.objects.get(name = i))
-
-                        except django.core.exceptions.ObjectDoesNotExist:
-                            print("The topic " + i + " does not exist")
-
-                        except django.core.exceptions.MultipleObjectsReturned:
-                            print("The topic " + i + " returned duplicate elements")
-
-                    for i in series:
-                        try:
-                            Dem.series.add(Series.objects.get(id_number = i))
-
-                        except django.core.exceptions.ObjectDoesNotExist:
-                            print("The Series " + i + " does not exist")
-
-                        except django.core.exceptions.MultipleObjectsReturned:
-                            print("The Series " + i + " returned duplicate elements")
+                    Min.Videos.clear()
 
                     for i in videos:
                         try:
-                            Dem.videos.add(Video.objects.get(id = i))
+                            Min.videos.add(Video.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Video " + i + " does not exist")

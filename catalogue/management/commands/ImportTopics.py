@@ -28,6 +28,7 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Imported " + row['Name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Topic.objects.create(
+                    id=row['ID'],
                     name=row['Name'],
                     summary=row['Summary'],
                     category=row['Category']

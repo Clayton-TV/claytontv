@@ -27,6 +27,7 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Speaker.objects.create(
+                    id = row['speakerID'],
                     name=row['speakerFirstname'] + ' ' + row['speakerLastname'],
                     bio=row["Bio"],
                     #thumbnail = row["Thumbnail"]

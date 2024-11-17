@@ -16,6 +16,7 @@ from .label import Label
 class Video(models.Model): 
     """Model representing the database table for videos,
     where each table entry is an individual video"""
+    id = models.CharField(max_lenght=10,unique=True, help_text = "Another unique identifier used for database linking")
     id_number = models.CharField(max_length=100,unique=True, help_text="A unique video identifier generated e.g.YT1234")
 
     bible_book = models.ManyToManyField(Bible_Book, blank=True,help_text="The bible books covered in the video.")
