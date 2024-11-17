@@ -18,6 +18,7 @@ def index(request):
         },
     )
 
+
 def search(request):
     searchquery = request.GET["search"]
     results = []
@@ -35,6 +36,7 @@ def search(request):
             "searchquery": searchquery,
         },
     )
+
 
 def video(request, id):
     return render(
