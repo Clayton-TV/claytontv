@@ -97,16 +97,15 @@ const playVideo = (id) => {
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate mb-3 flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video hover:opacity-75">
+                    class="relative isolate mb-3 flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video hover:opacity-75 bg-cover bg-center overflow-hidden" >
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
-                        class="absolute inset-0 h-full w-full rounded-md object-cover">
-                        <div class="absolute inset-0 place-self-center">
-                            <div
-                                class="group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
-                                <IconPlayerPlay
-                                    class="h-14 w-14 stroke-1 text-gray-100"/>
-                            </div>
+                        :style="`background-image: url(` + getVideoThumbnail(video.url) + `)`"
+                        class="absolute inset-0 h-full w-full bg-center bg-cover object-cover place-content-center">
+                        <div
+                            class="group flex h-min w-min cursor-pointer rounded-full p-2 mx-auto hover:bg-gray-100/20">
+                            <IconPlayerPlay
+                                class="h-14 w-14 stroke-1 text-gray-100"/>
                         </div>
                         <span class="sr-only">
                             View video for {{ video.name }}
@@ -114,7 +113,7 @@ const playVideo = (id) => {
                     </Link>
 
 
-                    <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1">
+                    <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1 z-50 bg-gradient-to-t from-gray-950/80 via-70% via-gray-950/60 to-gray-950/0">
                         <p
                             class="flex w-fit items-center gap-x-1.5 rounded bg-claytonRed/90 px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-bold uppercase tracking-wide" v-if="is_livestreams">
                             <span class="relative flex h-2.5 w-2.5">
