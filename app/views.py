@@ -33,24 +33,41 @@ def index(request):
         },
     )
 
-
+@ensure_csrf_cookie
 def search(request):
-    searchquery = request.GET["search"]
-    results = []
-    results += Video.objects.filter(name__icontains=searchquery)
-    results += [
-        v
-        for v in Video.objects.filter(description__icontains=searchquery)
-        if not v in results
-    ]
-    return render(
-        request,
-        "Search",
-        {
-            "results": results,
-            "searchquery": searchquery,
-        },
-    )
+    searchquery = None
+    pagenum_results = 1
+    if request.method == "GET" :
+        searchquery = request.GET["search"]
+    elif request.method == "POST" :
+        postdata = json.loads(request.body)
+        if "page" in postdata :
+            if "id" in postdata :
+                if postdata["id"].startswith("search_") :
+                    searchquery = postdata["id"][7:]
+            pagenum_results = postdata["page"]
+    if searchquery is not None :
+        results = []
+        results += Video.objects.filter(name__icontains=searchquery)
+        results += [
+            v
+            for v in Video.objects.filter(description__icontains=searchquery)
+            if not v in results
+        ]
+        results_paginator = Paginator(results, 5)
+        return render(
+            request,
+            "Search",
+            {
+                "results": results_paginator.page(pagenum_results).object_list,
+                "num_results": len(results),
+                "searchquery": searchquery,
+                "pagenum_results": pagenum_results,
+                "num_pages": results_paginator.num_pages,
+            },
+        )
+    else : # No search query
+        return render(request, "Search", {"results": {}})
 
 
 def video(request, id):
