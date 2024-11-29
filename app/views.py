@@ -1,6 +1,7 @@
 from inertia import render
 import django
 from catalogue.models.video import Video
+from catalogue.models.topic import Topic
 
 
 def index(request):
@@ -8,6 +9,14 @@ def index(request):
 
     livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")
+    topics = Topic.objects.all()
+    topics_videos = {}
+    for t in topics :
+        topics_videos[t.id] = {
+            "name": t.name,
+            "summary": t.summary,
+            "videos": Video.objects.filter(topic=t.id).order_by("-date_created"), # Might be possible just to do something like t.videos (or just pass topics verbatim instead of reconstructing)
+        }
 
     return render(
         request,
@@ -15,6 +24,7 @@ def index(request):
         {
             "livestreams": livestreams,
             "latest_videos": latest_videos,
+            "topics_videos": topics_videos,
         },
     )
 
