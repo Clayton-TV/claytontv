@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue"
 import { IconPlayerPlay } from "@tabler/icons-vue"
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 defineProps({
     videos: {
         type: Array,
@@ -19,6 +19,15 @@ defineProps({
         type: String,
         required: false,
     },
+    id: { // ID for pagination
+        type: String,
+    },
+    page: { // Current page number, indexed from 1
+        type: Number,
+    },
+    num_pages: { // Number of pages
+        type: Number,
+    }
 })
 
 const getVideoThumbnail = (videoUrl) => {
@@ -116,15 +125,24 @@ const playVideo = (id) => {
                             <span class="pb-[1.5px]">Live</span>
                         </p>
                         <h3
-                            class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-gray-100">
+                            class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-gray-100 drop-shadow-lg">
                             {{ video.name }}
                         </h3>
-                        <p class="line-clamp-1 truncate text-sm text-gray-400">
+                        <p class="line-clamp-1 truncate text-sm text-gray-100 drop-shadow-lg">
                             10:30 AM Sunday 20th Oct
                         </p>
                     </div>
                 </li>
             </ul>
+        </div>
+        <div class="grid grid-cols-3 rounded-md bg-gray-900 overflow-hidden">
+            <button class="p-2 active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page-1}, {preserveState: true, preserveScroll: true})" :disabled="page <= 1">Previous
+            </button>
+            <div class="p-2 text-center min-w-[12vw]">
+                Page {{ page }}{{ num_pages ? (` of ` + num_pages) : `` }}
+            </div>
+            <button class="p-2 active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page+1}, {preserveState: true, preserveScroll: true})" :disabled="page >= num_pages">Next
+            </button>
         </div>
     </section>
 </template>
