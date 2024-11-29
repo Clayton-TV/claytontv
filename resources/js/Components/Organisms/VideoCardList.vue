@@ -97,7 +97,7 @@ const playVideo = (id) => {
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate mb-3 flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video hover:opacity-75 bg-cover bg-center overflow-hidden" >
+                    class="relative isolate flex aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md bg-gradient-to-br from-gray-700 to-gray-900 md:aspect-video hover:opacity-75 bg-cover bg-center overflow-hidden" >
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
                         :style="`background-image: url(` + getVideoThumbnail(video.url) + `)`"
@@ -135,12 +135,12 @@ const playVideo = (id) => {
             </ul>
         </div>
         <div class="grid grid-cols-3 rounded-md bg-gray-900 overflow-hidden" v-if="id">
-            <button class="p-2 active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page-1}, {preserveState: true, preserveScroll: true})" :disabled="page <= 1">Previous
+            <button class="p-2 bg-inherit active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page-1}, {preserveState: true, preserveScroll: true})" :disabled="page <= 1">Previous
             </button>
-            <div class="p-2 text-center min-w-[12vw]">
+            <div class="p-2 bg-inherit text-center min-w-[12vw]">
                 Page {{ page }}{{ num_pages ? (` of ` + num_pages) : `` }}
             </div>
-            <button class="p-2 active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page+1}, {preserveState: true, preserveScroll: true})" :disabled="page >= num_pages">Next
+            <button class="p-2 bg-inherit active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page+1}, {preserveState: true, preserveScroll: true})" :disabled="page >= num_pages">Next
             </button>
         </div>
     </section>
