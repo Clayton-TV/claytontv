@@ -135,7 +135,7 @@ const playVideo = (id) => {
                 </li>
             </ul>
         </div>
-        <div class="grid grid-cols-3 rounded-md bg-gray-900 overflow-hidden">
+        <div class="grid grid-cols-3 rounded-md bg-gray-900 overflow-hidden" v-if="id">
             <button class="p-2 active:enabled:bg-claytonRed hover:enabled:bg-gray-700 disabled:opacity-50 transition-colors" @click="router.post('#', {'id': id, 'page': page-1}, {preserveState: true, preserveScroll: true})" :disabled="page <= 1">Previous
             </button>
             <div class="p-2 text-center min-w-[12vw]">
