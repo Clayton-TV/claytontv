@@ -21,5 +21,5 @@ const props = defineProps({
 <template>
     <VideoCardList :videos="livestreams" title="Watch Live" description="We're live! Check out the current live streams below." is_livestreams />
     <VideoCardList :videos="latest_videos" title="Latest Videos" description="Watch our most recent videos here." />
-    <VideoCardList v-if="topics_videos" v-for="t in topics_videos" :title="`Topic: ` + t.name" :description="t.summary" :videos="t.videos" />
+    <VideoCardList v-if="topics_videos" v-for="topic in topics_videos" :title="`Topic: ` + topic.name" :description="topic.summary" :videos="topic.videos" />
 </template>
