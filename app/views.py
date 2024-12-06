@@ -44,3 +44,10 @@ def video(request, id):
         "Video",
         {"video": Video.objects.get(id=id)},
     )
+
+def staffForm(request):
+    return render(
+        request,
+        "Create",
+        {},
+    )

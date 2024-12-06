@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import index, search, video
+from .views import index, search, video, staffForm
 
 urlpatterns = [
     path("", index, name="home"),
@@ -26,5 +26,6 @@ urlpatterns = [
     path("livestreams/", include("livestreams.urls"), name="livestreams"),
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
+    path("create", staffForm, name="create"),
     path("video/<int:id>", video, name="video"),
 ]
