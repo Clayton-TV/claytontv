@@ -729,7 +729,7 @@ function selectCategory(category) {
             There are a varieties of topics for you to discover
         </p>
     </div>
-    <div class="w-full items-center justify-center overflow-x-hidden">
+    <div class="w-full items-center justify-center overflow-x-hidden pt-4">
         <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
             <li
                 v-for="(category, index) in sortedCategories"
