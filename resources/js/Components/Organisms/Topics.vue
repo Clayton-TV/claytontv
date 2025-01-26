@@ -755,12 +755,10 @@ function selectCategory(category) {
         <div v-else>
             <h1 class="my-4 text-lg">
                 Subcategories for:
-                <span class="text-xl font-bold">{{
-                    selectedCategory
-                }}</span>
+                <span class="text-xl font-bold">{{ selectedCategory }}</span>
             </h1>
             <ul
-                class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+                class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
                 <li
                     v-for="(subcategory, index) in filteredSubCategories"
                     :key="index"
