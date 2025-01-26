@@ -770,16 +770,12 @@ function selectCategory(category) {
             <li
                 v-for="(subcategory, index) in filteredSubCategories"
                 :key="index"
-                class="relative">
-                <div class="aspect-[5/1] rounded-lg bg-blue-950 p-4">
-                    <div class="my-auto">
-                        <h2 class="font-bold">{{ subcategory.name }}</h2>
-                        <div class="block">
-                            {{ subcategory.videosCount }} programme{{
-                                subcategory.videosCount > 1 ? "s" : ""
-                            }}
-                        </div>
-                    </div>
+                class="rounded-lg bg-blue-950 p-4">
+                <h2 class="font-bold">{{ subcategory.name }}</h2>
+                <div>
+                    {{ subcategory.videosCount }} programme{{
+                        subcategory.videosCount > 1 ? "s" : ""
+                    }}
                 </div>
             </li>
         </ul>
