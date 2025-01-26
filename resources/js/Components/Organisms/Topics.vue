@@ -721,6 +721,14 @@ function selectCategory(category) {
 </script>
 
 <template>
+    <div class="mb-4 justify-items-center space-y-2">
+        <h2 class="text-center text-3xl font-bold text-gray-100">
+            Explore Topics
+        </h2>
+        <p class="text-center text-gray-400">
+            There are a varieties of topics for you to discover
+        </p>
+    </div>
     <div class="w-full items-center justify-center overflow-x-hidden">
         <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
             <li
@@ -728,7 +736,7 @@ function selectCategory(category) {
                 :key="index"
                 class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
                 <button
-                    class="me-4 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400 md:me-6"
+                    class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
                     :class="
                         category === selectedCategory
                             ? 'bg-claytonRed'
