@@ -726,7 +726,7 @@ function selectCategory(category) {
             Explore Topics
         </h2>
         <p class="text-center text-gray-400">
-            There are a varieties of topics for you to discover
+            There are a variety of topics for you to discover
         </p>
     </div>
     <div class="w-full items-center justify-center overflow-x-hidden pt-4">
