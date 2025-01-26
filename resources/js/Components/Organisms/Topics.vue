@@ -753,9 +753,9 @@ function selectCategory(category) {
             v-if="isLoadingSubCategories"
             class="h-[100vh] w-[100vw]"></LoadingSpinner>
         <div v-else>
-            <h1 class="mb-4 text-lg md:text-3xl">
+            <h1 class="my-4 text-lg">
                 Subcategories for:
-                <span class="text-xl font-bold md:text-4xl">{{
+                <span class="text-xl font-bold">{{
                     selectedCategory
                 }}</span>
             </h1>
