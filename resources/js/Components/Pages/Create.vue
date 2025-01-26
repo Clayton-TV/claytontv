@@ -33,13 +33,13 @@ const submitForm = () => {
 <template>
 
 <form @submit.prevent="submitForm" class="m-10 text-gray-100">
-    <div class="flex flex-col items-start sm:grid sm:grid-cols-[auto_minmax(12rem,90vw)] gap-2">
-        <div v-for="param in formModel" class="contents">
-            <label :for="`input_`+param.field" class="py-2 w-auto">{{ param.text }}:</label>
-            <input :id="`input_`+param.field" @input="(e) => {param.value = e.target.value}" :type="param.type ? param.type : `text`" :name="param.field" class="outline-none px-2 h-full bg-transparent w-full border-b" />
+    <div class="md:grid md:grid-cols-3 md:gap-4">
+        <div v-for="param in formModel" class="flex flex-col items-start">
+            <label :for="`input_`+param.field" class="pt-3 w-auto">{{ param.text }}:</label>
+            <input :id="`input_`+param.field" @input="(e) => {param.value = e.target.value}" :type="param.type ? param.type : `text`" :name="param.field" class="outline-none px-2 py-2 h-full bg-transparent w-full border-b rounded-md" />
         </div>
-        <input type="submit" class="h-8 bg-claytonYellow w-full text-gray-900 col-span-2" text="Submit!!"></input>
     </div>
+    <input type="submit" class="h-8 bg-claytonYellow w-full text-gray-900 mt-4 rounded-md" value="Submit"></input>
 </form>
 
 </template>
