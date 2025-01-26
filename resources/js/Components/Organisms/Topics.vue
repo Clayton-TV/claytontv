@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue"
 import LoadingSpinner from "../Atoms/LoadingSpinner.vue"
+import CardSkeleton from "../Atoms/CardSkeleton.vue"
 
 const categories = ref([
     "All",
@@ -712,11 +713,11 @@ let selectedCategory = ref("All")
 let isLoadingSubCategories = ref(false)
 
 function selectCategory(category) {
+    selectedCategory.value = category
     isLoadingSubCategories.value = true
     setTimeout(() => {
-        selectedCategory.value = category
         isLoadingSubCategories.value = false
-    }, 500)
+    }, 800)
 }
 </script>
 
@@ -749,32 +750,38 @@ function selectCategory(category) {
         </ul>
     </div>
     <div class="w-full px-4 pb-4">
-        <LoadingSpinner
+        <h1 class="my-4 text-lg">
+            Subcategories for:
+            <span class="text-xl font-bold">{{ selectedCategory }}</span>
+        </h1>
+        <div
             v-if="isLoadingSubCategories"
-            class="h-[100vh] w-[100vw]"></LoadingSpinner>
-        <div v-else>
-            <h1 class="my-4 text-lg">
-                Subcategories for:
-                <span class="text-xl font-bold">{{ selectedCategory }}</span>
-            </h1>
-            <ul
-                class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-                <li
-                    v-for="(subcategory, index) in filteredSubCategories"
-                    :key="index"
-                    class="relative">
-                    <div class="aspect-[5/1] rounded-lg bg-blue-950 p-4">
-                        <div class="my-auto">
-                            <h2 class="font-bold">{{ subcategory.name }}</h2>
-                            <div class="block">
-                                {{ subcategory.videosCount }} programme{{
-                                    subcategory.videosCount > 1 ? "s" : ""
-                                }}
-                            </div>
+            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+            <CardSkeleton
+                v-for="skeletonIndex in 6"
+                :key="skeletonIndex"
+                :rowCount="1"
+                :customClasses="'bg-blue-950'"
+                :darkText="false" />
+        </div>
+        <ul
+            v-else
+            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+            <li
+                v-for="(subcategory, index) in filteredSubCategories"
+                :key="index"
+                class="relative">
+                <div class="aspect-[5/1] rounded-lg bg-blue-950 p-4">
+                    <div class="my-auto">
+                        <h2 class="font-bold">{{ subcategory.name }}</h2>
+                        <div class="block">
+                            {{ subcategory.videosCount }} programme{{
+                                subcategory.videosCount > 1 ? "s" : ""
+                            }}
                         </div>
                     </div>
-                </li>
-            </ul>
-        </div>
+                </div>
+            </li>
+        </ul>
     </div>
 </template>
