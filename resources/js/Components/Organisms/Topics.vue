@@ -748,7 +748,7 @@ function selectCategory(category) {
             </li>
         </ul>
     </div>
-    <div class="w-full px-4">
+    <div class="w-full px-4 pb-4">
         <LoadingSpinner
             v-if="isLoadingSubCategories"
             class="h-[100vh] w-[100vw]"></LoadingSpinner>
