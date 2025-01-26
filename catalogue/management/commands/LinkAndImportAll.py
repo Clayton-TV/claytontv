@@ -15,7 +15,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        print("Starting Import")
         Import.myimport(self,options["DEBUG"])
+        print("Starting Linking")
         Link.mylink(self,options["DEBUG"])
 
 

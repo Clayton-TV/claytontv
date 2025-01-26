@@ -26,7 +26,7 @@ class Command(BaseCommand):
             for row in reader: # cycles through the row of the dictionary previously created.
                 if Debug: # Debug Text
                     print(row) # Debug Text
-                    print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
+                    print("Imported " + row['Name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Video.objects.create(
                     id = row['ID'],
                     id_number=row['ID Number'],
@@ -37,17 +37,17 @@ class Command(BaseCommand):
                     #number_in_series = row['number_in_series'],
                     name = row['Name'],
                     #speaker = row['speaker'],
-                    is_livestream = row['Is_Livestream'],
+                    #is_livestream = row['IsLivestream'],
                     #topic = row['topic']
 
                     thumbnail = row['Thumbnail'],
 
-                    date_recorded = row['date_recorded'], #Year-Month-Date
-                    date_created = row['date_created'],
-                    date_modified = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
+                    #date_recorded = datetime.strptime(row['DateRecorded'], '%d/%m/%y').strftime('%Y-%m-%d'), #Year-Month-Date
+                    date_created = datetime.utcnow().strftime('%Y-%m-%d'),
+                    date_modified = datetime.utcnow().strftime('%Y-%m-%d'),
 
                     #labels = somelabel this will probably be created at the same time in this script
-                    channel = row["channel"],
+                    #channel = row["Channel"],
                     #series = row[series],
 
                 )

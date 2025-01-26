@@ -21,9 +21,13 @@ class Command(BaseCommand):
         self.mylink(options["DEBUG"])
 
     def mylink(self,Options):
+        print("Linking Demographics")
         Demographics.link_demographics(self,"CSV/Demographics.csv", Options)
+        print("Linking Ministries")
         Ministry.link_ministries(self, "CSV/Ministries.csv", Options)
+        print("Linking Videos")
         Video.link_videos(self, "CSV/Videos.csv", Options)
+        print("Linking Series")
         Series.link_series("CSV/Series.csv", Options)
 
 

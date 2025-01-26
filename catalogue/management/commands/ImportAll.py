@@ -25,10 +25,17 @@ class Command(BaseCommand):
 
     def myimport(self,Options):
         #the order here is important, some of the imports might have link functionality
+        print("Import Bible Books")
         Bible.imp_bible(self,"CSV/Bible Books.csv",Options)
+        print("Import Demographics")
         Demographics.imp_demographics(self,"CSV/Demographics.csv", Options)
+        print("Import Ministries")
         Ministries.imp_ministries(self,"CSV/Ministry.csv", Options)
+        print("Import Topics")
         Topics.imp_topics(self,"CSV/Topics.csv", Options)
+        print("Import Speakers")
         Speakers.imp_speakers(self, "CSV/Speakers.csv", Options)
+        print("Import Videos")
         Videos.imp_videos(self, "CSV/Videos.csv", Options)
+        print("Import Series")
         Series.imp_series(self, "CSV/SSeries.csv", Options)
