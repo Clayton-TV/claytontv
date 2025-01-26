@@ -713,11 +713,13 @@ let selectedCategory = ref("All")
 let isLoadingSubCategories = ref(false)
 
 function selectCategory(category) {
-    selectedCategory.value = category
-    isLoadingSubCategories.value = true
-    setTimeout(() => {
-        isLoadingSubCategories.value = false
-    }, 800)
+    if (category !== selectedCategory.value) {
+        selectedCategory.value = category
+        isLoadingSubCategories.value = true
+        setTimeout(() => {
+            isLoadingSubCategories.value = false
+        }, 800)
+    }
 }
 </script>
 
