@@ -39,7 +39,7 @@ const submitForm = () => {
             <input :id="`input_`+param.field" @input="(e) => {param.value = e.target.value}" :type="param.type ? param.type : `text`" :name="param.field" class="outline-none px-2 py-2 h-full bg-transparent w-full border-b rounded-md" />
         </div>
     </div>
-    <input type="submit" class="h-8 bg-claytonYellow w-full text-gray-900 mt-4 rounded-md" value="Submit"></input>
+    <input type="submit" class="h-10 bg-gray-900 w-full mt-4 rounded-md" value="Submit"></input>
 </form>
 
 </template>
