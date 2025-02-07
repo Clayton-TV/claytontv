@@ -719,6 +719,8 @@ function selectCategory(category) {
         setTimeout(() => {
             isLoadingSubCategories.value = false
         }, 800)
+    } else {
+        selectedCategory.value = "All"
     }
 }
 </script>
