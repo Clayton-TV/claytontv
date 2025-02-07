@@ -12,6 +12,9 @@ const props = defineProps({
     latest_videos: {
         type: Array,
     },
+    topics_data: {
+        type: Object,
+    },
 })
 </script>
 
@@ -25,5 +28,5 @@ const props = defineProps({
         :videos="latest_videos"
         title="Latest Videos"
         description="Watch our most recent videos here." />
-    <Topics />
+    <Topics :topics_data="topics_data" />
 </template>
