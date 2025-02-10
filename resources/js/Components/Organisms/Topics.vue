@@ -13,7 +13,7 @@ const props = defineProps({
 const categories = ref(props.topics_data.map((t) => t.category).filter((item, index, array) => (array.indexOf(item) == index)))
 
 // For each topic entry, obtain its name, category it belongs to, and number of videos it encompasses
-const subCategories = ref(props.topics_data.map((t) => ({category: t.category, name: t.name, videosCount: t.videos.length})))
+const subCategories = ref(props.topics_data)
 
 const sortedCategories = computed(() => {
     return categories.value.sort((a, b) => a.localeCompare(b))

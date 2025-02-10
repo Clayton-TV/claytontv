@@ -11,13 +11,15 @@ def index(request):
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")
     topics_all = Topic.objects.all()
 
+    topics_data = [ {"category": t.category, "name": t.name, "videosCount": len(t.videos.all())} for t in topics_all ]
+
     return render(
         request,
         "Welcome",
         {
             "livestreams": livestreams,
             "latest_videos": latest_videos,
-            "topics_data": topics_all,
+            "topics_data": topics_data,
         },
     )
 
