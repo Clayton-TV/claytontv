@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 Series.objects.create(
                     name = row['Title'],
                     #id_number = row['ID'], not used
-                    summary = row['summary'],
+                    summary = row['Summary'],
                     #topic = row['topic'],
                     #speaker = row[speaker],
                     #ministry = row['ministry'],

@@ -38,4 +38,4 @@ class Command(BaseCommand):
         print("Import Videos")
         Videos.imp_videos(self, "CSV/Videos.csv", Options)
         print("Import Series")
-        Series.imp_series(self, "CSV/SSeries.csv", Options)
+        Series.imp_series(self, "CSV/Series.csv", Options)
