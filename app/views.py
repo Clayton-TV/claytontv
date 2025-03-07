@@ -12,7 +12,7 @@ def index(request):
     topics_all = Topic.objects.all()
 
     topics_data = [
-        {"category": t.category, "name": t.name, "videosCount": len(t.videos.all())}
+        {"category": t.category, "name": t.name, "videosCount": len(t.video_set.all())}
         for t in topics_all
     ]
 
