@@ -53,6 +53,7 @@ def video(request, id):
         {"video": Video.objects.get(id=id)},
     )
 
+
 def browse_topic(request, id):
     try:
         topic = Topic.objects.get(name=id)
