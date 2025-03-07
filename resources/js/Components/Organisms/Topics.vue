@@ -2,6 +2,7 @@
 import { ref, computed } from "vue"
 import LoadingSpinner from "../Atoms/LoadingSpinner.vue"
 import CardSkeleton from "../Atoms/CardSkeleton.vue"
+import { Link } from "@inertiajs/vue3"
 const props = defineProps({
     topics_data: {
         type: Object,
@@ -98,13 +99,15 @@ function selectCategory(category) {
             <li
                 v-for="(subcategory, index) in filteredSubCategories"
                 :key="index"
-                class="rounded-lg bg-blue-950 p-4">
-                <h2 class="font-bold">{{ subcategory.name }}</h2>
-                <div>
-                    {{ subcategory.videosCount }} programme{{
-                        subcategory.videosCount > 1 ? "s" : ""
-                    }}
-                </div>
+                class="contents">
+                <Link :href="`/topic/`+subcategory.name" :id="subcategory.name" class="rounded-lg bg-blue-950 p-4">
+                    <h2 class="font-bold">{{ subcategory.name }}</h2>
+                    <div>
+                        {{ subcategory.videosCount }} programme{{
+                            subcategory.videosCount == 1 ? "" : "s"
+                        }}
+                    </div>
+                </Link>
             </li>
         </ul>
     </div>
