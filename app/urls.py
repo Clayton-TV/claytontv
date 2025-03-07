@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import index, search, video, browse
+from .views import index, search, video, browse_topic
 
 urlpatterns = [
     path("", index, name="home"),
@@ -27,5 +27,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("video/<int:id>", video, name="video"),
-    path("browse/<str:id>", browse, name="browse"),
+    path("topic/<str:id>", browse_topic, name="browse_topic"),
 ]
