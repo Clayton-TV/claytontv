@@ -52,3 +52,27 @@ def video(request, id):
         "Video",
         {"video": Video.objects.get(id=id)},
     )
+
+def browse(request, id):
+    try:
+        topic = Topic.objects.get(name=id)
+    except Topic.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": "Topic not found: '%s'" % id,
+                "description": "Error retreiving topic data: '%s'" % e,
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": topic.video_set.all(),
+            "title": "Topic: %s" % id,
+            "description": topic.summary,
+        },
+    )
