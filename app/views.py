@@ -4,6 +4,7 @@ from catalogue.models.video import Video
 from catalogue.models.topic import Topic
 from urllib.parse import unquote  # Import for URL decoding
 
+
 def index(request):
     # TODO: paginate
 
@@ -12,7 +13,12 @@ def index(request):
     topics_all = Topic.objects.all()
 
     topics_data = [
-        {"category": t.category, "name": t.name, "videosCount": len(t.video_set.all()), "url": t.get_absolute_url()}
+        {
+            "category": t.category,
+            "name": t.name,
+            "videosCount": len(t.video_set.all()),
+            "url": t.get_absolute_url(),
+        }
         for t in topics_all
     ]
 
