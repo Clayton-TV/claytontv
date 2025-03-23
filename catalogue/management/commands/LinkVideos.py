@@ -41,8 +41,10 @@ class Command(BaseCommand):
                 except django.core.exceptions.ObjectDoesNotExist:
                     print("The entry " + row['Name'] + " does not exist" )
 
+
                 except django.core.exceptions.MultipleObjectsReturned:
                     print("The entry " + row['Name'] + " returned duplicate elements" )
+
 
                 else:
 
@@ -51,7 +53,7 @@ class Command(BaseCommand):
 
                     for i in topics:
                         try:
-                            Vid.videos.add(Topic.objects.get(id = i))
+                            Vid.topic.add(Topic.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Topic " + i + " does not exist")
@@ -61,7 +63,7 @@ class Command(BaseCommand):
 
                     for i in speaker:
                         try:
-                            Vid.videos.add(Speaker.objects.get(id=i))
+                            Vid.speaker.add(Speaker.objects.get(id=i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Speaker " + i + " does not exist")

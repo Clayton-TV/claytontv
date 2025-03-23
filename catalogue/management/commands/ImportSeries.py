@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
                 Series.objects.create(
                     name = row['Title'],
-                    #id_number = row['ID'], not used
+                    id_number = row['ID'],
                     summary = row['Summary'],
                     #topic = row['topic'],
                     #speaker = row[speaker],

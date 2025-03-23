@@ -24,10 +24,10 @@ class Command(BaseCommand):
         print("Linking Demographics")
         Demographics.link_demographics(self,"CSV/Demographics.csv", Options)
         print("Linking Ministries")
-        Ministry.link_ministries(self, "CSV/Ministries.csv", Options)
+        Ministry.link_ministries(self, "CSV/Ministry.csv", Options)
         print("Linking Videos")
         Video.link_videos(self, "CSV/Videos.csv", Options)
         print("Linking Series")
-        Series.link_series("CSV/Series.csv", Options)
+        Series.link_series(self, "CSV/Series.csv", Options)
 
 

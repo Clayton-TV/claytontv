@@ -45,7 +45,7 @@ class Command(BaseCommand):
 
                 else:
 
-                    Min.Videos.clear()
+                    Min.videos.clear()
 
                     for i in videos:
                         try:

@@ -38,8 +38,10 @@ class Command(BaseCommand):
                 try:
                     Dem = Demographic.objects.get(name = row['Name'])
 
+
                 except django.core.exceptions.ObjectDoesNotExist:
                     print("The entry " + row['Name'] + " does not exist" )
+                    input("Press Enter to continue...")
 
                 except django.core.exceptions.MultipleObjectsReturned:
                     print("The entry " + row['Name'] + " returned duplicate elements" )
@@ -52,10 +54,16 @@ class Command(BaseCommand):
 
                     for i in topics:
                         try:
-                            Dem.topics.add(Topic.objects.get(name = i))
+                            Dem.topics.add(Topic.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The topic " + i + " does not exist")
+                            print(Topic.objects.get(name = 'The Law').id)
+                            if (i == Topic.objects.get(name = 'The Law').id):
+                                print("true")
+                            else:
+                                print("false")
+                            input("Press Enter to continue...")
 
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The topic " + i + " returned duplicate elements")
@@ -67,6 +75,7 @@ class Command(BaseCommand):
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Series " + i + " does not exist")
 
+
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The Series " + i + " returned duplicate elements")
 
@@ -76,6 +85,7 @@ class Command(BaseCommand):
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Video " + i + " does not exist")
+                            input("Press Enter to continue...")
 
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The Video " + i + " returned duplicate elements")

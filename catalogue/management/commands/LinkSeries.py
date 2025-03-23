@@ -39,24 +39,24 @@ class Command(BaseCommand):
                 videos = row['Videos'].split(',')
 
                 try:
-                    Series = Series.objects.get(id = row['ID'])
+                    Ser = Series.objects.get(id = row['ID'])
 
                 except django.core.exceptions.ObjectDoesNotExist:
-                    print("The entry " + row['Name'] + " does not exist" )
+                    print("The entry " + row['ID'] + " does not exist" )
 
                 except django.core.exceptions.MultipleObjectsReturned:
-                    print("The entry " + row['Name'] + " returned duplicate elements" )
+                    print("The entry " + row['ID'] + " returned duplicate elements" )
 
                 else:
 
-                    Series.topic.clear()
-                    Series.speaker.clear()
-                    Series.Videos.clear()
+                    Ser.topic.clear()
+                    Ser.speaker.clear()
+                    Ser.videos.clear()
 
 
                     for i in topics:
                         try:
-                            Series.videos.add(Topic.objects.get(id = i))
+                            Ser.topic.add(Topic.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Topic " + i + " does not exist")
@@ -68,7 +68,7 @@ class Command(BaseCommand):
 
                     for i in speaker:
                         try:
-                            Series.videos.add(Speaker.objects.get(id=i))
+                            Ser.speaker.add(Speaker.objects.get(id=i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Speaker " + i + " does not exist")
@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
                     for i in videos:
                         try:
-                            Series.videos.add(Video.objects.get(id = i))
+                            Ser.videos.add(Video.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Video " + i + " does not exist")
