@@ -21,6 +21,7 @@ class Command(BaseCommand):
         self.link_demographics("CSV/Demographics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
     def CleanID(self, ItemIn):
+        # replace with .strip
         ItemOut = ItemIn.replace(" ","")
         ItemOut = ItemOut.replace("'", "")
         ItemOut = ItemOut.replace("[", "")
