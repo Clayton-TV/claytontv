@@ -36,4 +36,6 @@ class Command(BaseCommand):
         ItemOut = ItemOut.replace("'", "")
         ItemOut = ItemOut.replace("[", "")
         ItemOut = ItemOut.replace("]", "")
+        ItemOut = ItemOut.replace("-", "")
+        ItemOut = ItemOut.replace("—", "")
         return ItemOut

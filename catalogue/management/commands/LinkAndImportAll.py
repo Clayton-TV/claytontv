@@ -20,4 +20,11 @@ class Command(BaseCommand):
         print("Starting Linking")
         Link.mylink(self,options["DEBUG"])
 
-
+    def CleanID(self, ItemIn):
+        ItemOut = ItemIn.replace(" ","")
+        ItemOut = ItemOut.replace("'", "")
+        ItemOut = ItemOut.replace("[", "")
+        ItemOut = ItemOut.replace("]", "")
+        ItemOut = ItemOut.replace("-", "")
+        ItemOut = ItemOut.replace("—", "")
+        return ItemOut

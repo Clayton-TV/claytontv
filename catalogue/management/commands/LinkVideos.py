@@ -25,6 +25,8 @@ class Command(BaseCommand):
         ItemOut = ItemOut.replace("'", "")
         ItemOut = ItemOut.replace("[", "")
         ItemOut = ItemOut.replace("]", "")
+        ItemOut = ItemOut.replace("-", "")
+        ItemOut = ItemOut.replace("—", "")
         return ItemOut
 
     def link_videos(self,filepath,Debug):
@@ -60,7 +62,7 @@ class Command(BaseCommand):
 
                     for i in topics:
                         try:
-                            Vid.topic.add(Topic.objects.get(id = i))
+                            Vid.topic.add(Topic.objects.get(name = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Topic " + i + " does not exist")
@@ -70,7 +72,7 @@ class Command(BaseCommand):
 
                     for i in speaker:
                         try:
-                            Vid.speaker.add(Speaker.objects.get(id=i))
+                            Vid.speaker.add(Speaker.objects.get(name=i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Speaker " + i + " does not exist")
