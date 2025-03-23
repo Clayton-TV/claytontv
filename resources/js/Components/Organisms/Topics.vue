@@ -96,19 +96,19 @@ function selectCategory(category) {
         <ul
             v-else
             class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-            <li
+            <Link
                 v-for="(subcategory, index) in filteredSubCategories"
                 :key="index"
-                class="contents">
-                <Link :href="`/topic/`+subcategory.name" :id="subcategory.name" class="rounded-lg bg-blue-950 p-4">
-                    <h2 class="font-bold">{{ subcategory.name }}</h2>
-                    <div>
-                        {{ subcategory.videosCount }} programme{{
-                            subcategory.videosCount == 1 ? "" : "s"
-                        }}
-                    </div>
-                </Link>
-            </li>
+                :href="subcategory.url"
+                :id="subcategory.name"
+                class="rounded-lg bg-blue-950 p-4">
+                <h2 class="font-bold">{{ subcategory.name }}</h2>
+                <div>
+                    {{ subcategory.videosCount }} programme{{
+                        subcategory.videosCount == 1 ? "" : "s"
+                    }}
+                </div>
+            </Link>
         </ul>
     </div>
 </template>

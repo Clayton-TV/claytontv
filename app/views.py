@@ -2,7 +2,7 @@ from inertia import render
 import django
 from catalogue.models.video import Video
 from catalogue.models.topic import Topic
-
+from urllib.parse import unquote  # Import for URL decoding
 
 def index(request):
     # TODO: paginate
@@ -12,7 +12,7 @@ def index(request):
     topics_all = Topic.objects.all()
 
     topics_data = [
-        {"category": t.category, "name": t.name, "videosCount": len(t.video_set.all())}
+        {"category": t.category, "name": t.name, "videosCount": len(t.video_set.all()), "url": t.get_absolute_url()}
         for t in topics_all
     ]
 
@@ -55,15 +55,18 @@ def video(request, id):
 
 
 def browse_topic(request, id):
+    # Decode the URL-encoded `id` parameter
+    decoded_id = unquote(id)
+
     try:
-        topic = Topic.objects.get(name=id)
+        topic = Topic.objects.get(name=decoded_id)
     except Topic.DoesNotExist as e:
         return render(
             request,
             "Browse",
             {
                 "videos": [],
-                "title": "Topic not found: '%s'" % id,
+                "title": "Topic not found: '%s'" % decoded_id,
                 "description": "Error retreiving topic data: '%s'" % e,
             },
         )
@@ -73,7 +76,7 @@ def browse_topic(request, id):
         "Browse",
         {
             "videos": topic.video_set.all(),
-            "title": "Topic: %s" % id,
+            "title": "Topic: %s" % decoded_id,
             "description": topic.summary,
         },
     )

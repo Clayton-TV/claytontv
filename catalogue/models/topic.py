@@ -3,7 +3,7 @@ from django.db import models
 # from .video import Video
 # from .series import Series
 from django.urls import reverse  # generate urls by reversing url pattern
-
+from urllib.parse import quote  # Import for URL encoding
 
 class Topic(models.Model):
     """Model representing video topics"""
@@ -34,7 +34,8 @@ class Topic(models.Model):
 
     def get_absolute_url(self):
         """Returns the url to access a particular topic instance"""
-        return reverse("topic-detail", args=[str(self.name)])
+        encoded_name = quote(self.name, safe="")  # Encode the name, escaping all special characters
+        return reverse("browse_topic", args=[encoded_name])
 
     class Meta:
         ordering = ["name"]
