@@ -20,6 +20,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.link_ministries("CSV/Ministry.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
+    def CleanID(self, ItemIn):
+        ItemOut = ItemIn.replace(" ","")
+        ItemOut = ItemOut.replace("'", "")
+        ItemOut = ItemOut.replace("[", "")
+        ItemOut = ItemOut.replace("]", "")
+        return ItemOut
+
     def link_ministries(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
@@ -32,7 +39,7 @@ class Command(BaseCommand):
                     print("Linked " + row['Name'])# Debug Text, note that the rows are referred to by the column headers in the dict
 
 
-                videos = row['Videos'].split(',')
+                videos = self.CleanID(row['Videos']).split(',')
 
                 try:
                     Min = Ministry.objects.get(name = row['Name'])

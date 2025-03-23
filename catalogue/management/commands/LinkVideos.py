@@ -20,6 +20,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.link_videos("CSV/Videos.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
+    def CleanID(self, ItemIn):
+        ItemOut = ItemIn.replace(" ","")
+        ItemOut = ItemOut.replace("'", "")
+        ItemOut = ItemOut.replace("[", "")
+        ItemOut = ItemOut.replace("]", "")
+        return ItemOut
+
     def link_videos(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
@@ -32,8 +39,8 @@ class Command(BaseCommand):
                     print("Linked " + row['Name'])# Debug Text, note that the rows are referred to by the column headers in the dict
 
 
-                topics = row['Topic'].split(',')
-                speaker = row['Speaker/Artist'].split(',')
+                topics = self.CleanID(row['Topic']).split(',')
+                speaker = self.CleanID(row['Speaker/Artist']).split(',')
 
                 try:
                     Vid = Video.objects.get(id = row['ID'])

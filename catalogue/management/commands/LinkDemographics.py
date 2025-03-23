@@ -20,6 +20,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.link_demographics("CSV/Demographics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
+    def CleanID(self, ItemIn):
+        ItemOut = ItemIn.replace(" ","")
+        ItemOut = ItemOut.replace("'", "")
+        ItemOut = ItemOut.replace("[", "")
+        ItemOut = ItemOut.replace("]", "")
+        return ItemOut
+
+
     def link_demographics(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
@@ -31,9 +39,9 @@ class Command(BaseCommand):
                     print(row) # Debug Text
                     print("Linked " + row['Name'])# Debug Text, note that the rows are referred to by the column headers in the dict
 
-                topics = row['Topics'].split(',')
-                series = row['Series'].split(',')
-                videos = row['Videos'].split(',')
+                topics = self.CleanID(row['Topics']).split(',')
+                series = self.CleanID(row['Series']).split(',')
+                videos = self.CleanID(row['Videos']).split(',')
 
                 try:
                     Dem = Demographic.objects.get(name = row['Name'])
@@ -52,25 +60,34 @@ class Command(BaseCommand):
                     Dem.series.clear()
                     Dem.videos.clear()
 
+                    if Debug:
+                        print("Linking Topics")
+                        input("Press Enter to continue...")
+
                     for i in topics:
                         try:
                             Dem.topics.add(Topic.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The topic " + i + " does not exist")
-                            print(Topic.objects.get(name = 'The Law').id)
-                            if (i == Topic.objects.get(name = 'The Law').id):
-                                print("true")
-                            else:
-                                print("false")
-                            input("Press Enter to continue...")
+                            if Debug:
+                                input("Press Enter to continue...")
 
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The topic " + i + " returned duplicate elements")
 
+                        else:
+                            if Debug:
+                                print("Entry " + i + " linked")
+
+                    if Debug:
+                        print("Linking Series")
+                        input("Press Enter to continue...")
+
                     for i in series:
                         try:
                             Dem.series.add(Series.objects.get(id_number = i))
+                            input("Press Enter to continue...")
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Series " + i + " does not exist")
@@ -79,17 +96,31 @@ class Command(BaseCommand):
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The Series " + i + " returned duplicate elements")
 
+                        else:
+                            if Debug:
+                                print("Entry " + i + " linked")
+
+                    if Debug:
+                        print("Linking Videos")
+                        input("Press Enter to continue...")
+
                     for i in videos:
                         try:
                             Dem.videos.add(Video.objects.get(id = i))
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Video " + i + " does not exist")
-                            input("Press Enter to continue...")
+                            if Debug:
+                                print(Topic.objects.get(name = 'The Law').id)
+                                input("Press Enter to continue...")
+
 
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The Video " + i + " returned duplicate elements")
 
+                        else:
+                            if Debug:
+                                print("Entry " + i + " linked")
 
 
 

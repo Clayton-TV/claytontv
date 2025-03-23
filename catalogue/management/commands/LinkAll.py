@@ -31,3 +31,9 @@ class Command(BaseCommand):
         Series.link_series(self, "CSV/Series.csv", Options)
 
 
+    def CleanID(self, ItemIn):
+        ItemOut = ItemIn.replace(" ","")
+        ItemOut = ItemOut.replace("'", "")
+        ItemOut = ItemOut.replace("[", "")
+        ItemOut = ItemOut.replace("]", "")
+        return ItemOut
