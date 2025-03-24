@@ -2,6 +2,7 @@
 import { ref, computed } from "vue"
 import LoadingSpinner from "../Atoms/LoadingSpinner.vue"
 import CardSkeleton from "../Atoms/CardSkeleton.vue"
+import { Link } from "@inertiajs/vue3"
 const props = defineProps({
     topics_data: {
         type: Object,
@@ -10,7 +11,12 @@ const props = defineProps({
 })
 
 // List out category from all topics, then filter down to only keep the first instance of each category
-const categories = ref(props.topics_data.map((t) => t.category).filter((item, index, array) => (array.indexOf(item) == index)))
+const categories = ref([
+    "All",
+    ...props.topics_data
+        .map((t) => t.category)
+        .filter((item, index, array) => array.indexOf(item) == index),
+])
 
 // For each topic entry, obtain its name, category it belongs to, and number of videos it encompasses
 const subCategories = ref(props.topics_data)
@@ -40,8 +46,6 @@ function selectCategory(category) {
         setTimeout(() => {
             isLoadingSubCategories.value = false
         }, 800)
-    } else {
-        selectedCategory.value = "All"
     }
 }
 </script>
@@ -92,17 +96,19 @@ function selectCategory(category) {
         <ul
             v-else
             class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-            <li
+            <Link
                 v-for="(subcategory, index) in filteredSubCategories"
                 :key="index"
+                :href="subcategory.url"
+                :id="subcategory.name"
                 class="rounded-lg bg-blue-950 p-4">
                 <h2 class="font-bold">{{ subcategory.name }}</h2>
                 <div>
                     {{ subcategory.videosCount }} programme{{
-                        subcategory.videosCount > 1 ? "s" : ""
+                        subcategory.videosCount == 1 ? "" : "s"
                     }}
                 </div>
-            </li>
+            </Link>
         </ul>
     </div>
 </template>
