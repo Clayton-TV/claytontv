@@ -13,7 +13,8 @@ const getYoutubeId = (videoUrl) => {
 }
 
 const getVimeoId = (videoUrl) => {
-    const vimeoRegex = /^(http|https):\/\/vimeo.com\/([\w]+).*/; // Match strings starting with http://vimeo.com/ or https://vimeo.com/ then match from the first forwardslash after domain name until next forwardslash or end of url
+    // Regex to match strings starting with http://vimeo.com/ or https://vimeo.com/ and from there, match and extract an alphanumeric string until the end or any non-alphanumeric character (eg another forwardslash)
+    const vimeoRegex = /^(http|https):\/\/vimeo.com\/([\w]+).*/;
     const vimeoId = videoUrl.match(vimeoRegex)?.[2];
     return vimeoId
 }
