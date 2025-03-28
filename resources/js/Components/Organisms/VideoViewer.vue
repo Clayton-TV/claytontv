@@ -58,8 +58,7 @@ const videoThumbnail = (videoUrl) => {
         <div class="w-full">
             <h1 class="border-t border-gray-800 divide-grey-900 pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
             <p
-                class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description">
-                {{ video.description }}
+                class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description" v-html="video.description">
             </p>
             <div class="grid grid-cols-4 gap-1">
                 <span
