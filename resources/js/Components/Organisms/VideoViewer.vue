@@ -12,10 +12,20 @@ const getYoutubeId = (videoUrl) => {
     return youtubeId
 }
 
+const getVimeoId = (videoUrl) => {
+    // Regex to match strings starting with http://vimeo.com/ or https://vimeo.com/ and from there, match and extract an alphanumeric string until the end or any non-alphanumeric character (eg another forwardslash)
+    const vimeoRegex = /^(http|https):\/\/vimeo.com\/([\w]+).*/;
+    const vimeoId = videoUrl.match(vimeoRegex)?.[2];
+    return vimeoId
+}
+
 const getEmbedUrl = (videoUrl) => {
     const youtubeId = getYoutubeId(videoUrl)
+    const vimeoId = getVimeoId(videoUrl)
     if (youtubeId) {
         return `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=0&playsinline=1`
+    } else if (vimeoId) {
+        return `https://player.vimeo.com/video/${vimeoId}`
     } else {
         return false
     }
