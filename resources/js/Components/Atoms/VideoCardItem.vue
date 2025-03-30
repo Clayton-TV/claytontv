@@ -40,7 +40,7 @@ const getVideoThumbnail = (videoUrl) => {
                 {{ video.name }}
             </h3>
             <p class="line-clamp-1 truncate text-sm text-gray-400">
-                10:30 AM Sunday 20th Oct
+                {{ video.date_recorded ? "Recorded: " + video.date_recorded : "Added: " + video.date_created }}
             </p>
         </div>
     </div>
