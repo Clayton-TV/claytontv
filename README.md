@@ -24,6 +24,11 @@ Python (the programming language that our Django app uses)
 - [Python 3.13.1](https://www.python.org/downloads/release/python-3131/) (Select the `Windows installer (64-bit)` or `macOS 64-bit universal2 installer`, depending on your OS. Linux users you can follow [this guide](https://ubuntuhandbook.org/index.php/2024/02/install-python-3-13-ubuntu/))
 - Note: for users that use an existing Python version, don't worry, you can have multiple versions installed at a time. We'll use `pipenv` to auto-configure the app to use 3.13.
 
+> Note: If you have Python 3.12 or earlier, you may need to install [Python 3.13](https://www.python.org/downloads/release/python-3131/). You can do this by running the following command in your terminal:
+> ```sh
+> pipenv --python 3.13
+> ```
+
 Node.js (for the front-end design of our app)
 - [Node 20.12.2 LTS](https://nodejs.org/en/download) (Long-Term Support, or LTS, means that it will get features and security updates for longer)
 - Alternatively, for Mac or Linux users, check out [Node Version Manager](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating). This requires technical skill to set up.
@@ -43,7 +48,7 @@ cd claytontv
 Set up python environment
 ```sh
 # Install pipenv
-python3.12 -m pip install pipenv
+python3.13 -m pip install pipenv
 
 #Above command may fail in MacOS (x86_64 Intel chip) - instead this works, then continue as before.
 brew install pipenv
@@ -86,7 +91,7 @@ Go to [http://localhost:8000](http://localhost:8000) and you should see the imag
 3. commands need "pipenv run" prefix
 
 ### Useful Tips
-1. On windows you can open cmd at a specific folder by navigating there and typing CMD in the location bar of the explorer window.
+- On Windows you can open cmd at a specific folder by navigating there and typing CMD in the location bar of the explorer window.
    
 ## Contributing
 
