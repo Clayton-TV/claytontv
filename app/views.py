@@ -3,7 +3,9 @@ import django
 from catalogue.models.video import Video
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
-from catalogue.models.demograpic import Demographic # FIXME Can we rename the file to fix spelling? Or does that break things?
+from catalogue.models.demograpic import (
+    Demographic,
+)  # FIXME Can we rename the file to fix spelling? Or does that break things?
 from catalogue.models.ministry import Ministry
 from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
@@ -61,6 +63,7 @@ def video(request, id):
         {"video": Video.objects.get(id=id)},
     )
 
+
 def browse_bible_book(request, id):
     # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
@@ -87,6 +90,7 @@ def browse_bible_book(request, id):
             "description": bible_book.summary,
         },
     )
+
 
 def browse_channel(request, id):
     # Decode the URL-encoded `id` parameter
@@ -115,6 +119,7 @@ def browse_channel(request, id):
         },
     )
 
+
 def browse_demographic(request, id):
     # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
@@ -141,6 +146,7 @@ def browse_demographic(request, id):
             "description": demographic.summary,
         },
     )
+
 
 def browse_ministry(request, id):
     # Decode the URL-encoded `id` parameter
@@ -169,6 +175,7 @@ def browse_ministry(request, id):
         },
     )
 
+
 def browse_series(request, id):
     # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
@@ -196,6 +203,7 @@ def browse_series(request, id):
         },
     )
 
+
 def browse_speaker(request, id):
     # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
@@ -222,6 +230,7 @@ def browse_speaker(request, id):
             "description": speaker.bio,
         },
     )
+
 
 def browse_topic(request, id):
     # Decode the URL-encoded `id` parameter

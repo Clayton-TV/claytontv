@@ -18,7 +18,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import index, search, video, browse_bible_book, browse_channel, browse_demographic, browse_ministry, browse_series, browse_speaker, browse_topic
+from .views import (
+    index,
+    search,
+    video,
+    browse_bible_book,
+    browse_channel,
+    browse_demographic,
+    browse_ministry,
+    browse_series,
+    browse_speaker,
+    browse_topic,
+)
 
 urlpatterns = [
     path("", index, name="home"),
