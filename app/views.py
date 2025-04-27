@@ -30,6 +30,16 @@ def index(request):
         for t in topics_all
     ]
 
+    series_data = [
+        {
+            "category": [m.name for m in s.ministry.all() if m.name is not None],
+            "name": s.name,
+            "videosCount": len(s.video_set.all()),
+            "url": s.get_absolute_url(),
+        }
+        for s in Series.objects.all()
+    ]
+
     return render(
         request,
         "Welcome",
@@ -37,6 +47,7 @@ def index(request):
             "livestreams": livestreams,
             "latest_videos": latest_videos,
             "topics_data": topics_data,
+            "series_data": series_data,
         },
     )
 
