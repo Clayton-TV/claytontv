@@ -1,4 +1,6 @@
 import csv
+import string
+
 from django.core.management.base import BaseCommand, CommandError
 from catalogue.models.video  import Video
 from datetime import datetime
@@ -16,6 +18,45 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.imp_videos("CSV/Videos.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+
+    def parse_video_date(self,DateString,ID,AltString):
+        print(DateString)
+        print(AltString)
+        print(ID)
+        try:
+            DateOut = datetime.strptime(DateString,"%d/%m/%Y")
+        except ValueError:
+            if self.ID_has_date(ID):
+                DateOut = datetime.strptime(self.get_ID_date(ID) , "%d/%m/%Y")
+            else:
+                DateOut = datetime.strptime(AltString, "%d/%m/%Y")
+        return(DateOut)
+
+    def ID_has_date(self,ID):
+
+        for i in range(0,len(ID)):
+            if ID[i] == '.':
+                if i+3 < len(ID):
+                    if ID[i+3] == '.':
+                        return True
+
+        return False
+
+    def get_ID_date(self,ID):
+
+        for i in range(0,len(ID)):
+            if ID[i] == '.':
+                Anchor = i
+                break
+
+        Day = ID[i - 2 : i ]
+        Month = ID[i + 1 : i + 3 ]
+        Year = ID[i + 4 : i + 6 ]
+
+        Date = Day+'/'+Month+'/'+'20'+Year
+        Date.replace(string.ascii_letters,'0')
+        print(Date)
+        return Date
 
     def imp_videos(self,filepath,Debug):
         if Debug:
@@ -42,7 +83,7 @@ class Command(BaseCommand):
 
                     thumbnail = row['Thumbnail'],
 
-                    #date_recorded = datetime.strptime(row['DateRecorded'], '%d/%m/%y').strftime('%Y-%m-%d'), #Year-Month-Date
+                    date_recorded = self.parse_video_date(row['DateRecorded'],row['ID Number'],row['DateCreated']),
                     date_created = datetime.utcnow().strftime('%Y-%m-%d'),
                     date_modified = datetime.utcnow().strftime('%Y-%m-%d'),
 

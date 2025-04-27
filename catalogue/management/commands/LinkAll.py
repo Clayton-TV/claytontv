@@ -31,11 +31,16 @@ class Command(BaseCommand):
         Series.link_series(self, "CSV/Series.csv", Options)
 
 
-    def CleanID(self, ItemIn):
+    def OldCleanID(self, ItemIn):
         ItemOut = ItemIn.replace(" ","")
         ItemOut = ItemOut.replace("'", "")
         ItemOut = ItemOut.replace("[", "")
         ItemOut = ItemOut.replace("]", "")
         ItemOut = ItemOut.replace("-", "")
         ItemOut = ItemOut.replace("—", "")
+        return ItemOut
+
+    def CleanID(self, ItemIn):
+        SymbolsToStrip = " '[]-—"
+        ItemOut = ItemIn.Strip(SymbolsToStrip)
         return ItemOut

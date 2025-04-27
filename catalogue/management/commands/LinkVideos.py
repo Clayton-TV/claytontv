@@ -21,12 +21,8 @@ class Command(BaseCommand):
         self.link_videos("CSV/Videos.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
     def CleanID(self, ItemIn):
-        ItemOut = ItemIn.replace(" ","")
-        ItemOut = ItemOut.replace("'", "")
-        ItemOut = ItemOut.replace("[", "")
-        ItemOut = ItemOut.replace("]", "")
-        ItemOut = ItemOut.replace("-", "")
-        ItemOut = ItemOut.replace("—", "")
+        SymbolsToStrip = " '[]-—"
+        ItemOut = ItemIn.Strip(SymbolsToStrip)
         return ItemOut
 
     def link_videos(self,filepath,Debug):

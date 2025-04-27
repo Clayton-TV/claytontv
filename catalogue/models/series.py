@@ -11,7 +11,7 @@ from .bible_book import Bible_Book
 class Series(models.Model):
     """Model representing series"""
     name = models.CharField(max_length=200, help_text="The name of the series.")
-    id_number = models.CharField(max_length= 20, help_text="An ID number used when importing the old database", null= True)
+    id_number = models.CharField(max_length= 20, help_text="An ID number used when importing the old database", null= True, primary_key= True)
     summary = models.TextField(max_length=5000, null=True, blank=True, help_text='The summary/description of the series.')
     topic = models.ManyToManyField('Topic', blank=True, related_name='+', help_text='The topic related to the series.')
     speaker = models.ManyToManyField('Speaker', blank=True, related_name='+', help_text='The speaker related to the series.')
