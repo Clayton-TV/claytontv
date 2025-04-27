@@ -22,8 +22,7 @@ const props = defineProps({
     <VideoCardList
         :videos="livestreams"
         title="Watch Live"
-        description="We're live! Check out the current live streams below."
-        is_livestreams />
+        description="We're live! Check out the current live streams below." />
     <VideoCardList
         :videos="latest_videos"
         title="Latest Videos"

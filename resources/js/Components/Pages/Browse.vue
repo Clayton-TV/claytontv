@@ -2,8 +2,7 @@
 import { computed } from "vue"
 import { IconPlayerPlay } from "@tabler/icons-vue"
 import { Link } from "@inertiajs/vue3"
-import VideoCardList from "@/Organisms/VideoCardList.vue"
-import Topics from "@/Organisms/Topics.vue"
+import VideoCardGrid from "@/Organisms/VideoCardGrid.vue"
 
 const props = defineProps({
     videos: {
@@ -20,7 +19,7 @@ const props = defineProps({
 
 <template>
     <!-- Something here to allow the user to navigate to the linked topics, maybe a bit like a breadcrumb trail -->
-    <VideoCardList
+    <VideoCardGrid
         :videos="videos"
         :title="title"
         :description="description ?? `Browsing videos under ` + title" />
