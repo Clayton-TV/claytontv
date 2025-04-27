@@ -50,7 +50,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          port: 2202
           script: |
             # --- Define variables ---
             export RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
