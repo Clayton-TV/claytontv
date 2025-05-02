@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from inertia.utils import InertiaJsonEncoder
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,7 +132,14 @@ DJANGO_VITE_DEV_SERVER_PORT = 5173
 # Inertia settings
 CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
-INERTIA_LAYOUT = "app.html"
+INERTIA_VERSION = "1.0"  # defaults to '1.0'
+INERTIA_LAYOUT = "app.html"  # required and has no default
+INERTIA_JSON_ENCODER = (
+    InertiaJsonEncoder  # defaults to inertia.utils.InertiaJsonEncoder
+)
+INERTIA_SSR_URL = "http://localhost:13714"  # defaults to http://localhost:13714
+INERTIA_SSR_ENABLED = False  # defaults to False
+INERTIA_ENCRYPT_HISTORY = False  # defaults to False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

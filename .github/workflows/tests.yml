@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12.3'
+        python-version: '3.13.1'
         cache: 'pipenv'
 
     - name: Install pipenv
@@ -25,7 +25,6 @@ jobs:
     - name: Install Python dependencies
       run: | 
         pipenv install --dev
-        pipenv install pytest-django
 
     - name: Run migrations
       run: pipenv run python manage.py migrate
