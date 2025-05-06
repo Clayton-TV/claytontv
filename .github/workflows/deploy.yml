@@ -33,7 +33,7 @@ jobs:
             export NEW_RELEASE_DIR="${RELEASES_DIR}/${RELEASE_TIMESTAMP}"
             export CURRENT_SYMLINK="${{ env.APP_BASE_DIR }}/current"
             export GIT_REPO_URL="${{ env.GIT_REPO_URL }}"
-            export GIT_COMMIT_REF="${{ github.ref }}"
+            export GIT_COMMIT_SHA="${{ github.sha }}"
 
             # Ensure the releases directory exists
             mkdir -p "${RELEASES_DIR}"
@@ -41,10 +41,11 @@ jobs:
             echo ">>> Creating release directory: ${NEW_RELEASE_DIR}"
             mkdir -p "${NEW_RELEASE_DIR}"
 
-            echo ">>> Cloning repository (${GIT_REPO_URL}) commit (${GIT_COMMIT_REF})"
+            echo ">>> Cloning repository (${GIT_REPO_URL}) commit (${GIT_COMMIT_SHA})"
             git clone --depth 1 --branch main "${GIT_REPO_URL}" "${NEW_RELEASE_DIR}"
             cd "${NEW_RELEASE_DIR}"
-            git checkout "${GIT_COMMIT_REF}"
+            git fetch
+            git checkout "${GIT_COMMIT_SHA}"
 
             echo ">>> Creating virtual environment"
             python3.13 -m venv venv
@@ -76,5 +77,5 @@ jobs:
             # Keep the last 5 releases
             ls -dt "${RELEASES_DIR}"/* | tail -n +6 | xargs rm -rf
 
-            echo ">>> Deployment of commit ${GIT_COMMIT_REF} completed successfully!"
+            echo ">>> Deployment of commit ${GIT_COMMIT_SHA} completed successfully!"
             
