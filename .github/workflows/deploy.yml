@@ -15,7 +15,8 @@ jobs:
       PYTHON_VERSION: '3.13.1'
       NODE_VERSION: '22'
       APP_BASE_DIR: /srv/clayton.tv
-      GIT_REPO_URL: git@github.com:clayton-tv/claytontv.git
+      # Note: the GitHub url includes the "-claytontv" suffix to use an automated deploy key
+      GIT_REPO_URL: git@github.com-claytontv:clayton-tv/claytontv.git
 
     steps:
       - name: Check out code
