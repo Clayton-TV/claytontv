@@ -42,7 +42,7 @@ jobs:
             mkdir -p "${NEW_RELEASE_DIR}"
 
             echo ">>> Cloning repository (${GIT_REPO_URL}) commit (${GIT_COMMIT_SHA})"
-            git clone --depth 1 --branch main "${GIT_REPO_URL}" "${NEW_RELEASE_DIR}"
+            git clone --depth 1 --branch "${{ github.ref_name }}" "${GIT_REPO_URL}" "${NEW_RELEASE_DIR}"
             cd "${NEW_RELEASE_DIR}"
             git fetch
             git checkout "${GIT_COMMIT_SHA}"
