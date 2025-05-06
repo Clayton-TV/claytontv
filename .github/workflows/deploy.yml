@@ -83,6 +83,7 @@ jobs:
             pip install -r requirements.txt
 
             echo ">>> Installing Node dependencies"
+            source $HOME/.nvm/nvm.sh
             npm ci
             npm run build
 
