@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "claytontv"
+version = "0.1.0"
+description = "Clayton TV provides Christian media you can trust."
+authors = ["Jamie Gardner <jamie@tgo.dev>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.12"
+django = "^5.2.1"
+
+[tool.poetry.group.dev.dependencies]
+poethepoet = "^0.34.0"
+pre-commit = "^4.2.0"
+ruff = "^0.11.8"
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+
+[tool.poe.tasks.manage]
+help = "Run Django management commands"
+cmd = "python manage.py ${args}"
+
+[tool.poe.tasks.format]
+help = "Format all Python files according to the project style"
+cmd = "ruff format ."
+
+[tool.poe.tasks.lint]
+help = "Lint all Python files and fix any fixable issues"
+cmd = "ruff check --fix ."
+
+[tool.poe.tasks.test]
+help = "Run the test suite"
+cmd = "pytest"
+
+

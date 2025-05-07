@@ -1,104 +1,132 @@
-# The official website for Clayton TV
-
-<img width="1672" alt="image" src="https://github.com/Clayton-TV/claytontv/assets/14878653/c2c09122-1118-4b3c-bfbb-3d3b9516915d">
-
-\*This is a demo site, soon to undergo substantial changes! Join our hackathon!
-
-## Getting Started
-
-To get started, you'll need to install a few things. All the tech used is cross-platform, but there will still be a few differences for macOS, Windows and Linux users.
-
-Please follow the instructions carefully, and raise an issue for anything that doesn't work!
-
-### Prerequisites
-
-One of the following code editors (aka an Integrated Development Environment, or IDE)
-- [VS Code](https://code.visualstudio.com/) (Free! You'll likely want the [Django extension](https://marketplace.visualstudio.com/items?itemName=batisteo.vscode-django) too)
-- [PyCharm](https://www.jetbrains.com/toolbox-app/) (Pycharm Community is free, Pycharm Pro is Paid/Trial. Or, download the toolbox and install the Release Candidate, which is free but not always stable.)
-- If you dare, you can use Atom, Sublime, or (please don't) Notepad++.
-
-GitHub Desktop (A nice UI for git, the version management software. It will install git for you if you don't already have it.)
-- https://desktop.github.com/ (Mac and Windows only. Linux users, you're likely familiar with terminal commands anyway, but check out [Oh-My-Zsh](https://github.com/ohmyzsh/ohmyzsh?tab=readme-ov-file#basic-installation) and their [git plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git))
-
-Python (the programming language that our Django app uses)
-- [Python 3.13.1](https://www.python.org/downloads/release/python-3131/) (Select the `Windows installer (64-bit)` or `macOS 64-bit universal2 installer`, depending on your OS. Linux users you can follow [this guide](https://ubuntuhandbook.org/index.php/2024/02/install-python-3-13-ubuntu/))
-- Note: for users that use an existing Python version, don't worry, you can have multiple versions installed at a time. We'll use `pipenv` to auto-configure the app to use 3.13.
-
-> Note: If you have Python 3.12 or earlier, you may need to install [Python 3.13](https://www.python.org/downloads/release/python-3131/). You can do this by running the following command in your terminal:
-> ```sh
-> pipenv --python 3.13
-> ```
-
-Node.js (for the front-end design of our app)
-- [Node 20.12.2 LTS](https://nodejs.org/en/download) (Long-Term Support, or LTS, means that it will get features and security updates for longer)
-- Alternatively, for Mac or Linux users, check out [Node Version Manager](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating). This requires technical skill to set up.
-
-### Install instructions
-
-Clone the repo in Github Desktop, or run the following command in a terminal window (`Note:` you may need to use a Command Prompt on Windows, as a git shell or PowerShell may not work).
-```sh
-git clone git@github.com:Clayton-TV/claytontv
-```
-
-Open the project in your editor, or change directory into the project
-```sh
+## 1. Clone the repository
+Start by cloning the repository and navigating to the project directory:
+```bash
+git clone git@github.com:clayton-tv/claytontv.git
 cd claytontv
 ```
 
-Set up python environment
-```sh
-# Install pipenv
-python3.13 -m pip install pipenv
+## 2. Create a virtual environment
+The project uses Python 3.12. You can either install Python 3.12 on your system or use a version manager like `pyenv` to manage multiple Python versions.
 
-#Above command may fail in MacOS (x86_64 Intel chip) - instead this works, then continue as before.
-brew install pipenv
-
-# Start pipenv
-pipenv shell
+### A. Using `pyenv` (recommended)
+Install pyenv if you haven't already.
+```bash
+curl https://pyenv.run | bash
 ```
 
-Install python dependencies
-```sh
-pipenv install
+You can check if `pyenv` is installed by running:
+```bash
+pyenv --version
 ```
 
-Install the node dependencies
-```sh
-npm install
+Then, install Python 3.12 using `pyenv`:
+```bash
+pyenv install 3.12.8
 ```
 
-Run the migrations
-```sh
-python manage.py migrate
+Verify the installation shows the correct version, which should be `3.12.8`:
+```bash
+python --version 
+# Should output: Python 3.12.8
 ```
 
-Launch the app
-```sh
-# Run the python server (backend)
-python manage.py runserver
+> Note: The project contains a `.python-version` file, which specifies the Python version to use. If you have `pyenv` installed, it will automatically switch to the specified version when you navigate to the project directory.
+
+You can now skip to Step 3 to install the dependencies.
+
+### B. Using a global Python installation (Not recommended)
+First, you will need to install Python 3.12 on your system. You can download it from the official Python website or use a package manager like `apt`, `brew`, or `choco` depending on your operating system.
+You can check if Python 3.12 is installed by running:
+```bash
+python --version
+# or
+python3 --version
 ```
-Open a new terminal window, using the virtual environment as before, and run:
-```sh
-# Run the vite server (frontend)
-npm run dev
+If Python 3.12 is installed, you can create a virtual environment using the following command:
+```bash
+python3.12 -m venv venv
+source venv/bin/activate
 ```
-Go to [http://localhost:8000](http://localhost:8000) and you should see the image at the top of this README file.
 
-### Troubleshooting
+You can now continue to Step 3 to install the dependencies.
 
-1. npm install error - Check you're in the right place - "cd" or do from VSCode
-2. python not found - check environment variables - add python to the path and restart
-3. commands need "pipenv run" prefix
+## 3. Install dependencies
+> Make sure you have activated your virtual environment from Step 2 before running the following commands.
 
-### Useful Tips
-- On Windows you can open cmd at a specific folder by navigating there and typing CMD in the location bar of the explorer window.
-   
-## Contributing
+This project uses Poetry for dependency management. Verify that Poetry is installed by running:
+```bash
+poetry --version # Should show Poetry version 1.8.3 or later
+```
 
-To report a bug, please [raise an issue](https://github.com/Clayton-TV/claytontv/issues/new). Include steps to replicate and a screenshot of the error.
+### Install Poetry
+If you don't have Poetry installed, you can install it as follows.
+#### Linux, macOS, or WSL
+```bash
+curl -sSL https://install.python-poetry.org | python -
+```
 
-To suggest a feature, please [raise an issue](https://github.com/Clayton-TV/claytontv/issues/new). Add a brief summary of the changes and any additional details.
+#### Windows (PowerShell)
+> Note: If you have installed Python through the Microsoft Store, replace `py` with `python` in the following command.
+```bash
+# Windows PowerShell
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+```
+ ### Use Poetry to install dependencies
+Set up the project environment and install the dependencies:
+```bash
+poetry env use 3.12
+poetry install
+poetry run pre-commit install
+```
 
-To commit changes, please create a branch in the pattern of `bug/title-of-bug` or `feature/title-of-feature`. 
+This will:
+- Configure poetry to use Python 3.12.
+- Install all the dependencies listed in `pyproject.toml`.
+- Set up pre-commit hooks for code quality checks.
 
-## Licence
+## 4. Activate the Poetry environment
+We use Poe the Poet as a task manager, which helps self-document useful commands.
+
+Start a Poetry shell
+```bash
+poetry shell
+```
+
+List the project commands
+```bash
+poe
+```
+
+## 5. Run the application
+
+## 6. Troubleshooting
+
+## 7. More
+By way of documentation, this section details a few key aspects of the repository.
+
+### A. Pre-Commit Hooks
+The repository uses pre-commit hooks to enforce code quality checks. 
+These run automatically before each commit.
+You can find the configuration in the `.pre-commit-config.yaml` file.
+
+If you want to manually check the status of the hooks, you can run:
+```bash
+pre-commit run --all-files --show-diff-on-failure
+```
+
+### Code Formatting and Linting
+Ruff is a fast Python linter and code formatter. It is used to enforce code style and catch common errors.
+
+You can run the ruff formatter and linter with:
+```bash
+poe format
+poe lint
+```
+
+### Testing
+The repository uses pytest for testing. 
+
+You can run the tests using:
+```bash
+poe test
+```
