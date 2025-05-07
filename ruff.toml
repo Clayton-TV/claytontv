@@ -5,6 +5,19 @@ extend-exclude = [
 ]
 
 [lint]
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "build", # Python build artifacts
+    "dist",  # Python build artifacts
+    "node_modules",
+    "*/migrations/*", # Django migrations
+    "staticfiles_collected/*",
+    "public/build/*",
+]
 select = [
     "B", # flake8-bugbear
     "C90", # McCabe complexity
