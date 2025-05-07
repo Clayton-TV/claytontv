@@ -129,11 +129,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # DJANGO_VITE_ASSETS_PATH = BASE_DIR / "resources" / "dist"
 # DJANGO_VITE_MANIFEST_PATH = DJANGO_VITE_ASSETS_PATH / "manifest.json"
 # DJANGO_VITE_DEV_SERVER_PORT = 5173
-DJANGO_VITE = {
-    "default": {
-
-    }
-}
+DJANGO_VITE = {"default": {}}
 
 # Inertia settings
 CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
@@ -151,6 +147,4 @@ INERTIA_ENCRYPT_HISTORY = False  # defaults to False
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static"
-STATICFILES_DIRS = [
-    BASE_DIR / "dist"
-]
+STATICFILES_DIRS = [BASE_DIR / "dist"]
