@@ -22,6 +22,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local"
+format-check = "poetry run ruff format --check ."
+lint-check = "poetry run ruff check ."
 
 [tool.poe.tasks.manage]
 help = "Run Django management commands"
@@ -29,14 +31,14 @@ cmd = "python manage.py ${args}"
 
 [tool.poe.tasks.format]
 help = "Format all Python files according to the project style"
-cmd = "ruff format ."
+cmd = "poetry run ruff format ."
 
 [tool.poe.tasks.lint]
 help = "Lint all Python files and fix any fixable issues"
-cmd = "ruff check --fix ."
+cmd = "poetry run ruff check --fix ."
 
 [tool.poe.tasks.test]
 help = "Run the test suite"
-cmd = "pytest"
+cmd = "poetry run pytest"
 
 
