@@ -104,7 +104,14 @@ poe
 ## 7. More
 By way of documentation, this section details a few key aspects of the repository.
 
-### A. Pre-Commit Hooks
+### Manage
+To save a few extra key presses, you can run the django management commands directly using Poe.
+```bash
+poe manage
+# e.g. poe manage runserver
+```
+
+### Pre-Commit Hooks
 The repository uses pre-commit hooks to enforce code quality checks. 
 These run automatically before each commit.
 You can find the configuration in the `.pre-commit-config.yaml` file.
