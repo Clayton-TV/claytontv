@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "~3.12"
 django = "^5.2.1"
+python-dotenv = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.34.0"
@@ -20,6 +21,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
+run = "python manage.py runserver --settings app.local"
 
 [tool.poe.tasks.manage]
 help = "Run Django management commands"
