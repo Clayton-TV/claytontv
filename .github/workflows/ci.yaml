@@ -5,6 +5,7 @@ on:
     types:
       - opened
       - reopened
+  workflow_dispatch:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
