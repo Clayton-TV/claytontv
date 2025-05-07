@@ -5,13 +5,18 @@ extend-exclude = [
 ]
 
 [lint]
-extend-select = [
-    "I",
-    "B",
+select = [
+    "B", # flake8-bugbear
+    "E", # pycodestyle
+    "F", # pyflakes
+    "FIX",
     "G",
-    "T20",
+    "I", # isort
     "PTH",
-    "RUF"
+    "RUF",
+    "SIM", # flake8-simplify
+    "T20",
+    "UP", # pyupgrade
 ]
 
 [lint.isort]
