@@ -13,10 +13,8 @@ ALLOWED_HOSTS = ["claytontv.co.uk", "*.claytontv.co.uk"]
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        # TODO: pull db info from .env
         # ...
     },
 }
 
 # Logging
-# TODO

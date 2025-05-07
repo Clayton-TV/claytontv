@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  qa:
+    name: Quality Assurance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
+      - name: Install dependencies
+        run: |
+          poetry install --only dev
+          poetry self add 'poethepoet[poetry_plugin]'
+
+      - name: gitleaks check
+        run: docker run -v .:/src zricethezav/gitleaks:latest dir /src
+
+      - name: Lint code
+        run: poetry poe lint-check
+
+      - name: Format code
+        run: poetry poe format-check
