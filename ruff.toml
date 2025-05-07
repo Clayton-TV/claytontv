@@ -7,17 +7,22 @@ extend-exclude = [
 [lint]
 select = [
     "B", # flake8-bugbear
-    "E", # pycodestyle
+    "C90", # McCabe complexity
+    # "D", # pydocstyle
+    "E", # pycodestyle errors
     "F", # pyflakes
     "FIX",
     "G",
     "I", # isort
+    "N", # pep8-naming
     "PTH",
     "RUF",
     "SIM", # flake8-simplify
     "T20",
     "UP", # pyupgrade
+    "W", # pycodestyle warnings
 ]
+ignore = []
 
 [lint.isort]
 case-sensitive = true
