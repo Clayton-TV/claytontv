@@ -16,10 +16,14 @@ pre-commit = "^4.2.0"
 ruff = "^0.11.8"
 pytest = "^8.3.5"
 concurrently = "^2.1"
+pytest-django = "^4.11.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "app.test"
 
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local"
