@@ -50,13 +50,13 @@ jobs:
 
       - name: Configure SSH
         run: |
+          echo "-----> Configuring SSH"
 #          mkdir -p ~/.ssh
 #          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/private
 #          chmod 600 ~/.ssh/private
 #          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
 #
 #          touch ~/.ssh/config
-          echo "-----> Configuring SSH"
 #          echo "Host host" > ~/.ssh/config
 #          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
 #          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
