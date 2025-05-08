@@ -18,6 +18,7 @@ jobs:
 
     env:
       SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
       BASE_PATH: '/srv/claytontv'
       GUNICORN_SERVICE: 'gunicorn-claytontv.service'
@@ -41,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --no-root --no-dev
+          poetry install --no-interaction --no-root --only main
           poetry self add 'poethepoet[poetry_plugin]'
 
       # Frontend build steps...
@@ -55,4 +56,5 @@ jobs:
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
-          ssh -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
+          # Use port 2202
+          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "mkdir -p ${CURRENT_RELEASE_DIR}"
