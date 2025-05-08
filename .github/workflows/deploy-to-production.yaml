@@ -1,0 +1,58 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel production deploys if a new commit is pushed to main
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: self-hosted
+    environment: production
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      BASE_PATH: '/srv/claytontv'
+      GUNICORN_SERVICE: 'gunicorn-claytontv.service'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for release tagging or versioning
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root --no-dev
+          poetry self add 'poethepoet[poetry_plugin]'
+
+      # Frontend build steps...
+
+      - name: Deploy to server
+        run: |
+          RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          REMOTE_RELEASES_DIR="${BASE_PATH}/releases"
+          CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
+          CURRENT_SYMLINK="${REMOTE_RELEASES_DIR}/current"
+          
+          # Create a new release directory
+          echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
+          ssh -o StrictHostKeyChecking=no "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
