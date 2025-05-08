@@ -13,7 +13,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to Production
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment: production
 
     env:
@@ -48,6 +48,19 @@ jobs:
 
       # Frontend build steps...
 
+      - name: Configure SSH
+        run: |
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/private
+          chmod 600 ~/.ssh/private
+          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
+          echo "-----> Configuring SSH"
+          echo "Host host" > ~/.ssh/config
+          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
+          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
+          echo "  User ${SSH_USER}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
       - name: Deploy to server
         run: |
           RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
@@ -55,14 +68,11 @@ jobs:
           CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
           CURRENT_SYMLINK="${REMOTE_RELEASES_DIR}/current"
           
-          echo "${SSH_PRIVATE_KEY}" > private
-          chmod 600 private
-          
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
-          ssh -o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} -f "mkdir -p ${CURRENT_RELEASE_DIR}"
+          ssh host -f "mkdir -p ${CURRENT_RELEASE_DIR}"
           
           echo "-----> Rsyncing files to the server"
-          rsync -avz -e "ssh -p ${SSH_PORT}" --delete \
+          rsync -avz --delete \
             --exclude=".git/" \
             --exclude=".github/" \
             --exclude="resources/node_modules/" \
@@ -74,4 +84,4 @@ jobs:
             --exclude=".venv/" \
             --exclude="staticfiles_collected/" \
             --exclude="*.log" \
-            . ${SSH_USER}@${SSH_HOST}:${CURRENT_RELEASE_DIR}/ \
+            . host:${CURRENT_RELEASE_DIR}/
