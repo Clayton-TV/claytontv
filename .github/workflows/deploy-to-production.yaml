@@ -63,5 +63,4 @@ jobs:
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
           ssh ${SSH_OPTIONS} "echo $(whoami)"
-          ssh ${SSH_OPTIONS} "echo $(ls)"
           ssh ${SSH_OPTIONS} "mkdir -p ${CURRENT_RELEASE_DIR}"
