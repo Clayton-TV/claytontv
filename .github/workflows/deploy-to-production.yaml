@@ -62,7 +62,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} -f "mkdir -p ${CURRENT_RELEASE_DIR}"
           
           echo "-----> Rsyncing files to the server"
-          rsync -avz --delete \
+          rsync -avz -e "ssh -p ${SSH_PORT}" --delete \
             --exclude=".git/" \
             --exclude=".github/" \
             --exclude="resources/node_modules/" \
@@ -74,4 +74,4 @@ jobs:
             --exclude=".venv/" \
             --exclude="staticfiles_collected/" \
             --exclude="*.log" \
-            . ${SSH_USER}@${SSH_HOST}:${CURRENT_RELEASE_PATH}/
+            . ${SSH_USER}@${SSH_HOST}:${CURRENT_RELEASE_DIR}/ \
