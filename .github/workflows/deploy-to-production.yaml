@@ -20,6 +20,7 @@ jobs:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
       SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       BASE_PATH: '/srv/claytontv'
       GUNICORN_SERVICE: 'gunicorn-claytontv.service'
 
@@ -56,5 +57,5 @@ jobs:
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
-          # Use port 2202
-          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} -p ${SSH_PORT} "mkdir -p ${CURRENT_RELEASE_DIR}"
+          # Use the private key for SSH authentication
+          ssh -i "${SSH_PRIVATE_KEY}" -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
