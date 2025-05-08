@@ -54,14 +54,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/private
           chmod 600 ~/.ssh/private
-          ssh-keyscan -H ${SSH_HOST} >> ~/.ssh/known_hosts
-#          touch ~/.ssh/config
-#          echo "Host host" > ~/.ssh/config
-#          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
-#          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
-#          echo "  User ${SSH_USER}" >> ~/.ssh/config
-#          echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
-#          chmod 600 ~/.ssh/config
+          touch ~/.ssh/config
+          echo "Host host" > ~/.ssh/config
+          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
+          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
+          echo "  User ${SSH_USER}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       - name: Deploy to server
         run: |
