@@ -59,6 +59,7 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > private
           chmod 600 private
           SSH_OPTIONS="-o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}"
+          echo "-----> SSH options: ${SSH_OPTIONS}"
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
