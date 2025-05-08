@@ -55,8 +55,13 @@ jobs:
           CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
           CURRENT_SYMLINK="${REMOTE_RELEASES_DIR}/current"
           
-          # Create a new release directory
-          echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
+          # SSH config
           echo "${SSH_PRIVATE_KEY}" > private
           chmod 600 private
-          ssh -i private -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
+          SSH_OPTIONS="-o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}"
+          
+          # Create a new release directory
+          echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
+          ssh ${SSH_OPTIONS} "echo whoami"
+          ssh ${SSH_OPTIONS} "ls"
+          ssh ${SSH_OPTIONS} "mkdir -p ${CURRENT_RELEASE_DIR}"
