@@ -60,6 +60,7 @@ jobs:
           echo "  Port ${SSH_PORT}" >> ~/.ssh/config
           echo "  User ${SSH_USER}" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
       - name: Deploy to server
