@@ -25,26 +25,26 @@ jobs:
       GUNICORN_SERVICE: 'gunicorn-claytontv.service'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Needed for release tagging or versioning
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 1.8.5
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'poetry'
-
-      - name: Install dependencies
-        run: |
-          poetry install --no-interaction --no-root --only main
-          poetry self add 'poethepoet[poetry_plugin]'
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0 # Needed for release tagging or versioning
+#
+#      - name: Install poetry
+#        uses: abatilo/actions-poetry@v4
+#        with:
+#          poetry-version: 1.8.5
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: '3.12'
+#          cache: 'poetry'
+#
+#      - name: Install dependencies
+#        run: |
+#          poetry install --no-interaction --no-root --only main
+#          poetry self add 'poethepoet[poetry_plugin]'
 
       # Frontend build steps...
 
@@ -58,8 +58,7 @@ jobs:
           # SSH config
           echo "${SSH_PRIVATE_KEY}" > private
           chmod 600 private
-          SSH_OPTIONS="-o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST}"
-          echo "-----> SSH options: ${SSH_OPTIONS}"
+          SSH_OPTIONS="-o StrictHostKeyChecking=no -i private -p ${SSH_PORT} dev@${SSH_HOST}"
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
