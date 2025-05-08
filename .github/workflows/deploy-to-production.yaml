@@ -57,5 +57,6 @@ jobs:
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
-          # Use the private key for SSH authentication
-          ssh -i "${SSH_PRIVATE_KEY}" -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
+          echo "${SSH_PRIVATE_KEY}" > private
+          chmod 600 private
+          ssh -i private -o StrictHostKeyChecking=no -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "mkdir -p ${CURRENT_RELEASE_DIR}"
