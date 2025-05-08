@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --only dev
+          poetry install --no-interaction --no-root --only dev
           poetry self add 'poethepoet[poetry_plugin]'
 
       - name: gitleaks check
