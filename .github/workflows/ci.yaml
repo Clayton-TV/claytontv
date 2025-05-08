@@ -45,3 +45,31 @@ jobs:
 
       - name: Format code
         run: poetry poe format-check
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
+      - name: Install dependencies
+        run: |
+          poetry install
+          poetry self add 'poethepoet[poetry_plugin]'
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          poetry run pytest --tb=short -p no:warnings -q
