@@ -46,6 +46,10 @@ cmd = "poetry run ruff format ."
 help = "Lint all Python files and fix any fixable issues"
 cmd = "poetry run ruff check --fix ."
 
+[tool.poe.tasks.fix]
+help = "Lint and format all Python files"
+sequence = ["lint", "format"]
+
 [tool.poe.tasks.test]
 help = "Run the test suite"
 cmd = "poetry run pytest"
