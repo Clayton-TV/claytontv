@@ -15,6 +15,7 @@ poethepoet = "^0.34.0"
 pre-commit = "^4.2.0"
 ruff = "^0.11.8"
 pytest = "^8.3.5"
+concurrently = "^2.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -24,6 +25,10 @@ build-backend = "poetry.core.masonry.api"
 run = "python manage.py runserver --settings app.local"
 format-check = "poetry run ruff format --check ."
 lint-check = "poetry run ruff check ."
+
+[tool.poe.tasks.dev]
+help = "Run the development server and Vite concurrently"
+cmd = "npx concurrently -c \"#93c5fd,#fdba74\" \"poe run\" \"npm run dev\" --names=server,vite"
 
 [tool.poe.tasks.manage]
 help = "Run Django management commands"

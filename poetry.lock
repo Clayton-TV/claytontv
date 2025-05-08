@@ -37,6 +37,21 @@ files = [
 ]
 
 [[package]]
+name = "concurrently"
+version = "2.1"
+description = "Library helps easy write concurrent executed code blocks"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "concurrently-2.1-py3-none-any.whl", hash = "sha256:d80305f488cf400c76c575eae78c0f99c8c67d4510181f903d15d3b2722019ad"},
+    {file = "concurrently-2.1.tar.gz", hash = "sha256:f477dbee46bf2deb2a88e5ed846f0306ddad34b9cf7c3d78e69be97b73904ff1"},
+]
+
+[package.extras]
+develop = ["Sphinx (>=5.3,<6.0)", "Sphinx (>=7.2,<8.0)", "coverage (>=6.2,<7.0)", "coverage (>=7.3,<8.0)", "mypy (>=1.4,<2.0)", "mypy (>=1.5,<2.0)", "pylama (>=8.4,<9.0)", "pytest (>=7.4,<8.0)", "pytest-asyncio (>=0.21,<1.0)", "tox (>=3.28,<4.0)", "tox (>=4.11,<5.0)", "twine (>=4.0,<5.0)", "wheel (>=0.41,<1.0)"]
+gevent = ["gevent", "gevent (>=1.5a2)"]
+
+[[package]]
 name = "distlib"
 version = "0.3.9"
 description = "Distribution utilities"
@@ -380,4 +395,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "f56e0ad0e64d47e9d8f4c5a0008c51b08c1cb8d8c75c636e72252392a772e3dd"
+content-hash = "9200bed31dae28c6919484ffecc5425553fd0ca0ebc3c9d4627d2326840416ab"

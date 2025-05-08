@@ -98,6 +98,11 @@ poe
 ```
 
 ## 5. Run the application
+Start the development environment using the following command:
+```bash
+poe dev
+```
+> Note: The first time you run this command, you'll be asked to allow the package `concurrently` to be installed. Simply type `y` and hit enter.
 
 ## 6. Troubleshooting
 
