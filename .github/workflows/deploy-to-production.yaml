@@ -25,26 +25,26 @@ jobs:
       GUNICORN_SERVICE: 'gunicorn-claytontv.service'
 
     steps:
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0 # Needed for release tagging or versioning
-#
-#      - name: Install poetry
-#        uses: abatilo/actions-poetry@v4
-#        with:
-#          poetry-version: 1.8.5
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v5
-#        with:
-#          python-version: '3.12'
-#          cache: 'poetry'
-#
-#      - name: Install dependencies
-#        run: |
-#          poetry install --no-interaction --no-root --only main
-#          poetry self add 'poethepoet[poetry_plugin]'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for release tagging or versioning
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root --only main
+          poetry self add 'poethepoet[poetry_plugin]'
 
       # Frontend build steps...
 
@@ -55,10 +55,23 @@ jobs:
           CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
           CURRENT_SYMLINK="${REMOTE_RELEASES_DIR}/current"
           
-          # SSH config
           echo "${SSH_PRIVATE_KEY}" > private
           chmod 600 private
           
-          # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
           ssh -o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} -f "mkdir -p ${CURRENT_RELEASE_DIR}"
+          
+          echo "-----> Rsyncing files to the server"
+          rsync -avz --delete \
+            --exclude=".git/" \
+            --exclude=".github/" \
+            --exclude="resources/node_modules/" \
+            --exclude="node_modules/" \
+            --exclude="*.pyc" \
+            --exclude="__pycache__/" \
+            --exclude=".DS_Store" \
+            --exclude="db.sqlite3" \
+            --exclude=".venv/" \
+            --exclude="staticfiles_collected/" \
+            --exclude="*.log" \
+            . ${SSH_USER}@${SSH_HOST}:${CURRENT_RELEASE_PATH}/
