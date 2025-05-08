@@ -61,4 +61,4 @@ jobs:
           
           # Create a new release directory
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
-          ssh -o StrictHostKeyChecking=no -i private -p ${SSH_PORT} dev@${SSH_HOST} -f "mkdir -p ${CURRENT_RELEASE_DIR}"
+          ssh -o StrictHostKeyChecking=no -i private -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} -f "mkdir -p ${CURRENT_RELEASE_DIR}"
