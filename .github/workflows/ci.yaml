@@ -22,16 +22,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'poetry'
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 1.8.5
 
       - name: Install dependencies
         run: |
@@ -55,16 +55,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: 1.8.5
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'poetry'
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 1.8.5
 
       - name: Install dependencies
         run: |
