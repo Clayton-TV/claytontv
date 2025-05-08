@@ -66,7 +66,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry sync
+          poetry install --no-interaction --no-root --sync
           poetry self add 'poethepoet[poetry_plugin]'
 
       - name: Run tests
