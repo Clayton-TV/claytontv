@@ -4,9 +4,9 @@ from .base import *  # noqa: F403
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = False
+DEBUG = True if os.environ.get("DEBUG", False) == "True" else False
 
-ALLOWED_HOSTS = ["claytontv.co.uk", "*.claytontv.co.uk"]
+ALLOWED_HOSTS = ["claytontv.test", "claytontv.co.uk", "*.claytontv.co.uk"]
 
 # Database
 

@@ -8,7 +8,7 @@ from .base import BASE_DIR
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-u166q)-sn5ghr5qc7qvkp#1b6594lx!#y$y=%z1$iipepp0@gs")
 
-DEBUG = True
+DEBUG = True if os.environ.get("DEBUG", False) == "True" else False
 
 ALLOWED_HOSTS = ["*"]
 
