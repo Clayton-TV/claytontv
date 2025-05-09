@@ -9,6 +9,8 @@ readme = "README.md"
 python = "~3.12"
 django = "^5.2.1"
 python-dotenv = "^1.1.0"
+psycopg2-binary = "^2.9.10"
+gunicorn = "^23.0.0"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = "^0.34.0"
