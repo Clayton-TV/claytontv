@@ -87,3 +87,40 @@ jobs:
             --exclude="staticfiles_collected/" \
             --exclude="*.log" \
             . host:${CURRENT_RELEASE_DIR}/
+          
+          echo "-----> Executing remote deployment"
+          ssh host bash -s <<EOF
+            set -e  # Exit immediately if a command fails
+          
+            echo "----> Changing to release directory"
+            cd ${CURRENT_RELEASE_DIR}
+            
+            echo "----> Installing dependencies"
+            poetry sync --no-interaction --no-root --only main
+          
+            echo "----> Activating virtual environment"
+            POETRY_VENV_PATH=\$(poetry env info -p)
+            source \${POETRY_VENV_PATH}/bin/activate
+          
+            echo "----> Collecting static files"
+            poetry run python manage.py collectstatic --noinput
+          
+            echo "----> Running database migrations"
+            poetry run python manage.py migrate --noinput
+          
+            echo "----> Updating symlink to current release"
+            ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
+            mv ${CURRENT_SYMLINK}_new ${CURRENT_SYMLINK}
+          
+            echo "----> Reloading Gunicorn"
+            sudo systemctl reload ${GUNICORN_SERVICE}
+            # Check the status after 5 seconds
+            sleep 5
+            sudo systemctl status ${GUNICORN_SERVICE}
+          
+            echo "----> Cleaning up old releases"
+            # Keep the last 5 releases
+            ls -dt ${REMOTE_RELEASES_DIR}/* | tail -n +6 | xargs rm -rf
+          
+            echo "----> Deployment complete!"
+          EOF

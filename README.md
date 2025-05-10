@@ -71,7 +71,7 @@ curl -sSL https://install.python-poetry.org | python -
 # Windows PowerShell
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
 ```
- ### Use Poetry to install dependencies
+### Use Poetry to install dependencies
 Set up the project environment and install the dependencies:
 ```bash
 poetry env use 3.12

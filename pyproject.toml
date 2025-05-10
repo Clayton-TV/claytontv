@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Clayton TV provides Christian media you can trust."
 authors = ["Jamie Gardner <jamie@tgo.dev>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "~3.12"
@@ -11,9 +12,9 @@ django = "^5.2.1"
 python-dotenv = "^1.1.0"
 psycopg2-binary = "^2.9.10"
 gunicorn = "^23.0.0"
+poethepoet = "^0.34.0"
 
 [tool.poetry.group.dev.dependencies]
-poethepoet = "^0.34.0"
 pre-commit = "^4.2.0"
 ruff = "^0.11.8"
 pytest = "^8.3.5"
