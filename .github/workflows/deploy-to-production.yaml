@@ -89,7 +89,7 @@ jobs:
             . host:${CURRENT_RELEASE_DIR}/
           
           echo "-----> Executing remote deployment"
-          ssh host bash -s <<EOF
+          ssh host -f bash -s <<EOF
             set -e  # Exit immediately if a command fails
           
             echo "----> Changing to release directory"
