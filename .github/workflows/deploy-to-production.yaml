@@ -92,7 +92,7 @@ jobs:
           ssh host bash -s <<EOF
             set -e  # Exit immediately if a command fails
           
-            source ~/.bashrc
+            export PATH="/home/dev/.local/bin:\$PATH"
           
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
