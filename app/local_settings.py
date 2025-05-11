@@ -1,7 +1,7 @@
 import os
 
-from .base import *  # noqa: F403
-from .base import BASE_DIR
+from .base_settings import *  # noqa: F403
+from .base_settings import BASE_DIR
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

@@ -1,6 +1,6 @@
 import os
 
-from .base import *  # noqa: F403
+from .base_settings import *  # noqa: F403
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "unit-test-key")
 

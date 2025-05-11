@@ -13,7 +13,8 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
-    # Install Inertia here...
+    "django_vite",
+    "inertia",
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
@@ -27,7 +28,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # Install Inertia here...
+    "inertia.middleware.InertiaMiddleware",
 ]
 
 ROOT_URLCONF = "app.urls"
@@ -78,13 +79,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles_collected"
+
+INERTIA_LAYOUT = "app.html"
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": os.getenv("DEBUG", "false").lower() in ("true", "1", "yes"),
+        "dev_server_host": os.getenv("VITE_HOST", "localhost"),
+        "dev_server_port": os.getenv("VITE_PORT", 5173),
+    }
+}
+DJANGO_VITE_ASSETS_PATH = STATIC_ROOT / "vite"
+
 STATICFILES_DIRS = [
     BASE_DIR / "public",  # For favicon, robots.txt, images/ etc.
     # django-vite will handle its own assets path, no need to add it here.
     # For production, WhiteNoise will find vite assets whilst DJANGO_VITE_ASSETS_PATH is under STATIC_ROOT.
 ]
-# For production, collectstatic will put all static files here.
-STATIC_ROOT = BASE_DIR / "staticfiles_collected"
 
 MEDIA_ROOT = BASE_DIR / "media"
 

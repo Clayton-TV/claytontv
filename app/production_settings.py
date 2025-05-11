@@ -3,7 +3,7 @@ import os
 import dj_database_url
 from django.conf.global_settings import CACHES, SESSION_ENGINE
 
-from .base import *  # noqa: F403
+from .base_settings import *  # noqa: F403
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
