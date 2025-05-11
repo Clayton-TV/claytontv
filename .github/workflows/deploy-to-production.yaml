@@ -116,8 +116,8 @@ jobs:
             ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
             mv -Tf ${CURRENT_SYMLINK}_new ${CURRENT_SYMLINK}
           
-            echo "----> Reloading Gunicorn"
-            sudo systemctl reload ${GUNICORN_SERVICE}
+            echo "----> Reload Gunicorn"
+            sudo systemctl restart ${GUNICORN_SERVICE}
           
             echo "----> Cleaning up old releases"
             # Keep the last 5 releases
