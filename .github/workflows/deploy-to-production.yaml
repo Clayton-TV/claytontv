@@ -76,6 +76,7 @@ jobs:
           echo "-----> Rsyncing files to the server"
           rsync -avz --delete \
             --exclude=".env" \
+            --exclude=".venv" \
             --exclude=".git/" \
             --exclude=".github/" \
             --exclude="resources/node_modules/" \
@@ -96,6 +97,7 @@ jobs:
             cd ${CURRENT_RELEASE_DIR}
           
             echo "----> Activating virtual environment"
+            poetry sync --no-interaction --no-root --only main
             source .venv/bin/activate
           
             echo "----> Symlinking .env file"
