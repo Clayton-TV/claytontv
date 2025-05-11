@@ -106,6 +106,9 @@ jobs:
             echo "----> Collecting static files"
             ~/.local/bin/poetry run python manage.py collectstatic --noinput
           
+            echo "----> Symlinking media directory"
+            ln -sf ${BASE_PATH}/shared/media media
+          
             echo "----> Running database migrations"
             ~/.local/bin/poetry run python manage.py migrate --noinput
           
