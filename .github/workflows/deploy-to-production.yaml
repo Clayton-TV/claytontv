@@ -97,17 +97,17 @@ jobs:
             cd ${CURRENT_RELEASE_DIR}
           
             echo "----> Activating virtual environment"
-            poetry sync --no-interaction --no-root --only main
+            ~/.local/bin/poetry sync --no-interaction --no-root --only main
             source .venv/bin/activate
           
             echo "----> Symlinking .env file"
             ln -sf ${BASE_PATH}/shared/.env .env
             
             echo "----> Collecting static files"
-            poetry run python manage.py collectstatic --noinput
+            ~/.local/bin/poetry run python manage.py collectstatic --noinput
           
             echo "----> Running database migrations"
-            poetry run python manage.py migrate --noinput
+            ~/.local/bin/poetry run python manage.py migrate --noinput
           
             echo "----> Updating symlink to current release"
             ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
