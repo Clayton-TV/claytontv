@@ -4,7 +4,7 @@ from .base import *  # noqa: F403
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "unit-test-key")
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = ["*"]
 

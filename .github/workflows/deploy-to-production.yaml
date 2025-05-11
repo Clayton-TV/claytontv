@@ -33,7 +33,7 @@ jobs:
       - name: Install poetry
         uses: abatilo/actions-poetry@v4
         with:
-          poetry-version: 1.8.5
+          poetry-version: 2.1.3
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --no-root --only main
+          poetry sync --no-interaction --no-root --only main
           poetry self add 'poethepoet[poetry_plugin]'
 
       # Frontend build steps...
@@ -75,6 +75,7 @@ jobs:
           
           echo "-----> Rsyncing files to the server"
           rsync -avz --delete \
+            --exclude=".env" \
             --exclude=".git/" \
             --exclude=".github/" \
             --exclude="resources/node_modules/" \
@@ -83,7 +84,6 @@ jobs:
             --exclude="__pycache__/" \
             --exclude=".DS_Store" \
             --exclude="db.sqlite3" \
-            --exclude=".venv/" \
             --exclude="staticfiles_collected/" \
             --exclude="*.log" \
             . host:${CURRENT_RELEASE_DIR}/
@@ -92,18 +92,15 @@ jobs:
           ssh host bash -s <<EOF
             set -e  # Exit immediately if a command fails
           
-            export PATH="/home/dev/.local/bin:\$PATH"
-          
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
-            
-            echo "----> Installing dependencies"
-            poetry sync --no-interaction --no-root --only main
           
             echo "----> Activating virtual environment"
-            POETRY_VENV_PATH=\$(poetry env info -p)
-            source \${POETRY_VENV_PATH}/bin/activate
+            source .venv/bin/activate
           
+            echo "----> Symlinking .env file"
+            ln -sf ${BASE_PATH}/shared/.env .env
+            
             echo "----> Collecting static files"
             poetry run python manage.py collectstatic --noinput
           
