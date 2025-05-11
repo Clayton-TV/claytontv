@@ -35,7 +35,9 @@ select = [
     "UP", # pyupgrade
     "W", # pycodestyle warnings
 ]
-ignore = []
+ignore = [
+    "F811", # redefinition of unused variable
+]
 
 [lint.isort]
 case-sensitive = true
