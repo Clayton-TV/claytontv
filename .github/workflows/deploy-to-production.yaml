@@ -68,7 +68,7 @@ jobs:
           RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
           REMOTE_RELEASES_DIR="${BASE_PATH}/releases"
           CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
-          CURRENT_SYMLINK="${REMOTE_RELEASES_DIR}/current"
+          CURRENT_SYMLINK="${BASE_PATH}/current"
           
           echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
           ssh host -f "mkdir -p ${CURRENT_RELEASE_DIR}"
