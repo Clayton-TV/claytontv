@@ -118,9 +118,6 @@ jobs:
           
             echo "----> Reloading Gunicorn"
             sudo systemctl reload ${GUNICORN_SERVICE}
-            # Check the status after 5 seconds
-            sleep 5
-            sudo systemctl status ${GUNICORN_SERVICE}
           
             echo "----> Cleaning up old releases"
             # Keep the last 5 releases
