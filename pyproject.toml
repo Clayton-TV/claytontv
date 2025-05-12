@@ -33,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 DJANGO_SETTINGS_MODULE = "app.test_settings"
 
 [tool.poe.tasks]
-run = "python manage.py runserver --settings app.local"
+run = "python manage.py runserver --settings app.local_settings"
 format-check = "poetry run ruff format --check ."
 lint-check = "poetry run ruff check ."
 
