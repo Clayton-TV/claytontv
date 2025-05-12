@@ -41,12 +41,23 @@ jobs:
           python-version: '3.12'
           cache: 'poetry'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           poetry sync --no-interaction --no-root --only main
           poetry self add 'poethepoet[poetry_plugin]'
 
-      # Frontend build steps...
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build-only
 
       - name: Configure SSH
         run: |
@@ -103,11 +114,11 @@ jobs:
             echo "----> Symlinking .env file"
             ln -sf ${BASE_PATH}/shared/.env .env
             
-            echo "----> Collecting static files"
-            ~/.local/bin/poetry run python manage.py collectstatic --noinput
-          
             echo "----> Symlinking media directory"
             ln -sf ${BASE_PATH}/shared/media media
+          
+            echo "----> Collecting static files"
+            ~/.local/bin/poetry run python manage.py collectstatic --noinput
           
             echo "----> Running database migrations"
             ~/.local/bin/poetry run python manage.py migrate --noinput

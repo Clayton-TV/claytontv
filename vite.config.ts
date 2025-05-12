@@ -9,8 +9,16 @@ export default defineConfig(({ mode }) => {
 
     return {
         base: '/static/',
+        publicDir: false,
         build: {
             manifest: 'manifest.json',
+            outDir: path.resolve(__dirname, 'public/build'),
+            emptyOutDir: true,
+            rollupOptions: {
+                input: {
+                    app: path.resolve(__dirname, 'resources/js/app.ts'),
+                },
+            }
         },
         plugins: [
             tailwindcss(),

@@ -88,13 +88,12 @@ DJANGO_VITE = {
         "dev_mode": os.getenv("DEBUG", "false").lower() in ("true", "1", "yes"),
         "dev_server_host": os.getenv("VITE_HOST", "localhost"),
         "dev_server_port": os.getenv("VITE_PORT", 5173),
+        "static_url_prefix": "build",
     }
 }
-DJANGO_VITE_ASSETS_PATH = STATIC_ROOT / "vite"
 
 STATICFILES_DIRS = [
     BASE_DIR / "public",  # For favicon, robots.txt, images/ etc.
-    DJANGO_VITE_ASSETS_PATH,
 ]
 
 MEDIA_ROOT = BASE_DIR / "media"

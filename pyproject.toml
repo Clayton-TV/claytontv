@@ -37,6 +37,21 @@ run = "python manage.py runserver --settings app.local_settings"
 format-check = "poetry run ruff format --check ."
 lint-check = "poetry run ruff check ."
 
+# Compose a sequence of tasks to run for production, specifically:
+# 1. collectstatic with --noinput
+# 2. migrate the database
+# 3. run the server with gunicorn
+[tool.poe.tasks.prod]
+help = "Run a production-like server"
+sequence = [
+    "npm install",
+    "npm run build-only",
+    "poetry run poe manage collectstatic --noinput",
+    "poetry run poe manage migrate",
+    "poetry run gunicorn app.wsgi"
+]
+default_item_type = "cmd"
+
 [tool.poe.tasks.dev]
 help = "Run the development server and Vite concurrently"
 cmd = "npx concurrently -c \"#93c5fd,#fdba74\" \"poe run\" \"npm run dev\" --names=server,vite"
