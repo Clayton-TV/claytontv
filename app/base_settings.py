@@ -6,6 +6,8 @@ from django.conf.global_settings import MEDIA_ROOT, STATICFILES_DIRS
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+is_debug = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -85,10 +87,10 @@ INERTIA_LAYOUT = "app.html"
 
 DJANGO_VITE = {
     "default": {
-        "dev_mode": os.getenv("DEBUG", "false").lower() in ("true", "1", "yes"),
+        "dev_mode": is_debug,
         "dev_server_host": os.getenv("VITE_HOST", "localhost"),
         "dev_server_port": os.getenv("VITE_PORT", 5173),
-        "static_url_prefix": "build",
+        "static_url_prefix": "build" if not is_debug else "",
     }
 }
 
