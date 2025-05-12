@@ -13,6 +13,7 @@ db.sqlite3
 out/
 
 staticfiles_collected/
+public/build/
 
 # Logs
 logs
