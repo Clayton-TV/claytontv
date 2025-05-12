@@ -1,6 +1,6 @@
 {% load django_vite %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
@@ -8,7 +8,7 @@
     {% vite_hmr_client %}
     {% vite_asset 'resources/js/app.ts' %}
 </head>
-<body>
+<body class="h-full">
 {% block inertia %}
 Unable to render site.
 {% endblock %}
