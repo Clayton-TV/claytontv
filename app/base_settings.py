@@ -94,8 +94,7 @@ DJANGO_VITE_ASSETS_PATH = STATIC_ROOT / "vite"
 
 STATICFILES_DIRS = [
     BASE_DIR / "public",  # For favicon, robots.txt, images/ etc.
-    # django-vite will handle its own assets path, no need to add it here.
-    # For production, WhiteNoise will find vite assets whilst DJANGO_VITE_ASSETS_PATH is under STATIC_ROOT.
+    DJANGO_VITE_ASSETS_PATH,
 ]
 
 MEDIA_ROOT = BASE_DIR / "media"

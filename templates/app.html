@@ -1,12 +1,18 @@
+{% load django_vite %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
 
     <title>Title</title>
+
+    {% vite_hmr_client %}
+    {% vite_asset 'resources/js/app.js' %}
 </head>
 <body>
-{% block inertia %}{% endblock %}
+{% block inertia %}
+Unable to render site.
+{% endblock %}
 </body>
 </html>

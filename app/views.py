@@ -1,4 +1,5 @@
-from django.http import HttpResponse
+from inertia import render
+
 
 def index(request):
-    return HttpResponse("Hello, ClaytonTV.")
+    return render(request, "Welcome")

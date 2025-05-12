@@ -1,4 +1,4 @@
-import './css/app.css';
+import '../css/app.css';
 
 import { resolvePageComponent } from '@/lib/inertia-helper';
 import { createInertiaApp } from '@inertiajs/vue3';
