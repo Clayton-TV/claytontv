@@ -1,16 +1,42 @@
 {% load django_vite %}
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html class="h-full" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
 
+    <script>
+        // This script is used to detect the user's preferred color scheme and set the class on the html element.
+        (function() {
+            // TODO: persist the user's choice in localStorage (via a util, likely called from a base layout)
+            const appearance = localStorage.getItem('appearance') || 'system';
+
+            if (appearance === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (prefersDark) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+        })();
+    </script>
+
+    <style>
+        html {
+            background-color: oklch(1 0 0);
+        }
+
+        html.dark {
+            background-color: oklch(0.145 0 0);
+        }
+    </style>
+
     {% vite_hmr_client %}
     {% vite_asset 'resources/js/app.ts' %}
 </head>
-<body class="h-full">
+<body class="h-full font-sans antialiased">
 {% block inertia %}
-Unable to render site.
+Sorry, this content is not available right now.
 {% endblock %}
 </body>
 </html>
