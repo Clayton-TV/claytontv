@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+    --font-sans: "Inria Sans", sans-serif;
+}
+
 #app {
     @apply h-full;
 }
