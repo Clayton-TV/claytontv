@@ -31,6 +31,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "inertia.middleware.InertiaMiddleware",
+    "app.http.middleware.HandleInertiaRequests",
 ]
 
 ROOT_URLCONF = "app.urls"

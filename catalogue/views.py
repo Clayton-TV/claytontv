@@ -1,5 +1,7 @@
-from django.http import HttpResponse
+from inertia import render
 
 
 def index(request):
-    return HttpResponse("Hello, ClaytonTV. You're at the catalogue index.")
+    return render(request, "CatalogueIndex", {
+        "foo": "bar",
+    })
