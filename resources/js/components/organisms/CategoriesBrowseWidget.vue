@@ -19,6 +19,9 @@ const props = defineProps({
         // False: may be part of multiple categories (meaning entry.category is an array)
         type: Boolean,
     },
+    retain_order: {
+        type: Boolean,
+    }
 })
 
 // List out category from all entries, then filter down to only keep the first instance of each category
@@ -32,12 +35,16 @@ const categories = ref([
 const subCategories = ref(props.categories_data)
 
 const sortedCategories = computed(() => {
-    return categories.value.sort((a, b) => a.localeCompare(b))
+    if (props.retain_order) {
+        return categories.value
+    } else {
+        return categories.value.sort((a, b) => a.localeCompare(b))
+    }
 })
 const filteredSubCategories = computed(() => {
-    const sortedSubCategories = subCategories.value.sort((a, b) =>
-        a.name.localeCompare(b.name)
-    )
+    const sortedSubCategories = props.retain_order ?
+        subCategories.value :
+        subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
     if (selectedCategory.value === "All") {
         return sortedSubCategories
     }
