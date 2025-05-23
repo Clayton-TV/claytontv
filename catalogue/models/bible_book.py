@@ -1,7 +1,10 @@
 from typing import ClassVar  # Add typing imports
 
 from django.db import models
-from django.urls import reverse  # generate urls by reversing url pattern  # generate urls by reversing url pattern
+from django.urls import reverse  # generate urls by reversing url pattern
+from django.db import models
+from django.urls import reverse  # generate urls by reversing url pattern
+from urllib.parse import quote  # Import for URL encoding
 
 BIBLE_BOOKS = (
     ("GEN", "Genesis"),
@@ -106,12 +109,15 @@ class Bible_Book(models.Model):  # noqa N801
     )
 
     def __str__(self):
-        """String for representing channel object"""
+        """String for representing the book"""
         return self.name
 
     def get_absolute_url(self):
-        """Returns the URL to access a detailed record for the channel"""
-        return reverse("channel-detail", args=[str(self.id)])
+        """Returns the URL to access a detailed record for the book"""
+        encoded_name = quote(
+            self.name, safe=""
+        )  # Encode the name, escaping all special characters
+        return reverse("browse_bible_book", args=[encoded_name])
 
     class Meta:
         ordering: ClassVar[list[str]] = ["order"]
