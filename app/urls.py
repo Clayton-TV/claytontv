@@ -18,7 +18,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from .views import index, search, video, browse_topic
+from .views import (
+    index,
+    search,
+    video,
+    browse_bible_book,
+    browse_channel,
+    browse_demographic,
+    browse_ministry,
+    browse_series,
+    browse_speaker,
+    browse_topic,
+    browse_categories,
+)
 
 urlpatterns = [
     path("", index, name="home"),
@@ -27,5 +39,18 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("video/<int:id>", video, name="video"),
+    path("book/<str:id>", browse_bible_book, name="browse_bible_book"),
+    path("channel/<str:id>", browse_channel, name="browse_channel"),
+    path("demographic/<str:id>", browse_demographic, name="browse_demographic"),
+    path("ministry/<str:id>", browse_ministry, name="browse_ministry"),
+    path("series/<str:id>", browse_series, name="browse_series"),
+    path("speaker/<str:id>", browse_speaker, name="browse_speaker"),
     path("topic/<str:id>", browse_topic, name="browse_topic"),
+    path("book/", browse_categories, name="browse_categories_book"),
+    path("channel/", browse_categories, name="browse_categories_channel"),
+    path("demographic/", browse_categories, name="browse_categories_demographic"),
+    path("ministry/", browse_categories, name="browse_categories_ministry"),
+    path("series/", browse_categories, name="browse_categories_series"),
+    path("speaker/", browse_categories, name="browse_categories_speaker"),
+    path("topic/", browse_categories, name="browse_categories_topic"),
 ]
