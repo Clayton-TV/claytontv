@@ -29,6 +29,7 @@ from .views import (
     browse_series,
     browse_speaker,
     browse_topic,
+    browse_categories,
 )
 
 urlpatterns = [
@@ -45,4 +46,11 @@ urlpatterns = [
     path("series/<str:id>", browse_series, name="browse_series"),
     path("speaker/<str:id>", browse_speaker, name="browse_speaker"),
     path("topic/<str:id>", browse_topic, name="browse_topic"),
+    path("book/", browse_categories, name="browse_categories_book"),
+    path("channel/", browse_categories, name="browse_categories_channel"),
+    path("demographic/", browse_categories, name="browse_categories_demographic"),
+    path("ministry/", browse_categories, name="browse_categories_ministry"),
+    path("series/", browse_categories, name="browse_categories_series"),
+    path("speaker/", browse_categories, name="browse_categories_speaker"),
+    path("topic/", browse_categories, name="browse_categories_topic"),
 ]

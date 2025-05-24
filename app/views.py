@@ -76,7 +76,6 @@ def video(request, id):
 
 
 def browse_bible_book(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -97,14 +96,13 @@ def browse_bible_book(request, id):
         "Browse",
         {
             "videos": bible_book.video_set.all(),
-            "title": "Bible book: %s" % decoded_id,
+            "title": "Bible book: %s" % bible_book.get_name_display(),
             "description": bible_book.summary,
         },
     )
 
 
 def browse_channel(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -132,7 +130,6 @@ def browse_channel(request, id):
 
 
 def browse_demographic(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -160,7 +157,6 @@ def browse_demographic(request, id):
 
 
 def browse_ministry(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -188,7 +184,6 @@ def browse_ministry(request, id):
 
 
 def browse_series(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -216,7 +211,6 @@ def browse_series(request, id):
 
 
 def browse_speaker(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -244,7 +238,6 @@ def browse_speaker(request, id):
 
 
 def browse_topic(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -269,3 +262,125 @@ def browse_topic(request, id):
             "description": topic.summary,
         },
     )
+
+def browse_categories(request):
+    category = request.path.strip("/")
+    categories_data = None
+    title = None
+    description = None
+    single_parent_category = False
+    retain_order = False
+
+    if category == "book" :
+        categories_data = [
+            {
+                "category": b.type,
+                "name": b.get_name_display(),
+                "videosCount": len(b.video_set.all()),
+                "url": b.get_absolute_url(),
+            }
+            for b in Bible_Book.objects.all()
+        ]
+        title = "Bible Books"
+        description = "Browsing all Bible books"
+        single_parent_category = True
+        retain_order = True
+
+    elif category == "channel" :
+        categories_data = [
+            {
+                "category": "Primary (Trusted)" if c.trusted else "Secondary (Untrusted)",
+                "name": c.name,
+                "videosCount": len(c.video_set.all()),
+                "url": c.get_absolute_url(),
+            }
+            for c in Channel.objects.all()
+        ]
+        title = "Channels"
+        description = "Browsing all known channels"
+        single_parent_category = True
+        retain_order = True
+
+    elif category == "demographic" :
+        categories_data = [
+            {
+                "category": "All",
+                "name": d.name,
+                "videosCount": len(d.video_set.all()),
+                "url": d.get_absolute_url(),
+            }
+            for d in Demographic.objects.all()
+        ]
+        title = "Demographic"
+        description = "Browsing all known demographics"
+        single_parent_category = True
+
+    elif category == "ministry" :
+        categories_data = [
+            {
+                "category": [c.name for c in m.channel.all() if c.name is not None],
+                "name": m.name,
+                "videosCount": len(m.video_set.all()),
+                "url": m.get_absolute_url(),
+            }
+            for m in Ministry.objects.all()
+        ]
+        title = "Ministries"
+        description = "Browsing all known ministries"
+        retain_order = True
+
+    elif category == "series" :
+        categories_data = [
+            {
+                "category": [m.name for m in s.ministry.all() if m.name is not None],
+                "name": s.name,
+                "videosCount": len(s.video_set.all()),
+                "url": s.get_absolute_url(),
+            }
+            for s in Series.objects.all()
+        ]
+        title = "Series"
+        description = "Browsing all known series"
+        retain_order = True
+
+    elif category == "speaker" :
+        categories_data = [
+            {
+                "category": [v.channel.name for v in s.video_set.all() if v.channel is not None and v.channel.name is not None],
+                "name": s.name,
+                "videosCount": len(s.video_set.all()),
+                "url": s.get_absolute_url(),
+            }
+            for s in Speaker.objects.all()
+        ]
+        title = "Speakers"
+        description = "Browsing all known speakers"
+        retain_order = True
+
+    elif category == "topic" :
+        categories_data = [
+            {
+                "category": t.category,
+                "name": t.name,
+                "videosCount": len(t.video_set.all()),
+                "url": t.get_absolute_url(),
+            }
+            for t in Topic.objects.all()
+        ]
+        title = "Topics"
+        description = "Browsing all known topics"
+        single_parent_category = True
+        retain_order = True
+
+    if categories_data is not None :
+        return render(
+            request,
+            "CategoriesBrowsePage",
+            {
+                "categories_data": categories_data,
+                "title": title,
+                "description": description,
+                "single_parent_category": single_parent_category,
+                "retain_order": retain_order,
+            },
+        )
