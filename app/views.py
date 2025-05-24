@@ -263,6 +263,7 @@ def browse_topic(request, id):
         },
     )
 
+
 def browse_categories(request):
     category = request.path.strip("/")
     categories_data = None
@@ -271,7 +272,7 @@ def browse_categories(request):
     single_parent_category = False
     retain_order = False
 
-    if category == "book" :
+    if category == "book":
         categories_data = [
             {
                 "category": b.type,
@@ -286,10 +287,12 @@ def browse_categories(request):
         single_parent_category = True
         retain_order = True
 
-    elif category == "channel" :
+    elif category == "channel":
         categories_data = [
             {
-                "category": "Primary (Trusted)" if c.trusted else "Secondary (Untrusted)",
+                "category": (
+                    "Primary (Trusted)" if c.trusted else "Secondary (Untrusted)"
+                ),
                 "name": c.name,
                 "videosCount": len(c.video_set.all()),
                 "url": c.get_absolute_url(),
@@ -301,7 +304,7 @@ def browse_categories(request):
         single_parent_category = True
         retain_order = True
 
-    elif category == "demographic" :
+    elif category == "demographic":
         categories_data = [
             {
                 "category": "All",
@@ -315,7 +318,7 @@ def browse_categories(request):
         description = "Browsing all known demographics"
         single_parent_category = True
 
-    elif category == "ministry" :
+    elif category == "ministry":
         categories_data = [
             {
                 "category": [c.name for c in m.channel.all() if c.name is not None],
@@ -329,7 +332,7 @@ def browse_categories(request):
         description = "Browsing all known ministries"
         retain_order = True
 
-    elif category == "series" :
+    elif category == "series":
         categories_data = [
             {
                 "category": [m.name for m in s.ministry.all() if m.name is not None],
@@ -343,10 +346,14 @@ def browse_categories(request):
         description = "Browsing all known series"
         retain_order = True
 
-    elif category == "speaker" :
+    elif category == "speaker":
         categories_data = [
             {
-                "category": [v.channel.name for v in s.video_set.all() if v.channel is not None and v.channel.name is not None],
+                "category": [
+                    v.channel.name
+                    for v in s.video_set.all()
+                    if v.channel is not None and v.channel.name is not None
+                ],
                 "name": s.name,
                 "videosCount": len(s.video_set.all()),
                 "url": s.get_absolute_url(),
@@ -357,7 +364,7 @@ def browse_categories(request):
         description = "Browsing all known speakers"
         retain_order = True
 
-    elif category == "topic" :
+    elif category == "topic":
         categories_data = [
             {
                 "category": t.category,
@@ -372,7 +379,7 @@ def browse_categories(request):
         single_parent_category = True
         retain_order = True
 
-    if categories_data is not None :
+    if categories_data is not None:
         return render(
             request,
             "CategoriesBrowsePage",
