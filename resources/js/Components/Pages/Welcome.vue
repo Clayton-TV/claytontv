@@ -4,6 +4,7 @@ import { IconPlayerPlay } from "@tabler/icons-vue"
 import { Link } from "@inertiajs/vue3"
 import VideoCardList from "@/Organisms/VideoCardList.vue"
 import Topics from "@/Organisms/Topics.vue"
+import ScrollTopButton from "@/Atoms/ScrollTopButton.vue"
 
 const props = defineProps({
     livestreams: {
@@ -28,4 +29,5 @@ const props = defineProps({
         title="Latest Videos"
         description="Watch our most recent videos here." />
     <Topics :topics_data="topics_data" />
+    <ScrollTopButton />
 </template>
