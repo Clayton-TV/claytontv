@@ -51,6 +51,30 @@ def index(request):
         },
     )
 
+def browse_all_livestreams(request):
+    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": livestreams,
+            "title": "Live Streams",
+            "description": "All livestreamed content, most recent first",
+        },
+    )
+
+def browse_all_latest(request):
+    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": latest_videos,
+            "title": "Latest Videos",
+            "description": "All videos, most recent first",
+        },
+    )
+
 
 def search(request):
     searchquery = request.GET["search"]

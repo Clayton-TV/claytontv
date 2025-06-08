@@ -30,12 +30,15 @@ from .views import (
     browse_speaker,
     browse_topic,
     browse_categories,
+    browse_all_livestreams,
+    browse_all_latest,
 )
 
 urlpatterns = [
     path("", index, name="home"),
     path("catalogue/", include("catalogue.urls"), name="catalogue"),
-    path("livestreams/", include("livestreams.urls"), name="livestreams"),
+    path("livestreams/", browse_all_livestreams, name="browse_all_livestreams"),
+    path("latest/", browse_all_latest, name="browse_all_latest"),
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("video/<int:id>", video, name="video"),
