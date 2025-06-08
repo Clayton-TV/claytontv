@@ -72,10 +72,10 @@ def browse_all_latest(request):
         page = int(request.GET.get("page", 1))
     except ValueError:
         page = 1
-    try :
-        latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
-            (page - 1) * perpage : page * perpage
-        ]
+    try:
+        latest_videos = Video.objects.filter(is_livestream=False).order_by(
+            "-date_created"
+        )[(page - 1) * perpage : page * perpage]
     except IndexError:
         latest_videos = []
     return render(
