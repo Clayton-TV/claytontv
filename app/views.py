@@ -66,14 +66,25 @@ def browse_all_livestreams(request):
 
 
 def browse_all_latest(request):
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")
+    page = 1
+    perpage = 24
+    try:
+        page = int(request.GET.get("page", 1))
+    except ValueError:
+        page = 1
+    try :
+        latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
+            (page - 1) * perpage : page * perpage
+        ]
+    except IndexError:
+        latest_videos = []
     return render(
         request,
         "Browse",
         {
             "videos": latest_videos,
             "title": "Latest Videos",
-            "description": "All videos, most recent first",
+            "description": "All videos, most recent first (page %s)" % page,
         },
     )
 

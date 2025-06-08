@@ -1,8 +1,8 @@
 <script setup>
-import { ref, computed } from "vue"
-import LoadingSpinner from "../Atoms/LoadingSpinner.vue"
-import CardSkeleton from "../Atoms/CardSkeleton.vue"
-import { Link } from "@inertiajs/vue3"
+import { ref, computed } from 'vue';
+import LoadingSpinner from '../atoms/LoadingSpinner.vue';
+import CardSkeleton from '../atoms/CardSkeleton.vue';
+import { Link } from '@inertiajs/vue3';
 const props = defineProps({
     categories_data: {
         type: Object,
@@ -74,7 +74,7 @@ function selectCategory(category) {
 </script>
 
 <template>
-    <div class="mt-10 mb-2 justify-items-center space-y-2">
+    <div class="mt-10 mb-4 justify-items-center space-y-2">
         <h2 class="text-center text-3xl font-bold text-gray-100">
             {{ title }}
         </h2>

@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue"
-import { Link } from "@inertiajs/vue3"
 import VideoCardItem from "@/atoms/VideoCardItem.vue"
+import { Link, router } from "@inertiajs/vue3"
 defineProps({
     videos: {
         type: Array,
@@ -27,6 +27,18 @@ const getVideoThumbnail = (videoUrl) => {
     } else {
         return "https://via.placeholder.com/1080x640"
     }
+}
+
+const prevPage = () => {
+    const pageRegex = /^.page=([0-9]+).*/
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    router.get("#", {"page" : (isNaN(curPage) || curPage <= 1) ? 1 : curPage - 1})
+}
+
+const nextPage = () => {
+    const pageRegex = /^.page=([0-9]+).*/
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    router.get("#", {"page" : isNaN(curPage) ? 1 : curPage + 1})
 }
 </script>
 
@@ -55,6 +67,15 @@ const getVideoThumbnail = (videoUrl) => {
                     </Link>
                 </li>
             </ul>
+        </div>
+
+        <div class="flex">
+            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2" @click="prevPage()">
+                Prev Page
+            </button>
+            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2" @click="nextPage()">
+                Next Page
+            </button>
         </div>
     </section>
 </template>

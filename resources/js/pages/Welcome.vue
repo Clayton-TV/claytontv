@@ -1,4 +1,5 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import VideoCardList from '@/organisms/VideoCardList.vue';
 import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
 
