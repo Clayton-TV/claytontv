@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/ui/sidebar';
 import { usePage } from '@inertiajs/vue3';
 import { SharedData } from '@/types';
 
