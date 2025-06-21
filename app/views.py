@@ -1,19 +1,16 @@
-from inertia import render
-import django
-from catalogue.models.video import Video
-from catalogue.models.topic import Topic
 from urllib.parse import unquote  # Import for URL decoding
+
+from inertia import render
+
+from catalogue.models.topic import Topic
+from catalogue.models.video import Video
 
 
 def index(request):
     # TODO: paginate
 
-    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[
-                  :10
-                  ]
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
-                    :10
-                    ]
+    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[:10]
+    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[:10]
     topics_all = Topic.objects.all()
 
     topics_data = [
