@@ -34,7 +34,8 @@ export default defineConfig(({ mode }) => {
         ],
         resolve: {
             alias: {
-                '@': path.resolve(__dirname, './resources/js'),
+                '@': path.resolve(__dirname, './resources/js/components'),
+                '~': path.resolve(__dirname, './resources/js'),
             },
         },
         server: {
