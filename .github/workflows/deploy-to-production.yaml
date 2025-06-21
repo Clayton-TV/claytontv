@@ -107,6 +107,15 @@ jobs:
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
           
+            echo "----> Setting Python version for virtual environment"
+            ~/.local/bin/poetry env use python3.12
+          
+            echo "----> Creating virtual environment and installing dependencies"
+            ~/.local/bin/poetry sync --no-interaction --no-root --only main
+
+            echo "----> Activating virtual environment"
+            source .venv/bin/activate
+          
             echo "----> Activating virtual environment"
             ~/.local/bin/poetry sync --no-interaction --no-root --only main
             source .venv/bin/activate
