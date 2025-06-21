@@ -21,13 +21,13 @@ pyenv --version
 
 Then, install Python 3.12 using `pyenv`:
 ```bash
-pyenv install 3.12.8
+pyenv install 3.12.10
 ```
 
-Verify the installation shows the correct version, which should be `3.12.8`:
+Verify the installation shows the correct version, which should be `3.12.10`:
 ```bash
 python --version 
-# Should output: Python 3.12.8
+# Should output: Python 3.12.10
 ```
 
 > Note: The project contains a `.python-version` file, which specifies the Python version to use. If you have `pyenv` installed, it will automatically switch to the specified version when you navigate to the project directory.
