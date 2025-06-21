@@ -220,6 +220,22 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-seed"
+version = "0.3.1"
+description = "Seed your Django project with fake data"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "django-seed-0.3.1.tar.gz", hash = "sha256:93e65d2c10449c464b83e9031be02763ec10e786aa064d649c4dd5ad06fa0eea"},
+]
+
+[package.dependencies]
+django = ">=1.11"
+Faker = ">=0.7.7"
+toposort = ">=1.5"
+
+[[package]]
 name = "django-vite"
 version = "3.1.0"
 description = "Integration of Vite in a Django project."
@@ -236,6 +252,21 @@ Django = ">=3.2"
 
 [package.extras]
 dev = ["black"]
+
+[[package]]
+name = "faker"
+version = "37.4.0"
+description = "Faker is a Python package that generates fake data for you."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "faker-37.4.0-py3-none-any.whl", hash = "sha256:cb81c09ebe06c32a10971d1bbdb264bb0e22b59af59548f011ac4809556ce533"},
+    {file = "faker-37.4.0.tar.gz", hash = "sha256:7f69d579588c23d5ce671f3fa872654ede0e67047820255f43a4aa1925b89780"},
+]
+
+[package.dependencies]
+tzdata = "*"
 
 [[package]]
 name = "filelock"
@@ -704,6 +735,18 @@ dev = ["build", "hatch"]
 doc = ["sphinx"]
 
 [[package]]
+name = "toposort"
+version = "1.10"
+description = "Implements a topological sort algorithm."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "toposort-1.10-py3-none-any.whl", hash = "sha256:cbdbc0d0bee4d2695ab2ceec97fe0679e9c10eab4b2a87a9372b929e70563a87"},
+    {file = "toposort-1.10.tar.gz", hash = "sha256:bfbb479c53d0a696ea7402601f4e693c97b0367837c8898bc6471adfca37a6bd"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.13.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -722,7 +765,6 @@ description = "Provider of IANA time zone data"
 optional = false
 python-versions = ">=2"
 groups = ["main"]
-markers = "sys_platform == \"win32\""
 files = [
     {file = "tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"},
     {file = "tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"},
@@ -785,4 +827,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.12"
-content-hash = "b5462e506e7ee98f096dd0d8638358c49002ae85becfe54f4ae9f1874372ec50"
+content-hash = "d2dfd60b3e9da89917b72412078bc157f193eca6b3af94cd1c62988aa1ab9062"
