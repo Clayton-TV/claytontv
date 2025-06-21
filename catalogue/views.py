@@ -1,4 +1,3 @@
-from django.core.files.storage import storages
 from inertia import render
 
 

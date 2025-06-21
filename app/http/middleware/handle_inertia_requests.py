@@ -2,7 +2,6 @@ import os
 
 from inertia import share
 
-
 # from .models import User
 
 class HandleInertiaRequests:

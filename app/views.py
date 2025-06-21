@@ -41,7 +41,7 @@ def search(request):
     results += [
         v
         for v in Video.objects.filter(description__icontains=searchquery)
-        if not v in results
+        if v not in results
     ]
     return render(
         request,

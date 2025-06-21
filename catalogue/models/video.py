@@ -1,10 +1,6 @@
 from django.db import models  # import the model class that all models are based on
 from django.urls import reverse  # generate urls by reversing url pattern
 
-# Now import the models that we need to link to:
-# from .channel import Channel
-from .topic import Topic
-
 # from .series import Series
 # from .speaker import Speaker
 from .bible_book import Bible_Book
@@ -12,6 +8,9 @@ from .bible_book import Bible_Book
 # from .ministry import Ministry
 # from .demograpic import Demographic
 from .label import Label
+
+# Now import the models that we need to link to:
+# from .channel import Channel
 
 
 # Now the actual class definition for the model (database table):

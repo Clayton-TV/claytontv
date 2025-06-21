@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue"
 import { Link } from "@inertiajs/vue3"
-import VideoCardItem from "@/Atoms/VideoCardItem.vue"
+import VideoCardItem from "@/atoms/VideoCardItem.vue"
 defineProps({
     videos: {
         type: Array,

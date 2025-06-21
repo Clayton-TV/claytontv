@@ -1,12 +1,12 @@
-from .video import Video
+from .bible_book import Bible_Book
 from .channel import Channel
-from .series import Series
-from .ministry import Ministry
-from .speaker import Speaker
-from .topic import Topic
 from .demograpic import Demographic
 from .label import Label
-from .bible_book import Bible_Book
+from .ministry import Ministry
+from .series import Series
+from .speaker import Speaker
+from .topic import Topic
+from .video import Video
 
 # NB will need to import models from the other tables
 # when the classes for these have been created

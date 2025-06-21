@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue"
-import LoadingSpinner from "../Atoms/LoadingSpinner.vue"
-import CardSkeleton from "../Atoms/CardSkeleton.vue"
+import LoadingSpinner from "../atoms/LoadingSpinner.vue"
+import CardSkeleton from "../atoms/CardSkeleton.vue"
 import { Link } from "@inertiajs/vue3"
 const props = defineProps({
     topics_data: {

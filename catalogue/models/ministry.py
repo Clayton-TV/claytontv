@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
 
-
 # from .video import Video
 # from .series import Series
 # from .channel import Channel

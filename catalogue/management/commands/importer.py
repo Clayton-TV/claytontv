@@ -1,5 +1,7 @@
 import csv
-from django.core.management.base import BaseCommand, CommandError
+
+from django.core.management.base import BaseCommand
+
 from catalogue.models.bible_book import Bible_Book
 
 
@@ -23,7 +25,7 @@ class Command(BaseCommand):
             print("The command ran and:")  # Debug Text
         Bible_Book.objects.all().delete()  # Clears all the existing data before reimporting, a useful but dangerous commands.
         with open(
-            filepath, "r", encoding="utf-8-sig"
+            filepath, encoding="utf-8-sig"
         ) as file:  # Opens the file path at "filepath" readonly as the variable "file".
             reader = csv.DictReader(
                 file

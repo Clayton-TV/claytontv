@@ -1,7 +1,5 @@
 from django.db import models
-from django.urls import reverse  # generate urls by reversing url pattern
-from django.db import models
-from django.urls import reverse  # generate urls by reversing url pattern
+from django.urls import reverse  # generate urls by reversing url pattern  # generate urls by reversing url pattern
 
 BIBLE_BOOKS = (
     ("GEN", "Genesis"),

@@ -15,7 +15,7 @@ import {
 } from "@headlessui/vue"
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
-import LogoMark from "@/Atoms/LogoMark.vue"
+import LogoMark from "@/atoms/LogoMark.vue"
 import { Link, router } from "@inertiajs/vue3"
 import { reactive } from "vue"
 

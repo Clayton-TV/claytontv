@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import index, search, video, browse_topic
+from .views import browse_topic, index, search, video
 
 urlpatterns = [
     path("", index, name="home"),

@@ -1,9 +1,10 @@
+from urllib.parse import quote  # Import for URL encoding
+
 from django.db import models
 
 # from .video import Video
 # from .series import Series
 from django.urls import reverse  # generate urls by reversing url pattern
-from urllib.parse import quote  # Import for URL encoding
 
 
 class Topic(models.Model):
