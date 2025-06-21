@@ -1,8 +1,9 @@
 <script lang="ts" setup>
+import Video from '@/components/atoms/Video.vue';
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
-import { BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { BreadcrumbItem } from '@/types';
+import { Deferred, Head } from '@inertiajs/vue3';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,25 +11,31 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/catalogue',
     },
 ];
+
+defineProps<{
+    videos: any[];
+}>();
 </script>
 
 <template>
     <Head title="Catalogue" />
     <AppLayout :breadcrumbs>
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                    <PlaceholderPattern />
-                </div>
-                <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                    <PlaceholderPattern />
-                </div>
-                <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                    <PlaceholderPattern />
-                </div>
-            </div>
-            <div class="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                <PlaceholderPattern />
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 @container">
+            <div class="grid auto-rows-min min-w-24 gap-y-4 grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3">
+                <Deferred data="videos">
+                    <template #fallback>
+                        <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
+                            <PlaceholderPattern />
+                        </div>
+                        <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
+                            <PlaceholderPattern />
+                        </div>
+                        <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
+                            <PlaceholderPattern />
+                        </div>
+                    </template>
+                    <Video v-for="video in videos" :key="video.id" :video />
+                </Deferred>
             </div>
         </div>
     </AppLayout>
