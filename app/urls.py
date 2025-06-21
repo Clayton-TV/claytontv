@@ -18,10 +18,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from . import views
+from .views import index, search, video, browse_topic
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("catalogue/", include("catalogue.urls")),
+    path("", index, name="home"),
+    path("catalogue/", include("catalogue.urls"), name="catalogue"),
+    path("livestreams/", include("livestreams.urls"), name="livestreams"),
     path("admin/", admin.site.urls),
+    path("search", search, name="search"),
+    path("video/<int:id>", video, name="video"),
+    path("topic/<str:id>", browse_topic, name="browse_topic"),
 ]
