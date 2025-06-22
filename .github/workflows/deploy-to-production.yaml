@@ -85,32 +85,38 @@ jobs:
             . host:${CURRENT_RELEASE_DIR}/
           
           echo "-----> Executing remote deployment"
-          ssh host bash -s <<"EOF"
+          # Using explicitly expanded variables for the server script
+          # and properly preserving environment variables
+          ssh host bash << EOF
             set -e  # Exit immediately if a command fails
           
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
           
             echo "----> Creating virtual environment if needed"
+            # Check if pyproject.toml exists
+            if [ ! -f "${CURRENT_RELEASE_DIR}/pyproject.toml" ]; then
+              echo "ERROR: pyproject.toml not found in ${CURRENT_RELEASE_DIR}"
+              ls -la ${CURRENT_RELEASE_DIR}
+              exit 1
+            fi
+            
             ~/.local/bin/poetry env use 3.12.10
             
-            echo "----> Activating virtual environment"
-            source .venv/bin/activate
-            
             echo "----> Installing dependencies"
-            ~/.local/bin/poetry sync --no-interaction --no-root --only main
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry sync --no-interaction --no-root --only main
           
             echo "----> Symlinking .env file"
-            ln -sf ${BASE_PATH}/shared/.env .env
+            ln -sf ${BASE_PATH}/shared/.env ${CURRENT_RELEASE_DIR}/.env
             
             echo "----> Symlinking media directory"
-            ln -sf ${BASE_PATH}/shared/media media
+            ln -sf ${BASE_PATH}/shared/media ${CURRENT_RELEASE_DIR}/media
           
             echo "----> Collecting static files"
-            ~/.local/bin/poetry run python manage.py collectstatic --noinput
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry run python manage.py collectstatic --noinput
           
             echo "----> Running database migrations"
-            ~/.local/bin/poetry run python manage.py migrate --noinput
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry run python manage.py migrate --noinput
           
             echo "----> Updating symlink to current release"
             ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
