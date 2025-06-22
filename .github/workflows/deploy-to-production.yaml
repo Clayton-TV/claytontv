@@ -108,17 +108,16 @@ jobs:
             cd ${CURRENT_RELEASE_DIR}
           
             echo "----> Setting Python version for virtual environment"
-            ~/.local/bin/poetry env use python3.12
+            pyenv shell 3.12.10
           
-            echo "----> Creating virtual environment and installing dependencies"
-            ~/.local/bin/poetry sync --no-interaction --no-root --only main
-
+            echo "----> Creating virtual environment if needed"
+            ~/.local/bin/poetry env use 3.12.10 || true
+            
             echo "----> Activating virtual environment"
-            source .venv/bin/activate
-          
-            echo "----> Activating virtual environment"
+            source $(~/.local/bin/poetry env info --path)/bin/activate
+            
+            echo "----> Installing dependencies"
             ~/.local/bin/poetry sync --no-interaction --no-root --only main
-            source .venv/bin/activate
           
             echo "----> Symlinking .env file"
             ln -sf ${BASE_PATH}/shared/.env .env
