@@ -77,4 +77,6 @@ sequence = ["lint", "format"]
 help = "Run the test suite"
 cmd = "poetry run pytest"
 
-
+[tool.poe.tasks.generate-key]
+help = "Generate a Django secret key and write it to the .env file if SECRET_KEY is empty"
+cmd = "python manage.py generate_key"

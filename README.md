@@ -92,14 +92,22 @@ Activate the poetry environment
 eval $(poetry env activate)
 ```
 
-Copy and paste the output of the above command into your terminal to activate the Poetry environment.
-
 List the project commands
 ```bash
 poe
 ```
 
 ## 5. Run the application
+Before getting started, make sure you have the environment variables set up. You can copy the `.env.example` file to `.env` and modify it as needed:
+```bash
+cp .env.example .env
+```
+
+Generate a secret key and set it in the `.env` file:
+```bash
+poe generate-key
+```
+
 Start the development environment using the following command:
 ```bash
 poe dev
