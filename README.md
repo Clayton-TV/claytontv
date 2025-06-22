@@ -87,9 +87,9 @@ This will:
 ## 4. Activate the Poetry environment
 We use Poe the Poet as a task manager, which helps self-document useful commands.
 
-Start a Poetry shell
+Activate the poetry environment
 ```bash
-poetry shell
+poetry env activate | eval
 ```
 
 List the project commands
