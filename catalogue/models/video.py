@@ -5,7 +5,7 @@ from django.urls import reverse  # generate urls by reversing url pattern
 
 # from .series import Series
 # from .speaker import Speaker
-from .bible_book import BibleBook
+from .bible_book import Bible_Book  # Changed from BibleBook to Bible_Book
 
 # from .ministry import Ministry
 # from .demograpic import Demographic
@@ -26,7 +26,7 @@ class Video(models.Model):
         help_text="A unique video identifier generated e.g.YT1234",
     )
 
-    bible_book = models.ManyToManyField(BibleBook, blank=True, help_text="The bible books covered in the video.")
+    bible_book = models.ManyToManyField(Bible_Book, blank=True, help_text="The bible books covered in the video.")
     demographic = models.ManyToManyField("Demographic", blank=True, help_text="The video's demographic.")
     description = models.TextField(max_length=5000, help_text="Enter a brief description of the video <5000 chars.")
     url = models.URLField(unique=True, help_text="A link to where the video is hosted.")
