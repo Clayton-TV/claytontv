@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "catalogue.apps.CatalogueConfig",
     "livestreams.apps.LivestreamsConfig",
-    "django_seed",
 ]
 
 MIDDLEWARE = [
