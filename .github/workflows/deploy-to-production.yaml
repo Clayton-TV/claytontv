@@ -93,14 +93,7 @@ jobs:
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
           
-            echo "----> Creating virtual environment if needed"
-            # Check if pyproject.toml exists
-            if [ ! -f "${CURRENT_RELEASE_DIR}/pyproject.toml" ]; then
-              echo "ERROR: pyproject.toml not found in ${CURRENT_RELEASE_DIR}"
-              ls -la ${CURRENT_RELEASE_DIR}
-              exit 1
-            fi
-            
+            echo "----> Setting up Python environment"
             ~/.local/bin/poetry env use 3.12.10
             
             echo "----> Installing dependencies"
