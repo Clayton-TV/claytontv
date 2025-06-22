@@ -1,19 +1,16 @@
-from inertia import render
-import django
-from catalogue.models.video import Video
-from catalogue.models.topic import Topic
 from urllib.parse import unquote  # Import for URL decoding
+
+from inertia import render
+
+from catalogue.models.topic import Topic
+from catalogue.models.video import Video
 
 
 def index(request):
-    # TODO: paginate
+    # Implementation of pagination will be needed in the future
 
-    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[
-        :10
-    ]
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
-        :10
-    ]
+    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[:10]
+    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[:10]
     topics_all = Topic.objects.all()
 
     topics_data = [
@@ -41,11 +38,7 @@ def search(request):
     searchquery = request.GET["search"]
     results = []
     results += Video.objects.filter(name__icontains=searchquery)
-    results += [
-        v
-        for v in Video.objects.filter(description__icontains=searchquery)
-        if not v in results
-    ]
+    results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
     return render(
         request,
         "Search",
@@ -76,8 +69,8 @@ def browse_topic(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Topic not found: '%s'" % decoded_id,
-                "description": "Error retreiving topic data: '%s'" % e,
+                "title": f"Topic not found: '{decoded_id}'",
+                "description": f"Error retreiving topic data: '{e}'",
             },
         )
 
@@ -86,7 +79,7 @@ def browse_topic(request, id):
         "Browse",
         {
             "videos": topic.video_set.all(),
-            "title": "Topic: %s" % decoded_id,
+            "title": f"Topic: {decoded_id}",
             "description": topic.summary,
         },
     )

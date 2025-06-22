@@ -1,0 +1,126 @@
+name: Deploy to Production
+
+on:
+  push:
+#    branches:
+#      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel production deploys if a new commit is pushed to main
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      BASE_PATH: '/srv/claytontv'
+      GUNICORN_SERVICE: 'gunicorn-claytontv.service'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for release tagging or versioning
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build-only
+
+      - name: Configure SSH
+        run: |
+          echo "-----> Configuring SSH"
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/private
+          chmod 600 ~/.ssh/private
+          touch ~/.ssh/config
+          echo "Host host" > ~/.ssh/config
+          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
+          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
+          echo "  User ${SSH_USER}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Deploy to server
+        run: |
+          RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          REMOTE_RELEASES_DIR="${BASE_PATH}/releases"
+          CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
+          CURRENT_SYMLINK="${BASE_PATH}/current"
+          
+          echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
+          ssh host -f "mkdir -p ${CURRENT_RELEASE_DIR}"
+          
+          echo "-----> Rsyncing files to the server"
+          rsync -avz --delete \
+            --exclude=".env" \
+            --exclude=".venv" \
+            --exclude=".git/" \
+            --exclude=".github/" \
+            --exclude="resources/node_modules/" \
+            --exclude="node_modules/" \
+            --exclude="*.pyc" \
+            --exclude="__pycache__/" \
+            --exclude=".DS_Store" \
+            --exclude="db.sqlite3" \
+            --exclude="staticfiles_collected/" \
+            --exclude="*.log" \
+            . host:${CURRENT_RELEASE_DIR}/
+          
+          echo "-----> Executing remote deployment"
+          # Using explicitly expanded variables for the server script
+          # and properly preserving environment variables
+          ssh host bash << EOF
+            set -e  # Exit immediately if a command fails
+          
+            echo "----> Changing to release directory"
+            cd ${CURRENT_RELEASE_DIR}
+          
+            echo "----> Setting up Python environment"
+            ~/.local/bin/poetry env use 3.12.10
+            
+            echo "----> Installing dependencies"
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry sync --no-interaction --no-root --only main
+          
+            echo "----> Symlinking .env file"
+            ln -sf ${BASE_PATH}/shared/.env ${CURRENT_RELEASE_DIR}/.env
+            
+            echo "----> Symlinking media directory"
+            ln -sf ${BASE_PATH}/shared/media ${CURRENT_RELEASE_DIR}/media
+          
+            echo "----> Collecting static files"
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry run python manage.py collectstatic --noinput
+          
+            echo "----> Running database migrations"
+            cd ${CURRENT_RELEASE_DIR} && ~/.local/bin/poetry run python manage.py migrate --noinput
+          
+            echo "----> Updating symlink to current release"
+            ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
+            mv -Tf ${CURRENT_SYMLINK}_new ${CURRENT_SYMLINK}
+          
+            echo "----> Reload Gunicorn"
+            sudo systemctl restart ${GUNICORN_SERVICE}
+          
+            echo "----> Cleaning up old releases"
+            # Keep the last 5 releases
+            ls -dt ${REMOTE_RELEASES_DIR}/* | tail -n +6 | xargs rm -rf
+          
+            echo "----> Deployment complete!"
+          EOF

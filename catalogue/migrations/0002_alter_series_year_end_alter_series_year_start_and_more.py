@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("catalogue", "0001_initial"),
     ]
@@ -13,30 +12,22 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="series",
             name="year_end",
-            field=models.CharField(
-                help_text="The year the series ended.", max_length=100
-            ),
+            field=models.CharField(help_text="The year the series ended.", max_length=100),
         ),
         migrations.AlterField(
             model_name="series",
             name="year_start",
-            field=models.CharField(
-                help_text="The year the series started.", max_length=100
-            ),
+            field=models.CharField(help_text="The year the series started.", max_length=100),
         ),
         migrations.AlterField(
             model_name="speaker",
             name="bio",
-            field=models.TextField(
-                help_text="The biography of the speaker.", max_length=5000
-            ),
+            field=models.TextField(help_text="The biography of the speaker.", max_length=5000),
         ),
         migrations.AlterField(
             model_name="speaker",
             name="name",
-            field=models.CharField(
-                help_text="The name of the speaker.", max_length=200
-            ),
+            field=models.CharField(help_text="The name of the speaker.", max_length=200),
         ),
         migrations.AlterField(
             model_name="speaker",
@@ -52,9 +43,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="speaker",
             name="thumbnail",
-            field=models.CharField(
-                help_text="The thumbnail for the speaker.", max_length=200
-            ),
+            field=models.CharField(help_text="The thumbnail for the speaker.", max_length=200),
         ),
         migrations.AlterField(
             model_name="speaker",

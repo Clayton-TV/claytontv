@@ -1,3 +1,5 @@
+from typing import ClassVar  # Add typing imports
+
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
 
@@ -5,7 +7,7 @@ from django.urls import reverse  # generate urls by reversing url pattern
 # from .speaker import Speaker
 # from .ministry import Ministry
 # from .video import Video
-from .bible_book import Bible_Book
+from .bible_book import Bible_Book  # Changed from BibleBook to Bible_Book
 
 
 class Series(models.Model):
@@ -42,12 +44,8 @@ class Series(models.Model):
         related_name="+",
         help_text="The videos related to the series.",
     )
-    bible_book = models.ManyToManyField(
-        Bible_Book, blank=True, help_text="The Bible books related to the series."
-    )
-    year_start = models.CharField(
-        max_length=100, help_text="The year the series started."
-    )
+    bible_book = models.ManyToManyField(Bible_Book, blank=True, help_text="The Bible books related to the series.")
+    year_start = models.CharField(max_length=100, help_text="The year the series started.")
     year_end = models.CharField(max_length=100, help_text="The year the series ended.")
 
     def __str__(self):
@@ -59,4 +57,4 @@ class Series(models.Model):
         return reverse("series-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ["name"]
+        ordering: ClassVar[list[str]] = ["name"]

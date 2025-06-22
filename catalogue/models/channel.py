@@ -1,3 +1,5 @@
+from typing import ClassVar  # Add typing imports
+
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
 
@@ -16,9 +18,7 @@ class Channel(models.Model):
     """Model representing a channel that uploads videos"""
 
     name = models.CharField(max_length=200, help_text="The channel name.")
-    summary = models.TextField(
-        max_length=5000, null=True, blank=True, help_text="The summary of the channel"
-    )
+    summary = models.TextField(max_length=5000, null=True, blank=True, help_text="The summary of the channel")
     type = models.CharField(max_length=200, help_text="The channel type.")
     channel_url = models.URLField(unique=True, help_text="The channel url.")
     trusted = models.BooleanField(help_text="Whether the channel is trusted.")
@@ -52,4 +52,4 @@ class Channel(models.Model):
         return reverse("channel-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ["name"]
+        ordering: ClassVar[list[str]] = ["name"]

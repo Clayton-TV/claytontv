@@ -1,20 +1,50 @@
 {% load django_vite %}
+{% load static %}
 <!DOCTYPE html>
-<html class="h-full bg-gray-950" lang="en">
-<!--suppress HtmlRequiredTitleElement-->
+<html class="h-full" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" name="viewport">
+    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
 
-    <link href="https://fonts.googleapis.com" rel="preconnect">
-    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
-        rel="stylesheet">
+    <script>
+        // This script is used to detect the user's preferred color scheme and set the class on the html element.
+        (function() {
+            // TODO: persist the user's choice in localStorage (via a util, likely called from a base layout)
+            const appearance = localStorage.getItem('appearance') || 'system';
 
-    {% vite_asset 'js/app.js' %}
+            if (appearance === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (prefersDark) {
+                    document.documentElement.classList.add('dark');
+                }
+            }
+        })();
+    </script>
+
+    <style>
+        html {
+            background-color: oklch(1 0 0);
+        }
+
+        html.dark {
+            background-color: oklch(0.145 0 0);
+        }
+    </style>
+
+    <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+
+    {% vite_hmr_client %}
+    {% vite_asset 'resources/js/app.ts' %}
 </head>
-<body class="antialiased h-full text-gray-100 font-sans">
-{% block inertia %}Missing inertia...{% endblock %}
+<body class="h-full font-sans antialiased">
+{% block inertia %}
+Sorry, this content is not available right now.
+{% endblock %}
 </body>
 </html>

@@ -2,8 +2,8 @@
 import { computed } from "vue"
 import { IconPlayerPlay } from "@tabler/icons-vue"
 import { Link } from "@inertiajs/vue3"
-import VideoCardList from "@/Organisms/VideoCardList.vue"
-import Topics from "@/Organisms/Topics.vue"
+import VideoCardList from "@/organisms/VideoCardList.vue"
+import Topics from "@/organisms/Topics.vue"
 
 const props = defineProps({
     livestreams: {

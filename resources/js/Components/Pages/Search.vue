@@ -1,8 +1,9 @@
+
 <script setup>
 import { computed } from "vue"
 import { IconPlayerPlay } from "@tabler/icons-vue"
 import { Head, Link } from "@inertiajs/vue3"
-import VideoCardGrid from "@/Organisms/VideoCardGrid.vue"
+import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
 
 const props = defineProps({
     results: {

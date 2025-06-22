@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -25,9 +24,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "order",
-                    models.CharField(
-                        help_text="Integer used to sort books into order.", max_length=3
-                    ),
+                    models.CharField(help_text="Integer used to sort books into order.", max_length=3),
                 ),
                 (
                     "name",
@@ -240,9 +237,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "thumbnail",
-                    models.CharField(
-                        help_text="The thumbnail for the ministry area.", max_length=200
-                    ),
+                    models.CharField(help_text="The thumbnail for the ministry area.", max_length=200),
                 ),
                 (
                     "channel",
@@ -284,9 +279,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(
-                        help_text="The name of the series.", max_length=200
-                    ),
+                    models.CharField(help_text="The name of the series.", max_length=200),
                 ),
                 (
                     "summary",
@@ -363,9 +356,7 @@ class Migration(migrations.Migration):
                 ("thumbnail", models.CharField(max_length=200)),
                 (
                     "series",
-                    models.ManyToManyField(
-                        blank=True, null=True, related_name="+", to="catalogue.series"
-                    ),
+                    models.ManyToManyField(blank=True, null=True, related_name="+", to="catalogue.series"),
                 ),
             ],
             options={
@@ -397,9 +388,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(
-                        help_text="Enter a topic or theme", max_length=200, unique=True
-                    ),
+                    models.CharField(help_text="Enter a topic or theme", max_length=200, unique=True),
                 ),
                 (
                     "summary",
@@ -472,9 +461,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "thumbnail",
-                    models.CharField(
-                        help_text="The thumbnail for the demographic.", max_length=200
-                    ),
+                    models.CharField(help_text="The thumbnail for the demographic.", max_length=200),
                 ),
                 (
                     "series",
@@ -512,9 +499,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "url",
-                    models.URLField(
-                        help_text="A link to where the video is hosted.", unique=True
-                    ),
+                    models.URLField(help_text="A link to where the video is hosted.", unique=True),
                 ),
                 (
                     "id_number",
@@ -534,9 +519,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    models.CharField(
-                        help_text="The title of the video.", max_length=200
-                    ),
+                    models.CharField(help_text="The title of the video.", max_length=200),
                 ),
                 (
                     "description",
@@ -567,9 +550,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "is_livestream",
-                    models.BooleanField(
-                        default=False, help_text="Whether the video was a live stream."
-                    ),
+                    models.BooleanField(default=False, help_text="Whether the video was a live stream."),
                 ),
                 (
                     "bible_book",
@@ -638,9 +619,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "topic",
-                    models.ManyToManyField(
-                        help_text="Select topics for this video.", to="catalogue.topic"
-                    ),
+                    models.ManyToManyField(help_text="Select topics for this video.", to="catalogue.topic"),
                 ),
             ],
             options={
@@ -661,9 +640,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="speaker",
             name="videos",
-            field=models.ManyToManyField(
-                blank=True, null=True, related_name="+", to="catalogue.video"
-            ),
+            field=models.ManyToManyField(blank=True, null=True, related_name="+", to="catalogue.video"),
         ),
         migrations.AddField(
             model_name="series",
