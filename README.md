@@ -74,13 +74,13 @@ curl -sSL https://install.python-poetry.org | python -
 ### Use Poetry to install dependencies
 Set up the project environment and install the dependencies:
 ```bash
-poetry env use 3.12
+poetry env use 3.12.10
 poetry install
 poetry run pre-commit install
 ```
 
 This will:
-- Configure poetry to use Python 3.12.
+- Configure poetry to use Python 3.12.10.
 - Install all the dependencies listed in `pyproject.toml`.
 - Set up pre-commit hooks for code quality checks.
 

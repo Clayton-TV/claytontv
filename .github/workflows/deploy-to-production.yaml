@@ -108,10 +108,10 @@ jobs:
             cd ${CURRENT_RELEASE_DIR}
           
             echo "----> Creating virtual environment if needed"
-            ~/.local/bin/poetry env use 3.12.10 || true
+            ~/.local/bin/poetry env use 3.12.10
             
             echo "----> Activating virtual environment"
-            source $(~/.local/bin/poetry env info --path)/bin/activate
+            source .venv/bin/activate
             
             echo "----> Installing dependencies"
             ~/.local/bin/poetry sync --no-interaction --no-root --only main
