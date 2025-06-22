@@ -1,5 +1,5 @@
 <script setup>
-import CategoriesBrowseWidget from "@/Organisms/CategoriesBrowseWidget.vue"
+import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
 
 const props = defineProps({
     title: {
