@@ -1,4 +1,4 @@
-from typing import ClassVar, List  # Add typing imports
+from typing import ClassVar  # Add typing imports
 
 from django.db import models  # import the model class that all models are based on
 from django.urls import reverse  # generate urls by reversing url pattern
