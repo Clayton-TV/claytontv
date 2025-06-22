@@ -1,3 +1,5 @@
+from typing import ClassVar  # Add typing imports
+
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern  # generate urls by reversing url pattern
 
@@ -81,12 +83,10 @@ BIBLE_BOOK_TYPES = (
 )
 
 
-class Bible_Book(models.Model):
-    """Model representing a channel that uploads videos"""
+class BibleBook(models.Model):
+    """Model representing a Bible book"""
 
-    order = models.CharField(
-        max_length=3, help_text="Integer used to sort books into order."
-    )
+    order = models.CharField(max_length=3, help_text="Integer used to sort books into order.")
     name = models.CharField(
         max_length=4,
         choices=BIBLE_BOOKS,
@@ -114,4 +114,4 @@ class Bible_Book(models.Model):
         return reverse("channel-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ["order"]
+        ordering: ClassVar[list[str]] = ["order"]

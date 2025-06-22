@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("catalogue", "0004_alter_bible_book_name_alter_bible_book_type"),
     ]

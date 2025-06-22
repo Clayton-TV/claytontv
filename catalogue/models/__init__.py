@@ -1,4 +1,4 @@
-from .bible_book import Bible_Book
+from .bible_book import BibleBook  # Updated to use the new class name
 from .channel import Channel
 from .demograpic import Demographic
 from .label import Label
@@ -7,6 +7,19 @@ from .series import Series
 from .speaker import Speaker
 from .topic import Topic
 from .video import Video
+
+# Define which models should be available when importing from catalogue.models
+__all__ = [
+    "BibleBook",
+    "Channel",
+    "Demographic",
+    "Label",
+    "Ministry",
+    "Series",
+    "Speaker",
+    "Topic",
+    "Video",
+]
 
 # NB will need to import models from the other tables
 # when the classes for these have been created

@@ -1,3 +1,5 @@
+from typing import ClassVar  # Add typing imports
+
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
 
@@ -34,9 +36,7 @@ class Ministry(models.Model):
         related_name="+",
         help_text="The channels associated with minsitry.",
     )
-    thumbnail = models.CharField(
-        max_length=200, help_text="The thumbnail for the ministry area."
-    )
+    thumbnail = models.CharField(max_length=200, help_text="The thumbnail for the ministry area.")
 
     def __str__(self):
         """String for representing model object"""
@@ -47,4 +47,4 @@ class Ministry(models.Model):
         return reverse("series-detail", args=[str(self.id)])
 
     class Meta:
-        ordering = ["name"]
+        ordering: ClassVar[list[str]] = ["name"]

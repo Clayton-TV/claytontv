@@ -7,14 +7,15 @@ from django.urls import reverse  # generate urls by reversing url pattern
 
 
 class Demographic(models.Model):
-    """Model representing the demographic table, intended to allow easy segregation of the website for different user types."""
+    """Model representing the demographic table.
+
+    Intended to allow easy segregation of the website for different user types.
+    """
 
     name = models.CharField(
         max_length=200, help_text="The name of the demographic e.g. Kids, searchers."
     )  # e.g. kids, searchers
-    summary = models.TextField(
-        max_length=5000, help_text="A summary/description of the demographic."
-    )
+    summary = models.TextField(max_length=5000, help_text="A summary/description of the demographic.")
     series = models.ManyToManyField(
         "Series",
         blank=True,
@@ -33,9 +34,7 @@ class Demographic(models.Model):
         related_name="+",
         help_text="The vieos related to the channel.",
     )
-    thumbnail = models.CharField(
-        max_length=200, help_text="The thumbnail for the demographic."
-    )
+    thumbnail = models.CharField(max_length=200, help_text="The thumbnail for the demographic.")
 
     def __str__(self):
         """String for representing model object"""

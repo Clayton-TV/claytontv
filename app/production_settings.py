@@ -40,10 +40,7 @@ else:
 if not os.getenv("REDIS_URL"):
     import logging
 
-    logging.warning(
-        "REDIS_URL environment variable not set. "
-        "Using local Redis instance which may not be available."
-    )
+    logging.warning("REDIS_URL environment variable not set. Using local Redis instance which may not be available.")
 
 CACHES = {
     "default": {
@@ -59,6 +56,4 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
 # Fix Vite manifest path
-DJANGO_VITE["default"]["manifest_path"] = os.path.join(
-    STATIC_ROOT, "build", "manifest.json"
-)  # noqa: F405
+DJANGO_VITE["default"]["manifest_path"] = STATIC_ROOT / "build" / "manifest.json"  # noqa: F405
