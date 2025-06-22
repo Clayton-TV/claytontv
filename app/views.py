@@ -81,7 +81,7 @@ def browse_all_latest(request):
         )[(page - 1) * perpage : page * perpage]
     except IndexError:
         latest_videos = []
-    if num_videos < perpage :
+    if num_videos < perpage:
         return render(
             request,
             "Browse",
@@ -91,14 +91,15 @@ def browse_all_latest(request):
                 "description": "All videos, most recent first",
             },
         )
-    else :
+    else:
         return render(
             request,
             "Browse",
             {
                 "videos": latest_videos,
                 "title": "Latest Videos",
-                "description": "All videos, most recent first (page %s of %s)" % (page, math.ceil(num_videos / perpage)),
+                "description": "All videos, most recent first (page %s of %s)"
+                % (page, math.ceil(num_videos / perpage)),
                 "pagination": True,
             },
         )
