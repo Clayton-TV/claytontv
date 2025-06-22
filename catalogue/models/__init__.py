@@ -1,4 +1,4 @@
-from .bible_book import BibleBook  # Updated to use the new class name
+from .bible_book import Bible_Book
 from .channel import Channel
 from .demograpic import Demographic
 from .label import Label
@@ -10,7 +10,7 @@ from .video import Video
 
 # Define which models should be available when importing from catalogue.models
 __all__ = [
-    "BibleBook",
+    "Bible_Book",
     "Channel",
     "Demographic",
     "Label",
