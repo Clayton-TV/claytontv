@@ -11,6 +11,7 @@ from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from urllib.parse import unquote  # Import for URL decoding
+import math
 
 
 def index(request):
@@ -68,25 +69,39 @@ def browse_all_livestreams(request):
 def browse_all_latest(request):
     page = 1
     perpage = 24
+    num_videos = 0
     try:
         page = int(request.GET.get("page", 1))
     except ValueError:
         page = 1
     try:
+        num_videos = Video.objects.filter(is_livestream=False).count()
         latest_videos = Video.objects.filter(is_livestream=False).order_by(
             "-date_created"
         )[(page - 1) * perpage : page * perpage]
     except IndexError:
         latest_videos = []
-    return render(
-        request,
-        "Browse",
-        {
-            "videos": latest_videos,
-            "title": "Latest Videos",
-            "description": "All videos, most recent first (page %s)" % page,
-        },
-    )
+    if num_videos < perpage :
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": latest_videos,
+                "title": "Latest Videos",
+                "description": "All videos, most recent first",
+            },
+        )
+    else :
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": latest_videos,
+                "title": "Latest Videos",
+                "description": "All videos, most recent first (page %s of %s)" % (page, math.ceil(num_videos / perpage)),
+                "pagination": True,
+            },
+        )
 
 
 def search(request):

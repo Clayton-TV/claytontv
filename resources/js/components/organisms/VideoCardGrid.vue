@@ -15,6 +15,9 @@ defineProps({
         type: String,
         required: false,
     },
+    pagination: {
+        type: Boolean,
+    },
 })
 
 const getVideoThumbnail = (videoUrl) => {
@@ -69,7 +72,7 @@ const nextPage = () => {
             </ul>
         </div>
 
-        <div class="flex">
+        <div class="flex" v-if="pagination">
             <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2" @click="prevPage()">
                 Prev Page
             </button>

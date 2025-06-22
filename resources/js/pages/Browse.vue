@@ -14,6 +14,9 @@ const props = defineProps({
     description: {
         type: String,
     },
+    pagination: {
+        type: Boolean,
+    },
 })
 </script>
 
@@ -22,5 +25,6 @@ const props = defineProps({
     <VideoCardGrid
         :videos="videos"
         :title="title"
-        :description="description ?? `Browsing videos under ` + title" />
+        :description="description ?? `Browsing videos under ` + title"
+        :pagination="pagination" />
 </template>
