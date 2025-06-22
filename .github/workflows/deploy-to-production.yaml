@@ -30,22 +30,6 @@ jobs:
         with:
           fetch-depth: 0 # Needed for release tagging or versioning
 
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-        with:
-          poetry-version: 2.1.3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.10'
-          cache: 'poetry'
-
-      - name: Install Python dependencies
-        run: |
-          poetry sync --no-interaction --no-root --only main
-          poetry self add 'poethepoet[poetry_plugin]'
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
