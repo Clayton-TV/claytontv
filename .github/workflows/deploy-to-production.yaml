@@ -101,14 +101,11 @@ jobs:
             . host:${CURRENT_RELEASE_DIR}/
           
           echo "-----> Executing remote deployment"
-          ssh host bash -s <<EOF
+          ssh host bash -s <<"EOF"
             set -e  # Exit immediately if a command fails
           
             echo "----> Changing to release directory"
             cd ${CURRENT_RELEASE_DIR}
-          
-            echo "----> Setting Python version for virtual environment"
-            pyenv shell 3.12.10
           
             echo "----> Creating virtual environment if needed"
             ~/.local/bin/poetry env use 3.12.10 || true
