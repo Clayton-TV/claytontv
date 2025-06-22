@@ -83,7 +83,7 @@ BIBLE_BOOK_TYPES = (
 )
 
 
-class Bible_Book(models.Model): # noqa N801
+class Bible_Book(models.Model):  # noqa N801
     """Model representing a Bible book"""
 
     order = models.CharField(max_length=3, help_text="Integer used to sort books into order.")
@@ -115,6 +115,7 @@ class Bible_Book(models.Model): # noqa N801
 
     class Meta:
         ordering: ClassVar[list[str]] = ["order"]
+
 
 # For backwards compatibility, create an alias to Bible_Book
 BibleBook = Bible_Book
