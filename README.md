@@ -89,8 +89,12 @@ We use Poe the Poet as a task manager, which helps self-document useful commands
 
 Activate the poetry environment
 ```bash
-poetry env activate | eval
+poetry env activate
+# Should output something like:
+# source /home/username/.cache/pypoetry/virtualenvs/claytontv-<hash>/bin/activate
 ```
+
+Copy and paste the output of the above command into your terminal to activate the Poetry environment.
 
 List the project commands
 ```bash
