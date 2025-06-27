@@ -1,17 +1,16 @@
+import math
+from urllib.parse import unquote  # Import for URL decoding
+
 from inertia import render
-import django
-from catalogue.models.video import Video
+
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
-from catalogue.models.demograpic import (
-    Demographic,
-)  # FIXME Can we rename the file to fix spelling? Or does that break things?
+from catalogue.models.demograpic import Demographic
 from catalogue.models.ministry import Ministry
 from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
-from urllib.parse import unquote  # Import for URL decoding
-import math
+from catalogue.models.video import Video
 
 
 def index(request):
@@ -76,9 +75,9 @@ def browse_all_latest(request):
         page = 1
     try:
         num_videos = Video.objects.filter(is_livestream=False).count()
-        latest_videos = Video.objects.filter(is_livestream=False).order_by(
-            "-date_created"
-        )[(page - 1) * perpage : page * perpage]
+        latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
+            (page - 1) * perpage : page * perpage
+        ]
     except IndexError:
         latest_videos = []
     if num_videos < perpage:
@@ -98,8 +97,7 @@ def browse_all_latest(request):
             {
                 "videos": latest_videos,
                 "title": "Latest Videos",
-                "description": "All videos, most recent first (page %s of %s)"
-                % (page, math.ceil(num_videos / perpage)),
+                "description": f"All videos, most recent first (page {page} of {math.ceil(num_videos / perpage)})",
                 "pagination": True,
             },
         )
@@ -139,8 +137,8 @@ def browse_bible_book(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Bible book not found: '%s'" % decoded_id,
-                "description": "Error retreiving Bible book data: '%s'" % e,
+                "title": f"Bible book not found: '{decoded_id}'",
+                "description": f"Error retreiving Bible book data: '{e}'",
             },
         )
 
@@ -149,7 +147,7 @@ def browse_bible_book(request, id):
         "Browse",
         {
             "videos": bible_book.video_set.all(),
-            "title": "Bible book: %s" % bible_book.get_name_display(),
+            "title": f"Bible book: {bible_book.get_name_display()}",
             "description": bible_book.summary,
         },
     )
@@ -166,8 +164,8 @@ def browse_channel(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Channel not found: '%s'" % decoded_id,
-                "description": "Error retreiving channel data: '%s'" % e,
+                "title": f"Channel not found: '{decoded_id}'",
+                "description": f"Error retreiving channel data: '{e}'",
             },
         )
 
@@ -176,7 +174,7 @@ def browse_channel(request, id):
         "Browse",
         {
             "videos": channel.video_set.all(),
-            "title": "Channel: %s" % decoded_id,
+            "title": f"Channel: {decoded_id}",
             "description": channel.summary,
         },
     )
@@ -193,8 +191,8 @@ def browse_demographic(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Demographic not found: '%s'" % decoded_id,
-                "description": "Error retreiving demographic data: '%s'" % e,
+                "title": f"Demographic not found: '{decoded_id}'",
+                "description": f"Error retreiving demographic data: '{e}'",
             },
         )
 
@@ -203,7 +201,7 @@ def browse_demographic(request, id):
         "Browse",
         {
             "videos": demographic.video_set.all(),
-            "title": "Demographic: %s" % decoded_id,
+            "title": f"Demographic: {decoded_id}",
             "description": demographic.summary,
         },
     )
@@ -220,8 +218,8 @@ def browse_ministry(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Ministry not found: '%s'" % decoded_id,
-                "description": "Error retreiving ministry data: '%s'" % e,
+                "title": f"Ministry not found: '{decoded_id}'",
+                "description": f"Error retreiving ministry data: '{e}'",
             },
         )
 
@@ -230,7 +228,7 @@ def browse_ministry(request, id):
         "Browse",
         {
             "videos": ministry.video_set.all(),
-            "title": "Ministry: %s" % decoded_id,
+            "title": f"Ministry: {decoded_id}",
             "description": ministry.summary,
         },
     )
@@ -247,8 +245,8 @@ def browse_series(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Series not found: '%s'" % decoded_id,
-                "description": "Error retreiving series data: '%s'" % e,
+                "title": f"Series not found: '{decoded_id}'",
+                "description": f"Error retreiving series data: '{e}'",
             },
         )
 
@@ -257,7 +255,7 @@ def browse_series(request, id):
         "Browse",
         {
             "videos": series.video_set.all(),
-            "title": "Series: %s" % decoded_id,
+            "title": f"Series: {decoded_id}",
             "description": series.summary,
         },
     )
@@ -274,8 +272,8 @@ def browse_speaker(request, id):
             "Browse",
             {
                 "videos": [],
-                "title": "Speaker not found: '%s'" % decoded_id,
-                "description": "Error retreiving speaker data: '%s'" % e,
+                "title": f"Speaker not found: '{decoded_id}'",
+                "description": f"Error retreiving speaker data: '{e}'",
             },
         )
 
@@ -284,7 +282,7 @@ def browse_speaker(request, id):
         "Browse",
         {
             "videos": speaker.video_set.all(),
-            "title": "Speaker: %s" % decoded_id,
+            "title": f"Speaker: {decoded_id}",
             "description": speaker.bio,
         },
     )
@@ -343,9 +341,7 @@ def browse_categories(request):
     elif category == "channel":
         categories_data = [
             {
-                "category": (
-                    "Primary (Trusted)" if c.trusted else "Secondary (Untrusted)"
-                ),
+                "category": ("Primary (Trusted)" if c.trusted else "Secondary (Untrusted)"),
                 "name": c.name,
                 "videosCount": len(c.video_set.all()),
                 "url": c.get_absolute_url(),
@@ -403,9 +399,7 @@ def browse_categories(request):
         categories_data = [
             {
                 "category": [
-                    v.channel.name
-                    for v in s.video_set.all()
-                    if v.channel is not None and v.channel.name is not None
+                    v.channel.name for v in s.video_set.all() if v.channel is not None and v.channel.name is not None
                 ],
                 "name": s.name,
                 "videosCount": len(s.video_set.all()),

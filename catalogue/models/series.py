@@ -1,8 +1,8 @@
 from typing import ClassVar  # Add typing imports
+from urllib.parse import quote  # Import for URL encoding
 
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
-from urllib.parse import quote  # Import for URL encoding
 
 # from .topic import Topic
 # from .speaker import Speaker
@@ -55,9 +55,7 @@ class Series(models.Model):
 
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the series"""
-        encoded_name = quote(
-            self.name, safe=""
-        )  # Encode the name, escaping all special characters
+        encoded_name = quote(self.name, safe="")  # Encode the name, escaping all special characters
         return reverse("browse_series", args=[encoded_name])
 
     class Meta:

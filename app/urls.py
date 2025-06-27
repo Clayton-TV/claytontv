@@ -19,19 +19,19 @@ from django.contrib import admin
 from django.urls import include, path
 
 from .views import (
-    index,
-    search,
-    video,
+    browse_all_latest,
+    browse_all_livestreams,
     browse_bible_book,
+    browse_categories,
     browse_channel,
     browse_demographic,
     browse_ministry,
     browse_series,
     browse_speaker,
     browse_topic,
-    browse_categories,
-    browse_all_livestreams,
-    browse_all_latest,
+    index,
+    search,
+    video,
 )
 
 urlpatterns = [
