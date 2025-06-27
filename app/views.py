@@ -110,10 +110,12 @@ def search(request):
     results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
     return render(
         request,
-        "Search",
+        "Browse",
         {
-            "results": results,
-            "searchquery": searchquery,
+            "videos": results,
+            "title": f"Search for '{searchquery}'",
+            "description": "Found {} {}".format(len(results), "result" if len(results) == 1 else "results"),
+            "pagination": False,  # Need to implement general pagination for more than just browse_all_latest
         },
     )
 
@@ -121,7 +123,7 @@ def search(request):
 def video(request, id):
     return render(
         request,
-        "Video",
+        "WatchVideo",
         {"video": Video.objects.get(id=id)},
     )
 
