@@ -92,7 +92,7 @@ function selectCategory(category) {
                     class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
                     :class="
                         category === selectedCategory
-                            ? 'bg-claytonRed'
+                            ? 'bg-primary'
                             : 'bg-gray-700'
                     "
                     @click="selectCategory(category)">
