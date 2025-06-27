@@ -41,7 +41,7 @@ const prevPage = () => {
 const nextPage = () => {
     const pageRegex = /^.page=([0-9]+).*/
     const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
-    router.get("#", {"page" : isNaN(curPage) ? 1 : curPage + 1})
+    router.get("#", {"page" : isNaN(curPage) ? 2 : curPage + 1}) // If no page parameter then next page is second not first
 }
 </script>
 
