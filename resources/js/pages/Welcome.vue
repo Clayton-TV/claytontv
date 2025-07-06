@@ -21,14 +21,14 @@ const props = defineProps({
 
 <template>
     <VideoCardList :videos="livestreams" description="We're live! Check out the current live streams below." title="Watch Live" />
-    <Link href="/livestreams" class="flex">
-        <button class="bg-blue-950 w-auto rounded-md p-2 mx-auto">
+    <Link href="/livestreams" class="flex w-fit mx-auto">
+        <button class="bg-blue-950 w-auto rounded-md p-3 cursor-pointer">
             Browse All
         </button>
     </Link>
     <VideoCardList :videos="latest_videos" description="Watch our most recent videos here." title="Latest Videos" />
-    <Link href="/latest" class="flex">
-        <button class="bg-blue-950 w-auto rounded-md p-2 mx-auto">
+    <Link href="/latest" class="flex w-fit mx-auto">
+        <button class="bg-blue-950 w-auto rounded-md p-3 cursor-pointer">
             Browse All
         </button>
     </Link>
