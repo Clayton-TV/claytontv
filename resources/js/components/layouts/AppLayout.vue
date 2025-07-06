@@ -20,9 +20,9 @@ import { Link, router } from "@inertiajs/vue3"
 import { reactive } from "vue"
 
 const navOptions = [
-    { name: "Livestreams", href: "#livestreams" },
-    { name: "Series", href: "#series" },
-    { name: "Topics", href: "#topics" },
+    { name: "Livestreams", href: "/livestreams" },
+    { name: "Series", href: "/series" },
+    { name: "Topics", href: "/topic" },
 ]
 
 const isCurrent = (href) => {
@@ -69,7 +69,7 @@ const submitSearch = () => {
                                             isCurrent(option.href) ? 'bg-gray-900 text-white' : ''
                                         "
                                         class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                        href="#">
+                                        :href="option.href">
                                         {{ option.name }}
                                     </Link>
                                 </div>
