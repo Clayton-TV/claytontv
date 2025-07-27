@@ -1,7 +1,14 @@
+import math
 from urllib.parse import unquote  # Import for URL decoding
 
 from inertia import render
 
+from catalogue.models.bible_book import Bible_Book
+from catalogue.models.channel import Channel
+from catalogue.models.demograpic import Demographic
+from catalogue.models.ministry import Ministry
+from catalogue.models.series import Series
+from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import Video
 
@@ -23,6 +30,16 @@ def index(request):
         for t in topics_all
     ]
 
+    series_data = [
+        {
+            "category": [m.name for m in s.ministry.all() if m.name is not None],
+            "name": s.name,
+            "videosCount": len(s.video_set.all()),
+            "url": s.get_absolute_url(),
+        }
+        for s in Series.objects.all()
+    ]
+
     return render(
         request,
         "Welcome",
@@ -30,8 +47,60 @@ def index(request):
             "livestreams": livestreams,
             "latest_videos": latest_videos,
             "topics_data": topics_data,
+            "series_data": series_data,
         },
     )
+
+
+def browse_all_livestreams(request):
+    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": livestreams,
+            "title": "Live Streams",
+            "description": "All livestreamed content, most recent first",
+        },
+    )
+
+
+def browse_all_latest(request):
+    page = 1
+    perpage = 24
+    num_videos = 0
+    try:
+        page = int(request.GET.get("page", 1))
+    except ValueError:
+        page = 1
+    try:
+        num_videos = Video.objects.filter(is_livestream=False).count()
+        latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
+            (page - 1) * perpage : page * perpage
+        ]
+    except IndexError:
+        latest_videos = []
+    if num_videos < perpage:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": latest_videos,
+                "title": "Latest Videos",
+                "description": "All videos, most recent first",
+            },
+        )
+    else:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": latest_videos,
+                "title": "Latest Videos",
+                "description": f"All videos, most recent first (page {page} of {math.ceil(num_videos / perpage)})",
+                "pagination": True,
+            },
+        )
 
 
 def search(request):
@@ -41,10 +110,12 @@ def search(request):
     results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
     return render(
         request,
-        "Search",
+        "Browse",
         {
-            "results": results,
-            "searchquery": searchquery,
+            "videos": results,
+            "title": f"Search for '{searchquery}'",
+            "description": "Found {} {}".format(len(results), "result" if len(results) == 1 else "results"),
+            "pagination": False,  # Need to implement general pagination for more than just browse_all_latest
         },
     )
 
@@ -52,13 +123,174 @@ def search(request):
 def video(request, id):
     return render(
         request,
-        "Video",
+        "WatchVideo",
         {"video": Video.objects.get(id=id)},
     )
 
 
+def browse_bible_book(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        bible_book = Bible_Book.objects.get(name=decoded_id)
+    except Bible_Book.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Bible book not found: '{decoded_id}'",
+                "description": f"Error retreiving Bible book data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": bible_book.video_set.all(),
+            "title": f"Bible book: {bible_book.get_name_display()}",
+            "description": bible_book.summary,
+        },
+    )
+
+
+def browse_channel(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        channel = Channel.objects.get(name=decoded_id)
+    except Channel.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Channel not found: '{decoded_id}'",
+                "description": f"Error retreiving channel data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": channel.video_set.all(),
+            "title": f"Channel: {decoded_id}",
+            "description": channel.summary,
+        },
+    )
+
+
+def browse_demographic(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        demographic = Demographic.objects.get(name=decoded_id)
+    except Demographic.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Demographic not found: '{decoded_id}'",
+                "description": f"Error retreiving demographic data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": demographic.video_set.all(),
+            "title": f"Demographic: {decoded_id}",
+            "description": demographic.summary,
+        },
+    )
+
+
+def browse_ministry(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        ministry = Ministry.objects.get(name=decoded_id)
+    except Ministry.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Ministry not found: '{decoded_id}'",
+                "description": f"Error retreiving ministry data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": ministry.video_set.all(),
+            "title": f"Ministry: {decoded_id}",
+            "description": ministry.summary,
+        },
+    )
+
+
+def browse_series(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        series = Series.objects.get(name=decoded_id)
+    except Series.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Series not found: '{decoded_id}'",
+                "description": f"Error retreiving series data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": series.video_set.all(),
+            "title": f"Series: {decoded_id}",
+            "description": series.summary,
+        },
+    )
+
+
+def browse_speaker(request, id):
+    decoded_id = unquote(id)
+
+    try:
+        speaker = Speaker.objects.get(name=decoded_id)
+    except Speaker.DoesNotExist as e:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": f"Speaker not found: '{decoded_id}'",
+                "description": f"Error retreiving speaker data: '{e}'",
+            },
+        )
+
+    return render(
+        request,
+        "Browse",
+        {
+            "videos": speaker.video_set.all(),
+            "title": f"Speaker: {decoded_id}",
+            "description": speaker.bio,
+        },
+    )
+
+
 def browse_topic(request, id):
-    # Decode the URL-encoded `id` parameter
     decoded_id = unquote(id)
 
     try:
@@ -83,3 +315,128 @@ def browse_topic(request, id):
             "description": topic.summary,
         },
     )
+
+
+def browse_categories(request):
+    category = request.path.strip("/")
+    categories_data = None
+    title = None
+    description = None
+    single_parent_category = False
+    retain_order = False
+
+    if category == "book":
+        categories_data = [
+            {
+                "category": b.type,
+                "name": b.get_name_display(),
+                "videosCount": len(b.video_set.all()),
+                "url": b.get_absolute_url(),
+            }
+            for b in Bible_Book.objects.all()
+        ]
+        title = "Bible Books"
+        description = "Browsing all Bible books"
+        single_parent_category = True
+        retain_order = True
+
+    elif category == "channel":
+        categories_data = [
+            {
+                "category": ("Primary (Trusted)" if c.trusted else "Secondary (Untrusted)"),
+                "name": c.name,
+                "videosCount": len(c.video_set.all()),
+                "url": c.get_absolute_url(),
+            }
+            for c in Channel.objects.all()
+        ]
+        title = "Channels"
+        description = "Browsing all known channels"
+        single_parent_category = True
+        retain_order = True
+
+    elif category == "demographic":
+        categories_data = [
+            {
+                "category": "All",
+                "name": d.name,
+                "videosCount": len(d.video_set.all()),
+                "url": d.get_absolute_url(),
+            }
+            for d in Demographic.objects.all()
+        ]
+        title = "Demographic"
+        description = "Browsing all known demographics"
+        single_parent_category = True
+
+    elif category == "ministry":
+        categories_data = [
+            {
+                "category": [c.name for c in m.channel.all() if c.name is not None],
+                "name": m.name,
+                "videosCount": len(m.video_set.all()),
+                "url": m.get_absolute_url(),
+            }
+            for m in Ministry.objects.all()
+        ]
+        title = "Ministries"
+        description = "Browsing all known ministries"
+        retain_order = True
+
+    elif category == "series":
+        categories_data = [
+            {
+                "category": [m.name for m in s.ministry.all() if m.name is not None],
+                "name": s.name,
+                "videosCount": len(s.video_set.all()),
+                "url": s.get_absolute_url(),
+            }
+            for s in Series.objects.all()
+        ]
+        title = "Series"
+        description = "Browsing all known series"
+        retain_order = True
+
+    elif category == "speaker":
+        categories_data = [
+            {
+                "category": [
+                    v.channel.name for v in s.video_set.all() if v.channel is not None and v.channel.name is not None
+                ],
+                "name": s.name,
+                "videosCount": len(s.video_set.all()),
+                "url": s.get_absolute_url(),
+            }
+            for s in Speaker.objects.all()
+        ]
+        title = "Speakers"
+        description = "Browsing all known speakers"
+        retain_order = True
+
+    elif category == "topic":
+        categories_data = [
+            {
+                "category": t.category,
+                "name": t.name,
+                "videosCount": len(t.video_set.all()),
+                "url": t.get_absolute_url(),
+            }
+            for t in Topic.objects.all()
+        ]
+        title = "Topics"
+        description = "Browsing all known topics"
+        single_parent_category = True
+        retain_order = True
+
+    if categories_data is not None:
+        return render(
+            request,
+            "CategoriesBrowsePage",
+            {
+                "categories_data": categories_data,
+                "title": title,
+                "description": description,
+                "single_parent_category": single_parent_category,
+                "retain_order": retain_order,
+            },
+        )
