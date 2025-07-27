@@ -84,7 +84,7 @@ const playVideo = (id) => {
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate mb-3 aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center md:aspect-video hover:opacity-75">
+                    class="relative isolate mb-3 aspect-[10/16] max-h-[42dvh] max-w-[90vw] shrink-0 snap-center md:aspect-video hover:opacity-75">
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
                         class="contents">

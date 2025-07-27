@@ -24,24 +24,28 @@ const getVideoThumbnail = (videoUrl) => {
 
 <template>
     <div class="w-full h-full flex rounded-md bg-gradient-to-br from-gray-700 to-gray-900">
+        <img v-if="getVideoThumbnail(video.url)" :src="getVideoThumbnail(video.url)" alt="" class="pointer-events-none place-self-center items-center justify-center absolute inset-0 h-full object-cover group-hover:opacity-75 rounded-md" />
+
         <div class="absolute inset-0 place-self-center group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
             <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100"/>
         </div>
 
-        <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1 place-self-end">
-            <p class="flex w-min items-center gap-x-1.5 rounded bg-red-400/90 px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-bold uppercase tracking-wide" v-if="video.is_livestream">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="absolute h-full w-full animate-ping inline-flex opacity-50 bg-white rounded-full" />
-                    <span class="h-full w-full inline-flex relative bg-white rounded-full" />
-                </span>
-                <span class="pb-[1.5px]">Live</span>
-            </p>
-            <h3 class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-gray-100">
+        <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 w-svw sm:py-2 gap-y-1 place-self-end z-10 rounded-b-md bg-black/60 z-50">
+            <h3 class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-white">
                 {{ video.name }}
             </h3>
-            <p class="line-clamp-1 truncate text-sm text-gray-400">
-                {{ video.date_recorded ? "Recorded: " + video.date_recorded : "Added: " + video.date_created }}
-            </p>
+            <div class="flex flex-row justify-between">
+                <p class="line-clamp-1 truncate text-sm text-white h-6">
+                    {{ video.date_recorded ? "Recorded: " + video.date_recorded : "Added: " + video.date_created }}
+                </p>
+                <p class="flex w-min items-center gap-x-1.5 rounded bg-red-400/90 px-1.5 py-0.5 sm:px-2 text-xs font-bold uppercase tracking-wide" v-if="(video.id % 2)==0" test="video.is_livestream">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="absolute h-full w-full animate-ping inline-flex opacity-50 bg-white rounded-full" />
+                        <span class="h-full w-full inline-flex relative bg-white rounded-full" />
+                    </span>
+                    <span class="pb-[1.5px]">Live</span>
+                </p>
+            </div>
         </div>
     </div>
 
