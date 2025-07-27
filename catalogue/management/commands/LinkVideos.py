@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
                     for i in topics:
                         try:
-                            Vid.topic.add(Topic.objects.get(name = i))
+                            Vid.topic.add(Topic.objects.get(name = i)) #add a function here that maps old topics to new
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Topic " + i + " does not exist")

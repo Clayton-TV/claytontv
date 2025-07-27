@@ -15,23 +15,36 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.imp_topics("CSV/Topics.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.imp_topics("CSV/topics-mergers.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
 
     def imp_topics(self,filepath,Debug):
         if Debug:
             print("The command ran and:") # Debug Text
         Topic.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
+        LastName= ''
+        IDnum = 0
         with open(filepath, 'r', encoding='utf-8-sig') as file: # Opens the file path at "filepath" readonly as the variable "file".
             reader = csv.DictReader(file) #opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
             for row in reader: # cycles through the row of the dictionary previously created.
-                if Debug: # Debug Text
-                    print(row) # Debug Text
-                    print("Imported " + row['Name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
-                Topic.objects.create(
-                    id=row['ID'],
-                    name=row['Name'],
-                    summary=row['Summary'],
-                    category=row['Category']
-                    # videos=row['Videos'], Not added at this point
-                    # series=row['Series'], Not added at this point
-                )
+
+
+                if (row['name_new'] != LastName):
+                    if Debug:  # Debug Text
+                        print(row)  # Debug Text
+                        print("Imported " + row['name_new'])  # Debug Text, note that the rows are reffered to by the column headers in the dict
+                    Topic.objects.create(
+                        id=row[IDnum],
+                        name=row['name_new'],
+                        summary=row['Summary'],
+                        category=row['category_new']
+                        # videos=row['Videos'], Not added at this point
+                        # series=row['Series'], Not added at this point
+                    )
+                    IDnum = IDnum +1
+                    LastName = row['name_new']
+
+                else:
+                    if Debug:  # Debug Text
+                        print(row)  # Debug Text
+                        print("skipped " + row['name_new'] + " as duplicate")
+
