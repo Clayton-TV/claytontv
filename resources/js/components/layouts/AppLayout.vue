@@ -21,6 +21,7 @@ import { reactive } from "vue"
 
 const navOptions = [
     { name: "Livestreams", href: "/livestreams" },
+    { name: "Latest", href: "/latest" },
     { name: "Series", href: "/series" },
     { name: "Topics", href: "/topic" },
 ]
@@ -39,7 +40,8 @@ const searchForm = reactive({
 
 const submitSearch = () => {
     if (searchForm.search) {
-        router.get("/search", searchForm)
+        router.get("/search", searchForm);
+        document.getElementById("search").blur();
     }
 }
 </script>
