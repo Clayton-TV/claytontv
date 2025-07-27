@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
                     for i in topics:
                         try:
-                            Vid.topic.add(Topic.objects.get(name = i)) #add a function here that maps old topics to new
+                            Vid.topic.add(Topic.objects.get(name = TO2N.Find(i))) #function to match the old topic to the new
 
                         except django.core.exceptions.ObjectDoesNotExist:
                             print("The Topic " + i + " does not exist")
@@ -76,6 +76,20 @@ class Command(BaseCommand):
                         except django.core.exceptions.MultipleObjectsReturned:
                             print("The Speaker " + i + " returned duplicate elements")
 
+
+class TO2N:  # Topic Old to New
+
+    TopicTable = 0
+    filepath = "CSV/topics-mergers.csv"
+    def __init__(self):
+        with open(self.filepath, 'r',encoding='utf-8-sig') as file:  # Opens the file path at "filepath" readonly as the variable "file".
+            self.TopicTable = csv.DictReader(                file)  # opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
+
+    def Find(OldTopic):
+        OldTopic = OldTopic.strip('- ')
+
+
+        
 
 
 
