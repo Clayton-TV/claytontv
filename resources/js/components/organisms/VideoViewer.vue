@@ -56,23 +56,23 @@ const videoThumbnail = (videoUrl) => {
             </div>
         </div>
         <div class="w-full">
-            <h1 class="border-t border-gray-800 divide-grey-900 pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-gray-100 line-clamp-2" v-if="video.name">{{ video.name }}</h1>
+            <h1 class="border-t border-input divide-grey-900 pointer-events-none my-4 text-2xl lg:text-3xl lg:pb-4 font-bold text-foreground line-clamp-2" v-if="video.name">{{ video.name }}</h1>
             <p
-                class="pointer-events-none line-clamp-2 text-sm font-normal text-gray-500" v-if="video.description" v-html="video.description">
+                class="pointer-events-none line-clamp-2 text-sm font-normal text-foreground" v-if="video.description" v-html="video.description">
             </p>
             <div class="grid grid-cols-4 gap-1">
                 <span
-                    class="pointer-events-none col-span-2 text-xs font-normal text-gray-400"
+                    class="pointer-events-none col-span-2 text-xs font-normal text-accent-foreground"
                     >{{
                         video.speaker?.[0]?.name ?? "Speaker Name"
                     }}</span
                 >
                 <span
-                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
+                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-accent-foreground"
                     >{{ video.date_created ?? "01/01/01" }}</span
                 >
                 <span
-                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-gray-400"
+                    class="pointer-events-none col-span-1 text-right text-xs font-normal text-accent-foreground"
                     >{{ video.duration ?? "00:00" }}</span
                 >
             </div>

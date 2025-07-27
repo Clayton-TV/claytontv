@@ -23,9 +23,9 @@ const getVideoThumbnail = (videoUrl) => {
 </script>
 
 <template>
-    <div class="w-full h-full flex rounded-md bg-gradient-to-br from-gray-700 to-gray-900">
+    <div class="w-full h-full flex rounded-md bg-gradient-to-br from-accent to-card">
         <div class="absolute inset-0 place-self-center group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
-            <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100"/>
+            <IconPlayerPlay class="h-14 w-14 stroke-1 text-accent-foreground"/>
         </div>
 
         <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 sm:py-5 gap-y-1 place-self-end">
@@ -36,10 +36,10 @@ const getVideoThumbnail = (videoUrl) => {
                 </span>
                 <span class="pb-[1.5px]">Live</span>
             </p>
-            <h3 class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-gray-100">
+            <h3 class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-accent-foreground">
                 {{ video.name }}
             </h3>
-            <p class="line-clamp-1 truncate text-sm text-gray-400">
+            <p class="line-clamp-1 truncate text-sm text-accent-foreground/50">
                 {{ video.date_recorded ? "Recorded: " + video.date_recorded : "Added: " + video.date_created }}
             </p>
         </div>

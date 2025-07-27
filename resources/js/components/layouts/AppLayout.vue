@@ -52,7 +52,7 @@ const submitSearch = () => {
             <Disclosure
                 v-slot="{ open }"
                 as="nav"
-                class="mx-auto w-full max-w-6xl flex-none rounded-md bg-gray-900 shadow-2xl">
+                class="mx-auto w-full max-w-6xl flex-none rounded-md bg-sidebar shadow-2xl">
                 <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
                     <div
                         class="relative flex h-16 items-center justify-between">
@@ -68,9 +68,9 @@ const submitSearch = () => {
                                         v-for="option in navOptions"
                                         :key="option.name"
                                         :class="
-                                            isCurrent(option.href) ? 'bg-gray-900 text-white' : ''
+                                            isCurrent(option.href) ? 'bg-inherit text-accent-foreground' : ''
                                         "
-                                        class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                                        class="rounded-md bg-inherit px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-primary hover:sidebar-primary-foreground"
                                         :href="option.href">
                                         {{ option.name }}
                                     </Link>
@@ -92,7 +92,7 @@ const submitSearch = () => {
                                     </div>
                                     <input
                                         id="search"
-                                        class="block h-9 w-full rounded-md border-0 bg-gray-700 py-1.5 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                                        class="block h-9 w-full rounded-md border-0 bg-input py-1.5 pl-10 pr-3 text-sidebar-accent-foreground placeholder:text-sidebar-accent-foreground/60 focus:ring-0 focus:outline-2 focus:outline-sidebar-ring sm:text-sm sm:leading-6"
                                         name="search" v-model="searchForm.search"
                                         placeholder="Search"
                                         type="search" />
@@ -271,7 +271,7 @@ const submitSearch = () => {
         </div>
 
         <footer
-            class="flex flex-col items-center gap-y-10 rounded-t-lg bg-gradient-to-b from-gray-800 to-gray-950 px-5 py-10">
+            class="flex flex-col items-center gap-y-10 rounded-t-lg bg-gradient-to-b from-sidebar to-sidebar/80 px-5 py-10">
             <div class="space-y-3">
                 <p class="text-balance text-center text-xl font-bold">
                     Want some occasional updates from us?
@@ -281,10 +281,10 @@ const submitSearch = () => {
                     class="flex flex-col gap-y-2"
                     @submit.prevent="subscribeToNewsletter">
                     <input
-                        class="block h-11 w-full rounded-md border-0 bg-gray-700 px-3 py-1.5 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                        class="block h-11 w-full rounded-md border-0 bg-input px-3 py-1.5 text-sidebar-accent-foreground placeholder:text-sidebar-accent-foreground/60 focus:outline-2 focus:outline-sidebar-ring focus:ring-0 sm:text-sm sm:leading-6"
                         placeholder="Enter your email"
                         type="email" />
-                    <button class="h-11 rounded bg-blue-500" type="submit">
+                    <button class="h-11 rounded bg-input active:bg-sidebar-primary active:text-sidebar-primary-foreground" type="submit">
                         Subscribe
                     </button>
                 </form>
@@ -296,32 +296,32 @@ const submitSearch = () => {
                         <LogoMark class="size-10 fill-primary" />
                         <h1 class="text-3xl font-bold">Clayton TV</h1>
                     </div>
-                    <p class="mt-1 text-sm text-gray-300">
+                    <p class="mt-1 text-sm text-sidebar-foreground/60">
                         Your digital catalogue for Godly content.
                     </p>
                 </div>
 
                 <div class="flex justify-center gap-x-3">
                     <div
-                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-gray-800">
+                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-input">
                         <p class="sr-only">Youtube</p>
-                        <IconBrandYoutube class="h-8 w-8 stroke-1 text-white" />
+                        <IconBrandYoutube class="h-8 w-8 stroke-1 text-sidebar-foreground" />
                     </div>
                     <div
-                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-gray-800">
+                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-input">
                         <p class="sr-only">Vimeo</p>
-                        <IconBrandVimeo class="h-8 w-8 stroke-1 text-white" />
+                        <IconBrandVimeo class="h-8 w-8 stroke-1 text-sidebar-foreground" />
                     </div>
                     <div
-                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-gray-800">
+                        class="flex aspect-square w-12 items-center justify-center rounded-md bg-input">
                         <p class="sr-only">Github</p>
-                        <IconBrandGithub class="h-8 w-8 stroke-1 text-white" />
+                        <IconBrandGithub class="h-8 w-8 stroke-1 text-sidebar-foreground" />
                     </div>
                 </div>
             </div>
 
             <div>
-                <p class="text-xs text-gray-400">
+                <p class="text-xs text-sidebar-foreground/60">
                     &copy; {{ new Date().getFullYear() }} The Jesmond Trust. All
                     rights reserved.
                 </p>

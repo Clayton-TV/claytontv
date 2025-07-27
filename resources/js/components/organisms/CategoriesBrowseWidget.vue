@@ -75,10 +75,10 @@ function selectCategory(category) {
 
 <template>
     <div class="mt-10 mb-4 justify-items-center space-y-2">
-        <h2 class="text-center text-3xl font-bold text-gray-100">
+        <h2 class="text-center text-3xl font-bold text-foreground">
             {{ title }}
         </h2>
-        <p class="text-center text-gray-400">
+        <p class="text-center text-foreground/60">
             {{ description }}
         </p>
     </div>
@@ -113,7 +113,7 @@ function selectCategory(category) {
                 v-for="skeletonIndex in 6"
                 :key="skeletonIndex"
                 :rowCount="1"
-                :customClasses="'bg-blue-950'"
+                :customClasses="'bg-card'"
                 :darkText="false" />
         </div>
         <ul
@@ -124,7 +124,7 @@ function selectCategory(category) {
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"
-                class="rounded-lg bg-blue-950 p-4">
+                class="rounded-lg bg-input p-4">
                 <h2 class="font-bold">{{ subcategory.name }}</h2>
                 <div>
                     {{ subcategory.videosCount }} programme{{
