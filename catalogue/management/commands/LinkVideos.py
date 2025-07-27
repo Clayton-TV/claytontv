@@ -85,11 +85,15 @@ class TO2N:  # Topic Old to New
         with open(self.filepath, 'r',encoding='utf-8-sig') as file:  # Opens the file path at "filepath" readonly as the variable "file".
             self.TopicTable = csv.DictReader(                file)  # opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
 
-    def Find(OldTopic):
+    def Find(self,OldTopic):
         OldTopic = OldTopic.strip('- ')
+        for row in self.TopicTable:
+            if (OldTopic = row[])
 
 
-        
+
+
+
 
 
 
