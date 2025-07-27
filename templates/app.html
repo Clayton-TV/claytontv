@@ -13,7 +13,9 @@
             const appearance = localStorage.getItem('appearance') || 'system';
 
             if (appearance === 'system') {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                // FIXME: Currently the light mode looks awful due to various hardcoded colours. Force dark mode for now until that is fixed. See also /resources/js/composables/useAppearance.ts
+                // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const prefersDark = true;
 
                 if (prefersDark) {
                     document.documentElement.classList.add('dark');

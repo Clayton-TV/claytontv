@@ -1,4 +1,5 @@
 from typing import ClassVar  # Add typing imports
+from urllib.parse import quote  # Import for URL encoding
 
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
@@ -43,8 +44,9 @@ class Ministry(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        """Returns the URL to access a detailed record for the series"""
-        return reverse("series-detail", args=[str(self.id)])
+        """Returns the URL to access a detailed record for the ministry"""
+        encoded_name = quote(self.name, safe="")  # Encode the name, escaping all special characters
+        return reverse("browse_ministry", args=[encoded_name])
 
     class Meta:
         ordering: ClassVar[list[str]] = ["name"]

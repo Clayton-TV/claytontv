@@ -71,7 +71,7 @@ const playVideo = (id) => {
 </script>
 
 <template>
-    <section class="my-10 flex flex-col items-center gap-y-6">
+    <section class="mt-10 mb-4 flex flex-col items-center gap-y-6">
         <div class="space-y-2">
             <h2 class="text-center text-3xl font-bold text-gray-100" v-if="title">
                 {{ title }}
@@ -84,7 +84,7 @@ const playVideo = (id) => {
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate mb-3 aspect-[10/16] max-h-[42dvh] w-auto max-w-[90vw] shrink-0 snap-center md:aspect-video hover:opacity-75">
+                    class="relative isolate mb-3 aspect-[10/16] max-h-[42dvh] max-w-[90vw] shrink-0 snap-center md:aspect-video hover:opacity-75">
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
                         class="contents">

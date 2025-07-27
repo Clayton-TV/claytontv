@@ -1,3 +1,5 @@
+from urllib.parse import quote  # Import for URL encoding
+
 from django.db import models
 from django.urls import reverse  # generate urls by reversing url pattern
 
@@ -41,5 +43,6 @@ class Demographic(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        """Returns the URL to access a detailed record for the speaker"""
-        return reverse("speaker-detail", args=[str(self.id)])
+        """Returns the URL to access a detailed record for the demographic"""
+        encoded_name = quote(self.name, safe="")  # Encode the name, escaping all special characters
+        return reverse("browse_demographic", args=[encoded_name])
