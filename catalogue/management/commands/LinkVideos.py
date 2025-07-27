@@ -88,7 +88,8 @@ class TO2N:  # Topic Old to New
     def Find(self,OldTopic):
         OldTopic = OldTopic.strip('- ')
         for row in self.TopicTable:
-            if (OldTopic = row[])
+            if True:
+                a = 1+1 #fix this
 
 
 
