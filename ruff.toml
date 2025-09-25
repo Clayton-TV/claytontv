@@ -1,0 +1,50 @@
+line-length = 120
+target-version = "py312"
+extend-exclude = [
+    ".github",
+]
+
+[lint]
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "build", # Python build artifacts
+    "dist",  # Python build artifacts
+    "node_modules",
+    "*/migrations/*", # Django migrations
+    "staticfiles_collected/*",
+    "public/build/*",
+]
+select = [
+    "B", # flake8-bugbear
+    "C90", # McCabe complexity
+    # "D", # pydocstyle
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "FIX",
+    "G",
+    "I", # isort
+    "N", # pep8-naming
+    "PTH",
+    "RUF",
+    "SIM", # flake8-simplify
+    "T20",
+    "UP", # pyupgrade
+    "W", # pycodestyle warnings
+]
+ignore = [
+    "F811", # redefinition of unused variable
+]
+
+[lint.isort]
+case-sensitive = true
+known-first-party = [
+    "app",
+    "catalogue",
+]
+
+[lint.pydocstyle]
+convention = "google"

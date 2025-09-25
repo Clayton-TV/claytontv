@@ -1,34 +1,44 @@
 import csv
-from django.core.management.base import BaseCommand, CommandError
-from catalogue.models.bible_book import Bible_Book
+import logging
+from pathlib import Path
+
+from django.core.management.base import BaseCommand
+
+from catalogue.models.bible_book import BibleBook  # Updated to use the new class name
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     help = "Imports data from a CSV"
 
-    def add_arguments(self, parser): #This adds a debug coption to the command
+    def add_arguments(self, parser):  # This adds a debug coption to the command
         parser.add_argument(
-            "--DEBUG", # This is the option.
-            action="store_true", ## In this case it stores that the whether this option has been called or not, if it has it will return true when queried.
-            help="Runs the command with Debug on", # Help text for helpful helpers.
+            "--DEBUG",  # This is the option.
+            action="store_true",  # Stores whether this option has been called or not.
+            # If called, it will return true when queried.
+            help="Runs the command with Debug on",  # Help text for helpful helpers.
         )
 
     def handle(self, *args, **options):
-        self.imp_bible("CSV/Bible Books.csv",options["DEBUG"]) #calls the function that imports the CSV at the file path into the Bible_Book data table. It also passes the result of options["DEBUG"] which checks if the debug command has been called.
+        self.imp_bible("CSV/Bible Books.csv", options["DEBUG"])  # Imports CSV data into BibleBook model
+        # Uses DEBUG option to control logging verbosity
 
-    def imp_bible(self,filepath,Debug):
-        if Debug:
-            print("The command ran and:") # Debug Text
-        Bible_Book.objects.all().delete() # Clears all the existing data before reimporting, a useful but dangerous commands.
-        with open(filepath, 'r', encoding='utf-8-sig') as file: # Opens the file path at "filepath" readonly as the variable "file".
-            reader = csv.DictReader(file) #opens file with using the CSV's library Dictreader which converts it into a dictionary, the headers are the key for each row.
-            for row in reader: # cycles through the row of the dictionary previously created.
-                if Debug: # Debug Text
-                    print(row) # Debug Text
-                    print("Imported " + row['name'])# Debug Text, note that the rows are reffered to by the column headers in the dict
-                Bible_Book.objects.create(  # Create an entry in bible books.
-                    order=row['order'], # added the order to the entry
-                    name=row['code'], # adds the book code to the entry
-                    summary=row['name'], # stores the name of the book to the entry
-                    type=row['type'], # stores type of that bible book to the entry
+    def imp_bible(self, filepath, debug):
+        if debug:
+            logger.info("The command ran and:")  # Debug Text using logger instead of print
+        BibleBook.objects.all().delete()  # Clears all existing data before reimporting
+        # This is useful but potentially dangerous
+        with Path(filepath).open(encoding="utf-8-sig") as file:  # Opens the file path using Path
+            reader = csv.DictReader(file)  # Opens file using CSV's DictReader, converting to a dictionary.
+            # Headers become keys for each row.
+            for row in reader:  # cycles through the row of the dictionary previously created.
+                if debug:  # Debug Text
+                    logger.debug(row)  # Debug info using logger instead of print
+                    logger.info("Imported %s", row["name"])  # Debug info using logger with parameter-style formatting
+                BibleBook.objects.create(  # Create an entry in bible books.
+                    order=row["order"],  # added the order to the entry
+                    name=row["code"],  # adds the book code to the entry
+                    summary=row["name"],  # stores the name of the book to the entry
+                    type=row["type"],  # stores type of that bible book to the entry
                 )

@@ -1,0 +1,80 @@
+[tool.poetry]
+name = "claytontv"
+version = "0.1.0"
+description = "Clayton TV provides Christian media you can trust."
+authors = ["Jamie Gardner <jamie@tgo.dev>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "~3.12.10"
+django = "^5.2.1"
+python-dotenv = "^1.1.0"
+psycopg2-binary = "^2.9.10"
+gunicorn = "^23.0.0"
+poethepoet = "^0.34.0"
+whitenoise = "^6.9.0"
+dj-database-url = "^2.3.0"
+inertia-django = "^1.2.0"
+django-vite = "^3.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.2.0"
+ruff = "^0.11.8"
+pytest = "^8.3.5"
+concurrently = "^2.1"
+pytest-django = "^4.11.1"
+django-seed = "^0.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "app.test_settings"
+
+[tool.poe.tasks]
+run = "python manage.py runserver --settings app.local_settings"
+format-check = "poetry run ruff format --check ."
+lint-check = "poetry run ruff check ."
+
+# Compose a sequence of tasks to run for production, specifically:
+# 1. collectstatic with --noinput
+# 2. migrate the database
+# 3. run the server with gunicorn
+[tool.poe.tasks.prod]
+help = "Run a production-like server"
+sequence = [
+    "npm install",
+    "npm run build-only",
+    "poetry run poe manage collectstatic --noinput",
+    "poetry run poe manage migrate",
+    "poetry run gunicorn app.wsgi"
+]
+default_item_type = "cmd"
+
+[tool.poe.tasks.dev]
+help = "Run the development server and Vite concurrently"
+cmd = "npx concurrently -c \"#93c5fd,#fdba74\" \"poe run\" \"npm run dev\" --names=server,vite"
+
+[tool.poe.tasks.manage]
+help = "Run Django management commands"
+cmd = "python manage.py ${args}"
+
+[tool.poe.tasks.format]
+help = "Format all Python files according to the project style"
+cmd = "poetry run ruff format ."
+
+[tool.poe.tasks.lint]
+help = "Lint all Python files and fix any fixable issues"
+cmd = "poetry run ruff check --fix ."
+
+[tool.poe.tasks.fix]
+help = "Lint and format all Python files"
+sequence = ["lint", "format"]
+
+[tool.poe.tasks.test]
+help = "Run the test suite"
+cmd = "poetry run pytest"
+
+
