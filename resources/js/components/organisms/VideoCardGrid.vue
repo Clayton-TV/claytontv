@@ -20,18 +20,6 @@ defineProps({
     },
 })
 
-const getVideoThumbnail = (videoUrl) => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const youtubeId = videoUrl.match(youtubeRegex)?.[2];
-    if (youtubeId) {
-        // If youtube URL
-        // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
-        return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
-    } else {
-        return "https://via.placeholder.com/1080x640"
-    }
-}
-
 const prevPage = () => {
     const pageRegex = /^.page=([0-9]+).*/
     const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
