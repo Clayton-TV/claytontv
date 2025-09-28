@@ -121,36 +121,49 @@ def search(request):
 
 
 def video(request, id):
-    video_object = Video.objects.get(id=id)
-    video_metadata = {}
-    # Properties to interrogate, with boolean for whether they are plural (True) or singular (False)
-    props = {
-        "topic": (video_object.topic, True),
-        "channel": (video_object.channel, False),
-        "series": (video_object.series, False),
-        "ministry": (video_object.ministry, True),
-        "speaker": (video_object.speaker, True),
-        "bible_book": (video_object.bible_book, True),
-        "demographic": (video_object.demographic, True),
-    }
-    for p in props:
-        if props[p][0] is not None:
-            if props[p][1]:
-                if p == "bible_book":
-                    video_metadata[p] = [{"name": i.summary, "url": i.get_absolute_url()} for i in props[p][0].all()]
+    try:
+        video_object = Video.objects.get(id=id)
+        video_metadata = {}
+        # Properties to interrogate, with boolean for whether they are plural (True) or singular (False)
+        props = {
+            "topic": (video_object.topic, True),
+            "channel": (video_object.channel, False),
+            "series": (video_object.series, False),
+            "ministry": (video_object.ministry, True),
+            "speaker": (video_object.speaker, True),
+            "bible_book": (video_object.bible_book, True),
+            "demographic": (video_object.demographic, True),
+        }
+        for p in props:
+            if props[p][0] is not None:
+                if props[p][1]:
+                    if p == "bible_book":
+                        video_metadata[p] = [
+                            {"name": i.summary, "url": i.get_absolute_url()} for i in props[p][0].all()
+                        ]
+                    else:
+                        video_metadata[p] = [{"name": i.name, "url": i.get_absolute_url()} for i in props[p][0].all()]
                 else:
-                    video_metadata[p] = [{"name": i.name, "url": i.get_absolute_url()} for i in props[p][0].all()]
-            else:
-                video_metadata[p] = {"name": props[p][0].name, "url": props[p][0].get_absolute_url()}
+                    video_metadata[p] = {"name": props[p][0].name, "url": props[p][0].get_absolute_url()}
 
-    return render(
-        request,
-        "WatchVideo",
-        {
-            "video": video_object,
-            "video_metadata": video_metadata,
-        },
-    )
+        return render(
+            request,
+            "WatchVideo",
+            {
+                "video": video_object,
+                "video_metadata": video_metadata,
+            },
+        )
+    except Video.DoesNotExist:
+        return render(
+            request,
+            "Browse",
+            {
+                "videos": [],
+                "title": "Video not found",
+                "description": f"Error retreiving video data for id: '{id}'",
+            },
+        )
 
 
 def browse_bible_book(request, id):
