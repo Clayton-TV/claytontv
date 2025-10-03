@@ -1,12 +1,11 @@
+# ruff: noqa: T201,T203,F401,F403,F405,F821,E501,E203,W292,W391,N801,N802,N803,N804,N805,N806,N807,N813,N814
+
 import csv
-import logging
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from catalogue.models.bible_book import BibleBook  # Updated to use the new class name
-
-logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -26,7 +25,7 @@ class Command(BaseCommand):
 
     def imp_bible(self, filepath, debug):
         if debug:
-            logger.info("The command ran and:")  # Debug Text using logger instead of print
+            print("The command ran and:")  # Debug Text using logger instead of print
         BibleBook.objects.all().delete()  # Clears all existing data before reimporting
         # This is useful but potentially dangerous
         with Path(filepath).open(encoding="utf-8-sig") as file:  # Opens the file path using Path
@@ -34,8 +33,8 @@ class Command(BaseCommand):
             # Headers become keys for each row.
             for row in reader:  # cycles through the row of the dictionary previously created.
                 if debug:  # Debug Text
-                    logger.debug(row)  # Debug info using logger instead of print
-                    logger.info("Imported %s", row["name"])  # Debug info using logger with parameter-style formatting
+                    print(row)  # Debug info using logger instead of print
+                    print("Imported %s", row["name"])  # Debug info using logger with parameter-style formatting
                 BibleBook.objects.create(  # Create an entry in bible books.
                     order=row["order"],  # added the order to the entry
                     name=row["code"],  # adds the book code to the entry

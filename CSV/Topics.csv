@@ -1,137 +1,102 @@
-ID,Name,Summary,Category,Videos,Series,,
-1,Bible Book Overviews,Bible Book Overviews,Theology - Biblical Studies,,,,
-2,Bible Prophecy,Bible Prophecy,Theology - Biblical Studies,,,,
-3,Bible Translation & Interpretation,Bible Translation & Interpretation,Theology - Biblical Studies,,,,
-4,Inspiration & Inerrancy of the Bible,Inspiration & Inerrancy of the Bible,Theology - Biblical Studies,,,,
-5,Kingdom of God,Kingdom of God,Theology - Biblical Studies,,,,
-6,New Testament Biblical Figures,New Testament Biblical Figures,Theology - Biblical Studies,,,,
-7,Old Testament Biblical Figures,Old Testament Biblical Figures,Theology - Biblical Studies,,,,
-8,Redemptive History,Redemptive History,Theology - Biblical Studies,,,,
-9,The Covenants,The Covenants,Theology - Biblical Studies,,,,
-10,Theology- Biblical/Systematic,Theology- Biblical/Systematic,Theology - Biblical Studies,,,,
-11,Imputed & Original Sin,Imputed & Original Sin,Theology - Sin,,,,
-12,Indwelling Sin,Indwelling Sin,Theology - Sin,,,,
-13,Satan,Satan,Theology - Sin,,,,
-14,The Fall,The Fall,Theology - Sin,,,,
-15,The Power & Effects of Sin,The Power & Effects of Sin,Theology - Sin,,,,
-16,The Foreknowledge of God,The Foreknowledge of God,Theology - God,,,,
-17,The Glory of God,The Glory of God,Theology - God,,,,
-18,The Grace of God,The Grace of God,Theology - God,,,,
-19,The Holiness of God,The Holiness of God,Theology - God,,,,
-20,The Holy Spirit,The Holy Spirit,Theology - God,,,,
-21,The Love of God,The Love of God,Theology - God,,,,
-22,The Pleasures of God,The Pleasures of God,Theology - God,,,,
-23,The Sovereignty of God,The Sovereignty of God,Theology - God,,,,
-24,The Trinity,The Trinity,Theology - God,,,,
-25,The Wrath of God,The Wrath of God,Theology - God,,,,
-26,Creation,Creation,Theology - Salvation,,,,
-27,End Times / Return of Christ,End Times / Return of Christ,Theology - Salvation,,,,
-28,Faith,Faith,Theology - Salvation,,,,
-29,Glorification / Resurrection of the Body,Glorification / Resurrection of the Body,Theology - Salvation,,,,
-30,Heaven & Hell,Heaven & Hell,Theology - Salvation,,,,
-31,Justification,Justification,Theology - Salvation,,,,
-32,Perseverance of the Saints,Perseverance of the Saints,Theology - Salvation,,,,
-33,Predestination/Election,Predestination/Election,Theology - Salvation,,,,
-34,Regeneration / New Birth,Regeneration / New Birth,Theology - Salvation,,,,
-35,Repentance,Repentance,Theology - Salvation,,,,
-36,Sonship (Adoption by God),Sonship (Adoption by God),Theology - Salvation,,,,
-37,The Gospel,The Gospel,Theology - Salvation,,,,
-38,The Law,The Law,Theology - Salvation,,,,
-39,The Birth of Christ/Incarnation,The Birth of Christ/Incarnation,Theology - Jesus Christ,,,,
-40,The Death of Christ/Atonement/Priesthood,The Death of Christ/Atonement/Priesthood,Theology - Jesus Christ,,,,
-41,The Deity of Christ/Person of Christ,The Deity of Christ/Person of Christ,Theology - Jesus Christ,,,,
-42,The Life of Christ/Work/Miracles,The Life of Christ/Work/Miracles,Theology - Jesus Christ,,,,
-43,The Resurrection of Christ,The Resurrection of Christ,Theology - Jesus Christ,,,,
-44,The Supremacy of Christ,The Supremacy of Christ,Theology - Jesus Christ,,,,
-45,Assurance of Salvation/Doubt,Assurance of Salvation/Doubt,Christian Life - Life Issues,,,,
-46,Biblical Counseling,Biblical Counseling,Christian Life - Life Issues,,,,
-47,Conscience,Conscience,Christian Life - Life Issues,,,,
-48,Courage & Boldness,Courage & Boldness,Christian Life - Life Issues,,,,
-49,Death & Dying,Death & Dying,Christian Life - Life Issues,,,,
-50,Encouragement,Encouragement,Christian Life - Life Issues,,,,
-51,Fear & Anxiety,Fear & Anxiety,Christian Life - Life Issues,,,,
-52,Fellowship & Hospitality,Fellowship & Hospitality,Christian Life - Life Issues,,,,
-53,Forgiving Others,Forgiving Others,Christian Life - Life Issues,,,,
-54,Gratitude/Contentment,Gratitude/Contentment,Christian Life - Life Issues,,,,
-55,Hope/Joy,Hope/Joy,Christian Life - Life Issues,,,,
-56,Knowing God's Will/Guidance,Knowing God's Will/Guidance,Christian Life - Life Issues,,,,
-57,Life of the Body,Life of the Body,Christian Life - Life Issues,,,,
-58,Loving Others,Loving Others,Christian Life - Life Issues,,,,
-59,Money,Money,Christian Life - Life Issues,,,,
-60,Persecution & Martyrdom,Persecution & Martyrdom,Christian Life - Life Issues,,,,
-61,Pride & Humility,Pride & Humility,Christian Life - Life Issues,,,,
-62,Sexual Purity/Relationships,Sexual Purity/Relationships,Christian Life - Life Issues,,,,
-63,Speech,Speech,Christian Life - Life Issues,,,,
-64,Spiritual Warfare/Temptation,Spiritual Warfare/Temptation,Christian Life - Life Issues,,,,
-65,Suffering/Sickness,Suffering/Sickness,Christian Life - Life Issues,,,,
-66,Suicide,Suicide,Christian Life - Life Issues,,,,
-67,Wisdom,Wisdom,Christian Life - Life Issues,,,,
-68,Work & Vocation,Work & Vocation,Christian Life - Life Issues,,,,
-69,Christian Freedom,Christian Freedom,Christian Life - Spiritual Growth,,,,
-70,Devotional Life/Quiet Times,Devotional Life/Quiet Times,Christian Life - Spiritual Growth,,,,
-71,Discipleship,Discipleship,Christian Life - Spiritual Growth,,,,
-72,Education,Education,Christian Life - Spiritual Growth,,,,x
-73,Fasting,Fasting,Christian Life - Spiritual Growth,,,,
-74,Fruit of the Spirit,Fruit of the Spirit,Christian Life - Spiritual Growth,,,,
-75,Giving,Giving,Christian Life - Spiritual Growth,,,,
-76,Life of the Mind,Life of the Mind,Christian Life - Spiritual Growth,,,,
-77,Personal Holiness/Obedience,Personal Holiness/Obedience,Christian Life - Spiritual Growth,,,,
-78,Prayer,Prayer,Christian Life - Spiritual Growth,,,,
-79,"Sanctification and Growth, God's Discipline","Sanctification and Growth, God's Discipline",Christian Life - Spiritual Growth,,,,
-80,Spiritual Gifts/Serving,Spiritual Gifts/Serving,Christian Life - Spiritual Growth,,,,
-81,Testimony,Testimony,Christian Life - Spiritual Growth,,,,
-82,Biblical Manhood & Womanhood,Biblical Manhood & Womanhood,Family,,,,
-83,Children,Children,Family,,,,
-84,Divorce & Remarriage,Divorce & Remarriage,Family,,,,
-85,Marriage,Marriage,Family,,,,
-86,Men,Men,Family,,,,
-87,Parenting,Parenting,Family,,,,
-88,Women,Women,Family,,,,
-89,Christian Unity,Christian Unity,Church - Church Life,,,,
-90,Multi-Site Church Ministry,Multi-Site Church Ministry,Church - Church Life,,,,
-91,Nature of the Church/Church Issues,Nature of the Church/Church Issues,Church - Church Life,,,,
-92,Small Groups,Small Groups,Church - Church Life,,,,
-93,Baptism & Church Membership,Baptism & Church Membership,Church - Practises,,,,
-94,Christmas,Christmas,Church - Practises,,,,
-95,Church Discipline,Church Discipline,Church - Practises,,,,
-96,Easter,Easter,Church - Practises,,,,
-97,The Lord's Day,The Lord's Day,Church - Practises,,,,
-98,The Lord's Supper,The Lord's Supper,Church - Practises,,,,
-99,Church Planting,Church Planting,Church - Practises,,,,
-100,Evangelism,Evangelism,Church - Practises,,,,
-101,Ministry/Urban Ministry,Ministry/Urban Ministry,Church - Practises,,,,
-102,Missions,Missions,Church - Practises,,,,
-103,Worship,Worship,Church - Practises,,,,
-104,Biblical Eldership,Biblical Eldership,Church - Leadership,,,,
-105,Pastoral Ministry,Pastoral Ministry,Church - Leadership,,,,
-106,Preaching & Teaching,Preaching & Teaching,Church - Leadership,,,,
-107,Spiritual Leadership,Spiritual Leadership,Church - Leadership,,,,
-108,Women's Ministry,Women's Ministry,Church - Leadership,,,,
-109,Youth and Children's Ministry,Youth and Children's Ministry,Church - Leadership,,,,
-110,Atheism,Atheism,Worldview - Apologetics,,,,
-111,Cults & The Occult,Cults & The Occult,Worldview - Apologetics,,,,
-112,Evidence for the Faith,Evidence for the Faith,Worldview - Apologetics,,,,
-113,False Teaching,False Teaching,Worldview - Apologetics,,,,
-114,General Apologetics,General Apologetics,Worldview - Apologetics,,,,
-115,Tough Texts,Tough Texts,Worldview - Apologetics,,,,
-116,Truth,Truth,Worldview - Apologetics,,,,
-117,World Religions,World Religions,Worldview - Apologetics,,,,
-118,Science,Science,Worldview - Apologetics,,,,
-119,Art/Literature,Art/Literature,Worldview - Arts,,,,
-120,Technology,Art/Literature,Worldview - Arts,,,,
-121,Abortion/Bioethics,Abortion/Bioethics,Worldview - Ethics,,,,
-122,Gender,Gender,Worldview - Ethics,,,,
-123,Human Sexuality,Homosexuality,Worldview - Ethics,,,,
-124,Poverty,Poverty,Worldview - Ethics,,,,
-125,Public Justice,Public Justice,Worldview - Ethics,,,,
-126,Racial Harmony,Racial Harmony,Worldview - Ethics,,,,
-127,Social Issues,Social Issues,Worldview - Ethics,,,,
-128,Christianity in Public Life,Christianity in Public Life,Worldview - Public Life,,,,
-129,Culture,Culture,Worldview - Public Life,,,,
-130,Education - World View,Education,Worldview - Public Life,,,,x
-131,Environment,Environment,Worldview - Public Life,,,,
-132,Government/Politics,Government/Politics,Worldview - Public Life,,,,
-133,Middle East,Middle East,Worldview - Public Life,,,,
-134,Terrorism,Terrorism,Worldview - Public Life,,,,
-135,Christian Biography,Christian Biography,History,,,,
-136,Church History,Church History,History,,,,
+id,name,category,summary
+1,Adoption by God,Theology - Systematic,Adoption of believers by God through Jesus.
+2,Apologetics,Apologetics,Apologetics and arguments for the Christian faith.
+5,Arts,"Politics, Culture, and Ethics",Christian interaction and perspectives on the arts
+6,Assurance,Christian Life,Confidence in one's salvation and dealing with doubts.
+7,Atheism,"Politics, Culture, and Ethics",Understanding and responding to atheism.
+8,Baptism and Church Membership,Church,The meaning an significance of baptism and other forms of church membership.
+9,Bible Book Overviews,Biblical Studies,Overviews of individual Bible books.
+10,Bible Interpretation,Biblical Studies,Teaching and understanding the Bible
+12,Biblical Counselling,Christian Life,The provision of counsel from the Bible
+13,Biblical Figures,Biblical Studies,Individuals from the Bible
+15,Bioethics,"Politics, Culture, and Ethics",Biblical perspective on matters of the beginning of life
+16,Biography,History,Lives of Christians through history.
+17,Christianity in Public Life,"Politics, Culture, and Ethics",Living out Christian life in the public sphere
+18,Christmas,Church,The celebration of the birth of Jesus.
+19,Church Discipline,Church,Correcting and restoring believers within the church. 
+20,Church History,History,The history of the Christian Church.
+21,Church Leadership,Church,Church leadership characterics and gifts.
+22,Church Life,Church,The church.
+23,Church Planting,Church,Starting new churches.
+24,Courage,Christian Life,Living out faith with God-given bravery.
+25,Creation,Theology - Systematic,The origin of the world.
+26,Cults and the Occult,"Politics, Culture, and Ethics",Recognizing and addressing cults and occult practices.
+27,Culture,"Politics, Culture, and Ethics",Understanding and speaking into secular culture in all its forms
+28,Death and Dying,Christian Life,The Bible's teaching on the end of life.
+29,Discipleship,Christian Life,Teaching to grow individuals in their Christian walk
+52,Easter,Church,The celebration of the resurrection of Jesus.
+53,Education,"Politics, Culture, and Ethics",Christian view of education.
+54,Eldership,Church,How the Bible teaches church leadership structures.
+55,Environment,"Politics, Culture, and Ethics",Biblical stewardship of the environment and engagement with idea of climate change and environmental impact.
+56,Evangelism,Christian Life,Sharing the Christian faith with others.
+57,Faith,Theology - Systematic,Belief and trust in God and His promises.
+58,False Teaching,Church,Identifying and responding to incorrect doctrines.
+59,Gender,"Politics, Culture, and Ethics",Biblical teaching on gender.
+61,Government and Politics,"Politics, Culture, and Ethics",Christian engagement with and perspecties on governance.
+62,Heaven and Hell and the Spiritual Realm,Theology - Systematic,"Theology of heaven, hell, angels, and demons."
+63,Hospitality,Christian Life,Church community and hospitality.
+64,Incarnation,"Theology - God; Father, Son, and Spirit", The embodiment of the second person of the Trinity as human form in Jesus.
+65,Inspiration and Inerrancy of the Bible,Biblical Studies,The doctrine of the source and faultlessness of the Bible.
+66,Jesus Christ's Death,"Theology - God; Father, Son, and Spirit",Jesus' sacrificial death for mankind.
+67,Jesus Christ's Person and Deity,"Theology - God; Father, Son, and Spirit",Understanding Jesus' divine and human nature and the implications thereof.
+68,Jesus' Second Coming,Theology - Systematic,Prophecies and beliefs regarding the end of the world and Christ's return.
+69,Justification,Theology - Systematic,Being declared righteous before God. 
+70,Kingdom of God,Theology - Systematic,The now and not yet of Jesus' rule.
+71,Marriage,Christian Life,What the Bible says about the breakup of marriage.
+73,Men and Women,Christian LIfe,Roles of men and women according to the Bible.
+76,Middle East,"Politics, Culture, and Ethics",The geography and politics of the Middle East.
+77,Ministry,Church,Church ministry
+80,Mission,Church,"Sharing the gospel outside the church, often overseas. particularly overseas. "
+81,Money and Giving,Christian Life,Biblical teaching on money and giving.
+83,Parenting,Christian Life,Biblical principles for parenting.
+85,Perseverance of the Saints,Theology - Systematic,The doctrine of believers continuing in faith to the end.
+86,Poverty,"Politics, Culture, and Ethics",Understanding and addressing poverty.
+87,Prayer,Christian Life,Speaking to God.
+88,Preaching and Teaching,Church,Teaching the Bible publically.
+89,Predestination and Election,Theology - Systematic,God's sovereignty in choosing those who will be saved.
+90,Public Life,"Politics, Culture, and Ethics",Biblical justice in the public sphere.
+91,Racial Harmony,"Politics, Culture, and Ethics",The cultural topic of race through a biblical lense.
+92,Redemptive History,Theology - Systematic,The narrative of God's eternal plan to redeem all of creation.
+93,Regeneration,Theology - Systematic,The spiritual renewal and rebirth of a believer.
+94,Repentance,Theology - Systematic,Turning away from sin and towards God.
+95,Resurrection of Believers,Theology - Systematic,Physical transformation of the body promised to believers.
+96,Satan,Theology - Systematic,The deceiver as defined in the Bible.
+97,Serving,Christian Life,Understanding and addressing poverty.
+98,Sex and Relationships,Christian Life,What God says about sex and relationships.
+99,Sexuality,"Politics, Culture, and Ethics","Characteristics and expression of being male or female, including sexual desires and behaviours."
+100,Sin,Theology - Systematic,Sin as inherited from Adam.
+102,Small Groups,Church,Small group fellowship in churches.
+103,Social Issues,"Politics, Culture, and Ethics",Questions over current social issues.
+104,Suffering,Christian Life,Stories and teachings on suffering for faith.
+106,Mental Health,Christian Life,Biblical perspectives and pastoral care related to mental health.
+107,Technology,"Politics, Culture, and Ethics",Understanding technology through a biblical lens.
+108,Terrorism,"Politics, Culture, and Ethics",Addressing terrorism from a biblical standpoint.
+109,Testimony,Christian Life,Personal stories of God's work in people's lives.
+110,The Covenants,Theology - Systematic,The promises from God with man marking his relationship with them.
+111,The Fall,Theology - Systematic,The original rebellion of humans against God.
+112,The Foreknowledge of God,"Theology - God; Father, Son, and Spirit",God's knowledge of future events.
+113,The Glory of God,"Theology - God; Father, Son, and Spirit",Understanding the majesty and splendour of God.
+114,The Gospel,Theology - Systematic,"The good news of Jesus Christ's life, death, and resurrection."
+115,The Grace of God,"Theology - God; Father, Son, and Spirit",God's unmerited favour towards humanity.
+116,The Holiness of God,"Theology - God; Father, Son, and Spirit",God's absolute moral perfection.
+117,The Holy Spirit,"Theology - God; Father, Son, and Spirit",The work and presence of the third person of the Trinity.
+118,The Law,Theology - Systematic,"The commandments and teaching given by God, particularly in the Old Testament through Moses."
+119,The Life of Christ,"Theology - God; Father, Son, and Spirit","The life, work, and teaching of Jesus."
+120,The Lord's Day,Church,Sunday.
+121,The Lord's Supper,Church,The practice of taking bread and wine as communion.
+122,The Love of God,"Theology - God; Father, Son, and Spirit",God's love for humanity.
+123,The Pleasures of God,"Theology - God; Father, Son, and Spirit",Understanding what delights God.
+124,The Power and Effects of Sin,Theology - Systematic,Sin's impact on individuals and the world. 
+125,The Resurrection of Christ,"Theology - God; Father, Son, and Spirit",Jesus' victory over death.
+126,The Sovereignty of God,"Theology - God; Father, Son, and Spirit",God's authority and supreme power.
+127,The Supremacy of Christ,"Theology - God; Father, Son, and Spirit",The preeminence and ultimate authority of Jesus.
+128,The Trinity,"Theology - God; Father, Son, and Spirit","The doctrine of three persons in one God, Father, Son, and Holy Spirit. "
+129,The Wrath of God,"Theology - God; Father, Son, and Spirit",God's righteous anger.
+130,Biblical and Systematic Theology,Theology - Systematic,Systematic topics of faith from scripture.  
+131,Truth,"Politics, Culture, and Ethics",The nature of truth according to the Bible.
+132,Unity,Church,The unity between the people of Christ.
+133,Women's Ministry,Church,Running teaching particularly for women in the church.
+134,Word Religions,"Politics, Culture, and Ethics",Other religions in light of Christianity.
+135,Worship,Church,The act and heart of worshiping God.
+136,Youth and Children's Ministry,Church,Running teaching particularly for children and young people in the church.
+142,Misc.,,Uncategorised

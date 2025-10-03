@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalogue', '0009_remove_series_id_number'),
+        ("catalogue", "0009_remove_series_id_number"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='series',
-            name='id_number',
-            field=models.CharField(help_text='An ID number used when importing the old database', max_length=20, null=True),
+            model_name="series",
+            name="id_number",
+            field=models.CharField(
+                help_text="An ID number used when importing the old database", max_length=20, null=True
+            ),
         ),
     ]

@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalogue', '0010_series_id_number'),
+        ("catalogue", "0010_series_id_number"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='topic',
-            name='id',
-            field=models.TextField(help_text='An ID number used for linking', max_length=10, primary_key=True, serialize=False, unique=True),
+            model_name="topic",
+            name="id",
+            field=models.TextField(
+                help_text="An ID number used for linking", max_length=10, primary_key=True, serialize=False, unique=True
+            ),
         ),
     ]
