@@ -89,7 +89,7 @@ We use Poe the Poet as a task manager, which helps self-document useful commands
 
 Activate the poetry environment
 ```bash
-poetry env activate | eval
+eval $(poetry env activate)
 ```
 
 List the project commands
@@ -98,6 +98,16 @@ poe
 ```
 
 ## 5. Run the application
+Before getting started, make sure you have the environment variables set up. You can copy the `.env.example` file to `.env` and modify it as needed:
+```bash
+cp .env.example .env
+```
+
+Generate a secret key and set it in the `.env` file:
+```bash
+poe generate-key
+```
+
 Start the development environment using the following command:
 ```bash
 poe dev
