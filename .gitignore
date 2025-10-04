@@ -44,9 +44,4 @@ coverage
 *.sw?
 
 *.tsbuildinfo
-
-
-
-#CSVs
-CSV/*
-CSV
+:wq
