@@ -33,6 +33,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.test_settings"
 
+[tool.ruff]
+ignore = ["T201"]
+
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local_settings"
 format-check = "poetry run ruff format --check ."
@@ -77,4 +80,6 @@ sequence = ["lint", "format"]
 help = "Run the test suite"
 cmd = "poetry run pytest"
 
-
+[tool.poe.tasks.generate-key]
+help = "Generate a Django secret key and write it to the .env file if SECRET_KEY is empty"
+cmd = "python manage.py generate_key"

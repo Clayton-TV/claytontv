@@ -15,6 +15,7 @@ class Series(models.Model):
     """Model representing series"""
 
     name = models.CharField(max_length=200, help_text="The name of the series.")
+    id_number = models.CharField(max_length=200, help_text="The id number of the series.")
     summary = models.TextField(
         max_length=5000,
         null=True,

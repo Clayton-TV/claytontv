@@ -20,6 +20,9 @@ class Video(models.Model):
     """Model representing the database table for videos,
     where each table entry is an individual video"""
 
+    id = models.CharField(
+        max_length=10, unique=True, help_text="Another unique identifier used for database linking", primary_key=True
+    )
     id_number = models.CharField(
         max_length=100,
         unique=True,
@@ -42,6 +45,8 @@ class Video(models.Model):
     speaker = models.ManyToManyField("Speaker", blank=True, help_text="The speakers/artist in the video.")
     is_livestream = models.BooleanField(default=False, help_text="Whether the video was a live stream.")
     topic = models.ManyToManyField("Topic", help_text="Select topics for this video.")
+
+    thumbnail = models.TextField(max_length=200, help_text="Thumbnail Location", null=True)
 
     date_recorded = models.DateField(null=True, blank=True, help_text="The date the video was recorded.")
     date_created = models.DateField(help_text="The date a video is uploaded.")
