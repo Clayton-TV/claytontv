@@ -47,7 +47,7 @@ const getVideoThumbnail = (videoUrl) => {
                 <p class="line-clamp-1 truncate text-sm text-white h-6">
                     {{ video.date_recorded ? "Recorded: " + video.date_recorded : "Added: " + video.date_created }}
                 </p>
-                <p class="flex w-min items-center gap-x-1.5 rounded bg-red-400/90 px-1.5 py-0.5 sm:px-2 text-xs font-bold uppercase tracking-wide" v-if="(video.id % 2)==0" test="video.is_livestream">
+                <p class="flex w-min items-center gap-x-1.5 rounded bg-red-400/90 px-1.5 py-0.5 sm:px-2 text-xs font-bold uppercase tracking-wide" v-if="video.is_livestream">
                     <span class="relative flex h-2.5 w-2.5">
                         <span class="absolute h-full w-full animate-ping inline-flex opacity-50 bg-white rounded-full" />
                         <span class="h-full w-full inline-flex relative bg-white rounded-full" />
