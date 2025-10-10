@@ -10,30 +10,27 @@ defineProps({
     },
 })
 
-const getVideoThumbnail = (videoUrl) => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const youtubeId = videoUrl.match(youtubeRegex)?.[2];
-    if (youtubeId) {
-        // If youtube URL
-        // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
-        return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
+const getVideoThumbnail = (video) => {
+    if (video.thumbnail?.startsWith("http")) {
+        return video.thumbnail
     } else {
-        // TODO This needs fixed, vimeo thumbnails are a whole lot more faffy than YT... they provide an API which may or may not be worth the effort
-        //let vimeoRegex = /^(http|https):\/\/vimeo.com\/([\w]+).*/;
-        //let vimeoId = videoUrl.match(vimeoRegex)?.[2];
-        //if (vimeoId) {
-        //  console.log(`vimeo url; id=${vimeoId} (url was ${videoUrl})`)
-        //  return `https://i.vimeocdn.com/video/${vimeoId}_295x166`
-        //}
-        return null
+        const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const youtubeId = video.url.match(youtubeRegex)?.[2];
+        if (youtubeId) {
+            // If youtube URL
+            // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
+            return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
+        }
     }
+    return null
 }
 </script>
 
 <template>
     <div class="w-full h-full flex rounded-md bg-gradient-to-br from-gray-700 to-gray-900">
-        <img v-if="getVideoThumbnail(video.url)" :src="getVideoThumbnail(video.url)" alt="" class="pointer-events-none place-self-center items-center justify-center absolute inset-0 h-full object-cover group-hover:opacity-75 rounded-md" />
-        <LogoMark v-else class="fill-primary pointer-events-none place-self-center items-center justify-center absolute inset-0 h-[40%] object-cover opacity-80 group-hover:opacity-55" />
+        <LogoMark class="fill-primary pointer-events-none place-self-center items-center justify-center absolute inset-0 h-[40%] object-cover opacity-80 group-hover:opacity-55" />
+
+        <img v-if="getVideoThumbnail(video)" :src="getVideoThumbnail(video)" alt="" class="pointer-events-none place-self-center items-center justify-center absolute inset-0 size-full object-cover group-hover:opacity-75 rounded-md" onerror="this.style.opacity='0';" />
 
         <div class="absolute inset-0 place-self-center group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
             <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100"/>
