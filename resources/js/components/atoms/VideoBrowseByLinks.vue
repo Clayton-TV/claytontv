@@ -48,7 +48,7 @@ defineProps({
             <div class="contents" v-if="video_metadata.speaker.length">
                 <div class="py-2">Speaker</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link v-for="x in video_metadata.speaker" :href="x.url" class="rounded-full px-4 h- mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.speaker" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
                 </div>
             </div>
 
