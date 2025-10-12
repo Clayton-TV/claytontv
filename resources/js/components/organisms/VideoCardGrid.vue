@@ -64,10 +64,10 @@ const nextPage = () => {
         </div>
 
         <div class="flex">
-            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2 opacity-50 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
+            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
                 Prev Page
             </button>
-            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2 opacity-50 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
+            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
                 Next Page
             </button>
         </div>
