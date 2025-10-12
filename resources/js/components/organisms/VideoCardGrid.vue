@@ -15,19 +15,22 @@ defineProps({
         type: String,
         required: false,
     },
-    pagination: {
+    has_prev_page: {
+        type: Boolean,
+    },
+    has_next_page: {
         type: Boolean,
     },
 })
 
 const prevPage = () => {
-    const pageRegex = /^.page=([0-9]+).*/
+    const pageRegex = /[?&]page=([0-9]+).*/
     const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
     router.get("#", {"page" : (isNaN(curPage) || curPage <= 1) ? 1 : curPage - 1})
 }
 
 const nextPage = () => {
-    const pageRegex = /^.page=([0-9]+).*/
+    const pageRegex = /[?&]page=([0-9]+).*/
     const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
     router.get("#", {"page" : isNaN(curPage) ? 2 : curPage + 1}) // If no page parameter then next page is second not first
 }
@@ -60,11 +63,11 @@ const nextPage = () => {
             </ul>
         </div>
 
-        <div class="flex" v-if="pagination">
-            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2" @click="prevPage()">
+        <div class="flex">
+            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2 opacity-50 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
                 Prev Page
             </button>
-            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2" @click="nextPage()">
+            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2 opacity-50 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
                 Next Page
             </button>
         </div>

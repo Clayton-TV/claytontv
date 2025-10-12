@@ -14,7 +14,10 @@ const props = defineProps({
     description: {
         type: String,
     },
-    pagination: {
+    has_prev_page: {
+        type: Boolean,
+    },
+    has_next_page: {
         type: Boolean,
     },
 })
@@ -26,5 +29,6 @@ const props = defineProps({
         :videos="videos"
         :title="title"
         :description="description ?? `Browsing videos under ` + title"
-        :pagination="pagination" />
+        :has_prev_page
+        :has_next_page />
 </template>

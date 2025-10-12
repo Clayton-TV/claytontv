@@ -1,6 +1,6 @@
-import math
 from urllib.parse import unquote  # Import for URL decoding
 
+from django.core.paginator import Paginator
 from inertia import render
 
 from catalogue.models.bible_book import Bible_Book
@@ -12,10 +12,10 @@ from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import Video
 
+pagination_per_page = 24
+
 
 def index(request):
-    # Implementation of pagination will be needed in the future
-
     livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[:10]
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[:10]
     topics_all = Topic.objects.all()
@@ -53,54 +53,45 @@ def index(request):
 
 
 def browse_all_livestreams(request):
-    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")
+    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by("-date_created"), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": livestreams,
             "title": "Live Streams",
-            "description": "All livestreamed content, most recent first",
+            "description": f"All livestreamed content, most recent first (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
 
 def browse_all_latest(request):
-    page = 1
-    perpage = 24
-    num_videos = 0
+    paginator = Paginator(Video.objects.filter(is_livestream=False).order_by("-date_created"), pagination_per_page)
+    page_num = 1
     try:
-        page = int(request.GET.get("page", 1))
+        page_num = int(request.GET.get("page", 1))
     except ValueError:
-        page = 1
-    try:
-        num_videos = Video.objects.filter(is_livestream=False).count()
-        latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[
-            (page - 1) * perpage : page * perpage
-        ]
-    except IndexError:
-        latest_videos = []
-    if num_videos < perpage:
-        return render(
-            request,
-            "Browse",
-            {
-                "videos": latest_videos,
-                "title": "Latest Videos",
-                "description": "All videos, most recent first",
-            },
-        )
-    else:
-        return render(
-            request,
-            "Browse",
-            {
-                "videos": latest_videos,
-                "title": "Latest Videos",
-                "description": f"All videos, most recent first (page {page} of {math.ceil(num_videos / perpage)})",
-                "pagination": True,
-            },
-        )
+        page_num = 1
+    paginated = paginator.page(page_num)
+    return render(
+        request,
+        "Browse",
+        {
+            "title": "Latest Videos",
+            "description": f"All videos, most recent first (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
+        },
+    )
 
 
 def search(request):
@@ -108,14 +99,23 @@ def search(request):
     results = []
     results += Video.objects.filter(name__icontains=searchquery)
     results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
+    paginator = Paginator(results, pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": results,
             "title": f"Search for '{searchquery}'",
-            "description": "Found {} {}".format(len(results), "result" if len(results) == 1 else "results"),
-            "pagination": False,  # Need to implement general pagination for more than just browse_all_latest
+            "description": f"Found {len(results)} {'result' if len(results) == 1 else 'results'}\
+                            (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -182,13 +182,22 @@ def browse_bible_book(request, id):
             },
         )
 
+    paginator = Paginator(bible_book.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": bible_book.video_set.all(),
             "title": f"Bible book: {bible_book.get_name_display()}",
-            "description": bible_book.summary,
+            "description": f"{bible_book.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -209,13 +218,22 @@ def browse_channel(request, id):
             },
         )
 
+    paginator = Paginator(channel.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": channel.video_set.all(),
             "title": f"Channel: {decoded_id}",
-            "description": channel.summary,
+            "description": f"{channel.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -236,13 +254,22 @@ def browse_demographic(request, id):
             },
         )
 
+    paginator = Paginator(demographic.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": demographic.video_set.all(),
             "title": f"Demographic: {decoded_id}",
-            "description": demographic.summary,
+            "description": f"{demographic.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -263,13 +290,22 @@ def browse_ministry(request, id):
             },
         )
 
+    paginator = Paginator(ministry.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": ministry.video_set.all(),
             "title": f"Ministry: {decoded_id}",
-            "description": ministry.summary,
+            "description": f"{ministry.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -290,13 +326,22 @@ def browse_series(request, id):
             },
         )
 
+    paginator = Paginator(series.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": series.video_set.all(),
             "title": f"Series: {decoded_id}",
-            "description": series.summary,
+            "description": f"{series.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -317,13 +362,22 @@ def browse_speaker(request, id):
             },
         )
 
+    paginator = Paginator(speaker.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": speaker.video_set.all(),
             "title": f"Speaker: {decoded_id}",
-            "description": speaker.bio,
+            "description": f"{speaker.bio} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
@@ -344,13 +398,22 @@ def browse_topic(request, id):
             },
         )
 
+    paginator = Paginator(topic.video_set.all(), pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "Browse",
         {
-            "videos": topic.video_set.all(),
             "title": f"Topic: {decoded_id}",
-            "description": topic.summary,
+            "description": f"{topic.summary} (page {page_num} of {paginator.num_pages})",
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
         },
     )
 
