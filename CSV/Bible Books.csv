@@ -1,67 +1,67 @@
 ﻿order,code,name,summary,type
-1,GEN,Genesis,,Law
-2,EXO,Exodus,,Law
-3,LEV,Leviticus,,Law
-4,NUM,Numbers,,Law
-5,DEU,Deuteronomy,,Law
-6,JOS,Joshua,,History
-7,JUG,Judges,,History
-8,RUT,Ruth,,History
-9,1SA,1 Samuel,,History
-10,2SA,2 Samuel,,History
-11,1KI,1 Kings,,History
-12,2KI,2 Kings,,History
-13,1CH,1 Chronicles,,History
-14,2CH,2 Chronicles,,History
-15,EZR,Ezra,,History
-16,NEH,Nehemiah,,History
-17,EST,Esther,,History
-18,JOB,Job,,Poetry
-19,PSA,Psalms,,Poetry
-20,PRO,Proverbs,,Poetry
-21,ECC,Ecclesiastes,,Poetry
-22,SOG,Song of Solomon,,Prophecy
-23,ISA,Isaiah,,Prophecy
-24,JER,Jeremiah,,Prophecy
-25,LAM,Lamentations,,Prophecy
-26,EZE,Ezekiel,,Prophecy
-27,DAN,Daniel,,Prophecy
-28,HOS,Hosea,,Prophecy
-29,JOE,Joel,,Prophecy
-30,AMO,Amos,,Prophecy
-31,OBA,Obadiah,,Prophecy
-32,JON,Jonah,,Prophecy
-33,MIC,Micah,,Prophecy
-34,NAH,Nahum,,Prophecy
-35,HAB,Habakkuk,,Prophecy
-36,ZEP,Zephaniah,,Prophecy
-37,HAG,Haggai,,Prophecy
-38,ZEC,Zechariah,,Prophecy
-39,MAL,Malachi,,Prophecy
-40,MAT,Matthew,,Gospel
-41,MAR,Mark,,Gospel
-42,LUK,Luke,,Gospel
-43,JOH,John,,Gospel
-44,ACT,Acts,,Epistle
-45,ROM,Romans,,Epistle
-46,1CO,1 Corinthians,,Epistle
-47,2CO,2 Corinthians,,Epistle
-48,GAL,Galatians,,Epistle
-49,EPH,Ephesians,,Epistle
-50,PHI,Philippians,,Epistle
-51,COL,Colossians,,Epistle
-52,1TH,1 Thessalonians,,Epistle
-53,2TH,2 Thessalonians,,Epistle
-54,1TI,1 Timothy,,Epistle
-55,2TI,2 Timothy,,Epistle
-56,TIT,Titus,,Epistle
-57,PHM,Philemon,,Epistle
-58,HEB,Hebrews,,Epistle
-59,JAS,James,,Epistle
-60,1PE,1 Peter,,Epistle
-61,2PE,2 Peter,,Epistle
-62,1JO,1 John,,Epistle
-63,2JO,2 John,,Epistle
-64,3JO,3 John,,Epistle
-65,JUD,Jude,,Epistle
-66,REV,Revelation,,Apocalyptic
+1,GEN,Genesis,,LAW
+2,EXO,Exodus,,LAW
+3,LEV,Leviticus,,LAW
+4,NUM,Numbers,,LAW
+5,DEU,Deuteronomy,,LAW
+6,JOS,Joshua,,HIS
+7,JUG,Judges,,HIS
+8,RUT,Ruth,,HIS
+9,1SA,1 Samuel,,HIS
+10,2SA,2 Samuel,,HIS
+11,1KI,1 Kings,,HIS
+12,2KI,2 Kings,,HIS
+13,1CH,1 Chronicles,,HIS
+14,2CH,2 Chronicles,,HIS
+15,EZR,Ezra,,HIS
+16,NEH,Nehemiah,,HIS
+17,EST,Esther,,HIS
+18,JOB,Job,,POE
+19,PSA,Psalms,,POE
+20,PRO,Proverbs,,POE
+21,ECC,Ecclesiastes,,POE
+22,SOG,Song of Solomon,,PRO
+23,ISA,Isaiah,,PRO
+24,JER,Jeremiah,,PRO
+25,LAM,Lamentations,,PRO
+26,EZE,Ezekiel,,PRO
+27,DAN,Daniel,,PRO
+28,HOS,Hosea,,PRO
+29,JOE,Joel,,PRO
+30,AMO,Amos,,PRO
+31,OBA,Obadiah,,PRO
+32,JON,Jonah,,PRO
+33,MIC,Micah,,PRO
+34,NAH,Nahum,,PRO
+35,HAB,Habakkuk,,PRO
+36,ZEP,Zephaniah,,PRO
+37,HAG,Haggai,,PRO
+38,ZEC,Zechariah,,PRO
+39,MAL,Malachi,,PRO
+40,MAT,Matthew,,GOS
+41,MAR,Mark,,GOS
+42,LUK,Luke,,GOS
+43,JOH,John,,GOS
+44,ACT,Acts,,EPI
+45,ROM,Romans,,EPI
+46,1CO,1 Corinthians,,EPI
+47,2CO,2 Corinthians,,EPI
+48,GAL,Galatians,,EPI
+49,EPH,Ephesians,,EPI
+50,PHI,Philippians,,EPI
+51,COL,Colossians,,EPI
+52,1TH,1 Thessalonians,,EPI
+53,2TH,2 Thessalonians,,EPI
+54,1TI,1 Timothy,,EPI
+55,2TI,2 Timothy,,EPI
+56,TIT,Titus,,EPI
+57,PHM,Philemon,,EPI
+58,HEB,Hebrews,,EPI
+59,JAS,James,,EPI
+60,1PE,1 Peter,,EPI
+61,2PE,2 Peter,,EPI
+62,1JO,1 John,,EPI
+63,2JO,2 John,,EPI
+64,3JO,3 John,,EPI
+65,JUD,Jude,,EPI
+66,REV,Revelation,,APO
