@@ -34,28 +34,28 @@ defineProps({
             <div class="contents" v-if="video_metadata.topic.length">
                 <div class="py-2">Topic</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link v-for="x in video_metadata.topic" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.topic" :href="x.url" :key="x.name" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
                 </div>
             </div>
 
             <div class="contents" v-if="video_metadata.ministry.length">
                 <div class="py-2">Ministry</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link v-for="x in video_metadata.ministry" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.ministry" :href="x.url" :key="x.name" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
                 </div>
             </div>
 
             <div class="contents" v-if="video_metadata.speaker.length">
                 <div class="py-2">Speaker</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link v-for="x in video_metadata.speaker" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.speaker" :href="x.url" :key="x.name" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
                 </div>
             </div>
 
             <div class="contents" v-if="video_metadata.bible_book.length">
                 <div class="py-2">Book</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link v-for="x in video_metadata.bible_book" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400 whitespace-nowrap">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.bible_book" :href="x.url" :key="x.name" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400 whitespace-nowrap">{{ x.name }}</Link>
                 </div>
             </div>
 
