@@ -1,52 +1,50 @@
-# ruff: noqa: T201,T203,F401,F403,F405,F821,E501,E203,W292,W391,N801,N802,N803,N804,N805,N806,N807,N813,N814
-
 from django.core.management.base import BaseCommand
 
-from catalogue.management.commands.LinkDemographics import Command as Demographics
-from catalogue.management.commands.LinkMinistry import Command as Ministry
-from catalogue.management.commands.LinkSeries import Command as Series
-from catalogue.management.commands.LinkVideos import Command as Video
+from catalogue.management.commands.link_demographics import Command as Demographics
+from catalogue.management.commands.link_ministry import Command as Ministry
+from catalogue.management.commands.link_series import Command as Series
+from catalogue.management.commands.link_videos import Command as Video
 
 
 class Command(BaseCommand):
     help = "Imports data from a CSV"
 
-    def add_arguments(self, parser):  # This adds a debug coption to the command
+    def add_arguments(self, parser):  # This adds a debug option to the command
         parser.add_argument(
             "--DEBUG",  # This is the option.
-            action="store_true",  # In this case it stores that the whether this option has been called or not, if it has it will return true when queried.
+            action="store_true",
             help="Runs the command with Debug on",  # Help text for helpful helpers.
         )
 
     def handle(self, *args, **options):
         self.mylink(options["DEBUG"])
 
-    def mylink(self, Options):
-        print("Linking Demographics")
-        Demographics().link_demographics("CSV/Demographics.csv", Options)
-        print("Linking Ministries")
-        Ministry().link_ministries("CSV/Ministry.csv", Options)
-        print("Linking Videos")
-        Video().link_videos("CSV/Videos.csv", Options)
-        print("Linking Series")
-        Series().link_series("CSV/Series.csv", Options)
+    def mylink(self, debug):
+        self.stdout.write("Linking Demographics")
+        Demographics().link_demographics("CSV/Demographics.csv", debug)
+        self.stdout.write("Linking Ministries")
+        Ministry().link_ministries("CSV/Ministry.csv", debug)
+        self.stdout.write("Linking Videos")
+        Video().link_videos("CSV/Videos.csv", debug)
+        self.stdout.write("Linking Series")
+        Series().link_series("CSV/Series.csv", debug)
 
-    def OldCleanID(self, ItemIn):
-        ItemOut = ItemIn.replace(" ", "")
-        ItemOut = ItemOut.replace("'", "")
-        ItemOut = ItemOut.replace("[", "")
-        ItemOut = ItemOut.replace("]", "")
-        ItemOut = ItemOut.replace("-", "")
-        ItemOut = ItemOut.replace("—", "")
-        return ItemOut
+    def old_clean_id(self, item_in):
+        item_out = item_in.replace(" ", "")
+        item_out = item_out.replace("'", "")
+        item_out = item_out.replace("[", "")
+        item_out = item_out.replace("]", "")
+        item_out = item_out.replace("-", "")
+        item_out = item_out.replace("—", "")
+        return item_out
 
-    def CleanID(self, ItemIn):
+    def clean_id(self, item_in):
         # Recursive cleaner
-        if isinstance(ItemIn, list | tuple):
+        if isinstance(item_in, list | tuple):
             # Clean each sub-item and join with commas
-            return ",".join(self.CleanID(i) for i in ItemIn)
-        elif isinstance(ItemIn, str):
+            return ",".join(self.clean_id(i) for i in item_in)
+        elif isinstance(item_in, str):
             # Strip only unwanted edge characters
-            return ItemIn.strip(" '\"[]()")
+            return item_in.strip(" '\"[]()")
         else:
-            return str(ItemIn)
+            return str(item_in)
