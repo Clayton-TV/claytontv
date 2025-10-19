@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "inertia",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "app",
     "catalogue.apps.CatalogueConfig",
     "livestreams.apps.LivestreamsConfig",
 ]
