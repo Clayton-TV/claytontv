@@ -14,6 +14,12 @@ const props = defineProps({
     description: {
         type: String,
     },
+    has_prev_page: {
+        type: Boolean,
+    },
+    has_next_page: {
+        type: Boolean,
+    },
 })
 </script>
 
@@ -22,5 +28,7 @@ const props = defineProps({
     <VideoCardGrid
         :videos="videos"
         :title="title"
-        :description="description ?? `Browsing videos under ` + title" />
+        :description="description ?? `Browsing videos under ` + title"
+        :has_prev_page
+        :has_next_page />
 </template>

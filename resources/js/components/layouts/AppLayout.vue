@@ -20,9 +20,10 @@ import { Link, router } from "@inertiajs/vue3"
 import { reactive } from "vue"
 
 const navOptions = [
-    { name: "Livestreams", href: "#livestreams" },
-    { name: "Series", href: "#series" },
-    { name: "Topics", href: "#topics" },
+    { name: "Livestreams", href: "/livestreams" },
+    { name: "Latest", href: "/latest" },
+    { name: "Series", href: "/series" },
+    { name: "Topics", href: "/topic" },
 ]
 
 const isCurrent = (href) => {
@@ -39,7 +40,8 @@ const searchForm = reactive({
 
 const submitSearch = () => {
     if (searchForm.search) {
-        router.get("/search", searchForm)
+        router.get("/search", searchForm);
+        document.getElementById("search").blur();
     }
 }
 </script>
@@ -56,7 +58,7 @@ const submitSearch = () => {
                         class="relative flex h-16 items-center justify-between">
                         <div class="flex items-center px-2 lg:px-0">
                             <Link href="/" class="flex items-center">
-                                <LogoMark class="size-8 fill-claytonRed" />
+                                <LogoMark class="size-8 fill-primary" />
                                 <!--<h1 class="mx-3 mb-1 hidden lg:block text-2xl font-bold">Clayton&nbsp;TV</h1>-->
                             </Link>
                             <div class="hidden lg:ml-6 lg:block">
@@ -69,7 +71,7 @@ const submitSearch = () => {
                                             isCurrent(option.href) ? 'bg-gray-900 text-white' : ''
                                         "
                                         class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                                        href="#">
+                                        :href="option.href">
                                         {{ option.name }}
                                     </Link>
                                 </div>
@@ -291,7 +293,7 @@ const submitSearch = () => {
             <div class="space-y-3 text-center">
                 <div class="flex flex-col items-center">
                     <div class="flex items-center gap-x-2.5">
-                        <LogoMark class="size-10 fill-claytonRed" />
+                        <LogoMark class="size-10 fill-primary" />
                         <h1 class="text-3xl font-bold">Clayton TV</h1>
                     </div>
                     <p class="mt-1 text-sm text-gray-300">

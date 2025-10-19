@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue"
-import { Link } from "@inertiajs/vue3"
 import VideoCardItem from "@/atoms/VideoCardItem.vue"
+import { Link, router } from "@inertiajs/vue3"
 defineProps({
     videos: {
         type: Array,
@@ -15,18 +15,24 @@ defineProps({
         type: String,
         required: false,
     },
+    has_prev_page: {
+        type: Boolean,
+    },
+    has_next_page: {
+        type: Boolean,
+    },
 })
 
-const getVideoThumbnail = (videoUrl) => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const youtubeId = videoUrl.match(youtubeRegex)?.[2];
-    if (youtubeId) {
-        // If youtube URL
-        // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
-        return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
-    } else {
-        return "https://via.placeholder.com/1080x640"
-    }
+const prevPage = () => {
+    const pageRegex = /[?&]page=([0-9]+).*/
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    router.get("#", {"page" : (isNaN(curPage) || curPage <= 1) ? 1 : curPage - 1})
+}
+
+const nextPage = () => {
+    const pageRegex = /[?&]page=([0-9]+).*/
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    router.get("#", {"page" : isNaN(curPage) ? 2 : curPage + 1}) // If no page parameter then next page is second not first
 }
 </script>
 
@@ -55,6 +61,15 @@ const getVideoThumbnail = (videoUrl) => {
                     </Link>
                 </li>
             </ul>
+        </div>
+
+        <div class="flex">
+            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
+                Prev Page
+            </button>
+            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
+                Next Page
+            </button>
         </div>
     </section>
 </template>

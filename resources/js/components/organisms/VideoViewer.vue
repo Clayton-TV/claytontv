@@ -30,17 +30,6 @@ const getEmbedUrl = (videoUrl) => {
         return false
     }
 }
-
-const videoThumbnail = (videoUrl) => {
-    const youtubeId = getYoutubeId(videoUrl);
-    if (youtubeId) {
-        // If youtube URL
-        // Attempt to split the video ID off the end, then shoehorn it into the thumbnail URL
-        return `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
-    } else {
-        return "https://via.placeholder.com/1080x640"
-    }
-}
 </script>
 
 <template>
