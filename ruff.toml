@@ -28,7 +28,6 @@ select = [
     "G",
     "I", # isort
     "N", # pep8-naming
-    "PTH",
     "RUF",
     "SIM", # flake8-simplify
     "T20",
@@ -37,6 +36,7 @@ select = [
 ]
 ignore = [
     "F811", # redefinition of unused variable
+    "W293", # blank line contains whitespace
 ]
 
 [lint.isort]

@@ -16,8 +16,8 @@ pagination_per_page = 24
 
 
 def index(request):
-    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_created")[:10]
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_created")[:10]
+    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_recorded")[:10]
+    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:10]
     topics_all = Topic.objects.all()
 
     topics_data = [
