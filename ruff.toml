@@ -36,6 +36,7 @@ select = [
 ]
 ignore = [
     "F811", # redefinition of unused variable
+    "W293", # blank line contains whitespace
 ]
 
 [lint.isort]
