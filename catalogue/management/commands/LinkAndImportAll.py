@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand
 
 from catalogue.management.commands.ImportAll import Command as Import
-from catalogue.management.commands.LinkAll import Command as Link
+from catalogue.management.commands.link_all import Command as Link
 
 
 class Command(BaseCommand):

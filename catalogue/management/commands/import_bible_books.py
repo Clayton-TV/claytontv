@@ -1,5 +1,3 @@
-# ruff: noqa: T201,T203,F401,F403,F405,F821,E501,E203,W292,W391,N801,N802,N803,N804,N805,N806,N807,N813,N814
-
 import csv
 from pathlib import Path
 
@@ -11,7 +9,7 @@ from catalogue.models.bible_book import BibleBook  # Updated to use the new clas
 class Command(BaseCommand):
     help = "Imports data from a CSV"
 
-    def add_arguments(self, parser):  # This adds a debug coption to the command
+    def add_arguments(self, parser):  # This adds a debug option to the command
         parser.add_argument(
             "--DEBUG",  # This is the option.
             action="store_true",  # Stores whether this option has been called or not.
@@ -25,7 +23,7 @@ class Command(BaseCommand):
 
     def imp_bible(self, filepath, debug):
         if debug:
-            print("The command ran and:")  # Debug Text using logger instead of print
+            self.stdout.write("The command ran and:")  # Debug Text using logger instead of print
         BibleBook.objects.all().delete()  # Clears all existing data before reimporting
         # This is useful but potentially dangerous
         with Path(filepath).open(encoding="utf-8-sig") as file:  # Opens the file path using Path
@@ -33,8 +31,8 @@ class Command(BaseCommand):
             # Headers become keys for each row.
             for row in reader:  # cycles through the row of the dictionary previously created.
                 if debug:  # Debug Text
-                    print(row)  # Debug info using logger instead of print
-                    print("Imported %s", row["name"])  # Debug info using logger with parameter-style formatting
+                    self.stdout.write(str(row))  # Debug info using logger instead of print
+                    self.stdout.write(f"Imported {row['name']}")  # Debug info using logger
                 BibleBook.objects.create(  # Create an entry in bible books.
                     order=row["order"],  # added the order to the entry
                     name=row["code"],  # adds the book code to the entry

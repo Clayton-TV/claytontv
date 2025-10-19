@@ -2,13 +2,13 @@
 
 from django.core.management.base import BaseCommand
 
-from catalogue.management.commands.ImportBibleBooks import Command as Bible
 from catalogue.management.commands.ImportDemographics import Command as Demographics
 from catalogue.management.commands.ImportMinistries import Command as Ministries
 from catalogue.management.commands.ImportSeries import Command as Series
 from catalogue.management.commands.ImportSpeakers import Command as Speakers
 from catalogue.management.commands.ImportTopics import Command as Topics
 from catalogue.management.commands.ImportVideos import Command as Videos
+from catalogue.management.commands.import_bible_books import Command as Bible
 
 
 class Command(BaseCommand):
