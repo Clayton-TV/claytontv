@@ -33,9 +33,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.test_settings"
 
-[tool.ruff]
-ignore = ["T201"]
-
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local_settings"
 format-check = "poetry run ruff format --check ."
