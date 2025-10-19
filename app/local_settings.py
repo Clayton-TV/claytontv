@@ -3,6 +3,8 @@ import os
 from .base_settings import *  # noqa: F403
 from .base_settings import BASE_DIR, INSTALLED_APPS
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
