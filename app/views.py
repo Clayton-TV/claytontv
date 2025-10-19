@@ -527,7 +527,7 @@ def browse_categories(request):
         title = "Topics"
         description = "Browsing all known topics"
         single_parent_category = True
-        retain_order = True
+        retain_order = False
 
     if categories_data is not None:
         return render(
