@@ -3,7 +3,6 @@ repos:
     rev: v0.11.8
     hooks:
       - id: ruff # Run the linter.
-        args: ["--ignore", "N999"]
       - id: ruff-format # Run the formatter.
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.2
