@@ -62,7 +62,7 @@ defineProps({
             <div class="contents" v-if="video_metadata.demographic.length">
                 <div class="py-2">Demographic</div>
                 <div>
-                    <Link v-for="x in video_metadata.demographic" :href="x.url" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
+                    <Link v-for="x in video_metadata.demographic" :href="x.url" :key="x.name" class="rounded-full px-4 py-2 mr-2 font-bold text-white bg-gray-700 hover:bg-red-400">{{ x.name }}</Link>
                 </div>
             </div>
         </div>
