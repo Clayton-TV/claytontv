@@ -96,10 +96,37 @@ def browse_all_latest(request):
 
 def search(request):
     searchquery = request.GET["search"]
-    results = []
-    results += Video.objects.filter(name__icontains=searchquery)
-    results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
-    paginator = Paginator(results, pagination_per_page)
+    category_results = []
+    for model, model_name in [
+        (Channel, "Channels"),
+        (Demographic, "Demographics"),
+        (Ministry, "Ministries"),
+        (Series, "Series"),
+        (Speaker, "Speakers"),
+        (Topic, "Topics"),
+    ]:
+        category_results += [
+            {
+                "category": model_name,
+                "name": x.name,
+                "videosCount": len(x.video_set.all()),
+                "url": x.get_absolute_url(),
+            }
+            for x in model.objects.filter(name__icontains=searchquery)
+        ]
+    category_results += [
+        {
+            "category": "Bible Book",
+            "name": x.get_name_display(),
+            "videosCount": len(x.video_set.all()),
+            "url": x.get_absolute_url(),
+        }
+        for x in Bible_Book.objects.filter(summary__icontains=searchquery)
+    ]
+    video_results = []
+    video_results += Video.objects.filter(name__icontains=searchquery)
+    video_results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in video_results]
+    paginator = Paginator(video_results, pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -108,12 +135,13 @@ def search(request):
     paginated = paginator.page(page_num)
     return render(
         request,
-        "Browse",
+        "Search",
         {
             "title": f"Search for '{searchquery}'",
-            "description": f"Found {len(results)} {'result' if len(results) == 1 else 'results'}\
+            "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'}\
                             (page {page_num} of {paginator.num_pages})",
             "videos": paginated.object_list,
+            "categories": category_results,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },

@@ -24,7 +24,6 @@ const props = defineProps({
 </script>
 
 <template>
-    <!-- Something here to allow the user to navigate to the linked topics, maybe a bit like a breadcrumb trail -->
     <VideoCardGrid
         :videos="videos"
         :title="title"
