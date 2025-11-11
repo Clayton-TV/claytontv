@@ -78,11 +78,11 @@ function selectCategory(category) {
 </script>
 
 <template>
-    <div class="mt-10 mb-4 justify-items-center space-y-2">
-        <h2 class="text-center text-3xl font-bold text-gray-100">
+    <div class="justify-items-center space-y-2">
+        <h2 class="mt-8 text-center text-3xl font-bold text-gray-100" v-if="title">
             {{ title }}
         </h2>
-        <p class="text-center text-gray-400">
+        <p class="mt-2 text-center text-gray-400" v-if="description">
             {{ description }}
         </p>
     </div>

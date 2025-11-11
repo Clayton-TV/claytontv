@@ -44,6 +44,7 @@ const props = defineProps({
         :show_subcategories_text="false" />
 
     <VideoCardGrid
+        class="pt-4"
         :videos
         :description
         :has_prev_page
