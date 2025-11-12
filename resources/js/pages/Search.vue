@@ -41,10 +41,11 @@ const props = defineProps({
         :description="`Found ` + categories.length + ` categories`"
         single_parent_category
         retain_order
-        :show_subcategories_text="false" />
+        hide_subcategories_text />
+
+    <br/>
 
     <VideoCardGrid
-        class="pt-4"
         :videos
         :description
         :has_prev_page

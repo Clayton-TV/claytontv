@@ -22,9 +22,8 @@ const props = defineProps({
     retain_order: {
         type: Boolean,
     },
-    show_subcategories_text: {
+    hide_subcategories_text: {
         type: Boolean,
-        default: true,
     },
 })
 
@@ -106,7 +105,7 @@ function selectCategory(category) {
         </ul>
     </div>
     <div class="w-full px-4 my-3">
-        <h1 class="pb-6 text-lg" v-if="show_subcategories_text">
+        <h1 class="pb-6 text-lg" v-if="!hide_subcategories_text">
             Subcategories for:
             <span class="text-xl font-bold">{{ selectedCategory }}</span>
         </h1>
