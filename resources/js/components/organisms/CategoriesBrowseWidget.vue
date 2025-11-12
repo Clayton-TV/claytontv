@@ -19,8 +19,10 @@ const props = defineProps({
         // False: may be part of multiple categories (meaning entry.category is an array)
         type: Boolean,
     },
-    retain_order: {
-        type: Boolean,
+    sort_order: {
+        // Should be one of "alphabetical", "count", or "none"
+        type: String,
+        default: "none",
     },
     hide_subcategories_text: {
         type: Boolean,
@@ -38,16 +40,22 @@ const categories = ref([
 const subCategories = ref(props.categories_data)
 
 const sortedCategories = computed(() => {
-    if (props.retain_order) {
-        return categories.value
-    } else {
+    if (props.sort_order === "alphabetical") {
         return categories.value.sort((a, b) => a.localeCompare(b))
+    } else if (props.sort_order === "count") {
+        return categories.value.sort((a, b) => a.localeCompare(b)) // FIXME need to count the total videos within the category and sort on that
+    } else {
+        return categories.value
     }
 })
+
 const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ?
-        subCategories.value :
-        subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
+    let sortedSubCategories = subCategories.value
+    if (props.sort_order === "alphabetical") {
+        sortedSubCategories = subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
+    } else if (props.sort_order === "count") {
+        sortedSubCategories = subCategories.value.sort((a, b) => (a.videosCount < b.videosCount))
+    }
     if (selectedCategory.value === "All") {
         return sortedSubCategories
     }

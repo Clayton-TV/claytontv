@@ -452,7 +452,7 @@ def browse_categories(request):
     title = None
     description = None
     single_parent_category = False
-    retain_order = False
+    sort_order = "alphabetical"
 
     if category == "book":
         categories_data = [
@@ -467,7 +467,7 @@ def browse_categories(request):
         title = "Bible Books"
         description = "Browsing all Bible books"
         single_parent_category = True
-        retain_order = True
+        sort_order = "none"
 
     elif category == "channel":
         categories_data = [
@@ -482,7 +482,7 @@ def browse_categories(request):
         title = "Channels"
         description = "Browsing all known channels"
         single_parent_category = True
-        retain_order = True
+        sort_order = "none"
 
     elif category == "demographic":
         categories_data = [
@@ -510,7 +510,7 @@ def browse_categories(request):
         ]
         title = "Ministries"
         description = "Browsing all known ministries"
-        retain_order = True
+        sort_order = "none"
 
     elif category == "series":
         categories_data = [
@@ -524,7 +524,7 @@ def browse_categories(request):
         ]
         title = "Series"
         description = "Browsing all known series"
-        retain_order = True
+        sort_order = "none"
 
     elif category == "speaker":
         categories_data = [
@@ -540,7 +540,7 @@ def browse_categories(request):
         ]
         title = "Speakers"
         description = "Browsing all known speakers"
-        retain_order = True
+        sort_order = "none"
 
     elif category == "topic":
         categories_data = [
@@ -555,7 +555,7 @@ def browse_categories(request):
         title = "Topics"
         description = "Browsing all known topics"
         single_parent_category = True
-        retain_order = True
+        sort_order = "none"
 
     if categories_data is not None:
         return render(
@@ -566,6 +566,6 @@ def browse_categories(request):
                 "title": title,
                 "description": description,
                 "single_parent_category": single_parent_category,
-                "retain_order": retain_order,
+                "sort_order": sort_order,
             },
         )
