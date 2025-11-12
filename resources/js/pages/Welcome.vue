@@ -32,6 +32,6 @@ const props = defineProps({
             Browse All
         </button>
     </Link>
-    <CategoriesBrowseWidget :categories_data="topics_data" title="Explore Topics" description="There are a variety of topics for you to discover" sort_order="count" single_parent_category />
-    <CategoriesBrowseWidget :categories_data="series_data" title="Explore Series" description="Browse all series, or filter by ministry" sort_order="count" />
+    <CategoriesBrowseWidget :categories_data="topics_data" title="Explore Topics" description="There are a variety of topics for you to discover" categories_sort_order="alphabetical" subcategories_sort_order="count" single_parent_category />
+    <CategoriesBrowseWidget :categories_data="series_data" title="Explore Series" description="Browse all series, or filter by ministry" categories_sort_order="alphabetical" subcategories_sort_order="count" />
 </template>

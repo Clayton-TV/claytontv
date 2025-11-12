@@ -19,7 +19,12 @@ const props = defineProps({
         // False: may be part of multiple categories (meaning entry.category is an array)
         type: Boolean,
     },
-    sort_order: {
+    categories_sort_order: {
+        // Should be one of "alphabetical", "count", or "none"
+        type: String,
+        default: "none",
+    },
+    subcategories_sort_order: {
         // Should be one of "alphabetical", "count", or "none"
         type: String,
         default: "none",
@@ -40,33 +45,31 @@ const categories = ref([
 const subCategories = ref(props.categories_data)
 
 const sortedCategories = computed(() => {
-    if (props.sort_order === "alphabetical") {
+    if (props.categories_sort_order === "alphabetical") {
         return categories.value.sort((a, b) => a.localeCompare(b))
-    } else if (props.sort_order === "count") {
-        return categories.value.sort((a, b) => a.localeCompare(b)) // FIXME need to count the total videos within the category and sort on that
+    } else if (props.categories_sort_order === "count") {
+        return categories.value // FIXME need to count the total videos within the category and sort on that
     } else {
         return categories.value
     }
 })
 
 const filteredSubCategories = computed(() => {
-    let sortedSubCategories = subCategories.value
-    if (props.sort_order === "alphabetical") {
-        sortedSubCategories = subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
-    } else if (props.sort_order === "count") {
-        sortedSubCategories = subCategories.value.sort((a, b) => (a.videosCount < b.videosCount))
+    let filteredSubCategories = subCategories.value
+    if (selectedCategory.value !== "All") {
+        if (props.single_parent_category) {
+            filteredSubCategories = subCategories.value.filter(({ category }) => category === selectedCategory.value)
+        } else {
+            filteredSubCategories = subCategories.value.filter(({ category }) => category.includes(selectedCategory.value))
+        }
     }
-    if (selectedCategory.value === "All") {
-        return sortedSubCategories
-    }
-    if (props.single_parent_category) {
-        return sortedSubCategories.filter(
-            ({ category }) => category === selectedCategory.value
-        )
+
+    if (props.subcategories_sort_order === "alphabetical") {
+        return filteredSubCategories.sort((a, b) => a.name.localeCompare(b.name))
+    } else if (props.subcategories_sort_order === "count") {
+        return filteredSubCategories.sort((a, b) => (a.videosCount < b.videosCount))
     } else {
-        return sortedSubCategories.filter(
-            ({ category }) => category.includes(selectedCategory.value)
-        )
+        return filteredSubCategories
     }
 })
 

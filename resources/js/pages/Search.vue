@@ -40,7 +40,8 @@ const props = defineProps({
         :categories_data="categories"
         :description="`Found ` + categories.length + ` categories`"
         single_parent_category
-        sort_order="count"
+        categories_sort_order="count"
+        subcategories_sort_order="count"
         hide_subcategories_text />
 
     <br/>
