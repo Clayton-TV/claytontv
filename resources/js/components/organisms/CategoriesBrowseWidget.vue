@@ -119,6 +119,8 @@ function selectCategory(category) {
         <h1 class="pb-6 text-lg" v-if="!hide_subcategories_text">
             Subcategories for:
             <span class="text-xl font-bold">{{ selectedCategory }}</span>
+            <span v-if="subcategories_sort_order === 'alphabetical'"> (alphabetical order)</span>
+            <span v-else-if="subcategories_sort_order === 'count'"> (most programmes first)</span>
         </h1>
         <div
             v-if="isLoadingSubCategories"
