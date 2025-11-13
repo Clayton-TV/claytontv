@@ -36,7 +36,6 @@ const props = defineProps({
 
 // List out category from all entries, then filter down to only keep the first instance of each category
 const categories = ref([
-    "All",
     props.categories_data
         .map((t) => t.category),
 ].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index))
@@ -44,11 +43,23 @@ const categories = ref([
 // For each entry, obtain its name, category it belongs to, and number of videos it encompasses
 const subCategories = ref(props.categories_data)
 
+const categoryCounts = computed(() => {
+    let counts = {}
+    for (const c of categories.value) {
+        if (props.single_parent_category) {
+            counts[c] = subCategories.value.filter(({ category }) => category === c).reduce((a, b) => a + b.videosCount, 0)
+        } else {
+            counts[c] = subCategories.value.filter(({ category }) => category.includes(c)).reduce((a, b) => a + b.videosCount, 0)
+        }
+    }
+    return counts
+})
+
 const sortedCategories = computed(() => {
     if (props.categories_sort_order === "alphabetical") {
-        return categories.value.sort((a, b) => a.localeCompare(b))
+        return categories.value.toSorted((a, b) => a.localeCompare(b))
     } else if (props.categories_sort_order === "count") {
-        return categories.value // FIXME need to count the total videos within the category and sort on that
+        return categories.value.toSorted((a, b) => (categoryCounts.value[a] < categoryCounts.value[b]))
     } else {
         return categories.value
     }
@@ -65,9 +76,9 @@ const filteredSubCategories = computed(() => {
     }
 
     if (props.subcategories_sort_order === "alphabetical") {
-        return filteredSubCategories.sort((a, b) => a.name.localeCompare(b.name))
+        return filteredSubCategories.toSorted((a, b) => a.name.localeCompare(b.name))
     } else if (props.subcategories_sort_order === "count") {
-        return filteredSubCategories.sort((a, b) => (a.videosCount < b.videosCount))
+        return filteredSubCategories.toSorted((a, b) => (a.videosCount < b.videosCount))
     } else {
         return filteredSubCategories
     }
@@ -99,7 +110,7 @@ function selectCategory(category) {
     <div class="w-full items-center justify-center overflow-x-hidden pt-4">
         <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
             <li
-                v-for="(category, index) in sortedCategories"
+                v-for="(category, index) in ['All'].concat(sortedCategories)"
                 :key="index"
                 class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
                 <button
