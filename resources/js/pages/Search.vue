@@ -36,7 +36,7 @@ const props = defineProps({
     </div>
 
     <CategoriesBrowseWidget
-        v-if="categories.length"
+        v-if="categories?.length"
         :categories_data="categories"
         :description="`Found ` + categories.length + ` categories`"
         single_parent_category

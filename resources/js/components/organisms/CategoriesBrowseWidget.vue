@@ -32,7 +32,13 @@ const props = defineProps({
     hide_subcategories_text: {
         type: Boolean,
     },
+    unfold: {
+      type: Boolean,
+    },
 })
+
+const fold_results = ref(!props.unfold)
+const num_shown_folded = 12
 
 // List out category from all entries, then filter down to only keep the first instance of each category
 const categories = ref([
@@ -66,22 +72,21 @@ const sortedCategories = computed(() => {
 })
 
 const filteredSubCategories = computed(() => {
-    let filteredSubCategories = subCategories.value
+    let filtered = subCategories.value
     if (selectedCategory.value !== "All") {
         if (props.single_parent_category) {
-            filteredSubCategories = subCategories.value.filter(({ category }) => category === selectedCategory.value)
+            filtered = subCategories.value.filter(({ category }) => category === selectedCategory.value)
         } else {
-            filteredSubCategories = subCategories.value.filter(({ category }) => category.includes(selectedCategory.value))
+            filtered = subCategories.value.filter(({ category }) => category.includes(selectedCategory.value))
         }
     }
 
     if (props.subcategories_sort_order === "alphabetical") {
-        return filteredSubCategories.toSorted((a, b) => a.name.localeCompare(b.name))
+        filtered.sort((a, b) => a.name.localeCompare(b.name))
     } else if (props.subcategories_sort_order === "count") {
-        return filteredSubCategories.toSorted((a, b) => (a.videosCount < b.videosCount))
-    } else {
-        return filteredSubCategories
+        filtered.sort((a, b) => (a.videosCount < b.videosCount))
     }
+    return filtered
 })
 
 let selectedCategory = ref("All")
@@ -147,7 +152,7 @@ function selectCategory(category) {
             v-else
             class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
             <Link
-                v-for="(subcategory, index) in filteredSubCategories"
+                v-for="(subcategory, index) in (fold_results ? filteredSubCategories.slice(0, num_shown_folded) : filteredSubCategories)"
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"
@@ -160,5 +165,8 @@ function selectCategory(category) {
                 </div>
             </Link>
         </ul>
+        <button class="bg-blue-950 mx-auto flex w-auto rounded-md p-3 my-6 cursor-pointer" @click="fold_results=false" v-if="fold_results && filteredSubCategories.length > num_shown_folded">
+            Show All
+        </button>
     </div>
 </template>
