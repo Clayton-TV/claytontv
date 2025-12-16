@@ -126,7 +126,7 @@ function selectCategory(category) {
                             : 'bg-gray-700'
                     "
                     @click="selectCategory(category)">
-                    {{ category === "All" ? category : category + " (" + categoryCounts[category] + ")" }}
+                    {{ category }}
                 </button>
             </li>
         </ul>
