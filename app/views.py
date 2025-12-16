@@ -53,7 +53,7 @@ def index(request):
 
 
 def browse_all_livestreams(request):
-    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by("-date_created"), pagination_per_page)
+    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by("-date_recorded"), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -74,7 +74,7 @@ def browse_all_livestreams(request):
 
 
 def browse_all_latest(request):
-    paginator = Paginator(Video.objects.filter(is_livestream=False).order_by("-date_created"), pagination_per_page)
+    paginator = Paginator(Video.objects.filter(is_livestream=False).order_by("-date_recorded"), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
