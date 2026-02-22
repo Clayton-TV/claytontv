@@ -1,62 +1,39 @@
 <script setup>
-import { ref, computed } from 'vue';
-import LoadingSpinner from '../atoms/LoadingSpinner.vue';
-import CardSkeleton from '../atoms/CardSkeleton.vue';
-import { Link } from '@inertiajs/vue3';
+import { ref, computed } from "vue"
+import LoadingSpinner from "../atoms/LoadingSpinner.vue"
+import CardSkeleton from "../atoms/CardSkeleton.vue"
+import { Link } from "@inertiajs/vue3"
 const props = defineProps({
-    categories_data: {
+    topics_data: {
         type: Object,
         required: true,
     },
-    title: {
-        type: String,
-    },
-    description: {
-        type: String,
-    },
-    single_parent_category: {
-        // True: subcategory only has a single parent category (meaning entry.category is a string)
-        // False: may be part of multiple categories (meaning entry.category is an array)
-        type: Boolean,
-    },
-    retain_order: {
-        type: Boolean,
-    }
 })
 
-// List out category from all entries, then filter down to only keep the first instance of each category
+// List out category from all topics, then filter down to only keep the first instance of each category
 const categories = ref([
     "All",
-    props.categories_data
-        .map((t) => t.category),
-].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index))
+    ...props.topics_data
+        .map((t) => t.category)
+        .filter((item, index, array) => array.indexOf(item) == index),
+])
 
-// For each entry, obtain its name, category it belongs to, and number of videos it encompasses
-const subCategories = ref(props.categories_data)
+// For each topic entry, obtain its name, category it belongs to, and number of videos it encompasses
+const subCategories = ref(props.topics_data)
 
 const sortedCategories = computed(() => {
-    if (props.retain_order) {
-        return categories.value
-    } else {
-        return categories.value.sort((a, b) => a.localeCompare(b))
-    }
+    return categories.value.sort((a, b) => a.localeCompare(b))
 })
 const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ?
-        subCategories.value :
-        subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
+    const sortedSubCategories = subCategories.value.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    )
     if (selectedCategory.value === "All") {
         return sortedSubCategories
     }
-    if (props.single_parent_category) {
-        return sortedSubCategories.filter(
-            ({ category }) => category === selectedCategory.value
-        )
-    } else {
-        return sortedSubCategories.filter(
-            ({ category }) => category.includes(selectedCategory.value)
-        )
-    }
+    return sortedSubCategories.filter(
+        ({ category }) => category === selectedCategory.value
+    )
 })
 
 let selectedCategory = ref("All")
@@ -65,21 +42,21 @@ let isLoadingSubCategories = ref(false)
 function selectCategory(category) {
     if (category !== selectedCategory.value) {
         selectedCategory.value = category
-        isLoadingSubCategories.value = false
-        //setTimeout(() => {
-        //    isLoadingSubCategories.value = false
-        //}, 800)
+        isLoadingSubCategories.value = true
+        setTimeout(() => {
+            isLoadingSubCategories.value = false
+        }, 800)
     }
 }
 </script>
 
 <template>
-    <div class="mt-10 mb-4 justify-items-center space-y-2">
+    <div class="mb-4 justify-items-center space-y-2">
         <h2 class="text-center text-3xl font-bold text-gray-100">
-            {{ title }}
+            Explore Topics
         </h2>
         <p class="text-center text-gray-400">
-            {{ description }}
+            There are a variety of topics for you to discover
         </p>
     </div>
     <div class="w-full items-center justify-center overflow-x-hidden pt-4">
@@ -92,7 +69,7 @@ function selectCategory(category) {
                     class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
                     :class="
                         category === selectedCategory
-                            ? 'bg-primary'
+                            ? 'bg-claytonRed'
                             : 'bg-gray-700'
                     "
                     @click="selectCategory(category)">

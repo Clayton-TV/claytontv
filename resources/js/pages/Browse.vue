@@ -1,7 +1,10 @@
-<script setup lang="ts">
-import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
+<script setup>
+import { computed } from "vue"
+import { IconPlayerPlay } from "@tabler/icons-vue"
+import { Link } from "@inertiajs/vue3"
+import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
 
-defineProps({
+const props = defineProps({
     videos: {
         type: Array,
     },
@@ -17,10 +20,15 @@ defineProps({
     has_next_page: {
         type: Boolean,
     },
-});
+})
 </script>
 
 <template>
     <!-- Something here to allow the user to navigate to the linked topics, maybe a bit like a breadcrumb trail -->
-    <VideoCardGrid :videos="videos" :title="title" :description="description ?? `Browsing videos under ` + title" :has_prev_page :has_next_page />
+    <VideoCardGrid
+        :videos="videos"
+        :title="title"
+        :description="description ?? `Browsing videos under ` + title"
+        :has_prev_page
+        :has_next_page />
 </template>
