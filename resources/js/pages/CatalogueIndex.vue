@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Video from '@/atoms/Video.vue';
-import PlaceholderPattern from '@/PlaceholderPattern.vue';
+import PlaceholderPattern from '@/layout/PlaceholderPattern.vue';
 import AppLayout from '~/layouts/AppLayout.vue';
 import { BreadcrumbItem } from '@/types';
 import { Deferred, Head } from '@inertiajs/vue3';

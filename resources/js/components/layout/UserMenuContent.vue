@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UserInfo from '@/UserInfo.vue';
+import UserInfo from '@/layout/UserInfo.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/ui/dropdown-menu';
 import type { User } from '@/types';
 import { Link, router } from '@inertiajs/vue3';

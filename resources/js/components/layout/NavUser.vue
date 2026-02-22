@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UserInfo from '@/UserInfo.vue';
+import UserInfo from '@/layout/UserInfo.vue';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/ui/sidebar';
 import { type SharedData, type User } from '@/types';
