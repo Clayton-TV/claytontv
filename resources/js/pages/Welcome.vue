@@ -20,12 +20,17 @@ const props = defineProps({
 </script>
 
 <template>
-    <VideoCardList :videos="livestreams" description="We're live! Check out the current live streams below." title="Watch Live" />
-    <Link href="/livestreams" class="flex w-fit mx-auto">
-        <button class="bg-blue-950 w-auto rounded-md p-3 cursor-pointer">
-            Browse All
-        </button>
-    </Link>
+    <div v-if="livestreams?.length">
+        <VideoCardList
+            :videos="livestreams"
+            description="We're live! Check out the current live streams below."
+            title="Watch Live"
+            class="flex justify-center"
+        />
+        <Link href="/livestreams" class="mx-auto flex w-fit">
+            <button class="w-auto cursor-pointer rounded-md bg-blue-950 p-3">Browse All</button>
+        </Link>
+    </div>
     <VideoCardList :videos="latest_videos" description="Watch our most recent videos here." title="Latest Videos" />
     <Link href="/latest" class="flex w-fit mx-auto">
         <button class="bg-blue-950 w-auto rounded-md p-3 cursor-pointer">
