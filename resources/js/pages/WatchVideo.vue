@@ -1,7 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import VideoViewer from '@/organisms/VideoViewer.vue';
-import VideoBrowseByLinks from '@/atoms/VideoBrowseByLinks.vue';
+import VideoBrowseByLinks from '@/molecules/VideoBrowseByLinks.vue';
 
 defineProps({
     video: {
