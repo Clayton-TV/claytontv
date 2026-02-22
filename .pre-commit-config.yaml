@@ -12,13 +12,13 @@ repos:
     hooks:
       - id: prettier
         name: Prettier
-        entry: npx prettier --check
+        entry: npx prettier --write --ignore-unknown
         language: system
         files: '\.(js|ts|vue)$'
         pass_filenames: true
       - id: eslint
         name: ESLint
-        entry: npx eslint
+        entry: npx eslint --fix
         language: system
         files: '\.(js|ts|vue)$'
         pass_filenames: true
