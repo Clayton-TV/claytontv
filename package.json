@@ -36,10 +36,7 @@
     "vue-tsc": "^2.2.8"
   },
   "dependencies": {
-    "@headlessui/vue": "^1.7.23",
-    "@heroicons/vue": "^2.2.0",
     "@inertiajs/vue3": "^2.0.9",
-    "@tabler/icons-vue": "^3.34.0",
     "@tailwindcss/vite": "^4.1.6",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vueuse/core": "^13.1.0",
