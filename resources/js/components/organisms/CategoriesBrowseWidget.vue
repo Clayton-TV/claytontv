@@ -65,7 +65,7 @@ const sortedCategories = computed(() => {
     if (props.categories_sort_order === "alphabetical") {
         return categories.value.toSorted((a, b) => a.localeCompare(b))
     } else if (props.categories_sort_order === "count") {
-        return categories.value.toSorted((a, b) => (categoryCounts.value[a] < categoryCounts.value[b]))
+        return categories.value.toSorted((a, b) => (categoryCounts.value[b] - categoryCounts.value[a]))
     } else {
         return categories.value
     }
@@ -84,7 +84,7 @@ const filteredSubCategories = computed(() => {
     if (props.subcategories_sort_order === "alphabetical") {
         filtered.sort((a, b) => a.name.localeCompare(b.name))
     } else if (props.subcategories_sort_order === "count") {
-        filtered.sort((a, b) => (a.videosCount < b.videosCount))
+        filtered.sort((a, b) => (b.videosCount - a.videosCount))
     }
     return filtered
 })

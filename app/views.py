@@ -120,7 +120,7 @@ def search(request):
                 {
                     "category": model_name,
                     "name": x.name,
-                    "videosCount": len(x.video_set.all()),
+                    "videosCount": x.video_set.count(),
                     "url": x.get_absolute_url(),
                 }
                 for x in model.objects.filter(name__icontains=searchquery)
@@ -139,8 +139,8 @@ def search(request):
             "Search",
             {
                 "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'}\
-                                (page {page_num} of {paginator.num_pages})",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
+(page {page_num} of {paginator.num_pages})",
                 "videos": paginated.object_list,
                 "categories": category_results,
                 "has_prev_page": paginated.has_previous(),
@@ -153,8 +153,8 @@ def search(request):
             "Search",
             {
                 "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'}\
-                                (page {page_num} of {paginator.num_pages})",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
+(page {page_num} of {paginator.num_pages})",
                 "videos": paginated.object_list,
                 "has_prev_page": paginated.has_previous(),
                 "has_next_page": paginated.has_next(),
