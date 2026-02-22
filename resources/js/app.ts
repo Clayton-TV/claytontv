@@ -5,7 +5,7 @@ import { createApp, DefineComponent, h } from 'vue';
 import { resolvePageComponent } from '~/lib/inertia-helper';
 import { initializeTheme } from './composables/useAppearance';
 
-import AppLayout from '@/layouts/AppLayout.vue';
+import AppLayout from '~/layouts/AppLayout.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Clayton TV';
 
