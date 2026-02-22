@@ -68,7 +68,7 @@ const playVideo = (id) => {
         </div>
 
         <div class="mt-2 w-full overflow-x-hidden">
-            <ul class="flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-2">
+            <ul class="flex snap-x snap-mandatory gap-x-4 overflow-x-auto px-2 justify-center-safe">
                 <li
                     v-for="video in videos"
                     :key="video.id"
