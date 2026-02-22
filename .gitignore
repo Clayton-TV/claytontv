@@ -45,5 +45,5 @@ coverage
 
 *.tsbuildinfo
 *.d.ts
-!resources/js/**/*.d.ts
+!resources/js/types/**/*.d.ts
 !env.d.ts
