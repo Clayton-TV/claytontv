@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
+import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 
-const props = defineProps({
+defineProps({
     videos: {
         type: Array as () => Record<string, any>[],
         required: true,
@@ -18,14 +18,9 @@ const props = defineProps({
     has_next_page: {
         type: Boolean,
     },
-})
+});
 </script>
 
 <template>
-    <VideoCardGrid
-        :videos="videos"
-        :title="title"
-        :description="description ?? `Browsing videos under ` + title"
-        :has_prev_page
-        :has_next_page />
+    <VideoCardGrid :videos="videos" :title="title" :description="description ?? `Browsing videos under ` + title" :has_prev_page :has_next_page />
 </template>

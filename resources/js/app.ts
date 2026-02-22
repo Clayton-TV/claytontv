@@ -3,7 +3,7 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, type DefineComponent, h } from 'vue';
 import { resolvePageComponent } from '@/lib/inertia-helper';
-import { initializeTheme } from '~/composables/useAppearance';
+import { initializeTheme } from './composables/useAppearance';
 
 import AppLayout from '~/layouts/AppLayout.vue';
 
