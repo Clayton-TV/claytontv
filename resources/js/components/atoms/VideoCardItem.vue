@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LogoMark from '@/atoms/LogoMark.vue';
-import { IconPlayerPlay } from '@tabler/icons-vue';
+import { Play } from 'lucide-vue-next';
 defineProps({
     video: {
         type: Object,
@@ -41,7 +41,7 @@ const getVideoThumbnail = (video) => {
         <div
             class="group absolute inset-0 flex h-min w-min cursor-pointer items-center justify-center place-self-center rounded-full p-2 hover:bg-gray-100/20"
         >
-            <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100" />
+            <Play class="h-14 w-14 stroke-1 text-gray-100" />
         </div>
 
         <div class="z-10 z-50 flex w-svw flex-col gap-y-1 place-self-end rounded-b-md bg-black/60 px-2.5 py-3.5 sm:px-3.5 sm:py-2">
