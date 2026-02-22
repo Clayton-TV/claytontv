@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
+import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
 
-const props = defineProps({
+defineProps({
     title: {
         type: String,
     },
@@ -9,7 +9,7 @@ const props = defineProps({
         type: String,
     },
     categories_data: {
-        type: Array as () => Record<string, any>[],
+        type: Object,
         required: true,
     },
     single_parent_category: {
@@ -21,7 +21,7 @@ const props = defineProps({
     subcategories_sort_order: {
         type: String,
     },
-})
+});
 </script>
 
 <template>

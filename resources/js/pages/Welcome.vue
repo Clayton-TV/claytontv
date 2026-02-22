@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import VideoCardList from '@/organisms/VideoCardList.vue';
 import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
+import VideoCardList from '@/organisms/VideoCardList.vue';
+import { Link } from '@inertiajs/vue3';
 
-const props = defineProps({
+defineProps({
     livestreams: {
         type: Array as () => Record<string, any>[],
         required: true,
@@ -13,14 +13,14 @@ const props = defineProps({
         required: true,
     },
     topics_data: {
-        type: Array as () => Record<string, any>[],
+        type: Object,
         required: true,
     },
     series_data: {
-        type: Array as () => Record<string, any>[],
+        type: Object,
         required: true,
     },
-})
+});
 </script>
 
 <template>
@@ -36,11 +36,22 @@ const props = defineProps({
         </Link>
     </div>
     <VideoCardList :videos="latest_videos" description="Watch our most recent videos here." title="Latest Videos" />
-    <Link href="/latest" class="flex w-fit mx-auto">
-        <button class="bg-blue-950 w-auto rounded-md p-3 mb-4 cursor-pointer">
-            Browse All
-        </button>
+    <Link href="/latest" class="mx-auto flex w-fit">
+        <button class="mb-4 w-auto cursor-pointer rounded-md bg-blue-950 p-3">Browse All</button>
     </Link>
-    <CategoriesBrowseWidget :categories_data="topics_data" title="Explore Topics" description="There are a variety of topics for you to discover" categories_sort_order="alphabetical" subcategories_sort_order="count" single_parent_category />
-    <CategoriesBrowseWidget :categories_data="series_data" title="Explore Series" description="Browse all series, or filter by ministry" categories_sort_order="alphabetical" subcategories_sort_order="count" />
+    <CategoriesBrowseWidget
+        :categories_data="topics_data"
+        title="Explore Topics"
+        description="There are a variety of topics for you to discover"
+        categories_sort_order="alphabetical"
+        subcategories_sort_order="count"
+        single_parent_category
+    />
+    <CategoriesBrowseWidget
+        :categories_data="series_data"
+        title="Explore Series"
+        description="Browse all series, or filter by ministry"
+        categories_sort_order="alphabetical"
+        subcategories_sort_order="count"
+    />
 </template>

@@ -10,11 +10,7 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-
-    "types": [
-      "vite/client",
-      "./resources/js/types"
-    ],
+    "types": ["vite/client", "./resources/js/types"],
     "paths": {
       "@/*": ["./resources/js/components/*"],
       "~/*": ["./resources/js/*"]

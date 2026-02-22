@@ -47,8 +47,8 @@ jobs:
       - name: Format code
         run: poetry poe format-check
 
-  frontend:
-    name: Frontend Checks
+  frontend-qa:
+    name: Frontend Quality Assurance
     runs-on: ubuntu-latest
 
     steps:
@@ -63,6 +63,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format-check
 
       - name: Type check
         run: npm run type-check
