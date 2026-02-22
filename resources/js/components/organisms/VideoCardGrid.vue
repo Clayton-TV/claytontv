@@ -1,7 +1,6 @@
-<script setup>
-import { computed } from "vue"
-import VideoCardItem from "@/atoms/VideoCardItem.vue"
-import { Link, router } from "@inertiajs/vue3"
+<script setup lang="ts">
+import VideoCardItem from '@/atoms/VideoCardItem.vue';
+import { Link, router } from '@inertiajs/vue3';
 defineProps({
     videos: {
         type: Array,
@@ -21,19 +20,19 @@ defineProps({
     has_next_page: {
         type: Boolean,
     },
-})
+});
 
 const prevPage = () => {
-    const pageRegex = /[?&]page=([0-9]+).*/
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
-    router.get("#", {"page" : (isNaN(curPage) || curPage <= 1) ? 1 : curPage - 1})
-}
+    const pageRegex = /[?&]page=([0-9]+).*/;
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1]);
+    router.get('#', { page: isNaN(curPage) || curPage <= 1 ? 1 : curPage - 1 });
+};
 
 const nextPage = () => {
-    const pageRegex = /[?&]page=([0-9]+).*/
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
-    router.get("#", {"page" : isNaN(curPage) ? 2 : curPage + 1}) // If no page parameter then next page is second not first
-}
+    const pageRegex = /[?&]page=([0-9]+).*/;
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1]);
+    router.get('#', { page: isNaN(curPage) ? 2 : curPage + 1 }); // If no page parameter then next page is second not first
+};
 </script>
 
 <template>
@@ -46,28 +45,33 @@ const nextPage = () => {
         </div>
 
         <div class="mt-2 w-full overflow-x-hidden">
-            <ul class="grid gridl-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto px-4 lg:px-8">
+            <ul class="gridl-cols-1 grid gap-4 overflow-x-auto px-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-8">
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate max-h-[60dvh] w-full max-w-[90vw] mx-auto aspect-video hover:opacity-75">
-                    <Link :href="`/video/`+video.id"
-                        :id="video.id"
-                        class="contents">
+                    class="relative isolate mx-auto aspect-video max-h-[60dvh] w-full max-w-[90vw] hover:opacity-75"
+                >
+                    <Link :href="`/video/` + video.id" :id="video.id" class="contents">
                         <VideoCardItem :video="video" />
-                        <span class="sr-only">
-                            View video for {{ video.name }}
-                        </span>
+                        <span class="sr-only"> View video for {{ video.name }} </span>
                     </Link>
                 </li>
             </ul>
         </div>
 
         <div class="flex">
-            <button class="bg-blue-950 w-auto rounded-md p-2 ml-auto mr-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
+            <button
+                class="mr-2 ml-auto w-auto cursor-pointer rounded-md bg-blue-950 p-2 opacity-50 enabled:opacity-100 disabled:cursor-default"
+                @click="prevPage()"
+                :disabled="!has_prev_page"
+            >
                 Prev Page
             </button>
-            <button class="bg-blue-950 w-auto rounded-md p-2 mr-auto ml-2 cursor-pointer disabled:cursor-default opacity-50 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
+            <button
+                class="mr-auto ml-2 w-auto cursor-pointer rounded-md bg-blue-950 p-2 opacity-50 enabled:opacity-100 disabled:cursor-default"
+                @click="nextPage()"
+                :disabled="!has_next_page"
+            >
                 Next Page
             </button>
         </div>

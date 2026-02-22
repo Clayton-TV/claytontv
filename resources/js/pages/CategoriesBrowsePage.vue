@@ -1,7 +1,7 @@
-<script setup>
-import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
+<script setup lang="ts">
+import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
 
-const props = defineProps({
+defineProps({
     title: {
         type: String,
     },
@@ -17,8 +17,8 @@ const props = defineProps({
     },
     retain_order: {
         type: Boolean,
-    }
-})
+    },
+});
 </script>
 
 <template>
