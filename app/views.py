@@ -96,28 +96,70 @@ def browse_all_latest(request):
 
 def search(request):
     searchquery = request.GET["search"]
-    results = []
-    results += Video.objects.filter(name__icontains=searchquery)
-    results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in results]
-    paginator = Paginator(results, pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
+    video_results = []
+    video_results += Video.objects.filter(name__icontains=searchquery)
+    video_results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in video_results]
+    paginator = Paginator(video_results, pagination_per_page)
     paginated = paginator.page(page_num)
-    return render(
-        request,
-        "Browse",
-        {
-            "title": f"Search for '{searchquery}'",
-            "description": f"Found {len(results)} {'result' if len(results) == 1 else 'results'}\
-                            (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
-            "has_prev_page": paginated.has_previous(),
-            "has_next_page": paginated.has_next(),
-        },
-    )
+    if page_num == 1:
+        category_results = []
+        for model, model_name in [
+            (Channel, "Channels"),
+            (Demographic, "Demographics"),
+            (Ministry, "Ministries"),
+            (Series, "Series"),
+            (Speaker, "Speakers"),
+            (Topic, "Topics"),
+        ]:
+            category_results += [
+                {
+                    "category": model_name,
+                    "name": x.name,
+                    "videosCount": x.video_set.count(),
+                    "url": x.get_absolute_url(),
+                }
+                for x in model.objects.filter(name__icontains=searchquery)
+            ]
+        category_results += [
+            {
+                "category": "Bible Book",
+                "name": x.get_name_display(),
+                "videosCount": len(x.video_set.all()),
+                "url": x.get_absolute_url(),
+            }
+            for x in Bible_Book.objects.filter(summary__icontains=searchquery)
+        ]
+        return render(
+            request,
+            "Search",
+            {
+                "title": f"Search for '{searchquery}'",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
+(page {page_num} of {paginator.num_pages})",
+                "videos": paginated.object_list,
+                "categories": category_results,
+                "has_prev_page": paginated.has_previous(),
+                "has_next_page": paginated.has_next(),
+            },
+        )
+    else:
+        return render(
+            request,
+            "Search",
+            {
+                "title": f"Search for '{searchquery}'",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
+(page {page_num} of {paginator.num_pages})",
+                "videos": paginated.object_list,
+                "has_prev_page": paginated.has_previous(),
+                "has_next_page": paginated.has_next(),
+            },
+        )
 
 
 def video(request, id):
@@ -424,7 +466,8 @@ def browse_categories(request):
     title = None
     description = None
     single_parent_category = False
-    retain_order = False
+    categories_sort_order = "alphabetical"
+    subcategories_sort_order = "alphabetical"
 
     if category == "book":
         categories_data = [
@@ -439,7 +482,7 @@ def browse_categories(request):
         title = "Bible Books"
         description = "Browsing all Bible books"
         single_parent_category = True
-        retain_order = True
+        categories_sort_order = "none"
 
     elif category == "channel":
         categories_data = [
@@ -454,7 +497,7 @@ def browse_categories(request):
         title = "Channels"
         description = "Browsing all known channels"
         single_parent_category = True
-        retain_order = True
+        categories_sort_order = "none"
 
     elif category == "demographic":
         categories_data = [
@@ -482,7 +525,6 @@ def browse_categories(request):
         ]
         title = "Ministries"
         description = "Browsing all known ministries"
-        retain_order = True
 
     elif category == "series":
         categories_data = [
@@ -496,7 +538,6 @@ def browse_categories(request):
         ]
         title = "Series"
         description = "Browsing all known series"
-        retain_order = True
 
     elif category == "speaker":
         categories_data = [
@@ -512,7 +553,6 @@ def browse_categories(request):
         ]
         title = "Speakers"
         description = "Browsing all known speakers"
-        retain_order = True
 
     elif category == "topic":
         categories_data = [
@@ -527,7 +567,6 @@ def browse_categories(request):
         title = "Topics"
         description = "Browsing all known topics"
         single_parent_category = True
-        retain_order = True
 
     if categories_data is not None:
         return render(
@@ -538,6 +577,7 @@ def browse_categories(request):
                 "title": title,
                 "description": description,
                 "single_parent_category": single_parent_category,
-                "retain_order": retain_order,
+                "categories_sort_order": categories_sort_order,
+                "subcategories_sort_order": subcategories_sort_order,
             },
         )

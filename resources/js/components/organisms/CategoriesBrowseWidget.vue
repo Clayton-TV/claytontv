@@ -19,14 +19,29 @@ const props = defineProps({
         // False: may be part of multiple categories (meaning entry.category is an array)
         type: Boolean,
     },
-    retain_order: {
+    categories_sort_order: {
+        // Should be one of "alphabetical", "count", or "none"
+        type: String,
+        default: "none",
+    },
+    subcategories_sort_order: {
+        // Should be one of "alphabetical", "count", or "none"
+        type: String,
+        default: "none",
+    },
+    hide_subcategories_text: {
         type: Boolean,
-    }
+    },
+    unfold: {
+      type: Boolean,
+    },
 })
+
+const fold_results = ref(!props.unfold)
+const num_shown_folded = 12
 
 // List out category from all entries, then filter down to only keep the first instance of each category
 const categories = ref([
-    "All",
     props.categories_data
         .map((t) => t.category),
 ].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index))
@@ -34,29 +49,44 @@ const categories = ref([
 // For each entry, obtain its name, category it belongs to, and number of videos it encompasses
 const subCategories = ref(props.categories_data)
 
+const categoryCounts = computed(() => {
+    let counts = {}
+    for (const c of categories.value) {
+        if (props.single_parent_category) {
+            counts[c] = subCategories.value.filter(({ category }) => category === c).reduce((a, b) => a + b.videosCount, 0)
+        } else {
+            counts[c] = subCategories.value.filter(({ category }) => category.includes(c)).reduce((a, b) => a + b.videosCount, 0)
+        }
+    }
+    return counts
+})
+
 const sortedCategories = computed(() => {
-    if (props.retain_order) {
-        return categories.value
+    if (props.categories_sort_order === "alphabetical") {
+        return categories.value.toSorted((a, b) => a.localeCompare(b))
+    } else if (props.categories_sort_order === "count") {
+        return categories.value.toSorted((a, b) => (categoryCounts.value[b] - categoryCounts.value[a]))
     } else {
-        return categories.value.sort((a, b) => a.localeCompare(b))
+        return categories.value
     }
 })
+
 const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ?
-        subCategories.value :
-        subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
-    if (selectedCategory.value === "All") {
-        return sortedSubCategories
+    let filtered = subCategories.value
+    if (selectedCategory.value !== "All") {
+        if (props.single_parent_category) {
+            filtered = subCategories.value.filter(({ category }) => category === selectedCategory.value)
+        } else {
+            filtered = subCategories.value.filter(({ category }) => category.includes(selectedCategory.value))
+        }
     }
-    if (props.single_parent_category) {
-        return sortedSubCategories.filter(
-            ({ category }) => category === selectedCategory.value
-        )
-    } else {
-        return sortedSubCategories.filter(
-            ({ category }) => category.includes(selectedCategory.value)
-        )
+
+    if (props.subcategories_sort_order === "alphabetical") {
+        filtered.sort((a, b) => a.name.localeCompare(b.name))
+    } else if (props.subcategories_sort_order === "count") {
+        filtered.sort((a, b) => (b.videosCount - a.videosCount))
     }
+    return filtered
 })
 
 let selectedCategory = ref("All")
@@ -74,18 +104,18 @@ function selectCategory(category) {
 </script>
 
 <template>
-    <div class="mt-10 mb-4 justify-items-center space-y-2">
-        <h2 class="text-center text-3xl font-bold text-gray-100">
+    <div class="justify-items-center space-y-2">
+        <h2 class="mt-8 text-center text-3xl font-bold text-gray-100" v-if="title">
             {{ title }}
         </h2>
-        <p class="text-center text-gray-400">
+        <p class="mt-2 text-center text-gray-400" v-if="description">
             {{ description }}
         </p>
     </div>
     <div class="w-full items-center justify-center overflow-x-hidden pt-4">
         <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
             <li
-                v-for="(category, index) in sortedCategories"
+                v-for="(category, index) in ['All'].concat(sortedCategories)"
                 :key="index"
                 class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
                 <button
@@ -101,10 +131,12 @@ function selectCategory(category) {
             </li>
         </ul>
     </div>
-    <div class="w-full px-4 pb-4">
-        <h1 class="my-4 text-lg">
+    <div class="w-full px-4 my-3">
+        <h1 class="pb-6 text-lg" v-if="!hide_subcategories_text">
             Subcategories for:
             <span class="text-xl font-bold">{{ selectedCategory }}</span>
+            <span v-if="subcategories_sort_order === 'alphabetical'"> (alphabetical order)</span>
+            <span v-else-if="subcategories_sort_order === 'count'"> (most programmes first)</span>
         </h1>
         <div
             v-if="isLoadingSubCategories"
@@ -120,7 +152,7 @@ function selectCategory(category) {
             v-else
             class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
             <Link
-                v-for="(subcategory, index) in filteredSubCategories"
+                v-for="(subcategory, index) in (fold_results ? filteredSubCategories.slice(0, num_shown_folded) : filteredSubCategories)"
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"
@@ -133,5 +165,8 @@ function selectCategory(category) {
                 </div>
             </Link>
         </ul>
+        <button class="bg-blue-950 mx-auto flex w-auto rounded-md p-3 my-6 cursor-pointer" @click="fold_results=false" v-if="fold_results && filteredSubCategories.length > num_shown_folded">
+            Show All
+        </button>
     </div>
 </template>

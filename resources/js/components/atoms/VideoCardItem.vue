@@ -27,7 +27,7 @@ const getVideoThumbnail = (video) => {
 </script>
 
 <template>
-    <div class="w-full h-full flex rounded-md bg-gradient-to-br from-gray-700 to-gray-900">
+    <div class="w-full h-full flex rounded-md bg-gradient-to-br from-gray-700 to-gray-900 group">
         <LogoMark class="fill-primary pointer-events-none place-self-center items-center justify-center absolute inset-0 h-[40%] object-cover opacity-80 group-hover:opacity-55" />
 
         <img v-if="getVideoThumbnail(video)" :src="getVideoThumbnail(video)" alt="" class="pointer-events-none place-self-center items-center justify-center absolute inset-0 size-full object-cover group-hover:opacity-75 rounded-md" onerror="this.style.opacity='0';" />
@@ -37,7 +37,7 @@ const getVideoThumbnail = (video) => {
         </div>
 
         <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 w-svw sm:py-2 gap-y-1 place-self-end z-10 rounded-b-md bg-black/60 z-50">
-            <h3 class="line-clamp-1 text-lg leading-snug sm:text-2xl font-bold text-white">
+            <h3 class="line-clamp-1 group-hover:line-clamp-3 transition transition-all duration-150 text-lg leading-snug sm:text-2xl font-bold text-white">
                 {{ video.name }}
             </h3>
             <div class="flex flex-row justify-between">

@@ -15,12 +15,15 @@ const props = defineProps({
     single_parent_category: {
         type: Boolean,
     },
-    retain_order: {
-        type: Boolean,
-    }
+    categories_sort_order: {
+        type: String,
+    },
+    subcategories_sort_order: {
+        type: String,
+    },
 })
 </script>
 
 <template>
-    <CategoriesBrowseWidget :categories_data :title :description :single_parent_category :retain_order />
+    <CategoriesBrowseWidget :categories_data :title :description :single_parent_category :categories_sort_order :subcategories_sort_order />
 </template>

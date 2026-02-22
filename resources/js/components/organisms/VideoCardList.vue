@@ -59,7 +59,7 @@ const playVideo = (id) => {
 </script>
 
 <template>
-    <section class="mt-10 mb-4 flex flex-col items-center gap-y-6">
+    <section class="mt-8 mb-4 flex flex-col items-center gap-y-6">
         <div class="space-y-2">
             <h2 class="text-center text-3xl font-bold text-gray-100" v-if="title">
                 {{ title }}
