@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue"
-import { IconPlayerPlay } from "@tabler/icons-vue"
-import { Link } from "@inertiajs/vue3"
+import { Play } from "lucide-vue-next"
 import LogoMark from "@/atoms/LogoMark.vue"
 defineProps({
     video: {
@@ -33,7 +31,7 @@ const getVideoThumbnail = (video: Record<string, any>) => {
         <img v-if="getVideoThumbnail(video)" :src="getVideoThumbnail(video)" alt="" class="pointer-events-none place-self-center items-center justify-center absolute inset-0 size-full object-cover group-hover:opacity-75 rounded-md" onerror="this.style.opacity='0';" />
 
         <div class="absolute inset-0 place-self-center group flex h-min w-min cursor-pointer items-center justify-center rounded-full p-2 hover:bg-gray-100/20">
-            <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100"/>
+            <Play class="h-14 w-14 stroke-1 text-gray-100"/>
         </div>
 
         <div class="flex flex-col px-2.5 py-3.5 sm:px-3.5 w-svw sm:py-2 gap-y-1 place-self-end z-10 rounded-b-md bg-black/60 z-50">
