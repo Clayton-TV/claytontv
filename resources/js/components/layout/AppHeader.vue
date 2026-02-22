@@ -2,7 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import { Menu, Search } from 'lucide-vue-next'
-import AppLogoIcon from '@/AppLogoIcon.vue'
+import LogoMark from '@/atoms/LogoMark.vue'
 import { Button } from '@/ui/button'
 import { Input } from '@/ui/input'
 import { Separator } from '@/ui/separator'
@@ -43,9 +43,7 @@ function isActive(href: string): boolean {
         <div class="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
             <!-- Logo -->
             <Link href="/" class="flex shrink-0 items-center gap-2">
-                <div class="flex size-8 items-center justify-center rounded-md bg-white/10">
-                    <AppLogoIcon class="size-5 fill-current text-white" />
-                </div>
+                <LogoMark class="size-7 fill-red-500" />
                 <span class="text-sm font-semibold text-white">Clayton TV</span>
             </Link>
 
@@ -97,7 +95,7 @@ function isActive(href: string): boolean {
                 <SheetContent side="right" class="w-72 bg-gray-900 text-white border-gray-800">
                     <SheetHeader>
                         <SheetTitle class="flex items-center gap-2 text-white">
-                            <AppLogoIcon class="size-5 fill-current text-white" />
+                            <LogoMark class="size-6 fill-red-500" />
                             Clayton TV
                         </SheetTitle>
                         <SheetDescription class="sr-only">Navigation menu</SheetDescription>
