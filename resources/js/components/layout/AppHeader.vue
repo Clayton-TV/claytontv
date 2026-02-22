@@ -56,6 +56,7 @@ function isActive(href: string): boolean {
                         <NavigationMenuLink as-child>
                             <Link
                                 :href="item.href"
+                                prefetch
                                 :class="[
                                     navigationMenuTriggerStyle(),
                                     'bg-transparent text-gray-300 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white',
@@ -123,6 +124,7 @@ function isActive(href: string): boolean {
                             v-for="item in navItems"
                             :key="item.name"
                             :href="item.href"
+                            prefetch
                             :class="[
                                 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white',
                                 isActive(item.href) && 'bg-white/10 text-white',
