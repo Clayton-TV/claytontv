@@ -1,8 +1,7 @@
-<script setup>
-import { ref, computed } from 'vue';
-import LoadingSpinner from '../atoms/LoadingSpinner.vue';
-import CardSkeleton from '../atoms/CardSkeleton.vue';
+<script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import CardSkeleton from '../atoms/CardSkeleton.vue';
 const props = defineProps({
     categories_data: {
         type: Object,
@@ -21,51 +20,43 @@ const props = defineProps({
     },
     retain_order: {
         type: Boolean,
-    }
-})
+    },
+});
 
 // List out category from all entries, then filter down to only keep the first instance of each category
-const categories = ref([
-    "All",
-    props.categories_data
-        .map((t) => t.category),
-].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index))
+const categories = ref(
+    ['All', props.categories_data.map((t) => t.category)].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index),
+);
 
 // For each entry, obtain its name, category it belongs to, and number of videos it encompasses
-const subCategories = ref(props.categories_data)
+const subCategories = ref(props.categories_data);
 
 const sortedCategories = computed(() => {
     if (props.retain_order) {
-        return categories.value
+        return categories.value;
     } else {
-        return categories.value.sort((a, b) => a.localeCompare(b))
+        return [...categories.value].sort((a, b) => a.localeCompare(b));
     }
-})
+});
 const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ?
-        subCategories.value :
-        subCategories.value.sort((a, b) => a.name.localeCompare(b.name))
-    if (selectedCategory.value === "All") {
-        return sortedSubCategories
+    const sortedSubCategories = props.retain_order ? subCategories.value : [...subCategories.value].sort((a, b) => a.name.localeCompare(b.name));
+    if (selectedCategory.value === 'All') {
+        return sortedSubCategories;
     }
     if (props.single_parent_category) {
-        return sortedSubCategories.filter(
-            ({ category }) => category === selectedCategory.value
-        )
+        return sortedSubCategories.filter(({ category }) => category === selectedCategory.value);
     } else {
-        return sortedSubCategories.filter(
-            ({ category }) => category.includes(selectedCategory.value)
-        )
+        return sortedSubCategories.filter(({ category }) => category.includes(selectedCategory.value));
     }
-})
+});
 
-let selectedCategory = ref("All")
-let isLoadingSubCategories = ref(false)
+const selectedCategory = ref('All');
+const isLoadingSubCategories = ref(false);
 
 function selectCategory(category) {
     if (category !== selectedCategory.value) {
-        selectedCategory.value = category
-        isLoadingSubCategories.value = false
+        selectedCategory.value = category;
+        isLoadingSubCategories.value = false;
         //setTimeout(() => {
         //    isLoadingSubCategories.value = false
         //}, 800)
@@ -87,15 +78,13 @@ function selectCategory(category) {
             <li
                 v-for="(category, index) in sortedCategories"
                 :key="index"
-                class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
+                class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md"
+            >
                 <button
                     class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
-                    :class="
-                        category === selectedCategory
-                            ? 'bg-primary'
-                            : 'bg-gray-700'
-                    "
-                    @click="selectCategory(category)">
+                    :class="category === selectedCategory ? 'bg-primary' : 'bg-gray-700'"
+                    @click="selectCategory(category)"
+                >
                     {{ category }}
                 </button>
             </li>
@@ -106,31 +95,19 @@ function selectCategory(category) {
             Subcategories for:
             <span class="text-xl font-bold">{{ selectedCategory }}</span>
         </h1>
-        <div
-            v-if="isLoadingSubCategories"
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-            <CardSkeleton
-                v-for="skeletonIndex in 6"
-                :key="skeletonIndex"
-                :rowCount="1"
-                :customClasses="'bg-blue-950'"
-                :darkText="false" />
+        <div v-if="isLoadingSubCategories" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+            <CardSkeleton v-for="skeletonIndex in 6" :key="skeletonIndex" :rowCount="1" :customClasses="'bg-blue-950'" :darkText="false" />
         </div>
-        <ul
-            v-else
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+        <ul v-else class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
             <Link
                 v-for="(subcategory, index) in filteredSubCategories"
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"
-                class="rounded-lg bg-blue-950 p-4">
+                class="rounded-lg bg-blue-950 p-4"
+            >
                 <h2 class="font-bold">{{ subcategory.name }}</h2>
-                <div>
-                    {{ subcategory.videosCount }} programme{{
-                        subcategory.videosCount == 1 ? "" : "s"
-                    }}
-                </div>
+                <div>{{ subcategory.videosCount }} programme{{ subcategory.videosCount == 1 ? '' : 's' }}</div>
             </Link>
         </ul>
     </div>
