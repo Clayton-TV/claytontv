@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import UserInfo from '@/UserInfo.vue';
+import UserInfo from '@/layout/UserInfo.vue';
+import { type SharedData, type User } from '@/types';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/ui/sidebar';
-import { type SharedData, type User } from '@/types';
 import { usePage } from '@inertiajs/vue3';
 import { ChevronsUpDown } from 'lucide-vue-next';
 import UserMenuContent from './UserMenuContent.vue';
@@ -22,10 +22,10 @@ const { isMobile, state } = useSidebar();
                         <ChevronsUpDown class="ml-auto size-4" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
+                <DropdownMenuContent
                     class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg"
                     :side="isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'"
-                    align="end" 
+                    align="end"
                     :side-offset="4"
                 >
                     <UserMenuContent :user="user" />

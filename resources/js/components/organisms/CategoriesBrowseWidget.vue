@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { useCategoryFilter } from '../../composables/useCategoryFilter';
 import CardSkeleton from '../atoms/CardSkeleton.vue';
+
 const props = defineProps({
     categories_data: {
         type: Object,
@@ -23,45 +25,12 @@ const props = defineProps({
     },
 });
 
-// List out category from all entries, then filter down to only keep the first instance of each category
-const categories = ref(
-    ['All', props.categories_data.map((t) => t.category)].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index),
-);
-
-// For each entry, obtain its name, category it belongs to, and number of videos it encompasses
-const subCategories = ref(props.categories_data);
-
-const sortedCategories = computed(() => {
-    if (props.retain_order) {
-        return categories.value;
-    } else {
-        return [...categories.value].sort((a, b) => a.localeCompare(b));
-    }
-});
-const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ? subCategories.value : [...subCategories.value].sort((a, b) => a.name.localeCompare(b.name));
-    if (selectedCategory.value === 'All') {
-        return sortedSubCategories;
-    }
-    if (props.single_parent_category) {
-        return sortedSubCategories.filter(({ category }) => category === selectedCategory.value);
-    } else {
-        return sortedSubCategories.filter(({ category }) => category.includes(selectedCategory.value));
-    }
+const { sortedCategories, filteredItems, selectedCategory, selectCategory } = useCategoryFilter(props.categories_data, {
+    singleParentCategory: props.single_parent_category,
+    retainOrder: props.retain_order,
 });
 
-const selectedCategory = ref('All');
 const isLoadingSubCategories = ref(false);
-
-function selectCategory(category) {
-    if (category !== selectedCategory.value) {
-        selectedCategory.value = category;
-        isLoadingSubCategories.value = false;
-        //setTimeout(() => {
-        //    isLoadingSubCategories.value = false
-        //}, 800)
-    }
-}
 </script>
 
 <template>
@@ -100,7 +69,7 @@ function selectCategory(category) {
         </div>
         <ul v-else class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
             <Link
-                v-for="(subcategory, index) in filteredSubCategories"
+                v-for="(subcategory, index) in filteredItems"
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"

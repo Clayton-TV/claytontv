@@ -8,3 +8,17 @@ repos:
     rev: v8.24.2
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier
+        entry: npx prettier --check
+        language: system
+        files: '\.(js|ts|vue)$'
+        pass_filenames: true
+      - id: eslint
+        name: ESLint
+        entry: npx eslint
+        language: system
+        files: '\.(js|ts|vue)$'
+        pass_filenames: true

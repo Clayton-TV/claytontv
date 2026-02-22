@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import NavFooter from '@/NavFooter.vue';
-import NavMain from '@/NavMain.vue';
-import NavUser from '@/NavUser.vue';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/ui/sidebar';
+import NavFooter from '@/layout/NavFooter.vue';
+import NavMain from '@/layout/NavMain.vue';
+import NavUser from '@/layout/NavUser.vue';
 import { type NavItem } from '@/types';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/ui/sidebar';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';

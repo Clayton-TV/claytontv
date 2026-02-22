@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
-import { useInitials } from '~/composables/useInitials';
 import type { User } from '@/types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/ui/avatar';
 import { computed } from 'vue';
+import { useInitials } from '~/composables/useInitials';
 
 interface Props {
     user: User;
@@ -29,6 +29,6 @@ const showAvatar = computed(() => props.user.avatar && props.user.avatar !== '')
 
     <div class="grid flex-1 text-left text-sm leading-tight">
         <span class="truncate font-medium">{{ user.name }}</span>
-        <span v-if="showEmail" class="truncate text-xs text-muted-foreground">{{ user.email }}</span>
+        <span v-if="showEmail" class="text-muted-foreground truncate text-xs">{{ user.email }}</span>
     </div>
 </template>
