@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import CardSkeleton from '../atoms/CardSkeleton.vue';
+import CardSkeleton from '@/atoms/CardSkeleton.vue';
 const props = defineProps({
     categories_data: {
         type: Object,
