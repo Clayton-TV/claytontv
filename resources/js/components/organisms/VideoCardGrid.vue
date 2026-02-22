@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 import VideoCardItem from "@/atoms/VideoCardItem.vue"
 import { Link, router } from "@inertiajs/vue3"
 defineProps({
     videos: {
-        type: Array,
+        type: Array as () => Record<string, any>[],
         required: true,
     },
     title: {
@@ -25,13 +25,13 @@ defineProps({
 
 const prevPage = () => {
     const pageRegex = /[?&]page=([0-9]+).*/
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1] ?? '')
     router.get("#", {"page" : (isNaN(curPage) || curPage <= 1) ? 1 : curPage - 1})
 }
 
 const nextPage = () => {
     const pageRegex = /[?&]page=([0-9]+).*/
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1])
+    const curPage = parseInt(window.location.search.match(pageRegex)?.[1] ?? '')
     router.get("#", {"page" : isNaN(curPage) ? 2 : curPage + 1}) // If no page parameter then next page is second not first
 }
 </script>

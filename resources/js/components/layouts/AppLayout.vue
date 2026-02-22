@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {
     IconBrandYoutube,
     IconBrandVimeo,
@@ -26,7 +26,7 @@ const navOptions = [
     { name: "Topics", href: "/topic" },
 ]
 
-const isCurrent = (href) => {
+const isCurrent = (href: string) => {
     return window.location.href.includes(href)
 }
 
@@ -41,7 +41,7 @@ const searchForm = reactive({
 const submitSearch = () => {
     if (searchForm.search) {
         router.get("/search", searchForm);
-        document.getElementById("search").blur();
+        document.getElementById("search")?.blur();
     }
 }
 </script>

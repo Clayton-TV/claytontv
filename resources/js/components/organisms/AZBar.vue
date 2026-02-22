@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
     const letters = [
         ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
         ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'],
@@ -6,7 +6,7 @@
     ];
     let lettersSet = 0;
 
-    function updateShownLetters(dir) {
+    function updateShownLetters(dir: number) {
         // dir = 1 for next set, -1 for previous, or leave to refresh display of current set
         if (dir == 1 && lettersSet < 2) {
             // Hide 1st half of alphabet, show 2nd, move dots to start
@@ -17,12 +17,12 @@
         }
         for (let i = 0; i < 3; i++) {
             // Show only the current set of letters (set its div display property to "contents", others to "none")
-            document.getElementById("lettersDiv" + i).style.display = (i == lettersSet) ? "contents" : "none";
+            document.getElementById("lettersDiv" + i)!.style.display = (i == lettersSet) ? "contents" : "none";
         }
         // Hide move-forward-dots if on last set of letters
-        document.getElementById("lettersDotsFwd").style.display = (lettersSet == 2) ? "none" : "contents";
+        document.getElementById("lettersDotsFwd")!.style.display = (lettersSet == 2) ? "none" : "contents";
         // Hide move-backward-dots if on first set of letters
-        document.getElementById("lettersDotsBack").style.display = (lettersSet == 0) ? "none" : "contents";
+        document.getElementById("lettersDotsBack")!.style.display = (lettersSet == 0) ? "none" : "contents";
     }
 </script>
 

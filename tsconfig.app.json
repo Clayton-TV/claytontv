@@ -1,17 +1,23 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts",
-    "js/**/*",
-    "js/**/*.vue"
+    "resources/js/**/*",
+    "resources/js/**/*.vue"
   ],
   "exclude": [
-    "js/**/__tests__/*"
+    "resources/js/**/__tests__/*"
   ],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
 
+    "types": [
+      "vite/client",
+      "./resources/js/types"
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./resources/js/components/*"],
+      "~/*": ["./resources/js/*"]
     }
   }
 }

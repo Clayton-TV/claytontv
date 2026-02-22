@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import VideoViewer from '@/organisms/VideoViewer.vue';
 import VideoBrowseByLinks from '@/atoms/VideoBrowseByLinks.vue';
@@ -10,10 +10,9 @@ defineProps({
     },
     video_metadata: {
         type: Object,
-        required: false,
-    }
+        required: true,
+    },
 })
-
 </script>
 
 <template>

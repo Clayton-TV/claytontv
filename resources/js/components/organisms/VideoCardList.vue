@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 import { Link } from "@inertiajs/vue3"
 import VideoCardItem from "@/atoms/VideoCardItem.vue"
 defineProps({
     videos: {
-        type: Array,
+        type: Array as () => Record<string, any>[],
         required: true,
     },
     title: {
@@ -17,8 +17,8 @@ defineProps({
     },
 })
 
-const playVideo = (id) => {
-    const video = document.getElementById(id)
+const playVideo = (id: string) => {
+    const video = document.getElementById(id) as HTMLVideoElement | null
 
     if (!video) {
         console.log("Video not found")

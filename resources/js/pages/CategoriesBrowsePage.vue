@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
 
 const props = defineProps({
@@ -9,7 +9,7 @@ const props = defineProps({
         type: String,
     },
     categories_data: {
-        type: Object,
+        type: Array as () => Record<string, any>[],
         required: true,
     },
     single_parent_category: {

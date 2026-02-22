@@ -3,7 +3,7 @@ import NavFooter from '@/NavFooter.vue';
 import NavMain from '@/NavMain.vue';
 import NavUser from '@/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/ui/sidebar';
-import { type NavItem } from '@/types';
+import { type NavItem } from '~/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';

@@ -44,3 +44,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+*.d.ts
+!resources/js/types/**/*.d.ts
+!env.d.ts
