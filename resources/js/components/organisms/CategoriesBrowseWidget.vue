@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import CardSkeleton from '@/atoms/CardSkeleton.vue';
 import { Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import CardSkeleton from '../atoms/CardSkeleton.vue';
+import { useCategoryFilter } from '~/composables/useCategoryFilter';
 const props = defineProps({
     categories_data: {
         type: Object,
@@ -14,8 +14,6 @@ const props = defineProps({
         type: String,
     },
     single_parent_category: {
-        // True: subcategory only has a single parent category (meaning entry.category is a string)
-        // False: may be part of multiple categories (meaning entry.category is an array)
         type: Boolean,
     },
     retain_order: {
@@ -23,45 +21,17 @@ const props = defineProps({
     },
 });
 
-// List out category from all entries, then filter down to only keep the first instance of each category
-const categories = ref(
-    ['All', props.categories_data.map((t) => t.category)].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index),
-);
-
-// For each entry, obtain its name, category it belongs to, and number of videos it encompasses
-const subCategories = ref(props.categories_data);
-
-const sortedCategories = computed(() => {
-    if (props.retain_order) {
-        return categories.value;
-    } else {
-        return [...categories.value].sort((a, b) => a.localeCompare(b));
-    }
+const {
+    sortedCategories,
+    filteredItems: filteredSubCategories,
+    selectedCategory,
+    isLoading: isLoadingSubCategories,
+    selectCategory,
+} = useCategoryFilter({
+    items: props.categories_data,
+    singleParentCategory: props.single_parent_category,
+    retainOrder: props.retain_order,
 });
-const filteredSubCategories = computed(() => {
-    const sortedSubCategories = props.retain_order ? subCategories.value : [...subCategories.value].sort((a, b) => a.name.localeCompare(b.name));
-    if (selectedCategory.value === 'All') {
-        return sortedSubCategories;
-    }
-    if (props.single_parent_category) {
-        return sortedSubCategories.filter(({ category }) => category === selectedCategory.value);
-    } else {
-        return sortedSubCategories.filter(({ category }) => category.includes(selectedCategory.value));
-    }
-});
-
-const selectedCategory = ref('All');
-const isLoadingSubCategories = ref(false);
-
-function selectCategory(category) {
-    if (category !== selectedCategory.value) {
-        selectedCategory.value = category;
-        isLoadingSubCategories.value = false;
-        //setTimeout(() => {
-        //    isLoadingSubCategories.value = false
-        //}, 800)
-    }
-}
 </script>
 
 <template>
