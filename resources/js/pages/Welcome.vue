@@ -5,16 +5,20 @@ import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
 
 const props = defineProps({
     livestreams: {
-        type: Array,
+        type: Array as () => Record<string, any>[],
+        required: true,
     },
     latest_videos: {
-        type: Array,
+        type: Array as () => Record<string, any>[],
+        required: true,
     },
     topics_data: {
-        type: Object,
+        type: Array as () => Record<string, any>[],
+        required: true,
     },
     series_data: {
-        type: Object,
+        type: Array as () => Record<string, any>[],
+        required: true,
     },
 })
 </script>

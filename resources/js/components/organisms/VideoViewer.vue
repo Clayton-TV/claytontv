@@ -6,20 +6,20 @@ defineProps({
     }
 })
 
-const getYoutubeId = (videoUrl) => {
+const getYoutubeId = (videoUrl: string) => {
     const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const youtubeId = videoUrl.match(youtubeRegex)?.[2];
     return youtubeId
 }
 
-const getVimeoId = (videoUrl) => {
+const getVimeoId = (videoUrl: string) => {
     // Regex to match strings starting with http://vimeo.com/ or https://vimeo.com/ and from there, match and extract an alphanumeric string until the end or any non-alphanumeric character (eg another forwardslash)
     const vimeoRegex = /^(http|https):\/\/vimeo.com\/([\w]+).*/;
     const vimeoId = videoUrl.match(vimeoRegex)?.[2];
     return vimeoId
 }
 
-const getEmbedUrl = (videoUrl) => {
+const getEmbedUrl = (videoUrl: string): string | undefined => {
     const youtubeId = getYoutubeId(videoUrl)
     const vimeoId = getVimeoId(videoUrl)
     if (youtubeId) {
@@ -27,7 +27,7 @@ const getEmbedUrl = (videoUrl) => {
     } else if (vimeoId) {
         return `https://player.vimeo.com/video/${vimeoId}`
     } else {
-        return false
+        return undefined
     }
 }
 </script>

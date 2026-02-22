@@ -5,7 +5,7 @@ import CardSkeleton from '../atoms/CardSkeleton.vue';
 import { Link } from '@inertiajs/vue3';
 const props = defineProps({
     categories_data: {
-        type: Object,
+        type: Array as () => Record<string, any>[],
         required: true,
     },
     title: {
@@ -43,19 +43,19 @@ const num_shown_folded = 12
 // List out category from all entries, then filter down to only keep the first instance of each category
 const categories = ref([
     props.categories_data
-        .map((t) => t.category),
-].flat(Infinity).filter((item, index, array) => array.indexOf(item) == index))
+        .map((t: Record<string, any>) => t.category),
+].flat(Infinity).filter((item: any, index: number, array: any[]) => array.indexOf(item) == index))
 
 // For each entry, obtain its name, category it belongs to, and number of videos it encompasses
 const subCategories = ref(props.categories_data)
 
 const categoryCounts = computed(() => {
-    let counts = {}
+    let counts: Record<string, number> = {}
     for (const c of categories.value) {
         if (props.single_parent_category) {
-            counts[c] = subCategories.value.filter(({ category }) => category === c).reduce((a, b) => a + b.videosCount, 0)
+            counts[c as string] = subCategories.value.filter(({ category }: any) => category === c).reduce((a: number, b: any) => a + b.videosCount, 0)
         } else {
-            counts[c] = subCategories.value.filter(({ category }) => category.includes(c)).reduce((a, b) => a + b.videosCount, 0)
+            counts[c as string] = subCategories.value.filter(({ category }: any) => category.includes(c)).reduce((a: number, b: any) => a + b.videosCount, 0)
         }
     }
     return counts
@@ -63,9 +63,9 @@ const categoryCounts = computed(() => {
 
 const sortedCategories = computed(() => {
     if (props.categories_sort_order === "alphabetical") {
-        return categories.value.toSorted((a, b) => a.localeCompare(b))
+        return categories.value.toSorted((a: any, b: any) => a.localeCompare(b))
     } else if (props.categories_sort_order === "count") {
-        return categories.value.toSorted((a, b) => (categoryCounts.value[b] - categoryCounts.value[a]))
+        return categories.value.toSorted((a: any, b: any) => (categoryCounts.value[b as string] - categoryCounts.value[a as string]))
     } else {
         return categories.value
     }
@@ -75,16 +75,16 @@ const filteredSubCategories = computed(() => {
     let filtered = subCategories.value
     if (selectedCategory.value !== "All") {
         if (props.single_parent_category) {
-            filtered = subCategories.value.filter(({ category }) => category === selectedCategory.value)
+            filtered = subCategories.value.filter(({ category }: any) => category === selectedCategory.value)
         } else {
-            filtered = subCategories.value.filter(({ category }) => category.includes(selectedCategory.value))
+            filtered = subCategories.value.filter(({ category }: any) => category.includes(selectedCategory.value))
         }
     }
 
     if (props.subcategories_sort_order === "alphabetical") {
-        filtered.sort((a, b) => a.name.localeCompare(b.name))
+        filtered.sort((a: any, b: any) => a.name.localeCompare(b.name))
     } else if (props.subcategories_sort_order === "count") {
-        filtered.sort((a, b) => (b.videosCount - a.videosCount))
+        filtered.sort((a: any, b: any) => (b.videosCount - a.videosCount))
     }
     return filtered
 })
@@ -92,7 +92,7 @@ const filteredSubCategories = computed(() => {
 let selectedCategory = ref("All")
 let isLoadingSubCategories = ref(false)
 
-function selectCategory(category) {
+function selectCategory(category: string) {
     if (category !== selectedCategory.value) {
         selectedCategory.value = category
         isLoadingSubCategories.value = false

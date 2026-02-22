@@ -15,9 +15,9 @@ export default defineConfigWithVueTs(
         files: ['**/*.{ts,mts,tsx,vue}'],
     },
 
-    globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+    globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/.venv/**', '**/staticfiles_collected/**']) as any,
 
-    pluginVue.configs['flat/essential'],
+    pluginVue.configs['flat/essential'] as any,
     vueTsConfigs.recommended,
     {
         ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'resources/js/components/ui/*'],
@@ -28,6 +28,6 @@ export default defineConfigWithVueTs(
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
-    ...pluginOxlint.configs['flat/recommended'],
-    skipFormatting,
+    ...(pluginOxlint.configs['flat/recommended'] as any[]),
+    skipFormatting as any,
 );

@@ -10,10 +10,9 @@ defineProps({
     },
     video_metadata: {
         type: Object,
-        required: false,
-    }
+        required: true,
+    },
 })
-
 </script>
 
 <template>

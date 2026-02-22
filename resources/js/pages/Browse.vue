@@ -6,7 +6,8 @@ import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
 
 const props = defineProps({
     videos: {
-        type: Array,
+        type: Array as () => Record<string, any>[],
+        required: true,
     },
     title: {
         type: String,

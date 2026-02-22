@@ -10,7 +10,7 @@ defineProps({
     },
 })
 
-const getVideoThumbnail = (video) => {
+const getVideoThumbnail = (video: Record<string, any>) => {
     if (video.thumbnail?.startsWith("http")) {
         return video.thumbnail
     } else {
