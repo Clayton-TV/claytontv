@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import VideoBrowseByLinks from '@/molecules/VideoBrowseByLinks.vue';
-import VideoViewer from '@/organisms/VideoViewer.vue';
+<script setup>
 import { Head } from '@inertiajs/vue3';
+import VideoViewer from '@/organisms/VideoViewer.vue';
+import VideoBrowseByLinks from '@/atoms/VideoBrowseByLinks.vue';
 
 defineProps({
     video: {
@@ -11,8 +11,9 @@ defineProps({
     video_metadata: {
         type: Object,
         required: false,
-    },
-});
+    }
+})
+
 </script>
 
 <template>
@@ -20,7 +21,7 @@ defineProps({
     <div class="main-container">
         <main class="isolate">
             <VideoViewer :video="video" />
-            <hr class="mx-4 mt-2 mb-2 border-gray-800 lg:mt-4" />
+            <hr class="mx-4 border-gray-800 mb-2 mt-2 lg:mt-4" />
             <VideoBrowseByLinks :video="video" :video_metadata />
         </main>
     </div>
