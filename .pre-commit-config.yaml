@@ -8,3 +8,16 @@ repos:
     rev: v8.24.2
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: npx prettier --check
+        language: system
+        files: '\.(js|ts|vue|css|json)$'
+        exclude: 'package-lock\.json'
+      - id: eslint
+        name: eslint
+        entry: npx eslint
+        language: system
+        files: '\.(js|ts|vue)$'
