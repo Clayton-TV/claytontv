@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue"
 import { IconPlayerPlay } from "@tabler/icons-vue"
 import { Link } from "@inertiajs/vue3"
@@ -14,7 +14,7 @@ const getVideoThumbnail = (video: Record<string, any>) => {
     if (video.thumbnail?.startsWith("http")) {
         return video.thumbnail
     } else {
-        const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const youtubeId = video.url.match(youtubeRegex)?.[2];
         if (youtubeId) {
             // If youtube URL

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import VideoViewer from '@/organisms/VideoViewer.vue';
 import VideoBrowseByLinks from '@/atoms/VideoBrowseByLinks.vue';

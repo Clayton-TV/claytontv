@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 defineProps({
     video: {
         type: Object,
@@ -7,7 +7,7 @@ defineProps({
 })
 
 const getYoutubeId = (videoUrl: string) => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const youtubeId = videoUrl.match(youtubeRegex)?.[2];
     return youtubeId
 }

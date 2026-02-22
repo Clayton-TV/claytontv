@@ -9,8 +9,7 @@
     "eslint.config.*"
   ],
   "compilerOptions": {
-    "composite": true,
-    "emitDeclarationOnly": true,
+    "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
 
     "module": "ESNext",

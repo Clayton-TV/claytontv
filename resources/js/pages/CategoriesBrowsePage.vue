@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
 
 const props = defineProps({

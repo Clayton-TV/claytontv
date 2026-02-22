@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
 
 defineProps({
@@ -8,7 +8,7 @@ defineProps({
     },
     video_metadata: {
         type: Object,
-        required: false,
+        required: true,
     }
 })
 </script>
