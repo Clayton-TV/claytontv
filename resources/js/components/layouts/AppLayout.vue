@@ -16,8 +16,9 @@ import {
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import LogoMark from "@/atoms/LogoMark.vue"
+import { ChevronUp } from 'lucide-vue-next';
 import { Link, router } from "@inertiajs/vue3"
-import { reactive } from "vue"
+import { reactive, ref } from "vue"
 
 const navOptions = [
     { name: "Livestreams", href: "/livestreams" },
@@ -44,10 +45,45 @@ const submitSearch = () => {
         document.getElementById("search").blur();
     }
 }
+
+const jumpTopButtonShowThresh = window.innerHeight * 0.25;
+const jumpTopButtonHideThresh = jumpTopButtonShowThresh * 0.75;
+const jumpTopButtonVisible = ref(false);
+const onPageScroll = () => {
+  let pos = window.scrollY;
+  if (pos > jumpTopButtonShowThresh) {
+    jumpTopButtonVisible.value = true;
+  } else if (pos < jumpTopButtonHideThresh || pos == 0) {
+    jumpTopButtonVisible.value = false;
+  }
+}
+window.addEventListener("scroll", onPageScroll)
+
 </script>
 
+<style type="text/css">
+.jumpButton-enter-active,
+.jumpButton-leave-active {
+  transition: all 0.5s ease;
+}
+
+.jumpButton-enter-active {
+  transition: transform 0.5s cubic-bezier(0.5, 0.4, 0.5, 1.3);
+}
+
+.jumpButton-enter-from,
+.jumpButton-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+</style>
+
 <template>
-    <div class="flex min-h-full flex-col">
+    <div class="flex min-h-full flex-col scroll-auto">
         <div class="sticky top-2 isolate z-10 mx-2 my-2 h-16">
             <Disclosure
                 v-slot="{ open }"
@@ -328,4 +364,12 @@ const submitSearch = () => {
             </div>
         </footer>
     </div>
+
+    <Transition name="jumpButton">
+<!--     <div id="jumpTopButton" class="fixed bottom-3 right-3 z-100 aspect-square flex items-center px-3.5 text-2xl md:px-4.5 md:text-4xl cursor-pointer rounded-full opacity-75 bg-gray-600 text-white hover:bg-red-400 hover:opacity-100" title="Scroll to top" v-show="jumpTopButtonVisible" onclick="window.scrollTo(0, 0)"> -->
+    <div id="jumpTopButton" class="fixed bottom-3 right-3 z-100 aspect-square cursor-pointer rounded-full opacity-75 bg-gray-600 text-white hover:bg-red-400 hover:opacity-100" title="Scroll to top" v-show="jumpTopButtonVisible" onclick="window.scrollTo(0, 0)">
+    <ChevronUp class="size-9 m-2 md:size-12" />
+    </div>
+    </Transition>
+
 </template>
