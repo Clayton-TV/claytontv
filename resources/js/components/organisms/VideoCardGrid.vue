@@ -50,7 +50,7 @@ const nextPage = () => {
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate max-h-[60dvh] w-full max-w-[90vw] mx-auto aspect-video hover:opacity-75">
+                    class="relative isolate max-h-[60dvh] w-full max-w-[90vw] mx-auto aspect-video">
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
                         class="contents">
