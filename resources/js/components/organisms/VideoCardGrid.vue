@@ -46,11 +46,11 @@ const nextPage = () => {
         </div>
 
         <div class="mt-2 w-full overflow-x-hidden">
-            <ul class="grid gridl-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto px-4 lg:px-8">
+            <ul class="flex flex-row flex-wrap justify-center-safe gap-4 overflow-x-auto px-4 lg:px-8">
                 <li
                     v-for="video in videos"
                     :key="video.id"
-                    class="relative isolate max-h-[60dvh] w-full max-w-[90vw] mx-auto aspect-video">
+                    class="flex-1 relative isolate max-h-[60dvh] w-full sm:w-[calc((50vw)-var(--spacing)*2*4)] sm:max-w-[75vw] lg:w-[calc((100vw/3)-var(--spacing)*4*4)] lg:max-w-[50vw] mx-auto aspect-video">
                     <Link :href="`/video/`+video.id"
                         :id="video.id"
                         class="contents">
