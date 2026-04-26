@@ -2,6 +2,7 @@
 import { computed } from "vue"
 import VideoCardItem from "@/atoms/VideoCardItem.vue"
 import { Link, router } from "@inertiajs/vue3"
+import { ChevronLeft, ChevronRight, Ellipsis } from 'lucide-vue-next';
 defineProps({
     videos: {
         type: Array,
@@ -73,18 +74,18 @@ const goPage = (num) => {
             </ul>
         </div>
 
-        <div class="flex flex-row gap-1 md:gap-2 lg:gap-3 h-[48px] place-items-center text-center w-full justify-center px-3">
+        <div class="flex flex-row gap-1 md:gap-2 lg:gap-3 h-[48px] place-items-center text-center w-full justify-center px-3 tabular-nums">
             <button class="flex-1 basis-[3em] max-w-[3.5em] h-full bg-blue-950 rounded-md cursor-pointer disabled:cursor-default opacity-40 enabled:opacity-100" @click="prevPage()" :disabled="!has_prev_page">
-                &lt;
+                <ChevronLeft class="m-auto"/>
             </button>
             <template v-for="pn in page_range" :key="pn">
                 <button class="flex-1 basis-[3em] max-w-[3.5em] h-full rounded-md cursor-pointer opacity-100" :class="pn==cur_page_num ? `bg-primary` : `bg-blue-950`" @click="goPage(pn)" v-if="pn!='…'">
                     {{ pn }}
                 </button>
-                <span class="w-min sm:w-[1em] md:w-[2em]" v-else>~</span>
+                <Ellipsis class="w-min sm:w-[1em] md:w-[2em]" v-else />
             </template>
             <button class="flex-1 basis-[3em] max-w-[3.5em] h-full bg-blue-950 rounded-md cursor-pointer disabled:cursor-default opacity-40 enabled:opacity-100" @click="nextPage()" :disabled="!has_next_page">
-                &gt;
+                <ChevronRight class="m-auto" />
             </button>
         </div>
     </section>
