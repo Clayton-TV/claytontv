@@ -156,12 +156,10 @@ function selectCategory(category) {
                 :key="index"
                 :href="subcategory.url"
                 :id="subcategory.name"
-                class="rounded-lg bg-blue-950 p-4">
+                class="rounded-lg bg-blue-950 p-4 flex flex-row">
                 <h2 class="font-bold">{{ subcategory.name }}</h2>
-                <div>
-                    {{ subcategory.videosCount }} programme{{
-                        subcategory.videosCount == 1 ? "" : "s"
-                    }}
+                <div class="bg-white/15 rounded-full size-12 aspect-square place-content-center text-center ml-auto" :title="subcategory.videosCount + ` programme` + (subcategory.videosCount == 1 ? `` : `s`)">
+                    {{ subcategory.videosCount }}
                 </div>
             </Link>
         </ul>
