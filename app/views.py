@@ -65,7 +65,7 @@ def browse_all_livestreams(request):
         "Browse",
         {
             "title": "Live Streams",
-            "description": f"All livestreamed content, most recent first (page {page_num} of {paginator.num_pages})",
+            "description": "All livestreamed content, most recent first",
             "videos": paginated.object_list,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
@@ -86,7 +86,7 @@ def browse_all_latest(request):
         "Browse",
         {
             "title": "Latest Videos",
-            "description": f"All videos, most recent first (page {page_num} of {paginator.num_pages})",
+            "description": "All videos, most recent first",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -141,8 +141,7 @@ def search(request):
             "Search",
             {
                 "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'}",
                 "videos": paginated.object_list,
                 "categories": category_results,
                 "cur_page_num": page_num,
@@ -157,8 +156,7 @@ def search(request):
             "Search",
             {
                 "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
+                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'}",
                 "videos": paginated.object_list,
                 "cur_page_num": page_num,
                 "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -242,7 +240,7 @@ def browse_bible_book(request, id):
         "Browse",
         {
             "title": f"Bible book: {bible_book.get_name_display()}",
-            "description": f"{bible_book.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{bible_book.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -280,7 +278,7 @@ def browse_channel(request, id):
         "Browse",
         {
             "title": f"Channel: {decoded_id}",
-            "description": f"{channel.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{channel.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -318,7 +316,7 @@ def browse_demographic(request, id):
         "Browse",
         {
             "title": f"Demographic: {decoded_id}",
-            "description": f"{demographic.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{demographic.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -356,7 +354,7 @@ def browse_ministry(request, id):
         "Browse",
         {
             "title": f"Ministry: {decoded_id}",
-            "description": f"{ministry.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{ministry.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -394,7 +392,7 @@ def browse_series(request, id):
         "Browse",
         {
             "title": f"Series: {decoded_id}",
-            "description": f"{series.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{series.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -432,7 +430,7 @@ def browse_speaker(request, id):
         "Browse",
         {
             "title": f"Speaker: {decoded_id}",
-            "description": f"{speaker.bio} (page {page_num} of {paginator.num_pages})",
+            "description": f"{speaker.bio}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
@@ -470,7 +468,7 @@ def browse_topic(request, id):
         "Browse",
         {
             "title": f"Topic: {decoded_id}",
-            "description": f"{topic.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{topic.summary}",
             "videos": paginated.object_list,
             "cur_page_num": page_num,
             "page_range": [p for p in paginator.get_elided_page_range(page_num)],
