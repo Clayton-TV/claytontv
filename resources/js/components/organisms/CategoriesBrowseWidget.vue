@@ -140,7 +140,7 @@ function selectCategory(category) {
         </h1>
         <div
             v-if="isLoadingSubCategories"
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+            class="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:gap-x-8">
             <CardSkeleton
                 v-for="skeletonIndex in 6"
                 :key="skeletonIndex"
@@ -150,7 +150,7 @@ function selectCategory(category) {
         </div>
         <ul
             v-else
-            class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
+            class="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:gap-x-8">
             <Link
                 v-for="(subcategory, index) in (fold_results ? filteredSubCategories.slice(0, num_shown_folded) : filteredSubCategories)"
                 :key="index"
