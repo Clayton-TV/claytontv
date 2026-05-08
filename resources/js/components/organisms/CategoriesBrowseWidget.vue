@@ -117,7 +117,7 @@ function selectCategory(category) {
             <li
                 v-for="(category, index) in ['All'].concat(sortedCategories)"
                 :key="index"
-                class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md">
+                class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md" onclick="scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center', container: 'nearest'})">
                 <button
                     class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
                     :class="
