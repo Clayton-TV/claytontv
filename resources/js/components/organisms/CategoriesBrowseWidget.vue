@@ -112,8 +112,8 @@ function selectCategory(category) {
             {{ description }}
         </p>
     </div>
-    <div class="w-full items-center justify-center overflow-x-hidden pt-4">
-        <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
+    <div class="w-full items-center justify-center overflow-x-hidden pt-4 pointer-coarse:mask-x-from-[90%]">
+        <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2 pointer-coarse:pr-[50%] pointer-coarse:pl-[10%]">
             <li
                 v-for="(category, index) in ['All'].concat(sortedCategories)"
                 :key="index"
