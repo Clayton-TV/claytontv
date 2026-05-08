@@ -18,6 +18,12 @@ const props = defineProps({
     description: {
         type: String,
     },
+    cur_page_num: {
+        type: Number,
+    },
+    page_range: {
+        type: Array,
+    },
     has_prev_page: {
         type: Boolean,
     },
@@ -49,6 +55,8 @@ const props = defineProps({
     <VideoCardGrid
         :videos
         :description
+        :cur_page_num
+        :page_range
         :has_prev_page
         :has_next_page />
 </template>
