@@ -25,3 +25,16 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     },
 }
+
+# Parameters for typesense instance
+TYPESENSE_PARAMS = {
+    "api_key": os.environ.get("TYPESENSE_API_KEY"),
+    "nodes": [
+        {
+            "host": os.environ.get("TYPESENSE_HOST"),
+            "port": os.environ.get("TYPESENSE_PORT"),
+            "protocol": os.environ.get("TYPESENSE_PROTOCOL"),
+        }
+    ],
+    "connection_timeout_seconds": 2,
+}
