@@ -16,6 +16,7 @@ import {
 import { MagnifyingGlassIcon } from "@heroicons/vue/20/solid"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/vue/24/outline"
 import LogoMark from "@/atoms/LogoMark.vue"
+import CookieBanner from "@/organisms/CookieBanner.vue"
 import { Link, router } from "@inertiajs/vue3"
 import { reactive } from "vue"
 
@@ -326,6 +327,7 @@ const submitSearch = () => {
                     rights reserved.
                 </p>
             </div>
+            <CookieBanner />
         </footer>
     </div>
 </template>
