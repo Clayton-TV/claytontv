@@ -19,7 +19,9 @@ class Command(BaseCommand):
         self.populate_speakers(options["DEBUG"])
 
     def populate_speakers(self, debug):
-        client = typesense.Client(settings.TYPESENSE_PARAMS)
+        ts_config = settings.TYPESENSE_PARAMS
+        ts_config["connection_timeout_seconds"] = 300
+        client = typesense.Client(ts_config)
         if debug:
             self.stdout.write("Attempting to delete any existing speaker collection")
         try:
@@ -38,13 +40,14 @@ class Command(BaseCommand):
         if debug:
             self.stdout.write("Creating collection for speaker")
         client.collections.create(schema)
+        data_to_upload = []
         for i in Speaker.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            client.collections["speaker"].documents.create(
-                {
-                    "id": i.id,
-                    "name": i.name,
-                    "bio": i.bio,
-                }
-            )
+            data_to_upload += {
+                "id": i.id,
+                "name": i.name,
+                "bio": i.bio,
+            }
+
+        client.collections["speaker"].documents.import_(data_to_upload, {"action": "create"})

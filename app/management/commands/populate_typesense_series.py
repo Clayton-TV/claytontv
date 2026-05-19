@@ -19,7 +19,9 @@ class Command(BaseCommand):
         self.populate_series(options["DEBUG"])
 
     def populate_series(self, debug):
-        client = typesense.Client(settings.TYPESENSE_PARAMS)
+        ts_config = settings.TYPESENSE_PARAMS
+        ts_config["connection_timeout_seconds"] = 300
+        client = typesense.Client(ts_config)
         if debug:
             self.stdout.write("Attempting to delete any existing series collection")
         try:
@@ -38,13 +40,14 @@ class Command(BaseCommand):
         if debug:
             self.stdout.write("Creating collection for series")
         client.collections.create(schema)
+        data_to_upload = []
         for i in Series.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            client.collections["series"].documents.create(
-                {
-                    "name": i.name,
-                    "id_number": i.id_number,
-                    "summary": i.summary,
-                }
-            )
+            data_to_upload += {
+                "name": i.name,
+                "id_number": i.id_number,
+                "summary": i.summary,
+            }
+
+        client.collections["series"].documents.import_(data_to_upload, {"action": "create"})
