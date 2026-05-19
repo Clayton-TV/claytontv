@@ -44,10 +44,12 @@ class Command(BaseCommand):
         for i in Speaker.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            data_to_upload += {
-                "id": i.id,
-                "name": i.name,
-                "bio": i.bio,
-            }
+            data_to_upload.append(
+                {
+                    "id": i.id,
+                    "name": i.name,
+                    "bio": i.bio,
+                }
+            )
 
         client.collections["speaker"].documents.import_(data_to_upload, {"action": "create"})

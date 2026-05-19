@@ -51,17 +51,19 @@ class Command(BaseCommand):
         for i in Video.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            data_to_upload += {
-                "id": i.id,
-                "id_number": i.id_number,
-                "name": i.name,
-                "description": i.description,
-                "url": i.url,
-                "number_in_series": i.number_in_series,
-                "is_livestream": i.is_livestream,
-                "date_recorded": int(i.date_recorded.strftime("%s")),
-                "date_created": int(i.date_created.strftime("%s")),
-                "date_modified": int(i.date_modified.strftime("%s")),
-            }
+            data_to_upload.append(
+                {
+                    "id": i.id,
+                    "id_number": i.id_number,
+                    "name": i.name,
+                    "description": i.description,
+                    "url": i.url,
+                    "number_in_series": i.number_in_series,
+                    "is_livestream": i.is_livestream,
+                    "date_recorded": int(i.date_recorded.strftime("%s")),
+                    "date_created": int(i.date_created.strftime("%s")),
+                    "date_modified": int(i.date_modified.strftime("%s")),
+                }
+            )
 
         client.collections["video"].documents.import_(data_to_upload, {"action": "create"})

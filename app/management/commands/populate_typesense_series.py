@@ -44,10 +44,12 @@ class Command(BaseCommand):
         for i in Series.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            data_to_upload += {
-                "name": i.name,
-                "id_number": i.id_number,
-                "summary": i.summary,
-            }
+            data_to_upload.append(
+                {
+                    "name": i.name,
+                    "id_number": i.id_number,
+                    "summary": i.summary,
+                }
+            )
 
         client.collections["series"].documents.import_(data_to_upload, {"action": "create"})
