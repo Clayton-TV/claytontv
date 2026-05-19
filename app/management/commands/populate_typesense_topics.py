@@ -2,11 +2,11 @@ import typesense
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from catalogue.models.channel import Channel
+from catalogue.models.topic import Topic
 
 
 class Command(BaseCommand):
-    help = "Populate all Channels into Typesense"
+    help = "Populate all Topics into Typesense"
 
     def add_arguments(self, parser):  # This adds a debug option to the command
         parser.add_argument(
@@ -16,40 +16,37 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.populate_channels(options["DEBUG"])
+        self.populate_topics(options["DEBUG"])
 
-    def populate_channels(self, debug):
+    def populate_topics(self, debug):
         client = typesense.Client(settings.TYPESENSE_PARAMS)
         if debug:
-            self.stdout.write("Attempting to delete any existing channel collection")
+            self.stdout.write("Attempting to delete any existing topic collection")
         try:
-            client.collections["channel"].delete()
+            client.collections["topic"].delete()
         except typesense.exceptions.ObjectNotFound:
             if debug:
                 self.stdout.write("No pre-existing collection to delete")
         schema = {
-            "name": "channel",
+            "name": "topic",
             "fields": [
+                {"name": "id", "type": "string"},
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
-                {"name": "type", "type": "string", "facet": True},
-                {"name": "channel_url", "type": "string"},
-                {"name": "trusted", "type": "bool", "facet": True},
-                # TO-DO do we need to index the other fields which are ManyToManyField or ForeignKey?
+                {"name": "category", "type": "string", "facet": True},
             ],
         }
         if debug:
-            self.stdout.write("Creating collection for channel")
+            self.stdout.write("Creating collection for topic")
         client.collections.create(schema)
-        for i in Channel.objects.all():
+        for i in Topic.objects.all():
             if debug:
                 self.stdout.write(f"Creating document for: {i.name}")
-            client.collections["channel"].documents.create(
+            client.collections["topic"].documents.create(
                 {
+                    "id": i.id,
                     "name": i.name,
                     "summary": i.summary,
-                    "type": i.type,
-                    "channel_url": i.channel_url,
-                    "trusted": i.trusted,
+                    "category": i.category,
                 }
             )

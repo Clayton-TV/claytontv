@@ -33,7 +33,7 @@ class Command(BaseCommand):
                 {"name": "order", "type": "string"},
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
-                {"name": "type", "type": "string"},
+                {"name": "type", "type": "string", "facet": True},
             ],
         }
         if debug:
