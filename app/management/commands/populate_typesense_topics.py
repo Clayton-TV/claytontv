@@ -30,7 +30,7 @@ class Command(BaseCommand):
         schema = {
             "name": "topic",
             "fields": [
-                {"name": "id", "type": "string"},
+                {"name": "topic_id", "type": "string"},
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
                 {"name": "category", "type": "string", "facet": True},
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"Creating document for: {i.name}")
             client.collections["topic"].documents.create(
                 {
-                    "id": i.id,
+                    "topic_id": i.id,
                     "name": i.name,
                     "summary": i.summary,
                     "category": i.category,

@@ -32,7 +32,7 @@ class Command(BaseCommand):
         schema = {
             "name": "video",
             "fields": [
-                {"name": "id", "type": "string"},
+                {"name": "video_id", "type": "string"},
                 {"name": "id_number", "type": "string"},
                 {"name": "name", "type": "string"},
                 {"name": "description", "type": "string"},
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"Creating document for: {i.name}")
             data_to_upload.append(
                 {
-                    "id": i.id,
+                    "video_id": i.id,
                     "id_number": i.id_number,
                     "name": i.name,
                     "description": i.description,
