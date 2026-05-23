@@ -117,13 +117,20 @@ def search(request):
         }
     )
 
+    video_results = []
+    if "hits" in results:
+        for hit in results["hits"]:
+            # Try and except here once we know what exceptions it returns
+            if "document" in hit and "video_id" in hit["document"]:
+                video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
+
     return render(
         request,
         "Search",
         {
             "title": f"Search for '{searchquery}'",
             "description": f"Found {results['found']} results in {results['search_time_ms']} ms",
-            "videos": [Video.objects.get(id=i["document"]["id"]) for i in results["hits"]],
+            "videos": video_results,
             "categories": [],
             "has_prev_page": (page_num > 1),  # paginated.has_previous(),
             "has_next_page": True,  # paginated.has_next(),
