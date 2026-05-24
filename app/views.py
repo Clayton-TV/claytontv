@@ -108,6 +108,7 @@ def search(request):
     ts_config["connection_timeout_seconds"] = 10
     client = typesense.Client(ts_config)
 
+    # Search videos
     results = client.collections["video"].documents.search(
         {
             "q": searchquery,
@@ -116,22 +117,50 @@ def search(request):
             "per_page": pagination_per_page,
         }
     )
-
     video_results = []
     if "hits" in results:
         for hit in results["hits"]:
-            # Try and except here once we know what exceptions it returns
-            if "document" in hit and "video_id" in hit["document"]:
-                video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
+            try:
+                if "document" in hit and "video_id" in hit["document"]:
+                    video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
+            except Video.DoesNotExist:
+                continue
+    video_results_text = f"Found {results['found']} videos in {results['search_time_ms']} ms"
+
+    # Search series
+    results = client.collections["series"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary,id_number",
+            "page": page_num,
+            "per_page": pagination_per_page,
+        }
+    )
+    category_results = []
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                if "document" in hit and "id_number" in hit["document"]:
+                    series_obj = Series.objects.get(id=hit["document"]["id_number"])
+                    category_results.append(
+                        {
+                            "category": "Series",
+                            "name": series_obj.name,
+                            "videosCount": series_obj.video_set.count(),
+                            "url": series_obj.get_absolute_url(),
+                        }
+                    )
+            except Series.DoesNotExist:
+                continue
 
     return render(
         request,
         "Search",
         {
             "title": f"Search for '{searchquery}'",
-            "description": f"Found {results['found']} results in {results['search_time_ms']} ms",
+            "description": video_results_text,
             "videos": video_results,
-            "categories": [],
+            "categories": category_results,
             "has_prev_page": (page_num > 1),  # paginated.has_previous(),
             "has_next_page": True,  # paginated.has_next(),
         },
