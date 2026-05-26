@@ -34,6 +34,7 @@ class Command(BaseCommand):
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
                 {"name": "type", "type": "string", "facet": True},
+                {"name": "django_url", "type": "string"},
             ],
         }
         if debug:
@@ -43,5 +44,11 @@ class Command(BaseCommand):
             if debug:
                 self.stdout.write(f"Creating document for: {book.name}")
             client.collections["bible_book"].documents.create(
-                {"order": book.order, "name": book.name, "summary": book.summary, "type": book.type}
+                {
+                    "order": book.order,
+                    "name": book.name,
+                    "summary": book.summary,
+                    "type": book.type,
+                    "django_url": book.get_absolute_url(),
+                }
             )

@@ -32,6 +32,7 @@ class Command(BaseCommand):
             "fields": [
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
+                {"name": "django_url", "type": "string"},
             ],
         }
         if debug:
@@ -44,5 +45,6 @@ class Command(BaseCommand):
                 {
                     "name": i.name,
                     "summary": i.summary,
+                    "django_url": i.get_absolute_url(),
                 }
             )

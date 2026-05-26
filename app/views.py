@@ -96,6 +96,57 @@ def browse_all_latest(request):
     )
 
 
+def search_categories(searchquery, client):
+    category_results = []
+    # Series
+    results = client.collections["series"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary,id_number",
+            "limit": 30,
+            "include_fields": "id_number,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Series.objects.get(id=hit["document"]["id_number"]).video_set.count()
+                category_results.append(
+                    {
+                        "category": "Series",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Series.DoesNotExist, KeyError):
+                continue
+    # Topics
+    results = client.collections["topic"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary,topic_id,category",
+            "limit": 30,
+            "include_fields": "topic_id,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Topic.objects.get(id=hit["document"]["topic_id"]).video_set.count()
+                category_results.append(
+                    {
+                        "category": "Topic",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Topic.DoesNotExist, KeyError):
+                continue
+    return category_results
+
+
 def search(request):
     searchquery = request.GET["search"]
     page_num = 1
@@ -115,43 +166,21 @@ def search(request):
             "query_by": "name,description",
             "page": page_num,
             "per_page": pagination_per_page,
+            "include_fields": "video_id",
         }
     )
     video_results = []
     if "hits" in results:
         for hit in results["hits"]:
             try:
-                if "document" in hit and "video_id" in hit["document"]:
-                    video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
-            except Video.DoesNotExist:
+                video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
+            except (Video.DoesNotExist, KeyError):
                 continue
     video_results_text = f"Found {results['found']} videos in {results['search_time_ms']} ms"
 
-    # Search series
-    results = client.collections["series"].documents.search(
-        {
-            "q": searchquery,
-            "query_by": "name,summary,id_number",
-            "page": page_num,
-            "per_page": pagination_per_page,
-        }
-    )
     category_results = []
-    if "hits" in results:
-        for hit in results["hits"]:
-            try:
-                if "document" in hit and "id_number" in hit["document"]:
-                    series_obj = Series.objects.get(id=hit["document"]["id_number"])
-                    category_results.append(
-                        {
-                            "category": "Series",
-                            "name": series_obj.name,
-                            "videosCount": series_obj.video_set.count(),
-                            "url": series_obj.get_absolute_url(),
-                        }
-                    )
-            except Series.DoesNotExist:
-                continue
+    if page_num == 1:
+        category_results = search_categories(searchquery, client)
 
     return render(
         request,

@@ -35,6 +35,7 @@ class Command(BaseCommand):
                 {"name": "speaker_id", "type": "string"},
                 {"name": "name", "type": "string"},
                 {"name": "bio", "type": "string"},
+                {"name": "django_url", "type": "string"},
             ],
         }
         if debug:
@@ -49,6 +50,7 @@ class Command(BaseCommand):
                     "speaker_id": i.id,
                     "name": i.name,
                     "bio": i.bio,
+                    "django_url": i.get_absolute_url(),
                 }
             )
 

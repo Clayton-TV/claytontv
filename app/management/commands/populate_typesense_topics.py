@@ -34,6 +34,7 @@ class Command(BaseCommand):
                 {"name": "name", "type": "string"},
                 {"name": "summary", "type": "string"},
                 {"name": "category", "type": "string", "facet": True},
+                {"name": "django_url", "type": "string"},
             ],
         }
         if debug:
@@ -48,5 +49,6 @@ class Command(BaseCommand):
                     "name": i.name,
                     "summary": i.summary,
                     "category": i.category,
+                    "django_url": i.get_absolute_url(),
                 }
             )

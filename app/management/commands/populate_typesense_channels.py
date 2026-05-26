@@ -35,6 +35,7 @@ class Command(BaseCommand):
                 {"name": "type", "type": "string", "facet": True},
                 {"name": "channel_url", "type": "string"},
                 {"name": "trusted", "type": "bool", "facet": True},
+                {"name": "django_url", "type": "string"},
                 # TO-DO do we need to index the other fields which are ManyToManyField or ForeignKey?
             ],
         }
@@ -51,5 +52,6 @@ class Command(BaseCommand):
                     "type": i.type,
                     "channel_url": i.channel_url,
                     "trusted": i.trusted,
+                    "django_url": i.get_absolute_url(),
                 }
             )
