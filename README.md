@@ -8,7 +8,7 @@ cd claytontv
 ## 2. Create a virtual environment
 The project uses Python 3.12. You can either install Python 3.12 on your system or use a version manager like `pyenv` to manage multiple Python versions.
 
-### A. Using `pyenv` (recommended)
+### A. Using `pyenv` (outdated? Poetry can handle venv)
 Install pyenv if you haven't already.
 ```bash
 curl https://pyenv.run | bash
@@ -95,6 +95,12 @@ eval $(poetry env activate)
 List the project commands
 ```bash
 poe
+```
+
+Check node dependencies are installed:
+
+```bash
+npm install
 ```
 
 ## 5. Run the application
