@@ -57,3 +57,17 @@ SESSION_CACHE_ALIAS = "default"
 
 # Fix Vite manifest path
 DJANGO_VITE["default"]["manifest_path"] = STATIC_ROOT / "build" / "manifest.json"  # noqa: F405
+
+
+# Parameters for typesense instance
+TYPESENSE_PARAMS = {
+    "api_key": os.environ.get("TYPESENSE_API_KEY"),
+    "nodes": [
+        {
+            "host": os.environ.get("TYPESENSE_HOST"),
+            "port": os.environ.get("TYPESENSE_PORT"),
+            "protocol": os.environ.get("TYPESENSE_PROTOCOL"),
+        }
+    ],
+    "connection_timeout_seconds": 2,
+}

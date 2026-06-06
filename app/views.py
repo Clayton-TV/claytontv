@@ -1,5 +1,7 @@
 from urllib.parse import unquote  # Import for URL decoding
 
+import typesense
+from django.conf import settings
 from django.core.paginator import Paginator
 from inertia import render
 
@@ -94,6 +96,207 @@ def browse_all_latest(request):
     )
 
 
+def search_categories(searchquery, client):
+    category_results = []
+    category_results.extend(search_series(searchquery, client))
+    category_results.extend(search_topics(searchquery, client))
+    category_results.extend(search_speakers(searchquery, client))
+    category_results.extend(search_bible_books(searchquery, client))
+    category_results.extend(search_channels(searchquery, client))
+    category_results.extend(search_ministries(searchquery, client))
+    category_results.extend(search_demographics(searchquery, client))
+    return category_results
+
+
+def search_series(searchquery, client):
+    series_results = []
+    results = client.collections["series"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary,id_number",
+            "limit": 30,
+            "include_fields": "id_number,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Series.objects.get(id=hit["document"]["id_number"]).video_set.count()
+                series_results.append(
+                    {
+                        "category": "Series",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Series.DoesNotExist, KeyError):
+                continue
+    return series_results
+
+
+def search_topics(searchquery, client):
+    topics_results = []
+    results = client.collections["topic"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary,topic_id,category",
+            "limit": 30,
+            "include_fields": "topic_id,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Topic.objects.get(id=hit["document"]["topic_id"]).video_set.count()
+                topics_results.append(
+                    {
+                        "category": "Topic",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Topic.DoesNotExist, KeyError):
+                continue
+    return topics_results
+
+
+def search_speakers(searchquery, client):
+    speakers_results = []
+    results = client.collections["speaker"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,speaker_id,bio",
+            "limit": 30,
+            "include_fields": "speaker_id,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Speaker.objects.get(id=hit["document"]["speaker_id"]).video_set.count()
+                speakers_results.append(
+                    {
+                        "category": "Speaker",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Speaker.DoesNotExist, KeyError):
+                continue
+    return speakers_results
+
+
+def search_bible_books(searchquery, client):
+    bible_books_results = []
+    results = client.collections["bible_book"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "summary,type",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Bible_Book.objects.get(name=hit["document"]["name"]).video_set.count()
+                bible_books_results.append(
+                    {
+                        "category": "Bible Book",
+                        "name": hit["document"]["summary"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Bible_Book.DoesNotExist, KeyError):
+                continue
+    return bible_books_results
+
+
+def search_channels(searchquery, client):
+    channels_results = []
+    results = client.collections["channel"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Channel.objects.get(name=hit["document"]["name"]).video_set.count()
+                channels_results.append(
+                    {
+                        "category": "Channel",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Channel.DoesNotExist, KeyError):
+                continue
+    return channels_results
+
+
+def search_ministries(searchquery, client):
+    ministries_results = []
+    results = client.collections["ministry"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Ministry.objects.get(name=hit["document"]["name"]).video_set.count()
+                ministries_results.append(
+                    {
+                        "category": "Ministry",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Ministry.DoesNotExist, KeyError):
+                continue
+    return ministries_results
+
+
+def search_demographics(searchquery, client):
+    demographics_results = []
+    results = client.collections["demographic"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Demographic.objects.get(name=hit["document"]["name"]).video_set.count()
+                demographics_results.append(
+                    {
+                        "category": "Demographic",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Demographic.DoesNotExist, KeyError):
+                continue
+    return demographics_results
+
+
 def search(request):
     searchquery = request.GET["search"]
     page_num = 1
@@ -101,65 +304,46 @@ def search(request):
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
+
+    ts_config = settings.TYPESENSE_PARAMS
+    ts_config["connection_timeout_seconds"] = 10
+    client = typesense.Client(ts_config)
+
+    # Search videos
+    results = client.collections["video"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,description",
+            "page": page_num,
+            "per_page": pagination_per_page,
+            "include_fields": "video_id",
+        }
+    )
     video_results = []
-    video_results += Video.objects.filter(name__icontains=searchquery)
-    video_results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in video_results]
-    paginator = Paginator(video_results, pagination_per_page)
-    paginated = paginator.page(page_num)
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_results.append(Video.objects.get(id=hit["document"]["video_id"]))
+            except (Video.DoesNotExist, KeyError):
+                continue
+    video_results_text = f"Found {results['found']} videos in {results['search_time_ms']} ms"
+
+    category_results = []
     if page_num == 1:
-        category_results = []
-        for model, model_name in [
-            (Channel, "Channels"),
-            (Demographic, "Demographics"),
-            (Ministry, "Ministries"),
-            (Series, "Series"),
-            (Speaker, "Speakers"),
-            (Topic, "Topics"),
-        ]:
-            category_results += [
-                {
-                    "category": model_name,
-                    "name": x.name,
-                    "videosCount": x.video_set.count(),
-                    "url": x.get_absolute_url(),
-                }
-                for x in model.objects.filter(name__icontains=searchquery)
-            ]
-        category_results += [
-            {
-                "category": "Bible Book",
-                "name": x.get_name_display(),
-                "videosCount": len(x.video_set.all()),
-                "url": x.get_absolute_url(),
-            }
-            for x in Bible_Book.objects.filter(summary__icontains=searchquery)
-        ]
-        return render(
-            request,
-            "Search",
-            {
-                "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
-                "videos": paginated.object_list,
-                "categories": category_results,
-                "has_prev_page": paginated.has_previous(),
-                "has_next_page": paginated.has_next(),
-            },
-        )
-    else:
-        return render(
-            request,
-            "Search",
-            {
-                "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
-                "videos": paginated.object_list,
-                "has_prev_page": paginated.has_previous(),
-                "has_next_page": paginated.has_next(),
-            },
-        )
+        category_results = search_categories(searchquery, client)
+
+    return render(
+        request,
+        "Search",
+        {
+            "title": f"Search for '{searchquery}'",
+            "description": video_results_text,
+            "videos": video_results,
+            "categories": category_results,
+            "has_prev_page": (page_num > 1),  # paginated.has_previous(),
+            "has_next_page": True,  # paginated.has_next(),
+        },
+    )
 
 
 def video(request, id):

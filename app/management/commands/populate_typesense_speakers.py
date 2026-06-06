@@ -1,0 +1,57 @@
+import typesense
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
+from catalogue.models.speaker import Speaker
+
+
+class Command(BaseCommand):
+    help = "Populate all Speakers into Typesense"
+
+    def add_arguments(self, parser):  # This adds a debug option to the command
+        parser.add_argument(
+            "--DEBUG",  # This is the option.
+            action="store_true",
+            help="Runs the command with Debug on",  # Help text for helpful helpers.
+        )
+
+    def handle(self, *args, **options):
+        self.populate_speakers(options["DEBUG"])
+
+    def populate_speakers(self, debug):
+        ts_config = settings.TYPESENSE_PARAMS
+        ts_config["connection_timeout_seconds"] = 300
+        client = typesense.Client(ts_config)
+        if debug:
+            self.stdout.write("Attempting to delete any existing speaker collection")
+        try:
+            client.collections["speaker"].delete()
+        except typesense.exceptions.ObjectNotFound:
+            if debug:
+                self.stdout.write("No pre-existing collection to delete")
+        schema = {
+            "name": "speaker",
+            "fields": [
+                {"name": "speaker_id", "type": "string"},
+                {"name": "name", "type": "string"},
+                {"name": "bio", "type": "string"},
+                {"name": "django_url", "type": "string"},
+            ],
+        }
+        if debug:
+            self.stdout.write("Creating collection for speaker")
+        client.collections.create(schema)
+        data_to_upload = []
+        for i in Speaker.objects.all():
+            if debug:
+                self.stdout.write(f"Creating document for: {i.name}")
+            data_to_upload.append(
+                {
+                    "speaker_id": i.id,
+                    "name": i.name,
+                    "bio": i.bio,
+                    "django_url": i.get_absolute_url(),
+                }
+            )
+
+        client.collections["speaker"].documents.import_(data_to_upload, {"action": "create"})
