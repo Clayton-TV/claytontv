@@ -97,8 +97,18 @@ def browse_all_latest(request):
 
 
 def search_categories(searchquery, client):
-    category_results = []
-    # Series
+    category_results = search_series(searchquery, client)
+    category_results.append(search_topics(searchquery, client))
+    category_results.append(search_speakers(searchquery, client))
+    category_results.append(search_bible_books(searchquery, client))
+    category_results.append(search_channels(searchquery, client))
+    category_results.append(search_ministries(searchquery, client))
+    category_results.append(search_demographics(searchquery, client))
+    return category_results
+
+
+def search_series(searchquery, client):
+    series_results = []
     results = client.collections["series"].documents.search(
         {
             "q": searchquery,
@@ -111,7 +121,7 @@ def search_categories(searchquery, client):
         for hit in results["hits"]:
             try:
                 video_count = Series.objects.get(id=hit["document"]["id_number"]).video_set.count()
-                category_results.append(
+                series_results.append(
                     {
                         "category": "Series",
                         "name": hit["document"]["name"],
@@ -121,7 +131,11 @@ def search_categories(searchquery, client):
                 )
             except (Series.DoesNotExist, KeyError):
                 continue
-    # Topics
+    return series_results
+
+
+def search_topics(searchquery, client):
+    topics_results = []
     results = client.collections["topic"].documents.search(
         {
             "q": searchquery,
@@ -134,7 +148,7 @@ def search_categories(searchquery, client):
         for hit in results["hits"]:
             try:
                 video_count = Topic.objects.get(id=hit["document"]["topic_id"]).video_set.count()
-                category_results.append(
+                topics_results.append(
                     {
                         "category": "Topic",
                         "name": hit["document"]["name"],
@@ -144,7 +158,142 @@ def search_categories(searchquery, client):
                 )
             except (Topic.DoesNotExist, KeyError):
                 continue
-    return category_results
+    return topics_results
+
+
+def search_speakers(searchquery, client):
+    speakers_results = []
+    results = client.collections["speaker"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,speaker_id,bio",
+            "limit": 30,
+            "include_fields": "speaker_id,name,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Speaker.objects.get(id=hit["document"]["speaker_id"]).video_set.count()
+                speakers_results.append(
+                    {
+                        "category": "Speaker",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Speaker.DoesNotExist, KeyError):
+                continue
+    return speakers_results
+
+
+def search_bible_books(searchquery, client):
+    bible_books_results = []
+    results = client.collections["bible_book"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "summary,type",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Bible_Book.objects.get(name=hit["document"]["name"]).video_set.count()
+                bible_books_results.append(
+                    {
+                        "category": "Bible Book",
+                        "name": hit["document"]["summary"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Bible_Book.DoesNotExist, KeyError):
+                continue
+    return bible_books_results
+
+
+def search_channels(searchquery, client):
+    channels_results = []
+    results = client.collections["channel"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Channel.objects.get(name=hit["document"]["name"]).video_set.count()
+                channels_results.append(
+                    {
+                        "category": "Channel",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Channel.DoesNotExist, KeyError):
+                continue
+    return channels_results
+
+
+def search_ministries(searchquery, client):
+    ministries_results = []
+    results = client.collections["ministry"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Ministry.objects.get(name=hit["document"]["name"]).video_set.count()
+                ministries_results.append(
+                    {
+                        "category": "Ministry",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Ministry.DoesNotExist, KeyError):
+                continue
+    return ministries_results
+
+
+def search_demographics(searchquery, client):
+    demographics_results = []
+    results = client.collections["demographic"].documents.search(
+        {
+            "q": searchquery,
+            "query_by": "name,summary",
+            "limit": 30,
+            "include_fields": "name,summary,django_url",
+        }
+    )
+    if "hits" in results:
+        for hit in results["hits"]:
+            try:
+                video_count = Demographic.objects.get(name=hit["document"]["name"]).video_set.count()
+                demographics_results.append(
+                    {
+                        "category": "Demographic",
+                        "name": hit["document"]["name"],
+                        "videosCount": video_count,
+                        "url": hit["document"]["django_url"],
+                    }
+                )
+            except (Demographic.DoesNotExist, KeyError):
+                continue
+    return demographics_results
 
 
 def search(request):
