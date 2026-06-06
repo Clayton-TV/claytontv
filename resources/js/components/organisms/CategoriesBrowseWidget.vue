@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import LoadingSpinner from '../atoms/LoadingSpinner.vue';
 import CardSkeleton from '../atoms/CardSkeleton.vue';
 import { Link } from '@inertiajs/vue3';
+import { BookOpen, Church, MessagesSquare, PersonStanding, StepForward, Tv, Users } from 'lucide-vue-next';
 const props = defineProps({
     categories_data: {
         type: Object,
@@ -157,7 +158,18 @@ function selectCategory(category) {
                 :href="subcategory.url"
                 :id="subcategory.name"
                 class="rounded-lg bg-blue-950 p-4">
-                <h2 class="font-bold">{{ subcategory.name }}</h2>
+
+                <div class="flex flex-row gap-3">
+                    <BookOpen v-if="subcategory.category=='Bible Book'" class="flex-none" />
+                    <Tv v-if="subcategory.category=='Channel'" class="flex-none" />
+                    <Users v-if="subcategory.category=='Demographic'" class="flex-none" />
+                    <Church v-if="subcategory.category=='Ministry'" class="flex-none" />
+                    <StepForward v-if="subcategory.category=='Series'" class="flex-none" />
+                    <PersonStanding v-if="subcategory.category=='Speaker'" class="flex-none" />
+                    <MessagesSquare v-if="subcategory.category=='Topic'" class="flex-none" />
+
+                    <h2 class="font-bold">{{ subcategory.name }}</h2>
+                </div>
                 <div>
                     {{ subcategory.videosCount }} programme{{
                         subcategory.videosCount == 1 ? "" : "s"
