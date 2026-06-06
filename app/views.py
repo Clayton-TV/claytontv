@@ -97,13 +97,14 @@ def browse_all_latest(request):
 
 
 def search_categories(searchquery, client):
-    category_results = search_series(searchquery, client)
-    category_results.append(search_topics(searchquery, client))
-    category_results.append(search_speakers(searchquery, client))
-    category_results.append(search_bible_books(searchquery, client))
-    category_results.append(search_channels(searchquery, client))
-    category_results.append(search_ministries(searchquery, client))
-    category_results.append(search_demographics(searchquery, client))
+    category_results = []
+    category_results.extend(search_series(searchquery, client))
+    category_results.extend(search_topics(searchquery, client))
+    category_results.extend(search_speakers(searchquery, client))
+    category_results.extend(search_bible_books(searchquery, client))
+    category_results.extend(search_channels(searchquery, client))
+    category_results.extend(search_ministries(searchquery, client))
+    category_results.extend(search_demographics(searchquery, client))
     return category_results
 
 
