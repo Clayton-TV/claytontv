@@ -2,6 +2,7 @@ from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from inertia import defer, optional, render
 
 from app.cards import video_card_props
@@ -99,6 +100,38 @@ def browse_all_latest(request):
     except ValueError:
         page_num = 1
     return render(request, "LatestFeed", {"title": "Latest", **latest_feed(page_num)})
+
+
+PALETTE_LIMIT = 6
+
+
+def palette(request):
+    """Grouped name-only search for the ⌘K command palette. Fired on every
+    keystroke, so: no description scans, hard caps, JSON not Inertia."""
+    query = request.GET.get("q", "").strip()
+    if not query:
+        return JsonResponse({"videos": [], "categories": []})
+
+    videos = [
+        {"id": v.id, "name": v.name, "url": f"/video/{v.id}", "date": v.date_recorded or v.date_created}
+        for v in Video.objects.filter(name__icontains=query).order_by("-date_recorded")[:PALETTE_LIMIT]
+    ]
+
+    categories = []
+    for model, kind in [(Series, "Series"), (Speaker, "Speaker"), (Topic, "Topic"), (Ministry, "Ministry")]:
+        # Series videos live on the Series.videos M2M, not the FK reverse
+        count_relation = "videos" if model is Series else "video"
+        matches = model.objects.filter(name__icontains=query).annotate(n=Count(count_relation)).order_by("-n")
+        categories += [
+            {"kind": kind, "name": m.name, "url": m.get_absolute_url(), "count": m.n} for m in matches[:PALETTE_LIMIT]
+        ]
+    # Book names are choice codes; the display name lives in summary
+    categories += [
+        {"kind": "Book", "name": b.get_name_display(), "url": b.get_absolute_url(), "count": b.n}
+        for b in Bible_Book.objects.filter(summary__icontains=query).annotate(n=Count("video"))[:PALETTE_LIMIT]
+    ]
+
+    return JsonResponse({"videos": videos, "categories": categories})
 
 
 def search(request):

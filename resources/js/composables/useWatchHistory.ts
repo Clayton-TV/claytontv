@@ -17,7 +17,7 @@ const RESUME_MIN_SECONDS = 30;
 const RESUME_MAX_FRACTION = 0.95;
 
 type History = Record<string, number>; // videoId -> last-opened epoch ms
-type Progress = Record<string, { t: number; d: number; at: number }>; // seconds, duration, updated epoch ms
+type Progress = Record<string, { t: number; d: number; at: number; name?: string }>; // seconds, duration, updated epoch ms, title
 
 function read(): History {
     if (typeof window === 'undefined') return {};
@@ -75,10 +75,13 @@ export function useWatchHistory() {
     const hasWatched = (videoId: string | number) => String(videoId) in watched.value;
 
     /** Heartbeat from the player; promotes to watched at 80% played. */
-    const saveProgress = (videoId: string | number, seconds: number, duration: number) => {
+    const saveProgress = (videoId: string | number, seconds: number, duration: number, name?: string) => {
         if (typeof window === 'undefined' || !duration) return;
         const id = String(videoId);
-        progress.value = { ...progress.value, [id]: { t: Math.floor(seconds), d: Math.floor(duration), at: Date.now() } };
+        progress.value = {
+            ...progress.value,
+            [id]: { t: Math.floor(seconds), d: Math.floor(duration), at: Date.now(), name },
+        };
         writeProgress(progress.value);
         if (seconds / duration >= WATCHED_FRACTION && !hasWatched(id)) markWatched(id);
     };
@@ -90,5 +93,13 @@ export function useWatchHistory() {
         return entry.t;
     };
 
-    return { watched, progress, markWatched, hasWatched, saveProgress, resumePoint };
+    /** Most recently part-watched videos, newest first — the resume shelf. */
+    const continueWatching = (limit = 3) =>
+        Object.entries(progress.value)
+            .filter(([id, e]) => e.name && resumePoint(id) > 0)
+            .sort((a, b) => b[1].at - a[1].at)
+            .slice(0, limit)
+            .map(([id, e]) => ({ id, name: e.name!, t: e.t, d: e.d }));
+
+    return { watched, progress, markWatched, hasWatched, saveProgress, resumePoint, continueWatching };
 }

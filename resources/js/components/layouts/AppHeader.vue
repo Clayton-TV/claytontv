@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import LogoMark from '@/atoms/LogoMark.vue';
+import ShortcutsHelp from '@/molecules/ShortcutsHelp.vue';
+import CommandPalette from '@/organisms/CommandPalette.vue';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { IconMenu2, IconSearch } from '@tabler/icons-vue';
-import { reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { usePalette } from '~/composables/usePalette';
 
 const navOptions = [
     { name: 'Home', href: '/' },
@@ -18,14 +21,37 @@ const mobileNavOpen = ref(false);
 
 const isCurrent = (href: string) => (href === '/' ? page.url === '/' : page.url.startsWith(href));
 
-const searchForm = reactive({ search: '' });
+const { paletteOpen, helpOpen } = usePalette();
 
-const submitSearch = () => {
-    if (searchForm.search) {
-        mobileNavOpen.value = false;
-        router.get('/search', { search: searchForm.search });
+const openPalette = () => {
+    mobileNavOpen.value = false;
+    paletteOpen.value = true;
+};
+
+// Global shortcuts — never while typing (the palette's own input included)
+const onKeydown = (event: KeyboardEvent) => {
+    const target = event.target as HTMLElement;
+    const typing = target instanceof HTMLElement && (target.isContentEditable || target.matches('input, textarea, select'));
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        paletteOpen.value = !paletteOpen.value;
+        return;
+    }
+    if (typing || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === '/') {
+        event.preventDefault();
+        paletteOpen.value = true;
+    } else if (event.key === '?') {
+        event.preventDefault();
+        helpOpen.value = true;
     }
 };
+
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
+
+// Roughly: Mac keyboards show ⌘, everything else Ctrl
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 </script>
 
 <template>
@@ -54,21 +80,15 @@ const submitSearch = () => {
                 </Link>
             </nav>
 
-            <form @submit.prevent="submitSearch" class="ml-auto hidden w-full max-w-xs sm:block">
-                <label class="sr-only" for="header-search">Search</label>
-                <div class="relative">
-                    <IconSearch class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" aria-hidden="true" />
-                    <!-- text-base (16px) prevents iOS Safari zooming the page on focus -->
-                    <input
-                        id="header-search"
-                        v-model="searchForm.search"
-                        type="search"
-                        name="search"
-                        placeholder="Search teaching…"
-                        class="focus:ring-ring h-10 w-full rounded-lg border border-white/10 bg-white/5 pr-3 pl-9 text-base text-gray-100 transition-colors duration-150 placeholder:text-gray-500 focus:bg-white/10 focus:ring-2 focus:outline-none"
-                    />
-                </div>
-            </form>
+            <!-- Looks like the old search field; opens the command palette -->
+            <button
+                @click="openPalette"
+                class="focus-visible:ring-ring ml-auto hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-gray-500 transition-colors duration-150 outline-none hover:bg-white/10 hover:text-gray-400 focus-visible:ring-2 sm:flex"
+            >
+                <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span class="text-base">Search teaching…</span>
+                <kbd class="ml-auto rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
+            </button>
 
             <Sheet v-model:open="mobileNavOpen">
                 <SheetTrigger
@@ -81,17 +101,15 @@ const submitSearch = () => {
                     <SheetHeader>
                         <SheetTitle class="font-display text-left text-gray-50">Clayton TV</SheetTitle>
                     </SheetHeader>
-                    <form @submit.prevent="submitSearch" class="px-4 pb-2 sm:hidden">
-                        <label class="sr-only" for="mobile-search">Search</label>
-                        <input
-                            id="mobile-search"
-                            v-model="searchForm.search"
-                            type="search"
-                            name="search"
-                            placeholder="Search teaching…"
-                            class="focus:ring-ring h-11 w-full rounded-lg border border-white/10 bg-white/5 px-4 text-base text-gray-100 placeholder:text-gray-500 focus:ring-2 focus:outline-none"
-                        />
-                    </form>
+                    <div class="px-4 pb-2 sm:hidden">
+                        <button
+                            @click="openPalette"
+                            class="focus-visible:ring-ring flex h-11 w-full cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 text-base text-gray-500 outline-none focus-visible:ring-2"
+                        >
+                            <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
+                            Search teaching…
+                        </button>
+                    </div>
                     <nav class="flex flex-col gap-1 px-2" aria-label="Mobile">
                         <Link
                             v-for="option in navOptions"
@@ -108,5 +126,8 @@ const submitSearch = () => {
                 </SheetContent>
             </Sheet>
         </div>
+
+        <CommandPalette />
+        <ShortcutsHelp />
     </header>
 </template>
