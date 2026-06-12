@@ -1,53 +1,48 @@
 <script setup>
-defineProps({
-    video: {
-        type: Object,
-        required: true,
-    },
+import { onMounted, ref } from 'vue';
+import { usePlayer } from '~/composables/usePlayer';
+import { getEmbedUrl } from '~/lib/embeds';
+
+const props = defineProps({
+    video: { type: Object, required: true },
+    // Resume position in seconds — baked into the embed URL (start=/#t=)
+    // so there's no seek-after-load race
+    start: { type: Number, default: 0 },
+    autoplay: { type: Boolean, default: false },
 });
 
-const getYoutubeId = (videoUrl) => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const youtubeId = videoUrl.match(youtubeRegex)?.[2];
-    return youtubeId;
-};
+const emit = defineEmits(['progress', 'ended']);
 
-const getVimeoEmbedUrl = (videoUrl) => {
-    // Matches vimeo.com/<id> and vimeo.com/<id>/<hash>. The hash is the privacy
-    // token for unlisted videos — without it as ?h= the player demands a Vimeo
-    // sign-in (~2,400 of our legacy URLs carry one).
-    const vimeoRegex = /^(?:http|https):\/\/(?:www\.)?vimeo.com\/(\d+)(?:\/(\w+))?.*/;
-    const match = videoUrl.match(vimeoRegex);
-    if (!match) {
-        return null;
-    }
-    const [, vimeoId, unlistedHash] = match;
-    return `https://player.vimeo.com/video/${vimeoId}${unlistedHash ? `?h=${unlistedHash}` : ''}`;
-};
+const iframe = ref(null);
+const embedUrl = getEmbedUrl(props.video.url, { start: props.start, autoplay: props.autoplay });
 
-const getEmbedUrl = (videoUrl) => {
-    const youtubeId = getYoutubeId(videoUrl);
-    const vimeoEmbedUrl = getVimeoEmbedUrl(videoUrl);
-    if (youtubeId) {
-        return `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=0&playsinline=1`;
-    } else if (vimeoEmbedUrl) {
-        return vimeoEmbedUrl;
-    } else {
-        return false;
-    }
-};
+const player = usePlayer(iframe, props.video.url, {
+    onProgress: (seconds, duration) => emit('progress', seconds, duration),
+    onEnded: () => emit('ended'),
+});
+
+// Attach on mount AND on iframe load: mount alone can be too early on a slow
+// first paint, load alone never fires if the iframe finished before Vue
+// hydrated its listener. attach() itself is idempotent.
+onMounted(() => player.attach());
+const onIframeLoad = () => player.attach();
+
+// Parent components (keyboard shortcuts, mini-player) drive playback through this
+defineExpose({ player });
 </script>
 
 <template>
     <div class="aspect-video w-full overflow-hidden rounded-xl border border-white/10 bg-black">
         <iframe
-            v-if="getEmbedUrl(video.url)"
+            v-if="embedUrl"
+            ref="iframe"
             class="h-full w-full"
-            :src="getEmbedUrl(video.url)"
+            :src="embedUrl"
             allow="autoplay; clipboard-write; fullscreen; picture-in-picture"
             referrerpolicy="strict-origin-when-cross-origin"
             allowfullscreen
             :title="video.name"
+            @load="onIframeLoad"
         >
         </iframe>
         <div v-else class="flex h-full items-center justify-center p-6 text-sm text-gray-400">

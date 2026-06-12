@@ -222,9 +222,24 @@ def video(request, id):
             series = Series.objects.filter(videos=video_object).first()
             if series is None:
                 return None
+            # Course order, matching the series page. Sorted in Python because
+            # SQLite and Postgres disagree on where NULL episode numbers land.
+            episodes = list(series.videos.all())
+            episodes.sort(
+                key=lambda v: (
+                    v.number_in_series is None,
+                    v.number_in_series or 0,
+                    v.date_recorded or v.date_created,
+                    v.id,
+                )
+            )
+            position = [v.id for v in episodes].index(video_object.id)
+            following = episodes[position + 1] if position + 1 < len(episodes) else None
             return {
                 "series": {"name": series.name, "url": series.get_absolute_url()},
                 "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by("-date_recorded")[:6]),
+                # The episode autoplay advances to when this one ends
+                "next": video_card_props([following])[0] if following else None,
             }
 
         return render(

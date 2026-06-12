@@ -25,7 +25,7 @@ export interface SharedData extends PageProps {
             name: string;
             email: string;
             avatar?: string;
-        },
+        };
     };
     sidebarOpen: boolean;
 }
@@ -39,6 +39,5 @@ export interface User {
     created_at: string;
     updated_at: string;
 }
-
 
 export type BreadcrumbItemType = BreadcrumbItem;

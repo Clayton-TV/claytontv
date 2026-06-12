@@ -4,9 +4,9 @@ import SectionHeading from '@/molecules/SectionHeading.vue';
 import ShareButton from '@/molecules/ShareButton.vue';
 import VideoViewer from '@/organisms/VideoViewer.vue';
 import { Skeleton } from '@/ui/skeleton';
-import { Deferred, Head, Link } from '@inertiajs/vue3';
-import { IconBook, IconFileText, IconHeadphones } from '@tabler/icons-vue';
-import { watch as vueWatch } from 'vue';
+import { Deferred, Head, Link, router } from '@inertiajs/vue3';
+import { IconBook, IconFileText, IconHeadphones, IconRotateClockwise } from '@tabler/icons-vue';
+import { onBeforeUnmount, onMounted, ref, watch as vueWatch } from 'vue';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 
 const props = defineProps({
@@ -17,14 +17,76 @@ const props = defineProps({
     up_next: { type: Object, required: false, default: null },
 });
 
-// Remember that this video has been opened (localStorage; no accounts).
-// Re-fires on SPA navigation between watch pages, where the component is reused.
-const { markWatched } = useWatchHistory();
-markWatched(props.video.id);
+const { saveProgress, resumePoint } = useWatchHistory();
+
+const resumedFrom = ref(0);
+const autoplay = ref(false);
+const AUTOPLAY_FLAG = 'ctv:autoplay';
+
+// Per-video init; re-fires on SPA navigation between watch pages, where this
+// page component is reused (the viewer itself remounts via :key).
 vueWatch(
     () => props.video.id,
-    (id) => markWatched(id),
+    (id) => {
+        // The watched tick now comes from saveProgress at 80% played — honest,
+        // not opened-counts-as-watched.
+        // Resume where the viewer left off — baked into the embed URL before render
+        resumedFrom.value = resumePoint(id);
+        // Arriving because the previous episode ended? (One-shot flag from onEnded.)
+        autoplay.value = typeof window !== 'undefined' && window.sessionStorage.getItem(AUTOPLAY_FLAG) === String(id);
+        if (autoplay.value) window.sessionStorage.removeItem(AUTOPLAY_FLAG);
+    },
+    { immediate: true },
 );
+
+const viewer = ref(null);
+
+const onProgress = (seconds, duration) => saveProgress(props.video.id, seconds, duration);
+
+const onEnded = () => {
+    const next = props.up_next?.next;
+    if (!next) return;
+    // Continue the course: flag the next episode to start playing on arrival
+    window.sessionStorage.setItem(AUTOPLAY_FLAG, String(next.id));
+    router.visit(`/video/${next.id}`);
+};
+
+const startOver = () => {
+    viewer.value?.player.seekTo(0);
+    viewer.value?.player.play();
+    resumedFrom.value = 0;
+};
+
+const formatTime = (totalSeconds) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
+};
+
+// Playback keys for power users — never when typing, never disturbing the
+// native player's own shortcuts (which apply while the iframe has focus)
+const onKeydown = (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || target.matches('input, textarea, select'))) return;
+    const player = viewer.value?.player;
+    if (!player) return;
+    if (event.key === ' ' || event.key === 'k') {
+        event.preventDefault();
+        player.toggle();
+    } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        player.seekBy(-10);
+    } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        player.seekBy(10);
+    } else if (event.key === 'm') {
+        player.toggleMute();
+    }
+};
+
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 const resourceMeta = {
     transcript: { label: 'Read the transcript', icon: IconFileText },
@@ -52,7 +114,19 @@ const entries = (key) => {
 <template>
     <Head :title="video.name" />
     <div class="mx-auto max-w-5xl px-4 py-8 lg:px-8">
-        <VideoViewer :video="video" />
+        <VideoViewer ref="viewer" :key="video.id" :video="video" :start="resumedFrom" :autoplay="autoplay" @progress="onProgress" @ended="onEnded" />
+
+        <!-- Quiet note when playback picked up where the viewer left off -->
+        <p v-if="resumedFrom" class="mt-3 flex items-center gap-2 text-sm text-gray-400">
+            <span class="tabular-nums">Resuming from {{ formatTime(resumedFrom) }}</span>
+            <button
+                @click="startOver"
+                class="focus-visible:ring-ring text-primary inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-md px-2 font-medium outline-none hover:underline focus-visible:ring-2"
+            >
+                <IconRotateClockwise class="h-4 w-4" aria-hidden="true" />
+                Start over
+            </button>
+        </p>
 
         <div class="mt-6">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
