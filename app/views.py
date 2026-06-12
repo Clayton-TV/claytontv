@@ -225,6 +225,21 @@ def video(request, id):
                 else:
                     video_metadata[p] = {"name": props[p][0].name, "url": props[p][0].get_absolute_url()}
 
+        # Passage badge: the first linked book whose chapter we can read from
+        # the title (e.g. "Luke 15:11-24"), linking to that chapter's teaching.
+        passage_badge = None
+        for book in video_object.bible_book.all():
+            parsed = parse_passage(video_object.name, book.get_name_display())
+            if parsed:
+                passage_badge = {
+                    "label": f"{book.get_name_display()} {passage_label(parsed)}",
+                    "url": f"{book.get_absolute_url()}?chapter={parsed['chapter']}",
+                }
+                break
+
+        # Rescued related resources (transcript/audio reference links)
+        resources = [{"kind": r.kind, "url": r.url} for r in video_object.related_resources.order_by("kind")]
+
         def up_next():
             # Series→video links live on the Series.videos M2M (no reverse
             # accessor from Video: related_name="+"), so filter by membership.
@@ -242,6 +257,8 @@ def video(request, id):
             {
                 "video": video_object,
                 "video_metadata": video_metadata,
+                "passage": passage_badge,
+                "resources": resources,
                 # Deferred: the player paints immediately; the rail streams in
                 # right after via the Inertia v3 deferred-props round trip.
                 "up_next": defer(up_next),
