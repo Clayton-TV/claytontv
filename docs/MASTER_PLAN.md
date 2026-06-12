@@ -49,10 +49,14 @@
   links (949 transcripts), 74 multi-host URL sets, normalized labels by ID.
   227 duplicate listings itemized. Supersedes the ctvDBreform CSV path for
   programmes; series.json hierarchy is 2.2's job.
-  ▶️ **Next: 2.2 series.json ingestion (series/ministries hierarchy,
-  number_in_series, authoritative livestream signal) → 2.3 live-admin
-  incremental scraper (in-repo, the ~1,670 missing programmes) → then the
-  design-spec "destinations" round.**
+- ✅ Epic 2.2 live on beta: series hierarchy ingested (2,287 nodes, 15,027
+  ordered memberships, number_in_series, clean names — 690 mangled ones
+  fixed), livestream flags now owned by the authoritative LIVE STREAMS tree,
+  series URLs by stable id_number.
+  ▶️ **Next: 2.3 live-admin incremental scraper (in-repo, ~1,670 missing
+  programmes, cron) + dedup pass (227 duplicate listings itemized; CSV-era
+  series twins visible on /series); then the design-spec "destinations"
+  round (now fed: number_in_series, related resources, clean series).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
