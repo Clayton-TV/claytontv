@@ -574,15 +574,19 @@ def browse_series(request, id):
             },
         )
 
-    # Episodes live on the Series.videos M2M — the video_set FK reverse is
-    # never populated, which is why this page used to show zero episodes.
-    paginator = Paginator(series.videos.order_by("-date_recorded"), pagination_per_page)
+    # Episodes live on the Series.videos M2M (the video_set FK reverse is never
+    # populated). Order by episode number where ingestion assigned one, oldest
+    # first — a course reads start-to-finish, not newest-first.
+    episodes = series.videos.order_by("number_in_series", "date_recorded")
+    paginator = Paginator(episodes, 50)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
     paginated = paginator.page(page_num)
+
+    start_episode = episodes.first()
     return render(
         request,
         "SeriesDetail",
@@ -594,7 +598,19 @@ def browse_series(request, id):
                 "year_start": series.year_start,
                 "year_end": series.year_end,
             },
-            "videos": video_card_props(paginated.object_list),
+            "start_url": f"/video/{start_episode.id}" if start_episode else None,
+            "episodes": [
+                {
+                    "id": v.id,
+                    "name": v.name,
+                    "number": v.number_in_series,
+                    "url": f"/video/{v.id}",
+                    "date": v.date_recorded.isoformat() if v.date_recorded else None,
+                    "thumbnail": v.thumbnail,
+                }
+                for v in paginated.object_list
+            ],
+            "page_start": (page_num - 1) * 50,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -604,32 +620,42 @@ def browse_series(request, id):
 def browse_speaker(request, id):
     decoded_id = unquote(id)
 
-    try:
-        speaker = Speaker.objects.get(name=decoded_id)
-    except Speaker.DoesNotExist as e:
+    # Speaker names are unique; id is the stable fallback for future links.
+    speaker = Speaker.objects.filter(name=decoded_id).first() or Speaker.objects.filter(id=decoded_id).first()
+    if speaker is None:
         return render(
             request,
             "Browse",
-            {
-                "videos": [],
-                "title": f"Speaker not found: '{decoded_id}'",
-                "description": f"Error retreiving speaker data: '{e}'",
-            },
+            {"videos": [], "title": f"Speaker not found: '{decoded_id}'"},
         )
 
-    paginator = Paginator(speaker.video_set.all(), pagination_per_page)
+    talks = speaker.video_set.order_by("-date_recorded")
+    paginator = Paginator(talks, pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
     paginated = paginator.page(page_num)
+
+    def series():
+        # Series this speaker features in: series whose videos include theirs.
+        return [
+            {"name": s.name, "summary": s.summary, "videosCount": s.videos_count, "url": s.get_absolute_url()}
+            for s in Series.objects.filter(videos__speaker=speaker)
+            .distinct()
+            .annotate(videos_count=Count("videos"))
+            .order_by("-videos_count")[:6]
+        ]
+
     return render(
         request,
-        "Browse",
+        "SpeakerDetail",
         {
-            "title": f"Speaker: {decoded_id}",
-            "description": f"{speaker.bio} (page {page_num} of {paginator.num_pages})",
+            "speaker": {"name": speaker.name, "bio": speaker.bio, "talksCount": paginator.count},
+            # defer() (not optional): the <Deferred> component auto-loads it
+            # right after first paint, so the page shows talks immediately.
+            "series": defer(series),
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),

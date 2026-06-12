@@ -1,12 +1,14 @@
 <script setup>
+import EpisodeRow from '@/molecules/EpisodeRow.vue';
 import PaginationNav from '@/molecules/PaginationNav.vue';
-import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
-import { Head } from '@inertiajs/vue3';
-import { IconBook2 } from '@tabler/icons-vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { IconBook2, IconPlayerPlayFilled } from '@tabler/icons-vue';
 
 const props = defineProps({
     series_meta: { type: Object, required: true },
-    videos: { type: Array, default: () => [] },
+    episodes: { type: Array, default: () => [] },
+    start_url: { type: String, default: null },
+    page_start: { type: Number, default: 0 },
     has_prev_page: { type: Boolean },
     has_next_page: { type: Boolean },
 });
@@ -14,16 +16,18 @@ const props = defineProps({
 const looksLikeYear = (value) => /^\d{4}$/.test(String(value ?? '').trim());
 
 const years = () => {
-    // Legacy year fields hold free text (e.g. "18--2,2"); only show clean years
     const { year_start: start, year_end: end } = props.series_meta;
     if (!looksLikeYear(start)) return null;
     return looksLikeYear(end) && end !== start ? `${start}–${end}` : start;
 };
+
+// Episode number where the data has one; otherwise the running row index.
+const positionFor = (episode, index) => episode.number ?? props.page_start + index + 1;
 </script>
 
 <template>
     <Head :title="series_meta.name" />
-    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
+    <div class="mx-auto max-w-4xl px-4 py-10 lg:px-8">
         <header class="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div class="bg-primary/10 flex h-24 w-24 flex-none items-center justify-center rounded-2xl" aria-hidden="true">
                 <IconBook2 class="text-primary h-10 w-10 stroke-[1.5]" />
@@ -38,12 +42,25 @@ const years = () => {
                 <p v-if="series_meta.summary" class="mt-3 max-w-prose text-[15px] leading-relaxed text-gray-400">
                     {{ series_meta.summary }}
                 </p>
+                <Link
+                    v-if="start_url"
+                    :href="start_url"
+                    prefetch
+                    class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+                >
+                    <IconPlayerPlayFilled class="h-4 w-4" aria-hidden="true" />
+                    Start from the beginning
+                </Link>
             </div>
         </header>
 
-        <div class="mt-10">
-            <VideoCardGrid :videos="videos" :has_prev_page="false" :has_next_page="false" />
-        </div>
+        <section class="mt-10" aria-label="Episodes">
+            <ol class="space-y-2.5">
+                <li v-for="(episode, index) in episodes" :key="episode.id">
+                    <EpisodeRow :episode="episode" :position="positionFor(episode, index)" />
+                </li>
+            </ol>
+        </section>
 
         <div class="mt-10">
             <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />

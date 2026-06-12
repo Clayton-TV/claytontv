@@ -74,7 +74,7 @@ class TestSeriesDetail:
         assert props["series_meta"]["name"] == "John's Gospel"
         assert props["series_meta"]["summary"] == "A walk through John."
         assert props["series_meta"]["videosCount"] == 2
-        assert len(props["videos"]) == 2
+        assert len(props["episodes"]) == 2  # v2: numbered episode rows (see test_destination_pages)
 
     def test_unknown_series_renders_not_found(self, client):
         response = client.get("/series/Nope")
