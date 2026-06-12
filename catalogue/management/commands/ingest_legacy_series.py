@@ -26,6 +26,7 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"Series: {stats['series_created']} created, {stats['series_updated']} updated; "
                 f"{stats['memberships']} memberships; livestream flags: +{stats['live_flagged']} "
-                f"promoted, -{stats['live_demoted']} demoted."
+                f"promoted, -{stats['live_demoted']} demoted; "
+                f"deduped: -{stats['orphans_removed']} orphans, -{stats['duplicates_merged']} duplicate twins."
             )
         )

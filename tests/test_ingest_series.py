@@ -127,3 +127,70 @@ def find_node(trees, node_id):
         if found:
             return found
     raise AssertionError(f"node {node_id} not in fixture")
+
+
+class TestSeriesDeduplication:
+    def trees_with(self, *nodes):
+        """A minimal browse root wrapping the given series nodes."""
+        return [{"id": 9000, "name": "BROWSE: ROOT", "subSeries": list(nodes)}]
+
+    def node(self, nid, name, programme_ids):
+        return {"id": nid, "name": name, "programmes": [{"id": p} for p in programme_ids]}
+
+    def test_orphan_series_not_in_hierarchy_are_removed(self):
+        from catalogue.models import Series
+
+        Series.objects.create(id_number="999", name="Shorts with Peter Orr,Psalms")  # CSV artifact
+        VideoFactory(id="1")
+
+        stats = ingest_series_trees(self.trees_with(self.node(1994, "JPC Services", ["1"])))
+
+        assert not Series.objects.filter(id_number="999").exists()
+        assert Series.objects.filter(id_number="1994").exists()
+        assert stats["orphans_removed"] == 1
+
+    def test_identical_content_twins_collapse_to_lowest_id(self):
+        from catalogue.models import Series
+
+        for pid in ("1", "2"):
+            VideoFactory(id=pid)
+        # Same name, same videos, under two browse paths → one survives (id 488)
+        trees = self.trees_with(
+            self.node(1994, "JPC Services", ["1", "2"]),
+            self.node(488, "JPC Services", ["1", "2"]),
+        )
+
+        stats = ingest_series_trees(trees)
+
+        survivors = list(Series.objects.filter(name="JPC Services").values_list("id_number", flat=True))
+        assert survivors == ["488"]
+        assert stats["duplicates_merged"] == 1
+
+    def test_same_name_distinct_content_is_kept(self):
+        from catalogue.models import Series
+
+        for pid in ("1", "2"):
+            VideoFactory(id=pid)
+        trees = self.trees_with(
+            self.node(10, "One-offs", ["1"]),
+            self.node(20, "One-offs", ["2"]),  # different video → genuinely separate
+        )
+
+        ingest_series_trees(trees)
+
+        assert Series.objects.filter(name="One-offs").count() == 2
+
+    def test_dedup_is_idempotent(self):
+        from catalogue.models import Series
+
+        for pid in ("1", "2"):
+            VideoFactory(id=pid)
+        trees = self.trees_with(
+            self.node(1994, "JPC Services", ["1", "2"]),
+            self.node(488, "JPC Services", ["1", "2"]),
+        )
+
+        ingest_series_trees(trees)
+        ingest_series_trees(trees)  # re-run: re-creates 1994 then re-collapses
+
+        assert list(Series.objects.filter(name="JPC Services").values_list("id_number", flat=True)) == ["488"]
