@@ -76,7 +76,9 @@
   ▶️ **Next: 6.7 motion pass (Vue Motion returns for interactive moments),
   6.8 light mode + empty states + WCAG audit (closes Epic 6). Cross-cutting
   quick wins from the spec: share button, localStorage resume. Epic 2
-  leftovers: dedup (227 + series twins), ministry trees, series covers.
+  leftovers: ministry trees, series covers (first-episode thumbnail), the
+  227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
+  orphans + identical browse-tree twins collapsed in the ingestion.)
   Epic 4 (YouTube API) awaits Workspace creds; sync activation awaits
   LEGACY_ADMIN credentials in the beta .env.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
