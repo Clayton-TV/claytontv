@@ -41,9 +41,13 @@ https://claytontv.test. Local DB is SQLite; seed it with
   protocol). Remove when inertia-django#99 lands. Don't adopt v3 features that
   need new server support (useHttp, once props, infinite scroll). SSR exists
   but is opt-in (`INERTIA_SSR_ENABLED`) until the Headless UI nav is replaced.
-- **Topic and Series each have a decoy `videos` M2M** (`related_name="+"`).
-  The app actually queries the reverse of `Video.topic` / `Video.series`.
-  Link test data through the Video side (see tests/factories.py).
+- **Video↔relation linking is inconsistent per model — match the importer:**
+  topics link via `Video.topic` (count with `Count("video")`), but series link
+  via the `Series.videos` M2M (count with `Count("videos")` — the `Video.series`
+  FK is never populated). Counting the wrong one silently returns 0. In tests,
+  link series with `series.videos.add(video)`, NOT `VideoFactory(series=...)`.
+- **Legacy ID→name lookup tables** (speakers/topics/books/series) captured from
+  the old admin live in data/legacy_rescue/lookups/ for the Epic 2 importer.
 - **Never pass full Video models as Inertia props** — the serializer pulls all
   five M2M relations per video. Use `video_card_props()` (app/views.py).
 - **Importers are destructive** (delete-all-then-reload) until Epic 2 replaces

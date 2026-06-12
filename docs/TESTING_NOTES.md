@@ -20,11 +20,15 @@ epic that owns the fix.
   `'Series '10 - Judges, Acts, Colossians, Psalms , Living Life to the Full,The
   Grace of Giving` (stray leading apostrophe, comma-joined multi-series). The
   comma-delimiter problem of #88 at series level.
-- Many series report "0 programmes" in search results — series→video linking
-  incomplete (#86) and/or legitimately empty series imported as husks.
-- `is_livestream` is False for all 9,244 imported videos — the legacy
-  IsLivestream back-fill doesn't survive the import chain. Livestream page will
-  always be empty until fixed.
+- ✅ FIXED — "0 programmes" on every series: the homepage counted Count("video")
+  (the Video.series FK, never populated by the importer) instead of
+  Count("videos") (the Series.videos M2M that link_series writes). Real counts
+  now show; empty series dropped.
+- ✅ FIXED — `is_livestream` False for all videos: import_videos had the
+  IsLivestream column commented out. Uncommented, plus an idempotent
+  backfill_livestream_flags command. **Deploy note:** run
+  `backfill_livestream_flags` on beta after deploys until the Epic 2 importer
+  rework lands (code deploy ships the fix, not the data update).
 - ~230 video IDs skipped on import (matches #86's "mostly unlisted, acceptable").
 - Some hashless Vimeo videos (e.g. video 749, Keswick '12) show a genuine
   Vimeo sign-in wall — privacy setting on the video itself, not our embed code.
