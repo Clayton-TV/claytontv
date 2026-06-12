@@ -69,10 +69,16 @@
 - ✅ Watch page enriched (#184): passage badge (links to the chapter) +
   rescued transcript/audio companion links. Book chapter strip now an
   auto-fill grid that fills the row edge-to-edge.
-  ▶️ **Next: speakers index pivot (lookup-first + featured voices) to finish
-  the destinations round; then 6.7 motion pass, 6.8 light mode + a11y audit.
-  Epic 2 leftovers: dedup (227 + series twins), ministry trees, series covers
-  (first-episode thumbnail).**
+- ✅ Epic 6.6c deployed (#185): speakers index pivoted to lookup-first +
+  featured voices + scroll-deferred A–Z directory. **The destinations round
+  is complete** — every page from the design spec's first wave now ships its
+  intended answer.
+  ▶️ **Next: 6.7 motion pass (Vue Motion returns for interactive moments),
+  6.8 light mode + empty states + WCAG audit (closes Epic 6). Cross-cutting
+  quick wins from the spec: share button, localStorage resume. Epic 2
+  leftovers: dedup (227 + series twins), ministry trees, series covers.
+  Epic 4 (YouTube API) awaits Workspace creds; sync activation awaits
+  LEGACY_ADMIN credentials in the beta .env.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
