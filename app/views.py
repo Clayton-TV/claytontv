@@ -12,6 +12,7 @@ from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import Video
+from catalogue.passages import parse_passage, passage_label
 
 pagination_per_page = 24
 
@@ -261,35 +262,49 @@ def video(request, id):
 def browse_bible_book(request, id):
     decoded_id = unquote(id)
 
-    try:
-        bible_book = Bible_Book.objects.get(name=decoded_id)
-    except Bible_Book.DoesNotExist as e:
-        return render(
-            request,
-            "Browse",
-            {
-                "videos": [],
-                "title": f"Bible book not found: '{decoded_id}'",
-                "description": f"Error retreiving Bible book data: '{e}'",
-            },
-        )
+    bible_book = Bible_Book.objects.filter(name=decoded_id).first()
+    if bible_book is None:
+        return render(request, "Browse", {"videos": [], "title": f"Bible book not found: '{decoded_id}'"})
 
-    paginator = Paginator(bible_book.video_set.all(), pagination_per_page)
-    page_num = 1
-    try:
-        page_num = int(request.GET.get("page", 1))
-    except ValueError:
-        page_num = 1
-    paginated = paginator.page(page_num)
+    book_name = bible_book.get_name_display()
+    all_videos = list(bible_book.video_set.order_by("-date_recorded"))
+
+    # Derive the passage from each title; teaching that names a chapter is
+    # ordered by chapter (a book reads in order), the rest ("topical") trails.
+    decorated = []
+    chapters = set()
+    for video in all_videos:
+        passage = parse_passage(video.name, book_name)
+        if passage:
+            chapters.add(passage["chapter"])
+        decorated.append((video, passage))
+
+    selected_chapter = request.GET.get("chapter")
+    selected = int(selected_chapter) if (selected_chapter or "").isdigit() else None
+    if selected is not None:
+        decorated = [(v, p) for v, p in decorated if p and p["chapter"] == selected]
+
+    # Chapter first (None last), then most recent — a passage-ordered reading list
+    decorated.sort(key=lambda dp: (dp[1] is None, dp[1]["chapter"] if dp[1] else 0))
+
+    def card(video, passage):
+        props = video_card_props([video])[0]
+        props["reference"] = passage_label(passage)
+        return props
+
     return render(
         request,
-        "Browse",
+        "BookDetail",
         {
-            "title": f"Bible book: {bible_book.get_name_display()}",
-            "description": f"{bible_book.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": video_card_props(paginated.object_list),
-            "has_prev_page": paginated.has_previous(),
-            "has_next_page": paginated.has_next(),
+            "book": {
+                "name": book_name,
+                "summary": bible_book.summary,
+                "section": bible_book.get_type_display(),
+                "videosCount": len(all_videos),
+            },
+            "chapters": sorted(chapters),
+            "selected_chapter": selected,
+            "videos": [card(v, p) for v, p in decorated],
         },
     )
 
