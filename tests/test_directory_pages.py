@@ -1,35 +1,76 @@
 import pytest
 
-from tests.factories import BibleBookFactory, DemographicFactory, MinistryFactory, SpeakerFactory, VideoFactory
+from tests.factories import (
+    BibleBookFactory,
+    DemographicFactory,
+    MinistryFactory,
+    SeriesFactory,
+    SpeakerFactory,
+    VideoFactory,
+)
 from tests.utils import inertia_page
 
 pytestmark = pytest.mark.django_db
 
 
 class TestSpeakersIndex:
-    def test_lists_speakers_with_counts_alphabetically(self, client):
-        zeb = SpeakerFactory(name="Zebedee, Z")
-        amy = SpeakerFactory(name="Amos, A")
-        SpeakerFactory(name="Silent, S")  # no videos → hidden
-        for speaker in (zeb, amy):
-            video = VideoFactory()
-            video.speaker.add(speaker)
+    """Lookup-first pivot (docs/DESIGN_SPEC.md): featured tier + search,
+    long tail scroll-deferred — never a 662-card dump."""
+
+    def speakers_with_talks(self, spec):
+        for name, talks in spec:
+            speaker = SpeakerFactory(name=name)
+            for _ in range(talks):
+                video = VideoFactory()
+                video.speaker.add(speaker)
+
+    def test_featured_voices_are_the_deepest_catalogues(self, client):
+        self.speakers_with_talks([("Minor, M", 1), ("Major, M", 3), ("Middle, M", 2)])
+        SpeakerFactory(name="Silent, S")  # no videos → hidden everywhere
 
         page = inertia_page(client.get("/speaker/"))
 
         assert page["component"] == "SpeakersIndex"
-        assert [s["name"] for s in page["props"]["speakers"]] == ["Amos, A", "Zebedee, Z"]
-        assert page["props"]["total"] == 2
+        props = page["props"]
+        assert [s["name"] for s in props["featured"]] == ["Major, M", "Middle, M", "Minor, M"]
+        assert props["total"] == 3
+        assert "all_speakers" not in props  # long tail loads on scroll
 
-    def test_filters_by_query(self, client):
-        for name in ("Keller, Tim", "Piper, John"):
-            speaker = SpeakerFactory(name=name)
+    def test_featured_includes_known_for_series(self, client):
+        speaker = SpeakerFactory(name="Steele, Dominic")
+        series = SeriesFactory(name="The Pastor's Heart")
+        for _ in range(2):
             video = VideoFactory()
             video.speaker.add(speaker)
+            series.videos.add(video)
+
+        props = inertia_page(client.get("/speaker/"))["props"]
+
+        assert props["featured"][0]["knownFor"] == "The Pastor's Heart"
+
+    def test_all_speakers_load_on_scroll_grouped_a_to_z(self, client):
+        import json
+
+        self.speakers_with_talks([("Zebedee, Z", 1), ("Amos, A", 1), ("Abel, A", 1)])
+
+        response = client.get(
+            "/speaker/",
+            HTTP_X_INERTIA="true",
+            HTTP_X_INERTIA_PARTIAL_COMPONENT="SpeakersIndex",
+            HTTP_X_INERTIA_PARTIAL_DATA="all_speakers",
+        )
+
+        groups = json.loads(response.content)["props"]["all_speakers"]
+        assert [g["letter"] for g in groups] == ["A", "Z"]
+        assert [s["name"] for s in groups[0]["speakers"]] == ["Abel, A", "Amos, A"]
+
+    def test_lookup_returns_matches(self, client):
+        self.speakers_with_talks([("Keller, Tim", 1), ("Piper, John", 1)])
 
         props = inertia_page(client.get("/speaker/", {"q": "piper"}))["props"]
 
-        assert [s["name"] for s in props["speakers"]] == ["Piper, John"]
+        assert [s["name"] for s in props["results"]] == ["Piper, John"]
+        assert props["query"] == "piper"
 
 
 class TestBooksIndex:
