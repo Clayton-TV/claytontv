@@ -27,22 +27,60 @@ class AdminAuthError(Exception):
     pass
 
 
+def login(session):
+    """Mint a session by submitting the admin login form. Credentials come
+    from the server environment (set by the operator, e.g. via `op run`) —
+    they are never stored in the repo or handled interactively."""
+    user = os.environ.get("LEGACY_ADMIN_USERNAME", "").strip()
+    password = os.environ.get("LEGACY_ADMIN_PASSWORD", "").strip()
+    if not (user and password):
+        return False
+
+    page = session.get(f"{BASE_URL}/", timeout=30)  # sets the ASP session cookie, lands on login.asp?at=...
+    soup = BeautifulSoup(page.text, "html.parser")
+    form = soup.find("form")
+    action = (form.get("action") if form else None) or page.url
+    response = session.post(
+        action,
+        data={
+            "kt_login_user": user,
+            "kt_login_password": password,
+            "kt_login_rememberme": "1",
+            "kt_login1": "Login",
+        },
+        timeout=30,
+    )
+    if "kt_login_password" in response.text:  # still on the login form
+        raise AdminAuthError("Legacy admin login failed — check LEGACY_ADMIN_USERNAME/PASSWORD.")
+    return True
+
+
 def session_from_env():
-    cookie = os.environ.get("LEGACY_ADMIN_COOKIE", "").strip()
-    if not cookie:
-        raise AdminAuthError(
-            "LEGACY_ADMIN_COOKIE is not set. Log into the legacy admin in a browser, "
-            "copy the Cookie request header value, and set it in the environment."
-        )
     session = requests.Session()
-    session.headers.update({"Cookie": cookie, "User-Agent": "claytontv-beta-sync/1.0"})
-    return session
+    session.headers.update({"User-Agent": "claytontv-beta-sync/1.0"})
+
+    cookie = os.environ.get("LEGACY_ADMIN_COOKIE", "").strip()
+    if cookie:
+        session.headers.update({"Cookie": cookie})
+        return session
+    if login(session):
+        return session
+    raise AdminAuthError(
+        "No legacy admin auth configured. Set LEGACY_ADMIN_USERNAME/PASSWORD "
+        "(self-healing login) or LEGACY_ADMIN_COOKIE (manual session)."
+    )
 
 
-def fetch(session, path):
+def fetch(session, path, _retried=False):
     response = session.get(f"{BASE_URL}/{path}", timeout=30, allow_redirects=True)
     if "accessdenied" in response.url or response.status_code in (401, 403):
-        raise AdminAuthError("Legacy admin session rejected — the cookie has expired; refresh LEGACY_ADMIN_COOKIE.")
+        # Session lapsed mid-run: re-login once if we hold credentials
+        if not _retried and not os.environ.get("LEGACY_ADMIN_COOKIE") and login(session):
+            return fetch(session, path, _retried=True)
+        raise AdminAuthError(
+            "Legacy admin session rejected — refresh LEGACY_ADMIN_COOKIE or set "
+            "LEGACY_ADMIN_USERNAME/PASSWORD for self-healing login."
+        )
     response.raise_for_status()
     return response.text
 

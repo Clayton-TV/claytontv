@@ -98,3 +98,66 @@ def test_adapted_records_flow_through_the_standard_ingest():
     # And the cornerstone: re-sync is a no-op
     again = ingest_programmes([to_dump_record("12404", parse_meta_page(META_HTML))])
     assert again["created"] == 0 and again["updated"] == 1
+
+
+def test_login_submits_the_observed_form_fields(monkeypatch):
+    from catalogue.ingest import live_admin
+
+    monkeypatch.setenv("LEGACY_ADMIN_USERNAME", "ettie")
+    monkeypatch.setenv("LEGACY_ADMIN_PASSWORD", "secret")
+    posts = []
+
+    class S:
+        def __init__(self):
+            self.headers = {}
+
+        def get(self, url, **kw):
+            class R:
+                url = "https://clayton.tv/adminsection/login.asp?at=17:39"
+                text = (
+                    '<form action="https://clayton.tv/adminsection/login.asp?at=17:39" method="post">'
+                    '<input name="kt_login_user"><input type="password" name="kt_login_password"></form>'
+                )
+
+            return R()
+
+        def post(self, url, data=None, **kw):
+            posts.append((url, data))
+
+            class R:
+                text = "<html>Channel Manager</html>"
+
+            return R()
+
+    assert live_admin.login(S()) is True
+    url, data = posts[0]
+    assert "login.asp" in url
+    assert data["kt_login_user"] == "ettie"
+    assert data["kt_login_password"] == "secret"
+
+
+def test_login_failure_is_loud(monkeypatch):
+    from catalogue.ingest import live_admin
+
+    monkeypatch.setenv("LEGACY_ADMIN_USERNAME", "ettie")
+    monkeypatch.setenv("LEGACY_ADMIN_PASSWORD", "wrong")
+
+    class S:
+        def __init__(self):
+            self.headers = {}
+
+        def get(self, url, **kw):
+            class R:
+                url = "x"
+                text = '<form action="a"></form>'
+
+            return R()
+
+        def post(self, url, **kw):
+            class R:
+                text = '<input name="kt_login_password">'  # bounced back to the form
+
+            return R()
+
+    with pytest.raises(live_admin.AdminAuthError):
+        live_admin.login(S())
