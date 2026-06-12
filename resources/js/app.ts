@@ -37,7 +37,8 @@ createInertiaApp({
             .mount(el);
     },
     progress: {
-        color: '#4B5563',
+        // Brand red (matches --primary) so navigation feedback reads as intentional
+        color: 'oklch(0.637 0.237 25.331)',
     },
 });
 

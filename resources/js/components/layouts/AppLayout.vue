@@ -53,9 +53,10 @@ const submitSearch = () => {
                                     <Link
                                         v-for="option in navOptions"
                                         :key="option.name"
-                                        :class="isCurrent(option.href) ? 'bg-gray-900 text-white' : ''"
-                                        class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                                        :class="isCurrent(option.href) ? 'bg-white/10 text-white' : 'text-gray-300'"
+                                        class="focus-visible:ring-ring rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-150 outline-none hover:bg-gray-700 hover:text-white focus-visible:ring-2"
                                         :href="option.href"
+                                        :aria-current="isCurrent(option.href) ? 'page' : undefined"
                                     >
                                         {{ option.name }}
                                     </Link>
@@ -69,9 +70,10 @@ const submitSearch = () => {
                                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <MagnifyingGlassIcon aria-hidden="true" class="h-5 w-5 text-gray-400" />
                                     </div>
+                                    <!-- text-base (16px) prevents iOS Safari from zooming the page on focus -->
                                     <input
                                         id="search"
-                                        class="block h-9 w-full rounded-md border-0 bg-gray-700 py-1.5 pr-3 pl-10 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                                        class="focus:ring-ring block h-10 w-full rounded-md border-0 bg-gray-700 py-1.5 pr-3 pl-10 text-base text-gray-100 transition-colors duration-150 placeholder:text-gray-400 focus:bg-gray-600 focus:ring-2 focus:outline-none sm:leading-6"
                                         name="search"
                                         v-model="searchForm.search"
                                         placeholder="Search"
