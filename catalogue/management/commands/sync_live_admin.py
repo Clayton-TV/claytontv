@@ -11,7 +11,14 @@ class Command(BaseCommand):
     help = "Pull the newest-modified programmes from the legacy admin and upsert them"
 
     def add_arguments(self, parser):
-        parser.add_argument("--pages", type=int, default=2, help="List pages to scan (50 programmes each)")
+        parser.add_argument(
+            "--pages",
+            type=int,
+            default=None,
+            help="List pages to scan (50 programmes each). Default: keep paging "
+            "until a whole page is already-known programmes — backlogs of any "
+            "size catch up by themselves.",
+        )
 
     def handle(self, *args, **options):
         try:

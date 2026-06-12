@@ -70,6 +70,161 @@ def test_list_page_yields_unique_ids_in_order():
     assert list_programme_ids(session, pages=1) == ["12404", "12403"]
 
 
+def list_html(*ids):
+    rows = "".join(f'<tr><td><a href="mediaProgrammeMeta.asp?ID={i}">x</a></td></tr>' for i in ids)
+    return f"<table>{rows}</table>"
+
+
+class PagedSession(FakeSession):
+    """Serves a different list page per offset, so depth behaviour is testable."""
+
+    def __init__(self, list_pages, metas=None):
+        super().__init__(metas or {})
+        self.list_pages = list_pages
+        self.offsets_requested = []
+
+    def get(self, url, **kwargs):
+        if "mediaProgramme.asp" in url:
+            import re
+
+            offset = int(re.search(r"offset=(\d+)", url).group(1))
+            self.offsets_requested.append(offset)
+            page = offset // 50
+            body = self.list_pages[page] if page < len(self.list_pages) else ""
+
+            class R:
+                status_code = 200
+
+                def __init__(self):
+                    self.text = body
+                    self.url = url
+
+                def raise_for_status(self):
+                    pass
+
+            return R()
+        return super().get(url, **kwargs)
+
+
+def test_auto_depth_crawls_until_a_page_holds_no_new_programmes():
+    """pages=None: keep paging the newest-modified list until a whole page is
+    already-known ids — the catch-up backfill sizes itself, no --pages guess."""
+    from tests.factories import VideoFactory
+
+    for known in ("100", "101"):
+        VideoFactory(id=known)
+    session = PagedSession(
+        [list_html("300", "301"), list_html("302", "100"), list_html("100", "101"), list_html("999")]
+    )
+
+    ids = list_programme_ids(session, pages=None)
+
+    assert ids == ["300", "301", "302", "100", "101"]
+    # Stopped after the all-known page; never fetched page 3
+    assert session.offsets_requested == [0, 50, 100]
+
+
+def test_auto_depth_is_capped():
+    from catalogue.ingest import live_admin
+
+    endless = PagedSession([list_html(str(1000 + n)) for n in range(500)])
+
+    list_programme_ids(endless, pages=None)
+
+    assert len(endless.offsets_requested) == live_admin.MAX_AUTO_PAGES
+
+
+def test_an_empty_first_page_fails_loudly():
+    """Zero programme links on page 0 means the admin's HTML changed or an
+    ASP error page came back — a silent 0-synced success would hide it."""
+    session = PagedSession([""])
+
+    with pytest.raises(RuntimeError, match="no programme links"):
+        list_programme_ids(session, pages=1)
+
+
+def test_sync_ingests_page_by_page_so_a_crash_loses_nothing():
+    """A mid-backfill crash (network, session lapse) must keep everything
+    already fetched — ingest happens per page, not once at the end."""
+    from catalogue.ingest import live_admin
+
+    class CrashySession(PagedSession):
+        def get(self, url, **kwargs):
+            if "mediaProgrammeMeta.asp" in url and "ID=12403" in url:
+                raise OSError("network died")
+            return super().get(url, **kwargs)
+
+    session = CrashySession(
+        [list_html("12404"), list_html("12403"), list_html("12404")],
+        metas={"mediaProgrammeMeta.asp": META_HTML},
+    )
+
+    with pytest.raises(OSError):
+        live_admin.sync(pages=None, delay_seconds=0, session=session)
+
+    # Page 0's programme was ingested before page 1 crashed
+    assert Video.objects.filter(id="12404").exists()
+
+
+# Current admin layout: the meta form has NO vimeoLink — the video URL lives
+# on the media item editor, reached via the programme's image-picker options
+# (value = "<thumbnail>|<media id>"). Observed live 2026-06-12 on ID 12408.
+_LINK_INPUT = '<input name="vimeoLink" value="https://www.youtube.com/watch?v=oCivERk8ZWQ">'
+_THUMB_INPUT = '<input name="ThumbnailURL" value="https://i.ytimg.com/vi/oCivERk8ZWQ/mqdefault.jpg">'
+META_HTML_NO_MEDIA = META_HTML.replace(_LINK_INPUT, "").replace(_THUMB_INPUT, "")
+
+IMAGE_HTML = """
+<select name="ddlThumbnail">
+  <option value="https://img.youtube.com/vi/EJ2WLlPuBQ8/mqdefault.jpg|13838" selected>thumb</option>
+</select>
+"""
+
+MEDIA_UPDATE_HTML = """
+<form><input name="MediaName" value="YT6336SermonPM31.05.26">
+<input name="vimeoLink" value="https://youtu.be/EJ2WLlPuBQ8">
+<input name="MediaDuration" value="1730000"></form>
+"""
+
+
+def test_media_url_is_resolved_via_the_media_item_editor():
+    """Meta form without vimeoLink → follow image-picker media id to
+    mediaUpdate.asp and take the link from there."""
+    from catalogue.ingest import live_admin
+
+    session = PagedSession(
+        [list_html("12408")],
+        metas={
+            "mediaProgrammeMeta.asp": META_HTML_NO_MEDIA,
+            "mediaProgrammeImage.asp": IMAGE_HTML,
+            "mediaUpdate.asp": MEDIA_UPDATE_HTML,
+        },
+    )
+
+    stats, _records = live_admin.sync(pages=1, delay_seconds=0, session=session)
+
+    assert stats["created"] == 1
+    video = Video.objects.get(id="12408")
+    assert video.url == "https://youtu.be/EJ2WLlPuBQ8"
+    assert video.thumbnail == "https://img.youtube.com/vi/EJ2WLlPuBQ8/mqdefault.jpg"
+
+
+def test_programmes_with_no_media_anywhere_stay_skipped():
+    from catalogue.ingest import live_admin
+
+    session = PagedSession(
+        [list_html("12409")],
+        metas={
+            "mediaProgrammeMeta.asp": META_HTML_NO_MEDIA,
+            "mediaProgrammeImage.asp": "<select name='ddlThumbnail'></select>",
+        },
+    )
+
+    stats, _ = live_admin.sync(pages=1, delay_seconds=0, session=session)
+
+    assert stats["skipped_no_media"] == 1
+    assert not Video.objects.filter(id="12409").exists()
+
+
 def test_meta_page_parses_to_a_dump_shaped_record():
     record = to_dump_record("12404", parse_meta_page(META_HTML))
 

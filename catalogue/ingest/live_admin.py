@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 
 BASE_URL = os.environ.get("LEGACY_ADMIN_BASE_URL", "https://clayton.tv/adminsection")
 PAGE_SIZE = 50
+MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
 
 
 class AdminAuthError(Exception):
@@ -85,18 +86,49 @@ def fetch(session, path, _retried=False):
     return response.text
 
 
-def list_programme_ids(session, pages=1):
-    """Newest-modified programme ids from the paginated list."""
-    ids = []
-    for page in range(pages):
+def iter_programme_id_pages(session, pages=1):
+    """Yield one list of programme ids per newest-modified list page.
+
+    pages=N scans a fixed depth (the hourly cron). pages=None is the
+    self-sizing catch-up: keep paging until an entire page is ids we already
+    hold (a modified programme always floats to page 0, so known territory
+    means caught up). The stopping page is still yielded — its programmes
+    are the newest-modified known ones, worth a refresh.
+    """
+    auto = pages is None
+    # Snapshot once: ids ingested *during* this run must not look "known"
+    known_before_run = set(_video_model().objects.values_list("id", flat=True)) if auto else set()
+    seen = set()
+    for page in range(MAX_AUTO_PAGES if auto else pages):
         html = fetch(session, f"mediaProgramme.asp?order=mdate&direc=up&offset={page * PAGE_SIZE}")
         page_ids = re.findall(r"mediaProgramme\w*\.asp\?ID=(\d+)", html)
-        for pid in page_ids:
-            if pid not in ids:
-                ids.append(pid)
+        if page == 0 and not page_ids:
+            raise RuntimeError(
+                "Legacy admin list returned no programme links — layout change or error page? "
+                "Refusing to report a silent empty sync."
+            )
         if not page_ids:
             break
-    return ids
+        fresh = []
+        for pid in page_ids:
+            if pid not in seen:  # pages repeat ids (meta + timeline links)
+                seen.add(pid)
+                fresh.append(pid)
+        if fresh:
+            yield fresh
+        if auto and all(pid in known_before_run for pid in page_ids):
+            break
+
+
+def _video_model():
+    from catalogue.models import Video
+
+    return Video
+
+
+def list_programme_ids(session, pages=1):
+    """Newest-modified programme ids from the paginated list (flat)."""
+    return [pid for page_ids in iter_programme_id_pages(session, pages=pages) for pid in page_ids]
 
 
 def parse_meta_page(html):
@@ -137,6 +169,24 @@ def parse_meta_page(html):
     }
 
 
+def resolve_media(session, programme_id):
+    """The current admin's meta form carries no video link (observed live
+    2026-06-12, ID 12408): the URL lives on the media-item editor. The
+    programme's image-picker options encode "<thumbnail>|<media id>" — follow
+    the media id to mediaUpdate.asp, whose vimeoLink holds the actual URL
+    (YouTube or Vimeo, despite the name)."""
+    html = fetch(session, f"mediaProgrammeImage.asp?ID={programme_id}")
+    option = re.search(r'value="([^"|]*)\|(\d+)"', html)
+    if not option:
+        return None
+    thumbnail, media_id = option.group(1), option.group(2)
+    media_html = fetch(session, f"mediaUpdate.asp?ID={media_id}")
+    link = re.search(r'name="vimeoLink"[^>]*value="([^"]+)"', media_html)
+    if not link:
+        return None
+    return {"url": link.group(1), "thumbnail": thumbnail}
+
+
 def to_dump_record(programme_id, meta):
     """Shape a live-admin programme exactly like a legacy-dump record so the
     standard ingest path handles it (same normalization, same collisions,
@@ -173,13 +223,33 @@ def to_dump_record(programme_id, meta):
 
 
 def sync(pages=1, delay_seconds=1.0, session=None):
+    """Fetch and ingest page by page, so a crash mid-catch-up (network blip,
+    session lapse on the dying legacy server) keeps everything already
+    fetched — the rerun then starts from a smaller gap."""
     from .legacy import ingest_programmes
 
     session = session or session_from_env()
+    stats = {}
     records = []
-    for programme_id in list_programme_ids(session, pages=pages):
-        meta = parse_meta_page(fetch(session, f"mediaProgrammeMeta.asp?ID={programme_id}"))
-        records.append(to_dump_record(programme_id, meta))
-        time.sleep(delay_seconds)  # be gentle: the legacy server is dying as it is
+    for page_ids in iter_programme_id_pages(session, pages=pages):
+        page_records = []
+        for programme_id in page_ids:
+            meta = parse_meta_page(fetch(session, f"mediaProgrammeMeta.asp?ID={programme_id}"))
+            if not meta.get("url"):
+                # Current admin layout: the link lives on the media editor
+                time.sleep(delay_seconds)
+                media = resolve_media(session, programme_id)
+                if media:
+                    meta["url"] = media["url"]
+                    meta["thumbnail"] = meta.get("thumbnail") or media["thumbnail"]
+            page_records.append(to_dump_record(programme_id, meta))
+            time.sleep(delay_seconds)  # be gentle: the legacy server is dying as it is
+        page_stats = ingest_programmes(page_records)
+        records.extend(page_records)
+        for key, value in page_stats.items():
+            if isinstance(value, list):
+                stats.setdefault(key, []).extend(value)
+            else:
+                stats[key] = stats.get(key, 0) + value
 
-    return ingest_programmes(records), records
+    return stats, records
