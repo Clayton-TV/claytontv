@@ -171,14 +171,44 @@ Builds on Matt's stalled Typesense exploration (#167) — we own it now, on our 
 - Instant-search UI; advanced filters (bible book, speaker, topic — #7).
 - Exit: search "Romans 8" and find talks whose *transcript* mentions it.
 
-### Epic 6 — UI/UX revamp (adopts tracking issue #164)
-Goal: the design-engineering pass — mobile-first, elderly-first, delightful.
-- Phased per #164: design tokens (#150, incl. fixing the hardcoded dark mode),
-  typography (#151), shadcn theme to Clayton aesthetic, micro-animations with CSS +
-  Vue Motion (#152), video card (#153), nav (#154), homepage (#155), watch page (#156),
-  category/pagination (#157), footer (#159), toasts (#160), image perf (#161), mobile
-  overhaul (#162), empty states (#163), WCAG AA audit (#158).
-- Exit: axe-core/Lighthouse pass, reduced-motion honoured, screenshot review with Ettie.
+### Epic 6 — full redesign (supersedes the #164 "polish the existing layout" framing)
+Goal: redesign the entire site from use cases — not iterate the inherited
+layout. Reference model: **Laracasts, not YouTube** — an editorial content
+library (curation, calm, series-as-courses, one clear next action per screen),
+matching the "media you can trust" brand and the elderly-first/power-depth
+philosophy. Built on shadcn-vue (reka-ui) components, atomic design structure,
+CSS transitions + Vue Motion (@vueuse/motion). Long-term vision to design for
+(not build yet): a multi-church community platform with courses, notes and
+materials.
+
+- ✅ **6.0-pre (done as old phase 1):** interaction hygiene — focus rings,
+  reduced motion, tap targets, mobile overflow fix, lazy images. Carries over.
+- **6.0 Design direction:** IA + page blueprints (home, watch, series, topic,
+  browse, search), type scale (Inria Sans display / Lexend body), spacing
+  system, component inventory. Mockups reviewed with Jamie (+ Ettie) BEFORE
+  rebuild. Personas drive every screen: elderly member ("watch this Sunday's
+  service in two taps"), student/minister ("find every talk on Romans 8").
+- **6.1 Design-system foundation:** finish tokens (incl. light mode values),
+  typography plumbing, install @vueuse/motion, adopt the shadcn component set
+  (Button, Card, Badge, Input, Sheet, Tabs, Skeleton, DropdownMenu, Dialog),
+  atomic directory structure.
+- **6.2 App shell:** header/nav rebuild on reka-ui (SSR-safe — unblocks
+  default-on SSR), mobile Sheet menu, footer, search affordance.
+- **6.3 Homepage:** purpose-led hero + "next service" slot (pairs with Epic 4),
+  curated rails (latest, featured series, topics) — replaces the 1,069-card
+  dump and its 296 KB payload.
+- **6.4 Watch page:** player + structured metadata, series "up next" rail,
+  related content.
+- **6.5 Series & topic pages:** the Laracasts course-page pattern — cover,
+  summary, ordered episode list; topic landing pages.
+- **6.6 Browse + search experience:** filters, instant search UI (fronts the
+  Typesense work in Epic 5).
+- **6.7 Motion pass:** Vue Motion entrances/staggers where they communicate
+  (page-level), CSS for micro-state. <300ms, reduced-motion always.
+- **6.8 Light mode, empty states, image perf, WCAG AA audit** (axe-core +
+  Lighthouse), screenshot review with Ettie.
+- Exit: every #164 sub-issue closed or superseded; Lighthouse a11y/perf pass;
+  sign-off review.
 
 ### Epic 7 — Hardening & cutover readiness
 Goal: beta is the credible successor.
