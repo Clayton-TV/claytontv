@@ -1,10 +1,13 @@
 <script setup>
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import SectionHeading from '@/molecules/SectionHeading.vue';
+import ShareButton from '@/molecules/ShareButton.vue';
 import VideoViewer from '@/organisms/VideoViewer.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Deferred, Head, Link } from '@inertiajs/vue3';
 import { IconBook, IconFileText, IconHeadphones } from '@tabler/icons-vue';
+import { watch as vueWatch } from 'vue';
+import { useWatchHistory } from '~/composables/useWatchHistory';
 
 const props = defineProps({
     video: { type: Object, required: true },
@@ -13,6 +16,15 @@ const props = defineProps({
     resources: { type: Array, required: false, default: () => [] },
     up_next: { type: Object, required: false, default: null },
 });
+
+// Remember that this video has been opened (localStorage; no accounts).
+// Re-fires on SPA navigation between watch pages, where the component is reused.
+const { markWatched } = useWatchHistory();
+markWatched(props.video.id);
+vueWatch(
+    () => props.video.id,
+    (id) => markWatched(id),
+);
 
 const resourceMeta = {
     transcript: { label: 'Read the transcript', icon: IconFileText },
@@ -58,9 +70,12 @@ const entries = (key) => {
                     Streamed
                 </span>
             </div>
-            <p class="mt-2 text-sm text-gray-500 tabular-nums">
-                {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
-            </p>
+            <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-gray-500 tabular-nums">
+                    {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
+                </p>
+                <ShareButton :title="video.name" />
+            </div>
 
             <div class="mt-5 space-y-3">
                 <template v-for="group in metaGroups" :key="group.key">

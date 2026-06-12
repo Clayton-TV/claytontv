@@ -1,12 +1,15 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { IconPlayerPlayFilled } from '@tabler/icons-vue';
+import { IconCheck, IconPlayerPlayFilled } from '@tabler/icons-vue';
+import { useWatchHistory } from '~/composables/useWatchHistory';
 
 defineProps({
     episode: { type: Object, required: true },
     // Display position: episode number where the data has one, else row index
     position: { type: Number, required: true },
 });
+
+const { hasWatched } = useWatchHistory();
 
 const thumb = (episode) => {
     if (episode.thumbnail?.startsWith('http')) return episode.thumbnail;
@@ -41,6 +44,13 @@ const thumb = (episode) => {
         <span class="min-w-0 flex-1">
             <span class="block truncate text-[15px] font-medium text-gray-100">{{ episode.name }}</span>
             <span v-if="episode.date" class="mt-0.5 block text-xs text-gray-500 tabular-nums">{{ episode.date }}</span>
+        </span>
+        <span
+            v-if="hasWatched(episode.id)"
+            class="text-primary mr-1 inline-flex shrink-0 items-center gap-1 text-xs font-medium"
+            title="You've watched this"
+        >
+            <IconCheck class="h-3.5 w-3.5" aria-hidden="true" /> Watched
         </span>
     </Link>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
 import LogoMark from '@/atoms/LogoMark.vue';
-import { IconPlayerPlay } from '@tabler/icons-vue';
+import { IconCheck, IconPlayerPlay } from '@tabler/icons-vue';
+import { useWatchHistory } from '~/composables/useWatchHistory';
 
 defineProps({
     video: {
@@ -8,6 +9,8 @@ defineProps({
         required: true,
     },
 });
+
+const { hasWatched } = useWatchHistory();
 
 const getVideoThumbnail = (video) => {
     if (video.thumbnail?.startsWith('http')) {
@@ -40,6 +43,14 @@ const getVideoThumbnail = (video) => {
 
         <!-- Bottom scrim keeps the play glyph and title legible over any thumbnail -->
         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" aria-hidden="true"></div>
+
+        <!-- Courtesy "watched" tick from localStorage history -->
+        <span
+            v-if="hasWatched(video.id)"
+            class="bg-primary text-primary-foreground absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+        >
+            <IconCheck class="h-3 w-3" aria-hidden="true" /> Watched
+        </span>
 
         <div
             class="absolute inset-0 flex h-min w-min items-center justify-center place-self-center rounded-full bg-black/30 p-2 opacity-90 backdrop-blur-[2px] transition-opacity duration-200 ease-out group-hover:opacity-100"
