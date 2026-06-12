@@ -3,6 +3,7 @@ from .channel import Channel
 from .demograpic import Demographic
 from .label import Label
 from .ministry import Ministry
+from .related_resource import RelatedResource
 from .series import Series
 from .speaker import Speaker
 from .topic import Topic
@@ -15,6 +16,7 @@ __all__ = [
     "Demographic",
     "Label",
     "Ministry",
+    "RelatedResource",
     "Series",
     "Speaker",
     "Topic",

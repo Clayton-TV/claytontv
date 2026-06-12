@@ -48,6 +48,14 @@ class Video(models.Model):
 
     thumbnail = models.TextField(max_length=200, help_text="Thumbnail Location", null=True)
 
+    alternate_urls = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Other places this video is hosted: [{'url': ..., 'platform': 'youtube'|'vimeo'|'other'}]. "
+        "The legacy catalogue holds both a Vimeo and a YouTube copy for most programmes; "
+        "`url` is the primary, these are the rest.",
+    )
+
     date_recorded = models.DateField(null=True, blank=True, help_text="The date the video was recorded.")
     date_created = models.DateField(help_text="The date a video is uploaded.")
     date_modified = models.DateField(null=True, blank=True, help_text=" The last time the video data was edited.")
