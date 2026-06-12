@@ -2,6 +2,7 @@ from .bible_book import Bible_Book
 from .channel import Channel
 from .demograpic import Demographic
 from .label import Label
+from .live_stream import LiveStream
 from .ministry import Ministry
 from .related_resource import RelatedResource
 from .series import Series
@@ -15,6 +16,7 @@ __all__ = [
     "Channel",
     "Demographic",
     "Label",
+    "LiveStream",
     "Ministry",
     "RelatedResource",
     "Series",

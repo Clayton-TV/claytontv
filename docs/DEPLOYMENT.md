@@ -62,3 +62,23 @@ logged-in browser's Cookie header as `LEGACY_ADMIN_COOKIE` (expires; fails
 loudly when it does). Cron (dev user):
 
     17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin --pages 2 >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+
+## YouTube live-stream sync (Epic 4)
+
+`sync_live_streams` keeps the homepage's live/next-service slot honest from
+the YouTube Data API. Two cadences (quota: search costs 100 units/call
+against 10k/day; status refreshes cost 1):
+
+    # hourly discovery (search for new/scheduled broadcasts)
+    7 * * * *   cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_streams --discover >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+    # frequent cheap status refresh (upcoming → live → ended)
+    */5 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_streams >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+
+Auth: `YOUTUBE_API_KEY` in `/srv/beta-claytontv/shared/.env` — an API key
+from the `tgosolutionsltd` Google Cloud project, restricted to the YouTube
+Data API v3 (mint with `gcloud services api-keys create
+--display-name=claytontv-livestreams
+--api-target=service=youtube.googleapis.com`). Without the key the command
+logs a warning and exits 0, so the cron can be armed first. Channels are
+discovered from the catalogue's own recent livestream videos — nothing to
+configure when the church changes channels.
