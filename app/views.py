@@ -46,6 +46,10 @@ def index(request):
         for t in topics_all.annotate(videos_count=Count("video"))
     ]
 
+    # Series link videos through the `Series.videos` M2M (what link_series
+    # populates), NOT the `Video.series` FK (never set by the importer) — so
+    # Count("videos"), not Count("video"). Empty series are dropped: 0-programme
+    # husks were every series card on the live site.
     series_data = [
         {
             "category": [m.name for m in s.ministry.all() if m.name is not None],
@@ -53,7 +57,9 @@ def index(request):
             "videosCount": s.videos_count,
             "url": s.get_absolute_url(),
         }
-        for s in Series.objects.annotate(videos_count=Count("video")).prefetch_related("ministry")
+        for s in Series.objects.annotate(videos_count=Count("videos"))
+        .filter(videos_count__gt=0)
+        .prefetch_related("ministry")
     ]
 
     return render(
