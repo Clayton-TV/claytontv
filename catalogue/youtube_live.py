@@ -13,6 +13,7 @@ Clayton TV is who gets watched.
 
 import os
 import re
+import time
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -26,16 +27,27 @@ SEARCH_RESULTS_PER_TYPE = 10
 YOUTUBE_ID_REGEX = re.compile(r"(?:youtu\.be/|v/|embed/|watch\?v=|&v=)([^#&?/]+)")
 
 
+RETRY_ATTEMPTS = 3
+RETRY_DELAY_SECONDS = 3
+
+
 class YoutubeApiError(RuntimeError):
     pass
 
 
 def api_get(session, endpoint, **params):
+    """GET with retries: YouTube intermittently 403s requests from
+    datacenter IPs ("cannot act on behalf of the specified Google account"
+    — observed ~1 in 3 from app03 with a valid, unrestricted-IP key)."""
     params["key"] = os.environ["YOUTUBE_API_KEY"]
-    response = session.get(f"{API_BASE}/{endpoint}", params=params, timeout=20)
-    if response.status_code != 200:
-        raise YoutubeApiError(f"{endpoint} returned {response.status_code}: {getattr(response, 'text', '')[:300]}")
-    return response.json()
+    response = None
+    for attempt in range(RETRY_ATTEMPTS):
+        if attempt:
+            time.sleep(RETRY_DELAY_SECONDS * attempt)
+        response = session.get(f"{API_BASE}/{endpoint}", params=params, timeout=20)
+        if response.status_code == 200:
+            return response.json()
+    raise YoutubeApiError(f"{endpoint} returned {response.status_code}: {getattr(response, 'text', '')[:300]}")
 
 
 def youtube_id(url):

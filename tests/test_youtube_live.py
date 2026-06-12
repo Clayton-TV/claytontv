@@ -157,6 +157,53 @@ def test_refresh_with_nothing_active_makes_no_api_call(monkeypatch):
     assert session.calls == []
 
 
+class FlakySession:
+    """First N calls 403, then defer to a FakeSession — models the
+    intermittent bot-heuristic 403s YouTube serves to datacenter IPs."""
+
+    def __init__(self, failures, then):
+        self.failures = failures
+        self.then = then
+        self.attempts = 0
+
+    def get(self, url, params=None, timeout=None):
+        self.attempts += 1
+        if self.attempts <= self.failures:
+
+            class Denied:
+                status_code = 403
+                text = "cannot act on behalf"
+
+            return Denied()
+        return self.then.get(url, params=params, timeout=timeout)
+
+
+def test_transient_api_403s_are_retried(monkeypatch):
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setattr("catalogue.youtube_live.RETRY_DELAY_SECONDS", 0)
+    LiveStream.objects.create(video_id="vid12345678", title="Service", channel_id="UC1", status="upcoming")
+    recovered = FakeSession({"videos": {"items": [video_item("vid12345678", started="2026-06-14T10:30:00Z")]}})
+    session = FlakySession(2, recovered)
+
+    refresh_statuses(session)
+
+    assert LiveStream.objects.get(video_id="vid12345678").status == "live"
+    assert session.attempts == 3
+
+
+def test_persistent_api_failure_still_raises(monkeypatch):
+    import pytest as _pytest
+
+    from catalogue.youtube_live import YoutubeApiError
+
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setattr("catalogue.youtube_live.RETRY_DELAY_SECONDS", 0)
+    LiveStream.objects.create(video_id="vid12345678", title="Service", channel_id="UC1", status="upcoming")
+
+    with _pytest.raises(YoutubeApiError):
+        refresh_statuses(FlakySession(99, FakeSession({})))
+
+
 def test_homepage_serves_live_and_next_service(client):
     LiveStream.objects.create(
         video_id="liveNow1234",
