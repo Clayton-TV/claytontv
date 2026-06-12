@@ -4,6 +4,7 @@ import { IconBook2 } from '@tabler/icons-vue';
 
 defineProps({
     series: { type: Object, required: true },
+    countNoun: { type: String, default: 'episode' },
 });
 </script>
 
@@ -20,7 +21,7 @@ defineProps({
             <h3 class="truncate text-[15px] font-semibold text-gray-50">{{ series.name }}</h3>
             <p v-if="series.summary" class="mt-1 line-clamp-2 text-[13px] leading-relaxed text-gray-400">{{ series.summary }}</p>
             <p class="mt-2 inline-block rounded-md bg-white/5 px-2 py-0.5 text-xs text-gray-300 tabular-nums">
-                {{ series.videosCount }} {{ series.videosCount === 1 ? 'episode' : 'episodes' }}
+                {{ series.videosCount }} {{ countNoun }}{{ series.videosCount === 1 ? '' : 's' }}
             </p>
         </div>
     </Link>

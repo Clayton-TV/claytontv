@@ -3,7 +3,8 @@ import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import NextServiceCard from '@/molecules/NextServiceCard.vue';
 import SectionHeading from '@/molecules/SectionHeading.vue';
 import SeriesCard from '@/molecules/SeriesCard.vue';
-import { Link } from '@inertiajs/vue3';
+import { Skeleton } from '@/ui/skeleton';
+import { Link, WhenVisible } from '@inertiajs/vue3';
 import { IconArrowRight } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -73,32 +74,55 @@ const entrance = (delayMs) => ({
             </ul>
         </section>
 
-        <section class="mt-14" aria-label="Featured series">
-            <SectionHeading title="Featured series" more-href="/series" more-label="All series" />
-            <div class="grid gap-5 sm:grid-cols-2">
-                <SeriesCard v-for="series in featured_series" :key="series.url" :series="series" />
-            </div>
-        </section>
+        <!-- Below the fold: props are optional() server-side; WhenVisible
+             fetches them as the visitor scrolls near (buffer in px). -->
+        <WhenVisible data="featured_series" :buffer="300">
+            <template #fallback>
+                <section class="mt-14" aria-label="Featured series">
+                    <Skeleton class="h-8 w-56 bg-white/5" />
+                    <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                        <Skeleton v-for="n in 4" :key="n" class="h-28 rounded-xl bg-white/5" />
+                    </div>
+                </section>
+            </template>
+            <section class="mt-14" aria-label="Featured series">
+                <SectionHeading title="Featured series" more-href="/series" more-label="All series" />
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <SeriesCard v-for="series in featured_series" :key="series.url" :series="series" />
+                </div>
+            </section>
+        </WhenVisible>
 
-        <section class="mt-14 pb-4" aria-label="Browse by topic">
-            <SectionHeading title="Browse by topic" />
-            <div class="flex flex-wrap items-center gap-2.5">
-                <Link
-                    v-for="topic in topics_data"
-                    :key="topic.url"
-                    :href="topic.url"
-                    class="focus-visible:ring-ring inline-flex min-h-11 items-center rounded-full border border-white/15 px-4 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
-                >
-                    {{ topic.name }}
-                </Link>
-                <Link
-                    href="/topic"
-                    class="text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[13px] font-medium outline-none hover:underline focus-visible:ring-2"
-                >
-                    All {{ topics_total }} topics
-                    <IconArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
-                </Link>
-            </div>
-        </section>
+        <WhenVisible :data="['topics_data', 'topics_total']" :buffer="300">
+            <template #fallback>
+                <section class="mt-14 pb-4" aria-label="Browse by topic">
+                    <Skeleton class="h-8 w-56 bg-white/5" />
+                    <div class="mt-5 flex flex-wrap gap-2.5">
+                        <Skeleton v-for="n in 8" :key="n" class="h-11 w-28 rounded-full bg-white/5" />
+                    </div>
+                </section>
+            </template>
+            <section class="mt-14 pb-4" aria-label="Browse by topic">
+                <SectionHeading title="Browse by topic" />
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <Link
+                        v-for="topic in topics_data"
+                        :key="topic.url"
+                        :href="topic.url"
+                        prefetch
+                        class="focus-visible:ring-ring inline-flex min-h-11 items-center rounded-full border border-white/15 px-4 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                    >
+                        {{ topic.name }}
+                    </Link>
+                    <Link
+                        href="/topic"
+                        class="text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[13px] font-medium outline-none hover:underline focus-visible:ring-2"
+                    >
+                        All {{ topics_total }} topics
+                        <IconArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
+                    </Link>
+                </div>
+            </section>
+        </WhenVisible>
     </div>
 </template>
