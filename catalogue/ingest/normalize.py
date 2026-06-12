@@ -13,10 +13,16 @@ _DEPTH_PREFIX = re.compile(r"^[\s−\-]+")  # noqa: RUF001 — U+2212 is what th
 _WHITESPACE = re.compile(r"\s+")
 
 
+def clean_text(value):
+    """Strip NUL bytes (present in legacy descriptions; PostgreSQL rejects
+    them, SQLite silently tolerated them)."""
+    return (value or "").replace("\x00", "")
+
+
 def clean_name(value):
     """Collapse internal whitespace and strip — fixes 'Christian LIfe '-style
     near-duplicates born of trailing/double spaces."""
-    return _WHITESPACE.sub(" ", (value or "").strip())
+    return _WHITESPACE.sub(" ", clean_text(value).strip())
 
 
 def clean_topic_name(value):

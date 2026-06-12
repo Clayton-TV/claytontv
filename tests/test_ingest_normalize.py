@@ -32,3 +32,10 @@ def test_platform_detection():
     assert detect_platform("https://vimeo.com/97323692") == "vimeo"
     assert detect_platform("https://www.youtube.com/watch?v=abc") == "youtube"
     assert detect_platform("https://example.com/video.mp4") == "other"
+
+
+def test_clean_text_strips_nul_bytes_that_postgres_rejects():
+    from catalogue.ingest.normalize import clean_text
+
+    assert clean_text("Sermon\x00 notes") == "Sermon notes"
+    assert clean_name("Speaker\x00 Name ") == "Speaker Name"

@@ -14,7 +14,7 @@ from django.db.models import Q
 
 from catalogue.models import Bible_Book, RelatedResource, Speaker, Topic, Video
 
-from .normalize import clean_name, clean_topic_name, detect_platform
+from .normalize import clean_name, clean_text, clean_topic_name, detect_platform
 
 
 def parse_date(value):
@@ -54,7 +54,7 @@ def ingest_programme(programme, stats):
     fields = {
         "id_number": clean_name(programme.get("ref")),
         "name": clean_name(programme.get("name")),
-        "description": programme.get("description") or "",
+        "description": clean_text(programme.get("description")),
         "url": primary["url"],
         "alternate_urls": [{"url": m["url"], "platform": detect_platform(m["url"])} for m in rest],
         "thumbnail": programme.get("image") or primary.get("image"),
