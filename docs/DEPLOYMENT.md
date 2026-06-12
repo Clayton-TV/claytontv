@@ -47,3 +47,17 @@ checkout; see the workflow file — it is the single source of truth.
 - 4 GB swapfile, swappiness 10.
 - unattended-upgrades handles security patches; full apt upgrades are manual
   (quiet-hour, other sites share the box).
+
+## Legacy admin incremental sync (Epic 2.3)
+
+While clayton.tv survives, beta stays current via `sync_live_admin` (cron,
+hourly): it pulls the newest-modified programmes from the legacy admin and
+feeds them through the same idempotent upsert core as the dump ingest.
+
+Auth: set `LEGACY_ADMIN_COOKIE` in `/srv/beta-claytontv/shared/.env` to a
+logged-in browser's Cookie header for clayton.tv/adminsection (DevTools →
+Network → any adminsection request → Request Headers → cookie). Expired
+sessions fail loudly with "refresh LEGACY_ADMIN_COOKIE" — re-paste and it
+resumes. Cron (dev user):
+
+    17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin --pages 2 >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
