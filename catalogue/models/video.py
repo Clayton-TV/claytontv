@@ -82,7 +82,7 @@ class Video(models.Model):
 
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the video"""
-        return reverse("video-detail", args=[str(self.id)])
+        return reverse("video", args=[str(self.id)])
 
     def display_topic(self):
         """Create a string for the topics. This is required to display topics in Admin."""

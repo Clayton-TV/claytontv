@@ -24,10 +24,25 @@ dev = [
     "ruff>=0.11",
     "pytest>=8.3",
     "pytest-django>=4.11",
+    "pytest-cov>=6.0",
+    "factory-boy>=3.3",
 ]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.test_settings"
+
+[tool.coverage.run]
+source = ["app", "catalogue", "livestreams"]
+omit = [
+    "*/migrations/*",
+    "app/wsgi.py",
+    "app/asgi.py",
+    "app/*settings*.py",
+    "*/management/commands/*",
+]
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local_settings"
