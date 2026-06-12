@@ -32,9 +32,13 @@
   mockup, typography roles (Lexend/Inria), new app shell (reka-ui Sheet nav —
   Headless UI gone, SSR mismatch source removed), curated homepage (props
   299 KB → 6.1 KB). Vue Motion deferred to 6.7 by design decision.
-  ▶️ **Next: Epic 6.4 watch page + 6.5 series/topic course pages (the visual
-  heart of the redesign); then Epic 2 importer rework. SSR default-on
-  candidate now the nav is reka-ui — verify hydration then enable.**
+- ✅ Epic 6.4 + cohesion slice deployed (#178): watch page redesigned with a
+  deferred "More in this series" rail (first Inertia v3 deferred prop),
+  Browse/Search restyled to the language, hover prefetch across nav/cards/
+  chips.
+  ▶️ **Next: Epic 6.5 series/topic course landing pages (CategoriesBrowse
+  rework); Epic 2 importer rework; SSR default-on candidate (nav is reka-ui
+  now — verify hydration then enable).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
