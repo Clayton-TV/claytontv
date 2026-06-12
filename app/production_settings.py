@@ -8,6 +8,18 @@ from .base_settings import *  # noqa: F403
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
+# Error tracking (self-hosted, sentry.tgo.dev). Activates only when a DSN is
+# present in the environment, so local/CI runs are unaffected.
+if os.getenv("SENTRY_DSN"):
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=os.environ["SENTRY_DSN"],
+        environment=os.getenv("SENTRY_ENVIRONMENT", "beta"),
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")),
+        send_default_pii=False,
+    )
+
 # Django wildcard syntax is a leading dot (".example.com" matches subdomains);
 # the previous "*.claytontv.co.uk" entry matched nothing.
 ALLOWED_HOSTS = ["claytontv.test", "claytontv.co.uk", ".claytontv.co.uk"]
@@ -35,6 +47,10 @@ else:
         "default": dj_database_url.config(
             default=os.getenv("DATABASE_URL"),
             conn_max_age=600,
+            # Pooled connections must be health-checked: a postgres restart
+            # during the 2026-06-12 apt upgrade left every worker serving a
+            # dead connection ("SSL connection has been closed unexpectedly").
+            conn_health_checks=True,
         ),
     }
 

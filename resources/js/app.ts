@@ -2,6 +2,7 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createApp, createSSRApp, DefineComponent, h } from 'vue';
+import { initializeAnalytics } from '~/lib/analytics';
 import { resolvePageComponent } from '~/lib/inertia-helper';
 import { initializeTheme } from './composables/useAppearance';
 
@@ -41,3 +42,4 @@ createInertiaApp({
 });
 
 initializeTheme();
+initializeAnalytics();
