@@ -6,13 +6,12 @@ from tests.utils import inertia_page
 pytestmark = pytest.mark.django_db
 
 
-def test_homepage_renders_welcome_with_catalogue_props(client):
-    series = SeriesFactory(name="Romans for Everyone")
+def test_homepage_renders_curated_welcome_props(client):
+    series = SeriesFactory(name="Romans for Everyone", summary="A walk through Romans.")
     topic = TopicFactory(name="Grace")
     video = VideoFactory(name="Romans 8 - More Than Conquerors")
     video.topic.add(topic)
     series.videos.add(video)
-    VideoFactory(name="Sunday Live", is_livestream=True)
 
     response = client.get("/")
 
@@ -30,12 +29,15 @@ def test_homepage_renders_welcome_with_catalogue_props(client):
     assert topic_entry["name"] == "Grace"
     assert topic_entry["videosCount"] == 1
 
-    (series_entry,) = props["series_data"]
+    (series_entry,) = props["featured_series"]
     assert series_entry["name"] == "Romans for Everyone"
+    assert series_entry["summary"] == "A walk through Romans."
     assert series_entry["videosCount"] == 1
 
+    assert props["topics_total"] == 1
 
-def test_homepage_counts_videos_linked_via_the_video_side(client):
+
+def test_homepage_counts_videos_linked_via_the_importer_relations(client):
     """Counts must use the relations the IMPORTER writes, which differ per model:
     topics link via Video.topic (link_videos), series via the Series.videos M2M
     (link_series). Counting the wrong relation made every series show 0."""
@@ -49,18 +51,26 @@ def test_homepage_counts_videos_linked_via_the_video_side(client):
     page = inertia_page(client.get("/"))
 
     assert page["props"]["topics_data"][0]["videosCount"] == 3
-    assert page["props"]["series_data"][0]["videosCount"] == 3
+    assert page["props"]["featured_series"][0]["videosCount"] == 3
 
 
-def test_homepage_omits_series_with_no_videos(client):
-    SeriesFactory(name="Populated")  # empty husk
-    populated = SeriesFactory(name="Has Videos")
-    populated.videos.add(VideoFactory())
+def test_homepage_is_curated_not_exhaustive(client):
+    """The previous homepage shipped every series (1,069 cards, ~300 kB of
+    props). The redesign sends a curated slice; browsing lives one click deeper."""
+    for series in SeriesFactory.create_batch(10):
+        series.videos.add(VideoFactory())
+    for topic in TopicFactory.create_batch(20):
+        video = VideoFactory()
+        video.topic.add(topic)
+    SeriesFactory(name="Empty husk")  # no videos → never featured
 
-    page = inertia_page(client.get("/"))
+    props = inertia_page(client.get("/"))["props"]
 
-    names = [s["name"] for s in page["props"]["series_data"]]
-    assert names == ["Has Videos"]
+    assert len(props["featured_series"]) == 4
+    assert len(props["topics_data"]) == 12
+    assert len(props["latest_videos"]) == 6
+    assert "Empty husk" not in [s["name"] for s in props["featured_series"]]
+    assert props["topics_total"] == 20
 
 
 def test_homepage_query_count_does_not_grow_with_catalogue_size(client, django_assert_max_num_queries):
@@ -70,7 +80,7 @@ def test_homepage_query_count_does_not_grow_with_catalogue_size(client, django_a
     matter how many topics/series exist."""
     TopicFactory.create_batch(20)
     for series in SeriesFactory.create_batch(20):
-        VideoFactory(series=series)
+        series.videos.add(VideoFactory())
 
     with django_assert_max_num_queries(8):
         response = client.get("/")

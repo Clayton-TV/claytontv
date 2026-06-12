@@ -30,50 +30,49 @@ def video_card_props(videos):
 
 
 def index(request):
-    # The homepage "Watch Live" section is for streams that are live or about
-    # to start — state we only get from the YouTube Data API (Epic 4). Until
-    # then it stays hidden rather than presenting old recordings as live.
-    # Past streams remain browsable at /livestreams.
-    livestreams = Video.objects.none()
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:10]
-    topics_all = Topic.objects.all()
+    """Curated homepage: a few of the latest videos, a handful of featured
+    series and topics. Everything else is one click deeper — the previous
+    everything-dump shipped ~300 kB of props and 1,069 series cards.
 
-    # Counts are annotated and ministries prefetched: per-row queries here once
-    # ran ~2,250 queries against the full catalogue and wedged every worker.
-    topics_data = [
-        {
-            "category": t.category,
-            "name": t.name,
-            "videosCount": t.videos_count,
-            "url": t.get_absolute_url(),
-        }
-        for t in topics_all.annotate(videos_count=Count("video"))
-    ]
+    `livestreams` is for genuinely live/upcoming broadcasts (YouTube API,
+    Epic 4); until then it stays empty rather than presenting recordings as
+    live. Series counts use the Series.videos M2M (what link_series populates);
+    topic counts use the reverse of Video.topic (what link_videos populates).
+    """
+    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:6]
 
-    # Series link videos through the `Series.videos` M2M (what link_series
-    # populates), NOT the `Video.series` FK (never set by the importer) — so
-    # Count("videos"), not Count("video"). Empty series are dropped: 0-programme
-    # husks were every series card on the live site.
-    series_data = [
+    featured_series = [
         {
-            "category": [m.name for m in s.ministry.all() if m.name is not None],
             "name": s.name,
+            "summary": s.summary,
             "videosCount": s.videos_count,
             "url": s.get_absolute_url(),
         }
         for s in Series.objects.annotate(videos_count=Count("videos"))
         .filter(videos_count__gt=0)
-        .prefetch_related("ministry")
+        .order_by("-videos_count")[:4]
+    ]
+
+    topics_data = [
+        {
+            "name": t.name,
+            "videosCount": t.videos_count,
+            "url": t.get_absolute_url(),
+        }
+        for t in Topic.objects.annotate(videos_count=Count("video"))
+        .filter(videos_count__gt=0)
+        .order_by("-videos_count")[:12]
     ]
 
     return render(
         request,
         "Welcome",
         {
-            "livestreams": video_card_props(livestreams),
+            "livestreams": [],
             "latest_videos": video_card_props(latest_videos),
+            "featured_series": featured_series,
             "topics_data": topics_data,
-            "series_data": series_data,
+            "topics_total": Topic.objects.count(),
         },
     )
 
@@ -91,7 +90,8 @@ def browse_all_livestreams(request):
         "Browse",
         {
             "title": "Past Live Streams",
-            "description": f"Recordings of previous live services, most recent first (page {page_num} of {paginator.num_pages})",
+            "description": f"Recordings of previous live services, most recent first "
+            f"(page {page_num} of {paginator.num_pages})",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),

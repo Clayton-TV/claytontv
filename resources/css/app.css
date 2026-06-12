@@ -1,10 +1,12 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-sans: "Inria Sans", ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Lexend for reading (body), Inria Sans as the display voice (headings/brand) */
+    --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Inria Sans', 'Lexend', ui-sans-serif, system-ui, sans-serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -74,7 +76,7 @@
 @layer utilities {
     body,
     html {
-        --font-sans: 'Inria Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     }
 }
 
@@ -108,7 +110,7 @@
     --sidebar-primary: oklch(0.637 0.237 25.331);
     --sidebar-primary-foreground: oklch(0.971 0.013 17.38);
     --sidebar-accent: oklch(0.967 0.001 286.375);
-    --sidebar-accent-foreground: oklch(0.);
+    --sidebar-accent-foreground: oklch(0);
     --sidebar-border: oklch(0.92 0.004 286.32);
     --sidebar-ring: oklch(0.637 0.237 25.331);
 }
@@ -174,5 +176,3 @@
         @apply h-full;
     }
 }
-
-
