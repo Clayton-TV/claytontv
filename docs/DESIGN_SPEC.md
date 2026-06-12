@@ -109,7 +109,16 @@ for this niche, enormous value for P3; no other church platform does it well.
 Index shipped. Detail: header + their series + latest. Channels (provenance)
 fold into ministry pages as "where they publish" (Epic 2/3).
 
-### Latest — home's "view all". Keep as is.
+### Latest — "What's new since Sunday?" (P1 weekly returner, P2 explorer)
+~~Keep as is~~ — superseded (June 2026): a flat paginated wall answers no
+one's question. Becomes a **feed with a spine**:
+- Group by time, editorially: "This week" / "Last week" / "Earlier in June" —
+  people think "two Sundays ago", never "page 3".
+- Collapse series floods: 4 livestreams from one series = one series row
+  ("4 new in *Romans*"), not four near-identical cards.
+- "New since your last visit" divider from a localStorage timestamp — quiet
+  rule line; pairs with watched ticks, still no accounts.
+- Facet chips (speaker / ministry / talks-vs-streams) via partial reloads.
 
 ### Past live streams — becomes **Services** when E4 lands (live state +
 schedule + archive in one page). Defer redesign to E4.
@@ -133,6 +142,39 @@ P3 feature. Pattern: Algolia DocSearch interaction grammar.
 | Text-size control (#23) | P1 | S | 6.8 with the a11y audit |
 | Report a problem (#83) | trust | S | watch page footer |
 | Empty/error states with next actions | all | S | 6.8 |
+
+## Connected app layer (June 2026)
+
+The destination pages made good reading rooms; this layer makes them one
+app. The load-bearing fact: our Inertia setup uses **persistent layouts**
+(resources/js/app.ts) — AppLayout never remounts across navigations, so
+things mounted there survive page changes. Everything below is invisible
+until invoked: the calm elderly-first surface stays calm; depth is for P3.
+
+1. **Player API layer — the keystone.** `usePlayer` composable wrapping the
+   YouTube iframe API + Vimeo player SDK (both postMessage). Unlocks in one
+   stroke: true resume positions, watched-at-80% (replaces watched-on-open),
+   autoplay-next (series become real playlists), keyboard playback control,
+   mini-player scrubbing. Build first; everything else hangs off it.
+2. **Persistent mini-player.** The iframe lives in AppLayout at fixed
+   position; the watch page renders a placeholder the player positions over
+   (a moved iframe reloads; a repositioned one doesn't). Navigate away →
+   player animates to bottom corner: scrub bar, title, next, close,
+   maximize-returns-to-watch. The minimize transition is motion-as-
+   information: it tells you the video kept playing. Laracasts feel; right
+   for long-form audio-led teaching.
+3. **Command palette + global shortcuts.** Header search expands to a
+   centre-screen ⌘K modal (shadcn-vue `Command`): fuzzy search across
+   videos/series/speakers/books/topics + actions ("Resume: …"). Shortcuts
+   (only when not typing): ⌘K, `/`, space, ←/→ ±10s, m, f, esc minimize,
+   n next-in-series, ? help sheet.
+4. **Transcript embeddings — the 100x.** Rescued transcripts → sentence-
+   transformers → pgvector: semantic search over *what was said* ("anxiety"
+   finds the sermon that never used the word), genuinely-related videos,
+   palette answers. Separate backend epic; the P3 reason-to-use-the-site.
+
+Order: Latest regroup → player API → palette/shortcuts → mini-player →
+embeddings (parallel backend track).
 
 ## Data the designs are waiting on (feeds Epic 2's importer rework)
 
