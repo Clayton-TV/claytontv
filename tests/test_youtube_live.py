@@ -229,6 +229,36 @@ def test_homepage_serves_live_and_next_service(client):
     assert props["next_service"]["title"] == "Evening Service"
 
 
+def test_next_service_starting_soon_is_flagged(client):
+    """Within the pre-service window the card offers the stream's waiting
+    room (countdown, auto-starts) instead of a static schedule."""
+    from django.utils import timezone
+
+    LiveStream.objects.create(
+        video_id="soonNow1234",
+        title="Morning Service",
+        channel_id="UC1",
+        status="upcoming",
+        scheduled_start=timezone.now() + datetime.timedelta(minutes=10),
+    )
+
+    next_service = inertia_page(client.get("/"))["props"]["next_service"]
+
+    assert next_service["starts_soon"] is True
+
+
+def test_next_service_well_ahead_is_not_soon(client):
+    LiveStream.objects.create(
+        video_id="later1234567",
+        title="Evening Service",
+        channel_id="UC1",
+        status="upcoming",
+        scheduled_start=datetime.datetime(2099, 1, 1, tzinfo=datetime.UTC),
+    )
+
+    assert inertia_page(client.get("/"))["props"]["next_service"]["starts_soon"] is False
+
+
 def test_homepage_next_service_ignores_past_schedules(client):
     LiveStream.objects.create(
         video_id="past1234567",

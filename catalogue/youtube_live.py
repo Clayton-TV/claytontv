@@ -14,6 +14,7 @@ Clayton TV is who gets watched.
 import os
 import re
 import time
+from datetime import timedelta
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -21,6 +22,7 @@ from django.utils.dateparse import parse_datetime
 from catalogue.models import LiveStream, Video
 
 API_BASE = "https://youtube.googleapis.com/youtube/v3"
+STARTS_SOON_WINDOW = timedelta(minutes=30)
 CHANNEL_SAMPLE = 50  # recent livestream videos to derive channels from
 SEARCH_RESULTS_PER_TYPE = 10
 
@@ -166,6 +168,10 @@ def homepage_live_props():
             "title": upcoming.title,
             "url": upcoming.url,
             "scheduled_start": upcoming.scheduled_start,
+            # Inside the pre-service window the card embeds the stream's
+            # waiting room (countdown; starts by itself when live) instead
+            # of a static schedule
+            "starts_soon": upcoming.scheduled_start <= timezone.now() + STARTS_SOON_WINDOW,
         }
         if upcoming
         else None
