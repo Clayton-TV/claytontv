@@ -39,9 +39,12 @@
 - ✅ Epic 6.5 deployed (#179): /series course landing + /series/<name> course
   pages + /topic grouped chips. Fixed the series zero-episode bug (third face
   of the decoy-relation trap) and the browse_categories N+1 sweep.
-  ▶️ **Next: Epic 2 importer rework (quirk list is now long and concrete);
-  remaining 6.5b (speakers/books/ministries landings), 6.7 motion pass,
-  6.8 light mode + a11y audit; SSR default-on verify.**
+- ✅ Epic 6.5b deployed (#180): Speakers/Books/Ministries directories, IA
+  consolidation (demographics → Topics audiences; /catalogue deleted; channels
+  demoted), homepage below-fold sections scroll-deferred via optional() +
+  WhenVisible. Every public page now speaks the design language.
+  ▶️ **Next: Epic 2 importer rework (quirk ledger ready); then 6.7 motion
+  pass, 6.8 light mode + a11y audit, SSR default-on verify.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
