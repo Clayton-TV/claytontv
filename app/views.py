@@ -102,6 +102,41 @@ def browse_all_latest(request):
     return render(request, "LatestFeed", {"title": "Latest", **latest_feed(page_num)})
 
 
+def next_in_series(video_object, series=None):
+    """The episode after this one in course order, or None at the end.
+
+    Series→video links live on the Series.videos M2M (no reverse accessor
+    from Video: related_name="+"). Course order matches the series page,
+    sorted in Python because SQLite and Postgres disagree on where NULL
+    episode numbers land.
+    """
+    series = series or Series.objects.filter(videos=video_object).first()
+    if series is None:
+        return None
+    episodes = list(series.videos.all())
+    episodes.sort(
+        key=lambda v: (
+            v.number_in_series is None,
+            v.number_in_series or 0,
+            v.date_recorded or v.date_created,
+            v.id,
+        )
+    )
+    position = [v.id for v in episodes].index(video_object.id)
+    return episodes[position + 1] if position + 1 < len(episodes) else None
+
+
+def video_next(request, id):
+    """JSON next-episode lookup so the mini-player can chain episodes while
+    the viewer browses elsewhere — no page navigation involved."""
+    try:
+        video_object = Video.objects.get(id=id)
+    except Video.DoesNotExist:
+        return JsonResponse({"error": "not found"}, status=404)
+    following = next_in_series(video_object)
+    return JsonResponse({"next": video_card_props([following])[0] if following else None})
+
+
 PALETTE_LIMIT = 6
 
 
@@ -250,24 +285,10 @@ def video(request, id):
         resources = [{"kind": r.kind, "url": r.url} for r in video_object.related_resources.order_by("kind")]
 
         def up_next():
-            # Series→video links live on the Series.videos M2M (no reverse
-            # accessor from Video: related_name="+"), so filter by membership.
             series = Series.objects.filter(videos=video_object).first()
             if series is None:
                 return None
-            # Course order, matching the series page. Sorted in Python because
-            # SQLite and Postgres disagree on where NULL episode numbers land.
-            episodes = list(series.videos.all())
-            episodes.sort(
-                key=lambda v: (
-                    v.number_in_series is None,
-                    v.number_in_series or 0,
-                    v.date_recorded or v.date_created,
-                    v.id,
-                )
-            )
-            position = [v.id for v in episodes].index(video_object.id)
-            following = episodes[position + 1] if position + 1 < len(episodes) else None
+            following = next_in_series(video_object, series)
             return {
                 "series": {"name": series.name, "url": series.get_absolute_url()},
                 "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by("-date_recorded")[:6]),

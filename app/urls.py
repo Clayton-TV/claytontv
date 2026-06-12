@@ -39,6 +39,7 @@ from .views import (
     speakers_index,
     topics_index,
     video,
+    video_next,
 )
 
 urlpatterns = [
@@ -48,6 +49,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("api/palette", palette, name="palette"),
+    path("api/video/<int:id>/next", video_next, name="video_next"),
     path("video/<int:id>", video, name="video"),
     path("book/<str:id>", browse_bible_book, name="browse_bible_book"),
     path("channel/<str:id>", browse_channel, name="browse_channel"),

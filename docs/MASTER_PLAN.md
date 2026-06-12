@@ -91,9 +91,18 @@
   localStorage progress. Vendored command+dialog ui components (registry
   fetch; CLI needs components.json we don't keep) with one patch: re-filter
   on async item registration.
-  ▶️ **Next in 6.9: persistent mini-player → continue-watching rail on the
-  homepage; transcript embeddings as a parallel backend track (folds into
-  Epic 5). Then 6.7 motion pass and 6.8
+- ✅ 6.9 slice 4 (#191): the persistent mini-player. One shared player lives
+  in AppLayout (PersistentPlayer + usePlayerDock); watch pages register a
+  placeholder it docks over. Navigate while playing → it floats bottom-right
+  (title, scrub, pause, next, expand, close) and KEEPS PLAYING; episodes
+  chain in-place via /api/video/<id>/next; maximize re-docks with zero
+  interruption; pause-then-leave closes it. Playback keys are global now.
+  Verified end-to-end in Claude Preview (continuity measured via progress
+  heartbeat across navigations).
+  ▶️ **Next in 6.9: continue-watching rail on the homepage (localStorage ids
+  + a videos-by-id endpoint); transcript embeddings as a parallel backend
+  track (folds into Epic 5). Then 6.7 motion pass (incl. FLIP morph for the
+  dock↔mini transition) and 6.8
   light mode + empty states + WCAG audit close Epic 6. Epic 2
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
