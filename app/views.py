@@ -556,8 +556,13 @@ def ministries_index(request):
 def browse_series(request, id):
     decoded_id = unquote(id)
 
+    # Canonical route is by id_number (names collide); old name-based links
+    # still resolve as a fallback.
+    series_qs = Series.objects.annotate(videos_count=Count("videos"))
     try:
-        series = Series.objects.annotate(videos_count=Count("videos")).get(name=decoded_id)
+        series = series_qs.filter(id_number=decoded_id).first() or series_qs.filter(name=decoded_id).first()
+        if series is None:
+            raise Series.DoesNotExist(f"No series with id or name '{decoded_id}'")
     except Series.DoesNotExist as e:
         return render(
             request,
