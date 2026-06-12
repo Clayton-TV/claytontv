@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { SharedData } from '@/types';
 import { SidebarProvider } from '@/ui/sidebar';
 import { usePage } from '@inertiajs/vue3';
-import { SharedData } from '@/types';
 
 interface Props {
     variant?: 'header' | 'sidebar';

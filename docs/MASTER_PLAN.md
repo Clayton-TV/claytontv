@@ -75,13 +75,19 @@
   intended answer.
 - ✅ Quick wins deployed (#187): share button (native sheet + copy/WhatsApp)
   and localStorage watched-memory (ticks on cards + episode rows), no accounts.
-  ▶️ **Next: the Connected App Layer (6.9, spec'd in DESIGN_SPEC.md §
-  "Connected app layer", approved 2026-06-12): Latest feed regroup → usePlayer
-  API layer (true resume, watched-at-80%, autoplay) → command palette +
-  shortcuts → persistent mini-player; transcript embeddings as a parallel
-  backend track (folds into Epic 5). The "continue watching" rail rides on
-  the player layer. Then 6.7 motion pass and 6.8 light mode + empty states +
-  WCAG audit close Epic 6. Epic 2
+- ✅ 6.9 slice 1 deployed (#188): Latest is a time-grouped feed with
+  series-flood collapse and a new-since-last-visit divider.
+- ✅ 6.9 slice 2 (#189): the player API layer — usePlayer over the YouTube
+  iframe API + Vimeo SDK; true resume ("Resuming from 14:32 · Start over"),
+  watched-at-80% (replaces watched-on-open), autoplay-next through a series,
+  playback keys (space/k, ←/→, m). Verified end-to-end in Claude Preview:
+  a 42s episode played out, ended, navigated, and the next episode autoplayed.
+  NOTE: Claude-in-Chrome cannot stream media (player UIs load, media stalls) —
+  use Claude Preview for playback verification.
+  ▶️ **Next in 6.9: command palette (⌘K, shadcn Command) + global shortcuts →
+  persistent mini-player → continue-watching rail; transcript embeddings as a
+  parallel backend track (folds into Epic 5). Then 6.7 motion pass and 6.8
+  light mode + empty states + WCAG audit close Epic 6. Epic 2
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
   orphans + identical browse-tree twins collapsed in the ingestion.)
