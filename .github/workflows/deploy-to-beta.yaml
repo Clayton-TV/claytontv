@@ -1,0 +1,132 @@
+name: Deploy to Beta
+
+on:
+  push:
+    branches:
+      - beta
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel an in-flight deploy
+
+jobs:
+  deploy:
+    name: Deploy to Beta
+    runs-on: ubuntu-latest
+    environment: beta
+
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      BASE_PATH: '/srv/beta-claytontv'
+      GUNICORN_SERVICE: 'gunicorn-claytontv-beta.service'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build-only
+
+      - name: Configure SSH
+        run: |
+          echo "-----> Configuring SSH"
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/private
+          chmod 600 ~/.ssh/private
+          touch ~/.ssh/config
+          echo "Host host" > ~/.ssh/config
+          echo "  Hostname ${SSH_HOST}" >> ~/.ssh/config
+          echo "  Port ${SSH_PORT}" >> ~/.ssh/config
+          echo "  User ${SSH_USER}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/private" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Deploy to server
+        run: |
+          RELEASE_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          REMOTE_RELEASES_DIR="${BASE_PATH}/releases"
+          CURRENT_RELEASE_DIR="${REMOTE_RELEASES_DIR}/${RELEASE_TIMESTAMP}"
+          CURRENT_SYMLINK="${BASE_PATH}/current"
+
+          echo "-----> Creating new release directory: ${CURRENT_RELEASE_DIR}"
+          ssh host -f "mkdir -p ${CURRENT_RELEASE_DIR}"
+
+          echo "-----> Rsyncing files to the server"
+          rsync -avz --delete \
+            --exclude=".env" \
+            --exclude=".venv" \
+            --exclude=".git/" \
+            --exclude=".github/" \
+            --exclude="node_modules/" \
+            --exclude="*.pyc" \
+            --exclude="__pycache__/" \
+            --exclude=".DS_Store" \
+            --exclude="db.sqlite3" \
+            --exclude="staticfiles_collected/" \
+            --exclude="bootstrap/" \
+            --exclude="*.log" \
+            . host:${CURRENT_RELEASE_DIR}/
+
+          echo "-----> Executing remote deployment"
+          ssh host bash << EOF
+            set -e
+
+            echo "----> Changing to release directory"
+            cd ${CURRENT_RELEASE_DIR}
+
+            echo "----> Installing dependencies (uv: locked, no dev group)"
+            uv sync --locked --no-dev
+
+            echo "----> Symlinking .env file"
+            ln -sf ${BASE_PATH}/shared/.env ${CURRENT_RELEASE_DIR}/.env
+
+            echo "----> Symlinking media directory"
+            ln -sfn ${BASE_PATH}/shared/media ${CURRENT_RELEASE_DIR}/media
+
+            echo "----> Collecting static files"
+            .venv/bin/python manage.py collectstatic --noinput
+
+            echo "----> Backing up the database before migrating"
+            DATABASE_URL=\$(grep -E "^DATABASE_URL=" ${BASE_PATH}/shared/.env | cut -d= -f2-)
+            pg_dump "\${DATABASE_URL}" | gzip > ${BASE_PATH}/shared/backups/pre-migrate-${RELEASE_TIMESTAMP}.sql.gz
+            ls -dt ${BASE_PATH}/shared/backups/*.sql.gz | tail -n +8 | xargs -r rm -f
+
+            echo "----> Running database migrations"
+            .venv/bin/python manage.py migrate --noinput
+
+            echo "----> Updating symlink to current release"
+            ln -snf ${CURRENT_RELEASE_DIR} ${CURRENT_SYMLINK}_new
+            mv -Tf ${CURRENT_SYMLINK}_new ${CURRENT_SYMLINK}
+
+            echo "----> Restart Gunicorn"
+            sudo systemctl restart ${GUNICORN_SERVICE}
+
+            echo "----> Cleaning up old releases (keep 5)"
+            ls -dt ${REMOTE_RELEASES_DIR}/* | tail -n +6 | xargs -r rm -rf
+
+            echo "----> Deployment complete!"
+          EOF
+
+      - name: Smoke test
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://beta.claytontv.co.uk/)
+          echo "beta.claytontv.co.uk returned HTTP ${STATUS}"
+          test "${STATUS}" = "200"
