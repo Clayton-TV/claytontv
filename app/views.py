@@ -4,6 +4,8 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from inertia import defer, optional, render
 
+from app.cards import video_card_props
+from app.feed import latest_feed
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
 from catalogue.models.demograpic import Demographic
@@ -15,19 +17,6 @@ from catalogue.models.video import Video
 from catalogue.passages import parse_passage, passage_label
 
 pagination_per_page = 24
-
-VIDEO_CARD_FIELDS = ("id", "name", "url", "thumbnail", "date_recorded", "date_created", "is_livestream")
-
-
-def video_card_props(videos):
-    """Serialize videos to the fields the card components render.
-
-    Passing full Video objects to Inertia serializes every M2M relation,
-    costing ~5 extra queries per video.
-    """
-    if hasattr(videos, "values"):
-        return list(videos.values(*VIDEO_CARD_FIELDS))
-    return [{field: getattr(video, field) for field in VIDEO_CARD_FIELDS} for video in videos]
 
 
 def index(request):
@@ -105,24 +94,11 @@ def browse_all_livestreams(request):
 
 
 def browse_all_latest(request):
-    paginator = Paginator(Video.objects.filter(is_livestream=False).order_by("-date_recorded"), pagination_per_page)
-    page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
-    paginated = paginator.page(page_num)
-    return render(
-        request,
-        "Browse",
-        {
-            "title": "Latest Videos",
-            "description": f"All videos, most recent first (page {page_num} of {paginator.num_pages})",
-            "videos": video_card_props(paginated.object_list),
-            "has_prev_page": paginated.has_previous(),
-            "has_next_page": paginated.has_next(),
-        },
-    )
+    return render(request, "LatestFeed", {"title": "Latest", **latest_feed(page_num)})
 
 
 def search(request):

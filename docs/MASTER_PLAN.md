@@ -75,10 +75,13 @@
   intended answer.
 - ✅ Quick wins deployed (#187): share button (native sheet + copy/WhatsApp)
   and localStorage watched-memory (ticks on cards + episode rows), no accounts.
-  ▶️ **Next: 6.7 motion pass (Vue Motion returns for interactive moments),
-  6.8 light mode + empty states + WCAG audit (closes Epic 6). Remaining spec
-  win: localStorage "continue watching" rail (needs a small video-by-ids
-  endpoint). Epic 2
+  ▶️ **Next: the Connected App Layer (6.9, spec'd in DESIGN_SPEC.md §
+  "Connected app layer", approved 2026-06-12): Latest feed regroup → usePlayer
+  API layer (true resume, watched-at-80%, autoplay) → command palette +
+  shortcuts → persistent mini-player; transcript embeddings as a parallel
+  backend track (folds into Epic 5). The "continue watching" rail rides on
+  the player layer. Then 6.7 motion pass and 6.8 light mode + empty states +
+  WCAG audit close Epic 6. Epic 2
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
   orphans + identical browse-tree twins collapsed in the ingestion.)
@@ -256,6 +259,16 @@ materials.
   summary, ordered episode list; topic landing pages.
 - **6.6 Browse + search experience:** filters, instant search UI (fronts the
   Typesense work in Epic 5).
+- **6.9 Connected app layer** (added 2026-06-12; spec: DESIGN_SPEC.md §
+  "Connected app layer"): the shift from pages-that-show-lists to an app with
+  a player at its heart. (a) Latest feed regroup — time groups, series-flood
+  collapse, new-since-last-visit divider, facet chips; (b) `usePlayer`
+  postMessage layer over the YouTube iframe API + Vimeo SDK → true resume,
+  watched-at-80%, autoplay-next, continue-watching rail; (c) ⌘K command
+  palette (shadcn Command) + global shortcuts; (d) persistent mini-player in
+  AppLayout (fixed-position iframe over a watch-page placeholder — never
+  remounts). Power depth stays invisible until invoked. Transcript
+  embeddings (pgvector semantic search) folds into Epic 5.
 - **6.7 Motion pass:** Vue Motion entrances/staggers where they communicate
   (page-level), CSS for micro-state. <300ms, reduced-motion always.
 - **6.8 Light mode, empty states, image perf, WCAG AA audit** (axe-core +
