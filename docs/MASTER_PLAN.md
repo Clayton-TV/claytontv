@@ -59,11 +59,14 @@
   (runbook in docs/DEPLOYMENT.md) — then the ~1,670 missing programmes
   backfill via `sync_live_admin --pages 40` once, and hourly sync after.
   ClayScraper + ctvDBreform are now fully superseded.
-  ▶️ **Next: the design-spec "destinations" round (speaker detail → series
-  detail v2 with numbered episode rows → book detail with passage strip →
-  speakers index pivot), plus the dedup pass (227 itemized + series twins).
-  Epic 2 leftovers: dedup, ministry trees, derived data (passage parsing,
-  series covers).**
+- ✅ Epic 6.6 deployed (#182): destination pages — speaker detail (avatar,
+  talk count, deferred "featured in these series", talks) and series detail v2
+  (numbered episode rows from number_in_series, "Start from the beginning").
+  Confirmed speaker bio/photo fill-rate is zero.
+  ▶️ **Next destinations: book detail with passage strip (needs the
+  chapter/verse title-parsing derivation) → speakers index pivot (lookup-
+  first + featured voices). Then 6.7 motion, 6.8 light mode + a11y. Epic 2
+  leftovers: dedup pass (227 + series twins), ministry trees, series covers.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
