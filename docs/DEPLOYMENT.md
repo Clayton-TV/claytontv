@@ -61,7 +61,16 @@ sessions and re-logins automatically when they lapse. Fallback: paste a
 logged-in browser's Cookie header as `LEGACY_ADMIN_COOKIE` (expires; fails
 loudly when it does). Cron (dev user):
 
-    17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin --pages 2 >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+    17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+
+With no --pages flag the sync sizes itself: it pages the newest-modified
+list until a whole page is programmes we already hold, so backlogs of any
+size (including a first-ever catch-up) self-heal — at ~2-3s per programme
+a big catch-up can take a couple of hours. Each page ingests as it
+completes, so an interrupted run keeps its progress. Note the meta form
+no longer carries the video link; the sync follows the programme's
+image-picker media id to mediaUpdate.asp for it (layout observed
+2026-06-12).
 
 ## YouTube live-stream sync (Epic 4)
 
