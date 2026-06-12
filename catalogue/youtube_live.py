@@ -61,6 +61,10 @@ def discover_broadcasts(session, channel_ids):
     found = 0
     for channel_id in channel_ids:
         for event_type in ("live", "upcoming"):
+            # No order param: eventType+order=date 403s from some server
+            # regions ("cannot act on behalf of the specified Google
+            # account" — observed from app03, fine from a UK residential
+            # IP). Default relevance order is fine for ≤10 broadcasts.
             data = api_get(
                 session,
                 "search",
@@ -68,7 +72,6 @@ def discover_broadcasts(session, channel_ids):
                 channelId=channel_id,
                 eventType=event_type,
                 type="video",
-                order="date",
                 maxResults=SEARCH_RESULTS_PER_TYPE,
             )
             for item in data.get("items", []):
