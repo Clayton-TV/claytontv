@@ -12,6 +12,11 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = ["*"]
 
+# Server-side rendering: opt in by running the SSR server (npm run build-ssr && npm run ssr)
+# and setting INERTIA_SSR_ENABLED=true in .env
+INERTIA_SSR_ENABLED = os.getenv("INERTIA_SSR_ENABLED", "False").lower() in ("true", "1", "yes")
+INERTIA_SSR_URL = os.getenv("INERTIA_SSR_URL", "http://127.0.0.1:13714")
+
 # Database
 
 DATABASES = {

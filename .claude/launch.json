@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "claytontv",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "python", "manage.py", "runserver", "8765"],
+      "port": 8765
+    },
+    {
+      "name": "vite",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    }
+  ]
+}

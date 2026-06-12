@@ -6,6 +6,8 @@
     "dev": "vite",
     "preview": "vite preview",
     "build-only": "vite build",
+    "build-ssr": "vite build --ssr resources/js/ssr.ts --outDir bootstrap/ssr",
+    "ssr": "node bootstrap/ssr/ssr.js",
     "type-check": "vue-tsc --build",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
@@ -38,7 +40,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
-    "@inertiajs/vue3": "^2.0.9",
+    "@inertiajs/vue3": "^3.4.0",
     "@tabler/icons-vue": "^3.34.0",
     "@tailwindcss/vite": "^4.1.6",
     "@vitejs/plugin-vue": "^5.2.4",

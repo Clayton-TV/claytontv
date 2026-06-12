@@ -1,0 +1,12 @@
+{% extends inertia_layout %}
+{% load inertia_v3 %}
+
+{# Overrides inertia-django's first-load template to speak the Inertia v3 protocol: #}
+{# the v3 client reads script[data-page="app"][type="application/json"] instead of #}
+{# the legacy data-page attribute. Remove once inertia-django ships v3 support     #}
+{# (https://github.com/inertiajs/inertia-django/issues/99).                        #}
+
+{% block inertia %}
+  <div id="app"></div>
+  <script data-page="app" type="application/json">{{ page|inertia_page_json }}</script>
+{% endblock inertia %}

@@ -44,3 +44,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Inertia SSR build output
+bootstrap/ssr/

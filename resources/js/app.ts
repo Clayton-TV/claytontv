@@ -1,7 +1,7 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
-import { createApp, DefineComponent, h } from 'vue';
+import { createApp, createSSRApp, DefineComponent, h } from 'vue';
 import { resolvePageComponent } from '~/lib/inertia-helper';
 import { initializeTheme } from './composables/useAppearance';
 
@@ -28,7 +28,10 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+        // Hydrate when the page arrived server-rendered, mount fresh otherwise
+        const create = el.hasChildNodes() ? createSSRApp : createApp;
+
+        create({ render: () => h(App, props) })
             .use(plugin)
             .mount(el);
     },

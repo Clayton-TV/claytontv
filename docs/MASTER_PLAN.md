@@ -176,6 +176,14 @@ Matt/Jonathan's in-flight main-branch work.
   sentry.tgo.dev + posthog.tgo.dev rather than standing up new instances.
 - **2026-06-12 — Auth scope:** single shared admin account; no public sign-in.
 - **2026-06-12 — Search:** continue Typesense direction from #167 under our ownership.
-- *(pending)* — Inertia v3 vs v2+SSR, after spike 0.2.
+- **2026-06-12 — Inertia v3 (spike 0.2 outcome):** adopted `@inertiajs/vue3` 3.4 against
+  inertia-django 1.2 via a project-level `templates/inertia.html` override that emits the
+  v3 JSON-script-tag protocol (plus the `inertia_page_json` template filter for safe
+  embedding). Verified in-browser: client boot, SPA navigation, SSR render + hydration.
+  SSR is **opt-in** (`INERTIA_SSR_ENABLED` env, `npm run build-ssr && npm run ssr`) and
+  stays off by default until the Headless UI v1 nav in AppLayout — the one component
+  with SSR hydration mismatches — is replaced by the reka-ui nav (Epic 6, #154).
+  Remove the override when upstream lands v3 support (inertia-django#99). Avoid v3
+  features needing new server support (`useHttp`, once props, infinite scroll) until then.
 - *(pending)* — Vimeo account future (Ettie).
 - *(pending)* — 2 AM pipeline contents (observe legacy behaviour).
