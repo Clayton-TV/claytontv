@@ -32,14 +32,76 @@ def all_nodes(trees):
         yield from walk(tree)
 
 
+def canonical_id(id_numbers):
+    """Pick the survivor among duplicate series: the lowest legacy id (oldest,
+    most stable). Numeric where possible, else lexical."""
+
+    def key(value):
+        return (0, int(value)) if str(value).isdigit() else (1, str(value))
+
+    return min(id_numbers, key=key)
+
+
+def deduplicate_series(node_ids, stats):
+    """Make the series set authoritative and free of legacy-taxonomy noise:
+
+    1. Drop orphans — series not present in the hierarchy at all (stale
+       CSV-pipeline rows, often with comma-mangled names).
+    2. Collapse same-name twins that carry the IDENTICAL video set — the legacy
+       site listed one series under several browse trees, creating real
+       duplicate rows. Distinct-content same-name series (e.g. several
+       "One-offs") are kept.
+
+    Safe: Series.videos is M2M (delete only unlinks), and no Channel FK points
+    at series (verified). Survivor is the lowest legacy id, so the choice is
+    stable across re-runs.
+    """
+    from collections import defaultdict
+
+    from django.db.models import Count
+
+    orphans = Series.objects.exclude(id_number__in=node_ids)
+    stats["orphans_removed"] = orphans.count()
+    orphans.delete()
+
+    by_name = defaultdict(list)
+    for series in Series.objects.annotate(n=Count("videos")).filter(n__gt=0):
+        by_name[series.name].append(series)
+
+    removable = []
+    for rows in by_name.values():
+        if len(rows) < 2:
+            continue
+        by_content = defaultdict(list)
+        for series in rows:
+            by_content[frozenset(series.videos.values_list("id", flat=True))].append(series.id_number)
+        for id_numbers in by_content.values():
+            if len(id_numbers) > 1:
+                keep = canonical_id(id_numbers)
+                removable += [i for i in id_numbers if i != keep]
+
+    stats["duplicates_merged"] = len(removable)
+    Series.objects.filter(id_number__in=removable).delete()
+
+
 def ingest_series_trees(trees):
-    stats = {"series_created": 0, "series_updated": 0, "memberships": 0, "live_flagged": 0, "live_demoted": 0}
+    stats = {
+        "series_created": 0,
+        "series_updated": 0,
+        "memberships": 0,
+        "live_flagged": 0,
+        "live_demoted": 0,
+        "orphans_removed": 0,
+        "duplicates_merged": 0,
+    }
 
     numbered = set()  # videos already given number_in_series by an earlier node
     mentioned_ids = set()
     live_ids = set()
+    node_ids = set()
 
     for node, path in all_nodes(trees):
+        node_ids.add(str(node["id"]))
         programme_ids = [str(p["id"]) for p in node.get("programmes") or []]
         mentioned_ids.update(programme_ids)
         if LIVE_STREAMS_TREE_ID in path or node["id"] == LIVE_STREAMS_TREE_ID:
@@ -70,4 +132,6 @@ def ingest_series_trees(trees):
     stats["live_demoted"] = Video.objects.filter(is_livestream=True, id__in=mentioned_ids - live_ids).update(
         is_livestream=False
     )
+
+    deduplicate_series(node_ids, stats)
     return stats
