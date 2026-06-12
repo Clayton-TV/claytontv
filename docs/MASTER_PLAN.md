@@ -107,6 +107,17 @@
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
   orphans + identical browse-tree twins collapsed in the ingestion.)
+  ✅ Staleness root-caused & fixed (#195): /latest/ stopped at 2024-10 because
+  (a) LEGACY_ADMIN creds were never set on beta (hourly cron failed since
+  arming — now set, 2026-06-12) and (b) the admin's meta form no longer
+  carries the video link — first live run created 0/50. Sync now follows the
+  image-picker media id to mediaUpdate.asp (where vimeoLink holds the real
+  URL), sizes its own depth (page-until-known, no --pages guesswork),
+  ingests per page (crash-safe), and fails loudly on an empty page 0.
+  Sibling repos (ClayScraper/ctvDBreform) confirmed dead/not checked out —
+  the in-repo sync is the only pipeline. Backfill of ~1,700 programmes run
+  on beta 2026-06-12. NOTE: mediaUpdate.asp also exposes MediaDuration —
+  durations are harvestable in a later pass.
   ✅ Epic 4 MVP built (#192): LiveStream model + sync_live_streams
   (hourly --discover search / 5-min cheap refresh, channels self-discovered
   from the catalogue's livestream videos) + homepage live/next-service slot
