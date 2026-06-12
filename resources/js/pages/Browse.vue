@@ -1,8 +1,6 @@
 <script setup>
-import { computed } from "vue"
-import { IconPlayerPlay } from "@tabler/icons-vue"
-import { Link } from "@inertiajs/vue3"
-import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
+import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
+import { Head } from '@inertiajs/vue3';
 
 const props = defineProps({
     videos: {
@@ -20,14 +18,12 @@ const props = defineProps({
     has_next_page: {
         type: Boolean,
     },
-})
+});
 </script>
 
 <template>
-    <VideoCardGrid
-        :videos="videos"
-        :title="title"
-        :description="description ?? `Browsing videos under ` + title"
-        :has_prev_page
-        :has_next_page />
+    <Head :title="title" />
+    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
+        <VideoCardGrid :videos="videos" :title="title" :description="description ?? `Browsing videos under ` + title" :has_prev_page :has_next_page />
+    </div>
 </template>

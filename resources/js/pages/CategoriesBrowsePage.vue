@@ -1,5 +1,5 @@
 <script setup>
-import CategoriesBrowseWidget from "@/organisms/CategoriesBrowseWidget.vue"
+import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
 
 const props = defineProps({
     title: {
@@ -21,7 +21,7 @@ const props = defineProps({
     subcategories_sort_order: {
         type: String,
     },
-})
+});
 </script>
 
 <template>

@@ -45,6 +45,7 @@ const submitSearch = () => {
                     v-for="option in navOptions"
                     :key="option.name"
                     :href="option.href"
+                    prefetch
                     :class="isCurrent(option.href) ? 'bg-white/10 text-white' : 'text-gray-400'"
                     class="focus-visible:ring-ring rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
                     :aria-current="isCurrent(option.href) ? 'page' : undefined"

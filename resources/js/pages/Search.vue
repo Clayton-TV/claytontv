@@ -1,13 +1,11 @@
 <script setup>
-import { computed } from "vue"
-import { IconPlayerPlay } from "@tabler/icons-vue"
-import { Link } from "@inertiajs/vue3"
-import VideoCardGrid from "@/organisms/VideoCardGrid.vue"
-import CategoriesBrowseWidget from '@/organisms/CategoriesBrowseWidget.vue';
+import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
+import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     categories: {
         type: Array,
+        default: () => [],
     },
     videos: {
         type: Array,
@@ -24,31 +22,38 @@ const props = defineProps({
     has_next_page: {
         type: Boolean,
     },
-})
+});
 </script>
 
 <template>
-    <!-- TODO might be worth paginating categories separately from video results, and making backend only redo search for one or other when switching pages -->
-    <div class="mt-8 justify-items-center space-y-2">
-        <h2 class="text-center text-3xl font-bold text-gray-100">
-            {{ title }}
-        </h2>
+    <Head :title="title" />
+    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
+        <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">{{ title }}</h1>
+        <p v-if="description" class="mt-2 text-sm text-gray-500">{{ description }}</p>
+
+        <section v-if="categories?.length" class="mt-8" aria-label="Matching categories">
+            <h2 class="text-xs font-medium tracking-wider text-gray-500 uppercase">
+                {{ categories.length }} matching {{ categories.length === 1 ? 'category' : 'categories' }}
+            </h2>
+            <div class="mt-3 flex flex-wrap gap-2.5">
+                <Link
+                    v-for="category in categories"
+                    :key="category.url"
+                    :href="category.url"
+                    prefetch
+                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                >
+                    <span>{{ category.name }}</span>
+                    <span class="text-xs text-gray-500">{{ category.category }}</span>
+                    <span v-if="category.videosCount" class="rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] text-gray-300 tabular-nums">
+                        {{ category.videosCount }}
+                    </span>
+                </Link>
+            </div>
+        </section>
+
+        <div class="mt-10">
+            <VideoCardGrid :videos :has_prev_page :has_next_page />
+        </div>
     </div>
-
-    <CategoriesBrowseWidget
-        v-if="categories?.length"
-        :categories_data="categories"
-        :description="`Found ` + categories.length + ` categories`"
-        single_parent_category
-        categories_sort_order="count"
-        subcategories_sort_order="count"
-        hide_subcategories_text />
-
-    <br/>
-
-    <VideoCardGrid
-        :videos
-        :description
-        :has_prev_page
-        :has_next_page />
 </template>

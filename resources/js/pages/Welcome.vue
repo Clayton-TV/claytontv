@@ -63,6 +63,7 @@ const entrance = (delayMs) => ({
                 <li v-for="video in latest_videos" :key="video.id" class="relative isolate aspect-video">
                     <Link
                         :href="`/video/${video.id}`"
+                        prefetch
                         class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                         <VideoCardItem :video="video" />

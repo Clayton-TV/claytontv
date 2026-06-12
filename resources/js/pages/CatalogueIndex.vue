@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Video from '@/atoms/Video.vue';
-import PlaceholderPattern from '@/PlaceholderPattern.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import PlaceholderPattern from '@/PlaceholderPattern.vue';
 import { BreadcrumbItem } from '@/types';
 import { Deferred, Head } from '@inertiajs/vue3';
 
@@ -20,8 +20,8 @@ defineProps<{
 <template>
     <Head title="Catalogue" />
     <AppLayout :breadcrumbs>
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 @container">
-            <div class="grid auto-rows-min min-w-24 gap-y-4 grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3">
+        <div class="@container flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div class="grid min-w-24 auto-rows-min grid-cols-1 gap-y-4 @md:grid-cols-2 @xl:grid-cols-3">
                 <Deferred data="videos">
                     <template #fallback>
                         <div class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
