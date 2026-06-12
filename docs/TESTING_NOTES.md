@@ -30,6 +30,11 @@ epic that owns the fix.
   `backfill_livestream_flags` on beta after deploys until the Epic 2 importer
   rework lands (code deploy ships the fix, not the data update).
 - ~230 video IDs skipped on import (matches #86's "mostly unlisted, acceptable").
+- Topic `category` values have near-duplicate variants: "CHRISTIAN LIFE"
+  appears as two distinct groups on /topic (whitespace/case variant) —
+  normalize in the importer.
+- Series `year_start`/`year_end` hold free text (e.g. "18--2,2"); the series
+  page guards display, but the importer should clean these to real years.
 - Some hashless Vimeo videos (e.g. video 749, Keswick '12) show a genuine
   Vimeo sign-in wall — privacy setting on the video itself, not our embed code.
   Needs the Vimeo account audit (Ettie question).

@@ -142,23 +142,27 @@ def search(request):
             (Speaker, "Speakers"),
             (Topic, "Topics"),
         ]:
+            matches = model.objects.filter(name__icontains=searchquery)
+            # Series videos live on the Series.videos M2M, not the FK reverse
+            count_relation = "videos" if model is Series else "video"
+            matches = matches.annotate(n=Count(count_relation))
             category_results += [
                 {
                     "category": model_name,
                     "name": x.name,
-                    "videosCount": x.video_set.count(),
+                    "videosCount": x.n,
                     "url": x.get_absolute_url(),
                 }
-                for x in model.objects.filter(name__icontains=searchquery)
+                for x in matches
             ]
         category_results += [
             {
                 "category": "Bible Book",
                 "name": x.get_name_display(),
-                "videosCount": len(x.video_set.all()),
+                "videosCount": x.n,
                 "url": x.get_absolute_url(),
             }
-            for x in Bible_Book.objects.filter(summary__icontains=searchquery)
+            for x in Bible_Book.objects.filter(summary__icontains=searchquery).annotate(n=Count("video"))
         ]
         return render(
             request,
@@ -192,11 +196,13 @@ def video(request, id):
     try:
         video_object = Video.objects.get(id=id)
         video_metadata = {}
+        # The Video.series FK is never populated; membership lives on Series.videos
+        video_series = Series.objects.filter(videos=video_object).first()
         # Properties to interrogate, with boolean for whether they are plural (True) or singular (False)
         props = {
             "topic": (video_object.topic, True),
             "channel": (video_object.channel, False),
-            "series": (video_object.series, False),
+            "series": (video_series, False),
             "ministry": (video_object.ministry, True),
             "speaker": (video_object.speaker, True),
             "bible_book": (video_object.bible_book, True),
@@ -392,11 +398,72 @@ def browse_ministry(request, id):
     )
 
 
+def series_index(request):
+    """All series as course-style cards: filterable, paginated, most-watched-in first."""
+    query = request.GET.get("q", "").strip()
+    series_qs = (
+        Series.objects.annotate(videos_count=Count("videos"))
+        .filter(videos_count__gt=0)
+        .order_by("-videos_count", "name")
+    )
+    if query:
+        series_qs = series_qs.filter(name__icontains=query)
+
+    paginator = Paginator(series_qs, pagination_per_page)
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
+
+    return render(
+        request,
+        "SeriesIndex",
+        {
+            "series": [
+                {
+                    "name": s.name,
+                    "summary": s.summary,
+                    "videosCount": s.videos_count,
+                    "url": s.get_absolute_url(),
+                }
+                for s in paginated.object_list
+            ],
+            "query": query,
+            "total": paginator.count,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
+        },
+    )
+
+
+def topics_index(request):
+    """All topics grouped under the legacy taxonomy's parent categories."""
+    groups = {}
+    for topic in Topic.objects.annotate(videos_count=Count("video")).order_by("name"):
+        groups.setdefault(topic.category or "Other", []).append(
+            {
+                "name": topic.name,
+                "videosCount": topic.videos_count,
+                "url": topic.get_absolute_url(),
+            }
+        )
+
+    return render(
+        request,
+        "TopicsIndex",
+        {
+            "topic_groups": [{"category": category, "topics": topics} for category, topics in sorted(groups.items())],
+            "total": Topic.objects.count(),
+        },
+    )
+
+
 def browse_series(request, id):
     decoded_id = unquote(id)
 
     try:
-        series = Series.objects.get(name=decoded_id)
+        series = Series.objects.annotate(videos_count=Count("videos")).get(name=decoded_id)
     except Series.DoesNotExist as e:
         return render(
             request,
@@ -408,7 +475,9 @@ def browse_series(request, id):
             },
         )
 
-    paginator = Paginator(series.video_set.all(), pagination_per_page)
+    # Episodes live on the Series.videos M2M — the video_set FK reverse is
+    # never populated, which is why this page used to show zero episodes.
+    paginator = Paginator(series.videos.order_by("-date_recorded"), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -417,10 +486,15 @@ def browse_series(request, id):
     paginated = paginator.page(page_num)
     return render(
         request,
-        "Browse",
+        "SeriesDetail",
         {
-            "title": f"Series: {decoded_id}",
-            "description": f"{series.summary} (page {page_num} of {paginator.num_pages})",
+            "series_meta": {
+                "name": series.name,
+                "summary": series.summary,
+                "videosCount": series.videos_count,
+                "year_start": series.year_start,
+                "year_end": series.year_end,
+            },
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
@@ -514,10 +588,10 @@ def browse_categories(request):
             {
                 "category": b.type,
                 "name": b.get_name_display(),
-                "videosCount": len(b.video_set.all()),
+                "videosCount": b.videos_count,
                 "url": b.get_absolute_url(),
             }
-            for b in Bible_Book.objects.all()
+            for b in Bible_Book.objects.annotate(videos_count=Count("video"))
         ]
         title = "Bible Books"
         description = "Browsing all Bible books"
@@ -529,10 +603,10 @@ def browse_categories(request):
             {
                 "category": ("Primary (Trusted)" if c.trusted else "Secondary (Untrusted)"),
                 "name": c.name,
-                "videosCount": len(c.video_set.all()),
+                "videosCount": c.videos_count,
                 "url": c.get_absolute_url(),
             }
-            for c in Channel.objects.all()
+            for c in Channel.objects.annotate(videos_count=Count("video"))
         ]
         title = "Channels"
         description = "Browsing all known channels"
@@ -544,10 +618,10 @@ def browse_categories(request):
             {
                 "category": "All",
                 "name": d.name,
-                "videosCount": len(d.video_set.all()),
+                "videosCount": d.videos_count,
                 "url": d.get_absolute_url(),
             }
-            for d in Demographic.objects.all()
+            for d in Demographic.objects.annotate(videos_count=Count("video"))
         ]
         title = "Demographic"
         description = "Browsing all known demographics"
@@ -558,54 +632,28 @@ def browse_categories(request):
             {
                 "category": [c.name for c in m.channel.all() if c.name is not None],
                 "name": m.name,
-                "videosCount": len(m.video_set.all()),
+                "videosCount": m.videos_count,
                 "url": m.get_absolute_url(),
             }
-            for m in Ministry.objects.all()
+            for m in Ministry.objects.annotate(videos_count=Count("video")).prefetch_related("channel")
         ]
         title = "Ministries"
         description = "Browsing all known ministries"
 
-    elif category == "series":
-        categories_data = [
-            {
-                "category": [m.name for m in s.ministry.all() if m.name is not None],
-                "name": s.name,
-                "videosCount": len(s.video_set.all()),
-                "url": s.get_absolute_url(),
-            }
-            for s in Series.objects.all()
-        ]
-        title = "Series"
-        description = "Browsing all known series"
-
     elif category == "speaker":
+        # The per-speaker channel grouping cost a query per speaker (693 of
+        # them); a flat alphabetical list serves the lookup use case better.
         categories_data = [
             {
-                "category": [
-                    v.channel.name for v in s.video_set.all() if v.channel is not None and v.channel.name is not None
-                ],
+                "category": "All",
                 "name": s.name,
-                "videosCount": len(s.video_set.all()),
+                "videosCount": s.videos_count,
                 "url": s.get_absolute_url(),
             }
-            for s in Speaker.objects.all()
+            for s in Speaker.objects.annotate(videos_count=Count("video"))
         ]
         title = "Speakers"
         description = "Browsing all known speakers"
-
-    elif category == "topic":
-        categories_data = [
-            {
-                "category": t.category,
-                "name": t.name,
-                "videosCount": len(t.video_set.all()),
-                "url": t.get_absolute_url(),
-            }
-            for t in Topic.objects.all()
-        ]
-        title = "Topics"
-        description = "Browsing all known topics"
         single_parent_category = True
 
     if categories_data is not None:
