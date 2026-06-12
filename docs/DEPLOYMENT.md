@@ -54,10 +54,11 @@ While clayton.tv survives, beta stays current via `sync_live_admin` (cron,
 hourly): it pulls the newest-modified programmes from the legacy admin and
 feeds them through the same idempotent upsert core as the dump ingest.
 
-Auth: set `LEGACY_ADMIN_COOKIE` in `/srv/beta-claytontv/shared/.env` to a
-logged-in browser's Cookie header for clayton.tv/adminsection (DevTools →
-Network → any adminsection request → Request Headers → cookie). Expired
-sessions fail loudly with "refresh LEGACY_ADMIN_COOKIE" — re-paste and it
-resumes. Cron (dev user):
+Auth (preferred, self-healing): set `LEGACY_ADMIN_USERNAME` and
+`LEGACY_ADMIN_PASSWORD` in `/srv/beta-claytontv/shared/.env` (operator-set;
+inject from 1Password via `op run` if preferred) — the sync mints its own
+sessions and re-logins automatically when they lapse. Fallback: paste a
+logged-in browser's Cookie header as `LEGACY_ADMIN_COOKIE` (expires; fails
+loudly when it does). Cron (dev user):
 
     17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin --pages 2 >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
