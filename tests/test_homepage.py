@@ -10,6 +10,19 @@ pytestmark = pytest.mark.django_db
 BELOW_FOLD = "featured_series,topics_data,topics_total"
 
 
+def test_undated_videos_never_top_the_latest_rail(client):
+    """The legacy admin holds programmes with an empty date (9 found in the
+    2026-06 backfill). Postgres sorts DESC NULLS FIRST by default — without
+    an explicit nulls_last they'd headline the homepage. SQLite can't fail
+    this test (it sorts nulls last natively); it pins the intent."""
+    VideoFactory(name="Undated upload", date_recorded=None)
+    VideoFactory(name="Dated sermon", date_recorded="2026-06-07")
+
+    rail = inertia_page(client.get("/"))["props"]["latest_videos"]
+
+    assert rail[0]["name"] == "Dated sermon"
+
+
 def below_fold_props(client):
     """Fetch the scroll-deferred sections the way WhenVisible does."""
     response = client.get(

@@ -1,7 +1,7 @@
 from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.http import JsonResponse
 from inertia import defer, optional, render
 
@@ -20,6 +20,11 @@ from catalogue.youtube_live import homepage_live_props
 
 pagination_per_page = 24
 
+# Newest first with undated entries at the END on both engines: Postgres
+# defaults DESC to NULLS FIRST (undated videos would top every rail),
+# SQLite to nulls last — the mismatch hid this locally.
+RECENT_FIRST = F("date_recorded").desc(nulls_last=True)
+
 
 def index(request):
     """Curated homepage: a few of the latest videos, a handful of featured
@@ -31,7 +36,7 @@ def index(request):
     Series.videos M2M (what link_series populates); topic counts use the
     reverse of Video.topic (what link_videos populates).
     """
-    latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:6]
+    latest_videos = Video.objects.filter(is_livestream=False).order_by(RECENT_FIRST)[:6]
     live_now, next_service = homepage_live_props()
 
     def featured_series():
@@ -76,7 +81,7 @@ def index(request):
 
 
 def browse_all_livestreams(request):
-    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by("-date_recorded"), pagination_per_page)
+    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by(RECENT_FIRST), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -152,7 +157,7 @@ def palette(request):
 
     videos = [
         {"id": v.id, "name": v.name, "url": f"/video/{v.id}", "date": v.date_recorded or v.date_created}
-        for v in Video.objects.filter(name__icontains=query).order_by("-date_recorded")[:PALETTE_LIMIT]
+        for v in Video.objects.filter(name__icontains=query).order_by(RECENT_FIRST)[:PALETTE_LIMIT]
     ]
 
     categories = []
@@ -294,7 +299,7 @@ def video(request, id):
             following = next_in_series(video_object, series)
             return {
                 "series": {"name": series.name, "url": series.get_absolute_url()},
-                "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by("-date_recorded")[:6]),
+                "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by(RECENT_FIRST)[:6]),
                 # The episode autoplay advances to when this one ends
                 "next": video_card_props([following])[0] if following else None,
             }
@@ -332,7 +337,7 @@ def browse_bible_book(request, id):
         return render(request, "Browse", {"videos": [], "title": f"Bible book not found: '{decoded_id}'"})
 
     book_name = bible_book.get_name_display()
-    all_videos = list(bible_book.video_set.order_by("-date_recorded"))
+    all_videos = list(bible_book.video_set.order_by(RECENT_FIRST))
 
     # Derive the passage from each title; teaching that names a chapter is
     # ordered by chapter (a book reads in order), the rest ("topical") trails.
@@ -726,7 +731,7 @@ def browse_speaker(request, id):
             {"videos": [], "title": f"Speaker not found: '{decoded_id}'"},
         )
 
-    talks = speaker.video_set.order_by("-date_recorded")
+    talks = speaker.video_set.order_by(RECENT_FIRST)
     paginator = Paginator(talks, pagination_per_page)
     page_num = 1
     try:
