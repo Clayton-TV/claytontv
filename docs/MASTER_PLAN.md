@@ -66,11 +66,13 @@
 - ✅ Epic 6.6b deployed (#183): Bible book pages with passage navigation —
   title-parsed chapter strip, ?chapter= filter, reference badges. Pure
   derivation (catalogue/passages.py), no schema change. The spec's novel one.
+- ✅ Watch page enriched (#184): passage badge (links to the chapter) +
+  rescued transcript/audio companion links. Book chapter strip now an
+  auto-fill grid that fills the row edge-to-edge.
   ▶️ **Next: speakers index pivot (lookup-first + featured voices) to finish
   the destinations round; then 6.7 motion pass, 6.8 light mode + a11y audit.
   Epic 2 leftovers: dedup (227 + series twins), ministry trees, series covers
-  (first-episode thumbnail). Watch page could also gain passage badges +
-  related-resources links now the data exists.**
+  (first-episode thumbnail).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
