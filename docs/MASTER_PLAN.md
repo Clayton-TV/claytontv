@@ -43,8 +43,16 @@
   consolidation (demographics → Topics audiences; /catalogue deleted; channels
   demoted), homepage below-fold sections scroll-deferred via optional() +
   WhenVisible. Every public page now speaks the design language.
-  ▶️ **Next: Epic 2 importer rework (quirk ledger ready); then 6.7 motion
-  pass, 6.8 light mode + a11y audit, SSR default-on verify.**
+- ✅ Epic 2.1 deployed + run on beta postgres (#181): in-repo idempotent
+  ingestion (catalogue/ingest), upserts keyed on legacy IDs, run-twice no-op
+  proven at full 9,496-programme scale. Recovered: 1,782 related-resource
+  links (949 transcripts), 74 multi-host URL sets, normalized labels by ID.
+  227 duplicate listings itemized. Supersedes the ctvDBreform CSV path for
+  programmes; series.json hierarchy is 2.2's job.
+  ▶️ **Next: 2.2 series.json ingestion (series/ministries hierarchy,
+  number_in_series, authoritative livestream signal) → 2.3 live-admin
+  incremental scraper (in-repo, the ~1,670 missing programmes) → then the
+  design-spec "destinations" round.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
