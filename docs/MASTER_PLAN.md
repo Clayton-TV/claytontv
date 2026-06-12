@@ -51,13 +51,14 @@ once it is stable. Their in-flight work on `main` stays untouched.
 
 ### Epic 0 — Foundations & toolchain *(in progress)*
 Goal: modern toolchain + a safety net, before any feature work.
-- **0.1 Toolchain migration:** Poetry → uv; Python 3.12 → 3.14; Django 5.2 → 6.0;
+- ✅ **0.1 Toolchain migration:** Poetry → uv; Python 3.12 → 3.14; Django 5.2 → 6.0;
   psycopg2 → psycopg 3; poe tasks and README updated; CI on uv.
-- **0.2 Inertia v3 / SSR spike:** `@inertiajs/vue3@3` against `inertia-django` 1.2
-  (v3 support upstream is open: inertia-django#99). Outcome recorded in the decision
-  log: patched adapter template, or v2 client + adapter SSR until upstream lands.
-- **0.3 Test harness:** pytest-django + factory-boy factories for all catalogue models;
-  coverage reporting in CI; first real feature tests around existing views.
+- ✅ **0.2 Inertia v3 / SSR spike:** adopted v3 via adapter-template override;
+  SSR opt-in pending the nav rework — see decision log.
+- ✅ **0.3 Test harness** (PR #173): factory-boy factories, Inertia test helper,
+  feature tests for homepage/watch/search, query-count regression test, 60%
+  coverage gate in CI (65% at introduction — ratchet upward). Killed the
+  homepage N+1 that 504'd beta.
 - **0.4 Agent/team docs:** CLAUDE.md, contributor quickstart for the uv world,
   Herd proxy local HTTPS (`herd proxy claytontv http://127.0.0.1:8000 --secure`).
 - Exit: CI green on `beta`, dev server runs on 3.14/Django 6 locally, decision log
