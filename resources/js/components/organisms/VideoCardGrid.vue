@@ -36,44 +36,42 @@ const nextPage = () => {
 </script>
 
 <template>
-    <section class="mb-10 flex flex-col items-center gap-y-6">
-        <div class="space-y-2">
-            <h2 class="mt-8 text-center text-3xl font-bold text-gray-100" v-if="title">
+    <section class="flex flex-col gap-y-6">
+        <div v-if="title || description">
+            <h1 v-if="title" class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">
                 {{ title }}
-            </h2>
-            <p class="mt-2 text-center text-gray-400" v-if="description" v-html="description"></p>
+            </h1>
+            <p v-if="description" class="mt-2 text-sm text-gray-500" v-html="description"></p>
         </div>
 
-        <div class="mt-2 w-full overflow-x-hidden">
-            <ul class="grid grid-cols-1 gap-4 overflow-x-auto px-4 sm:grid-cols-2 lg:grid-cols-3 lg:px-8">
-                <li v-for="video in videos" :key="video.id" class="relative isolate mx-auto aspect-video max-h-[60dvh] w-full max-w-[90vw]">
-                    <!-- Link is the block (not display:contents) so keyboard focus can draw a ring -->
-                    <Link
-                        :href="`/video/` + video.id"
-                        :id="video.id"
-                        class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                    >
-                        <VideoCardItem :video="video" />
-                        <span class="sr-only"> View video for {{ video.name }} </span>
-                    </Link>
-                </li>
-            </ul>
-        </div>
+        <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <li v-for="video in videos" :key="video.id" class="relative isolate aspect-video">
+                <Link
+                    :href="`/video/` + video.id"
+                    :id="video.id"
+                    prefetch
+                    class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                >
+                    <VideoCardItem :video="video" />
+                    <span class="sr-only"> View video for {{ video.name }} </span>
+                </Link>
+            </li>
+        </ul>
 
-        <nav class="flex gap-x-4" aria-label="Pagination">
+        <nav v-if="has_prev_page || has_next_page" class="flex justify-center gap-x-3" aria-label="Pagination">
             <button
-                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-md bg-gray-800 px-4 py-2 font-medium text-gray-100 transition-colors duration-150 outline-none hover:bg-gray-700 focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-gray-800"
+                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
                 @click="prevPage()"
                 :disabled="!has_prev_page"
             >
-                Prev Page
+                Previous
             </button>
             <button
-                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-md bg-gray-800 px-4 py-2 font-medium text-gray-100 transition-colors duration-150 outline-none hover:bg-gray-700 focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-gray-800"
+                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
                 @click="nextPage()"
                 :disabled="!has_next_page"
             >
-                Next Page
+                Next
             </button>
         </nav>
     </section>

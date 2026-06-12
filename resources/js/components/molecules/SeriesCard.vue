@@ -10,6 +10,7 @@ defineProps({
 <template>
     <Link
         :href="series.url"
+        prefetch
         class="group focus-visible:ring-ring flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-colors duration-150 outline-none hover:border-white/20 hover:bg-white/[0.06] focus-visible:ring-2"
     >
         <div class="bg-primary/10 flex h-20 w-20 flex-none items-center justify-center rounded-lg" aria-hidden="true">

@@ -2,7 +2,7 @@ from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
 from django.db.models import Count
-from inertia import render
+from inertia import defer, render
 
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
@@ -214,12 +214,26 @@ def video(request, id):
                 else:
                     video_metadata[p] = {"name": props[p][0].name, "url": props[p][0].get_absolute_url()}
 
+        def up_next():
+            # Series→video links live on the Series.videos M2M (no reverse
+            # accessor from Video: related_name="+"), so filter by membership.
+            series = Series.objects.filter(videos=video_object).first()
+            if series is None:
+                return None
+            return {
+                "series": {"name": series.name, "url": series.get_absolute_url()},
+                "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by("-date_recorded")[:6]),
+            }
+
         return render(
             request,
             "WatchVideo",
             {
                 "video": video_object,
                 "video_metadata": video_metadata,
+                # Deferred: the player paints immediately; the rail streams in
+                # right after via the Inertia v3 deferred-props round trip.
+                "up_next": defer(up_next),
             },
         )
     except Video.DoesNotExist:
