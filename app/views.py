@@ -1,6 +1,7 @@
 from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
+from django.db.models import Count
 from inertia import render
 
 from catalogue.models.bible_book import Bible_Book
@@ -14,38 +15,53 @@ from catalogue.models.video import Video
 
 pagination_per_page = 24
 
+VIDEO_CARD_FIELDS = ("id", "name", "url", "thumbnail", "date_recorded", "date_created", "is_livestream")
+
+
+def video_card_props(videos):
+    """Serialize videos to the fields the card components render.
+
+    Passing full Video objects to Inertia serializes every M2M relation,
+    costing ~5 extra queries per video.
+    """
+    if hasattr(videos, "values"):
+        return list(videos.values(*VIDEO_CARD_FIELDS))
+    return [{field: getattr(video, field) for field in VIDEO_CARD_FIELDS} for video in videos]
+
 
 def index(request):
     livestreams = Video.objects.filter(is_livestream=True).order_by("-date_recorded")[:10]
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:10]
     topics_all = Topic.objects.all()
 
+    # Counts are annotated and ministries prefetched: per-row queries here once
+    # ran ~2,250 queries against the full catalogue and wedged every worker.
     topics_data = [
         {
             "category": t.category,
             "name": t.name,
-            "videosCount": len(t.video_set.all()),
+            "videosCount": t.videos_count,
             "url": t.get_absolute_url(),
         }
-        for t in topics_all
+        for t in topics_all.annotate(videos_count=Count("video"))
     ]
 
     series_data = [
         {
             "category": [m.name for m in s.ministry.all() if m.name is not None],
             "name": s.name,
-            "videosCount": len(s.video_set.all()),
+            "videosCount": s.videos_count,
             "url": s.get_absolute_url(),
         }
-        for s in Series.objects.all()
+        for s in Series.objects.annotate(videos_count=Count("video")).prefetch_related("ministry")
     ]
 
     return render(
         request,
         "Welcome",
         {
-            "livestreams": livestreams,
-            "latest_videos": latest_videos,
+            "livestreams": video_card_props(livestreams),
+            "latest_videos": video_card_props(latest_videos),
             "topics_data": topics_data,
             "series_data": series_data,
         },
@@ -66,7 +82,7 @@ def browse_all_livestreams(request):
         {
             "title": "Live Streams",
             "description": f"All livestreamed content, most recent first (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -87,7 +103,7 @@ def browse_all_latest(request):
         {
             "title": "Latest Videos",
             "description": f"All videos, most recent first (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -141,7 +157,7 @@ def search(request):
                 "title": f"Search for '{searchquery}'",
                 "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
 (page {page_num} of {paginator.num_pages})",
-                "videos": paginated.object_list,
+                "videos": video_card_props(paginated.object_list),
                 "categories": category_results,
                 "has_prev_page": paginated.has_previous(),
                 "has_next_page": paginated.has_next(),
@@ -155,7 +171,7 @@ def search(request):
                 "title": f"Search for '{searchquery}'",
                 "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
 (page {page_num} of {paginator.num_pages})",
-                "videos": paginated.object_list,
+                "videos": video_card_props(paginated.object_list),
                 "has_prev_page": paginated.has_previous(),
                 "has_next_page": paginated.has_next(),
             },
@@ -237,7 +253,7 @@ def browse_bible_book(request, id):
         {
             "title": f"Bible book: {bible_book.get_name_display()}",
             "description": f"{bible_book.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -273,7 +289,7 @@ def browse_channel(request, id):
         {
             "title": f"Channel: {decoded_id}",
             "description": f"{channel.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -309,7 +325,7 @@ def browse_demographic(request, id):
         {
             "title": f"Demographic: {decoded_id}",
             "description": f"{demographic.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -345,7 +361,7 @@ def browse_ministry(request, id):
         {
             "title": f"Ministry: {decoded_id}",
             "description": f"{ministry.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -381,7 +397,7 @@ def browse_series(request, id):
         {
             "title": f"Series: {decoded_id}",
             "description": f"{series.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -417,7 +433,7 @@ def browse_speaker(request, id):
         {
             "title": f"Speaker: {decoded_id}",
             "description": f"{speaker.bio} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
@@ -453,7 +469,7 @@ def browse_topic(request, id):
         {
             "title": f"Topic: {decoded_id}",
             "description": f"{topic.summary} (page {page_num} of {paginator.num_pages})",
-            "videos": paginated.object_list,
+            "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },

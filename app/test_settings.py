@@ -16,3 +16,11 @@ DATABASES = {
         "NAME": ":memory:",
     },
 }
+
+# Vite dev mode emits plain script URLs instead of reading a build manifest,
+# so tests never depend on a frontend build having run.
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": True,
+    },
+}
