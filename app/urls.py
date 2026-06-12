@@ -16,9 +16,11 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
+from django.views.generic import RedirectView
 
 from .views import (
+    books_index,
     browse_all_latest,
     browse_all_livestreams,
     browse_bible_book,
@@ -30,15 +32,16 @@ from .views import (
     browse_speaker,
     browse_topic,
     index,
+    ministries_index,
     search,
     series_index,
+    speakers_index,
     topics_index,
     video,
 )
 
 urlpatterns = [
     path("", index, name="home"),
-    path("catalogue/", include("catalogue.urls"), name="catalogue"),
     path("livestreams/", browse_all_livestreams, name="browse_all_livestreams"),
     path("latest/", browse_all_latest, name="browse_all_latest"),
     path("admin/", admin.site.urls),
@@ -51,11 +54,12 @@ urlpatterns = [
     path("series/<str:id>", browse_series, name="browse_series"),
     path("speaker/<str:id>", browse_speaker, name="browse_speaker"),
     path("topic/<str:id>", browse_topic, name="browse_topic"),
-    path("book/", browse_categories, name="browse_categories_book"),
+    path("book/", books_index, name="browse_categories_book"),
     path("channel/", browse_categories, name="browse_categories_channel"),
-    path("demographic/", browse_categories, name="browse_categories_demographic"),
-    path("ministry/", browse_categories, name="browse_categories_ministry"),
+    # Audiences live on the Topics page now; the standalone landing is gone
+    path("demographic/", RedirectView.as_view(url="/topic/"), name="browse_categories_demographic"),
+    path("ministry/", ministries_index, name="browse_categories_ministry"),
     path("series/", series_index, name="browse_categories_series"),
-    path("speaker/", browse_categories, name="browse_categories_speaker"),
+    path("speaker/", speakers_index, name="browse_categories_speaker"),
     path("topic/", topics_index, name="browse_categories_topic"),
 ]

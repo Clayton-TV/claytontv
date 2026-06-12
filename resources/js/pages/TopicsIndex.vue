@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
+    audiences: { type: Array, default: () => [] },
     topic_groups: { type: Array, default: () => [] },
     total: { type: Number, default: 0 },
 });
@@ -15,6 +16,24 @@ const prettify = (category) => category.toLowerCase();
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
         <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Topics</h1>
         <p class="mt-2 text-sm text-gray-500 tabular-nums">{{ total }} topics across {{ topic_groups.length }} areas</p>
+
+        <section v-if="audiences.length" class="mt-8" aria-label="Audiences">
+            <h2 class="text-xs font-semibold tracking-wider text-gray-500 uppercase">For every age</h2>
+            <div class="mt-3 flex flex-wrap gap-2.5">
+                <Link
+                    v-for="audience in audiences"
+                    :key="audience.url"
+                    :href="audience.url"
+                    prefetch
+                    class="border-primary/40 text-primary hover:border-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-[13px] font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
+                >
+                    <span>{{ audience.name }}</span>
+                    <span v-if="audience.videosCount" class="rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] tabular-nums">
+                        {{ audience.videosCount }}
+                    </span>
+                </Link>
+            </div>
+        </section>
 
         <section v-for="group in topic_groups" :key="group.category" class="mt-10" :aria-label="group.category">
             <h2 class="text-xs font-semibold tracking-wider text-gray-500 uppercase">{{ prettify(group.category) }}</h2>

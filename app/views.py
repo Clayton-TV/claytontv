@@ -2,7 +2,7 @@ from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
 from django.db.models import Count
-from inertia import defer, render
+from inertia import defer, optional, render
 
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
@@ -41,28 +41,30 @@ def index(request):
     """
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:6]
 
-    featured_series = [
-        {
-            "name": s.name,
-            "summary": s.summary,
-            "videosCount": s.videos_count,
-            "url": s.get_absolute_url(),
-        }
-        for s in Series.objects.annotate(videos_count=Count("videos"))
-        .filter(videos_count__gt=0)
-        .order_by("-videos_count")[:4]
-    ]
+    def featured_series():
+        return [
+            {
+                "name": s.name,
+                "summary": s.summary,
+                "videosCount": s.videos_count,
+                "url": s.get_absolute_url(),
+            }
+            for s in Series.objects.annotate(videos_count=Count("videos"))
+            .filter(videos_count__gt=0)
+            .order_by("-videos_count")[:4]
+        ]
 
-    topics_data = [
-        {
-            "name": t.name,
-            "videosCount": t.videos_count,
-            "url": t.get_absolute_url(),
-        }
-        for t in Topic.objects.annotate(videos_count=Count("video"))
-        .filter(videos_count__gt=0)
-        .order_by("-videos_count")[:12]
-    ]
+    def topics_data():
+        return [
+            {
+                "name": t.name,
+                "videosCount": t.videos_count,
+                "url": t.get_absolute_url(),
+            }
+            for t in Topic.objects.annotate(videos_count=Count("video"))
+            .filter(videos_count__gt=0)
+            .order_by("-videos_count")[:12]
+        ]
 
     return render(
         request,
@@ -70,9 +72,11 @@ def index(request):
         {
             "livestreams": [],
             "latest_videos": video_card_props(latest_videos),
-            "featured_series": featured_series,
-            "topics_data": topics_data,
-            "topics_total": Topic.objects.count(),
+            # Below-the-fold sections load when scrolled into view (WhenVisible):
+            # their queries don't run at all on first paint.
+            "featured_series": optional(featured_series),
+            "topics_data": optional(topics_data),
+            "topics_total": optional(lambda: Topic.objects.count()),
         },
     )
 
@@ -438,7 +442,8 @@ def series_index(request):
 
 
 def topics_index(request):
-    """All topics grouped under the legacy taxonomy's parent categories."""
+    """All topics grouped under the legacy taxonomy's parent categories,
+    headed by the three audiences (the old /demographic landing folded in)."""
     groups = {}
     for topic in Topic.objects.annotate(videos_count=Count("video")).order_by("name"):
         groups.setdefault(topic.category or "Other", []).append(
@@ -449,12 +454,101 @@ def topics_index(request):
             }
         )
 
+    audiences = [
+        {
+            "name": d.name,
+            "videosCount": d.videos_count,
+            "url": d.get_absolute_url(),
+        }
+        for d in Demographic.objects.annotate(videos_count=Count("video")).order_by("name")
+    ]
+
     return render(
         request,
         "TopicsIndex",
         {
+            "audiences": audiences,
             "topic_groups": [{"category": category, "topics": topics} for category, topics in sorted(groups.items())],
             "total": Topic.objects.count(),
+        },
+    )
+
+
+def speakers_index(request):
+    """Speaker directory: filterable, alphabetical, paginated."""
+    query = request.GET.get("q", "").strip()
+    speakers_qs = Speaker.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0).order_by("name")
+    if query:
+        speakers_qs = speakers_qs.filter(name__icontains=query)
+
+    paginator = Paginator(speakers_qs, 48)
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
+
+    return render(
+        request,
+        "SpeakersIndex",
+        {
+            "speakers": [
+                {
+                    "name": s.name,
+                    "videosCount": s.videos_count,
+                    "url": s.get_absolute_url(),
+                }
+                for s in paginated.object_list
+            ],
+            "query": query,
+            "total": paginator.count,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
+        },
+    )
+
+
+def books_index(request):
+    """All 66 Bible books in canonical order, grouped by section."""
+    groups = {}
+    books = Bible_Book.objects.annotate(videos_count=Count("video"))
+    for book in sorted(books, key=lambda b: int(b.order) if str(b.order).isdigit() else 999):
+        groups.setdefault(book.get_type_display(), []).append(
+            {
+                "name": book.get_name_display(),
+                "videosCount": book.videos_count,
+                "url": book.get_absolute_url(),
+            }
+        )
+
+    return render(
+        request,
+        "BooksIndex",
+        {
+            # Insertion order is canonical order (groups were filled from sorted books)
+            "book_groups": [{"section": section, "books": books} for section, books in groups.items()],
+        },
+    )
+
+
+def ministries_index(request):
+    """All ministries and churches with content, alphabetically."""
+    ministries = [
+        {
+            "name": m.name,
+            "summary": m.summary,
+            "videosCount": m.videos_count,
+            "url": m.get_absolute_url(),
+        }
+        for m in Ministry.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0).order_by("name")
+    ]
+
+    return render(
+        request,
+        "MinistriesIndex",
+        {
+            "ministries": ministries,
+            "total": len(ministries),
         },
     )
 
