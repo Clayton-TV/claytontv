@@ -4,8 +4,8 @@
     {
       "name": "claytontv",
       "runtimeExecutable": "uv",
-      "runtimeArgs": ["run", "python", "manage.py", "runserver", "8765"],
-      "port": 8765
+      "runtimeArgs": ["run", "python", "manage.py", "runserver", "8000"],
+      "port": 8000
     },
     {
       "name": "vite",
