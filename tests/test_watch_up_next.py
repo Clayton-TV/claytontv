@@ -82,6 +82,21 @@ def test_up_next_next_is_null_for_the_final_episode(client):
     assert fetch_up_next(client, two)["next"] is None
 
 
+def test_next_endpoint_serves_the_mini_player(client):
+    """The docked mini-player chains episodes without page navigation."""
+    series = SeriesFactory(name="Acts")
+    one = VideoFactory(name="Part 1", number_in_series=1)
+    two = VideoFactory(name="Part 2", number_in_series=2)
+    series.videos.add(one, two)
+
+    data = client.get(f"/api/video/{one.id}/next").json()
+
+    assert data["next"]["name"] == "Part 2"
+    assert data["next"]["id"] == two.id
+    assert client.get(f"/api/video/{two.id}/next").json()["next"] is None
+    assert client.get("/api/video/999999/next").status_code == 404
+
+
 def test_up_next_falls_back_to_date_order_when_numbers_are_missing(client):
     """Legacy series often have no number_in_series at all; the next episode
     is then the next-recorded one."""

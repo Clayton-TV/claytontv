@@ -2,11 +2,11 @@
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import SectionHeading from '@/molecules/SectionHeading.vue';
 import ShareButton from '@/molecules/ShareButton.vue';
-import VideoViewer from '@/organisms/VideoViewer.vue';
 import { Skeleton } from '@/ui/skeleton';
-import { Deferred, Head, Link, router } from '@inertiajs/vue3';
+import { Deferred, Head, Link } from '@inertiajs/vue3';
 import { IconBook, IconFileText, IconHeadphones, IconRotateClockwise } from '@tabler/icons-vue';
 import { onBeforeUnmount, onMounted, ref, watch as vueWatch } from 'vue';
+import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 
 const props = defineProps({
@@ -17,43 +17,36 @@ const props = defineProps({
     up_next: { type: Object, required: false, default: null },
 });
 
-const { saveProgress, resumePoint } = useWatchHistory();
+// This page doesn't own a player. The persistent player (AppLayout) does;
+// we hand it the video and register the placeholder it positions over —
+// so a video that followed the viewer here as a mini-player just keeps
+// playing when they arrive.
+const dock = usePlayerDock();
+const { resumePoint } = useWatchHistory();
 
+const placeholderEl = ref(null);
 const resumedFrom = ref(0);
-const autoplay = ref(false);
-const AUTOPLAY_FLAG = 'ctv:autoplay';
 
-// Per-video init; re-fires on SPA navigation between watch pages, where this
-// page component is reused (the viewer itself remounts via :key).
 vueWatch(
     () => props.video.id,
     (id) => {
-        // The watched tick now comes from saveProgress at 80% played — honest,
-        // not opened-counts-as-watched.
-        // Resume where the viewer left off — baked into the embed URL before render
-        resumedFrom.value = resumePoint(id);
-        // Arriving because the previous episode ended? (One-shot flag from onEnded.)
-        autoplay.value = typeof window !== 'undefined' && window.sessionStorage.getItem(AUTOPLAY_FLAG) === String(id);
-        if (autoplay.value) window.sessionStorage.removeItem(AUTOPLAY_FLAG);
+        const loaded = dock.load(
+            { id, name: props.video.name, url: props.video.url },
+            // Resume where the viewer left off, baked into the embed URL
+            { autoplay: false, startAt: resumePoint(id) },
+        );
+        // Only mention resuming when this visit actually (re)loaded the player
+        resumedFrom.value = loaded ? dock.resumedFrom.value : 0;
     },
     { immediate: true },
 );
 
-const viewer = ref(null);
-
-const onProgress = (seconds, duration) => saveProgress(props.video.id, seconds, duration, props.video.name);
-
-const onEnded = () => {
-    const next = props.up_next?.next;
-    if (!next) return;
-    // Continue the course: flag the next episode to start playing on arrival
-    window.sessionStorage.setItem(AUTOPLAY_FLAG, String(next.id));
-    router.visit(`/video/${next.id}`);
-};
+onMounted(() => dock.setPlaceholder(placeholderEl.value));
+onBeforeUnmount(() => dock.setPlaceholder(null));
 
 const startOver = () => {
-    viewer.value?.player.seekTo(0);
-    viewer.value?.player.play();
+    dock.controls.value?.seekTo(0);
+    dock.controls.value?.play();
     resumedFrom.value = 0;
 };
 
@@ -62,31 +55,6 @@ const formatTime = (totalSeconds) => {
     const seconds = Math.floor(totalSeconds % 60);
     return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
-
-// Playback keys for power users — never when typing, never disturbing the
-// native player's own shortcuts (which apply while the iframe has focus)
-const onKeydown = (event) => {
-    if (event.metaKey || event.ctrlKey || event.altKey) return;
-    const target = event.target;
-    if (target instanceof HTMLElement && (target.isContentEditable || target.matches('input, textarea, select'))) return;
-    const player = viewer.value?.player;
-    if (!player) return;
-    if (event.key === ' ' || event.key === 'k') {
-        event.preventDefault();
-        player.toggle();
-    } else if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        player.seekBy(-10);
-    } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        player.seekBy(10);
-    } else if (event.key === 'm') {
-        player.toggleMute();
-    }
-};
-
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 const resourceMeta = {
     transcript: { label: 'Read the transcript', icon: IconFileText },
@@ -114,7 +82,8 @@ const entries = (key) => {
 <template>
     <Head :title="video.name" />
     <div class="mx-auto max-w-5xl px-4 py-8 lg:px-8">
-        <VideoViewer ref="viewer" :key="video.id" :video="video" :start="resumedFrom" :autoplay="autoplay" @progress="onProgress" @ended="onEnded" />
+        <!-- The persistent player (AppLayout) positions itself over this -->
+        <div ref="placeholderEl" class="aspect-video w-full rounded-xl bg-black" aria-hidden="true"></div>
 
         <!-- Quiet note when playback picked up where the viewer left off -->
         <p v-if="resumedFrom" class="mt-3 flex items-center gap-2 text-sm text-gray-400">
