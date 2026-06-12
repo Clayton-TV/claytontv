@@ -4,12 +4,21 @@ import SectionHeading from '@/molecules/SectionHeading.vue';
 import VideoViewer from '@/organisms/VideoViewer.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Deferred, Head, Link } from '@inertiajs/vue3';
+import { IconBook, IconFileText, IconHeadphones } from '@tabler/icons-vue';
 
 const props = defineProps({
     video: { type: Object, required: true },
     video_metadata: { type: Object, required: false, default: () => ({}) },
+    passage: { type: Object, required: false, default: null },
+    resources: { type: Array, required: false, default: () => [] },
     up_next: { type: Object, required: false, default: null },
 });
+
+const resourceMeta = {
+    transcript: { label: 'Read the transcript', icon: IconFileText },
+    audio: { label: 'Listen to the audio', icon: IconHeadphones },
+    other: { label: 'Related resource', icon: IconFileText },
+};
 
 // Ordered, labelled metadata groups; absent keys simply don't render.
 const metaGroups = [
@@ -36,6 +45,15 @@ const entries = (key) => {
         <div class="mt-6">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h1 class="font-display text-2xl leading-tight font-bold text-gray-50 sm:text-3xl">{{ video.name }}</h1>
+                <Link
+                    v-if="passage"
+                    :href="passage.url"
+                    prefetch
+                    class="bg-primary/15 text-primary focus-visible:ring-ring hover:bg-primary/25 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-2"
+                >
+                    <IconBook class="h-4 w-4" aria-hidden="true" />
+                    {{ passage.label }}
+                </Link>
                 <span v-if="video.is_livestream" class="rounded bg-white/10 px-2 py-0.5 text-xs font-bold tracking-wide text-gray-300 uppercase">
                     Streamed
                 </span>
@@ -62,6 +80,21 @@ const entries = (key) => {
             </div>
 
             <p v-if="video.description" class="mt-6 max-w-prose text-[15px] leading-relaxed text-gray-400" v-html="video.description"></p>
+
+            <!-- Rescued companion links (transcripts/audio on partner sites) -->
+            <div v-if="resources.length" class="mt-6 flex flex-wrap gap-3">
+                <a
+                    v-for="resource in resources"
+                    :key="resource.url"
+                    :href="resource.url"
+                    rel="noopener"
+                    target="_blank"
+                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                >
+                    <component :is="(resourceMeta[resource.kind] || resourceMeta.other).icon" class="h-4 w-4" aria-hidden="true" />
+                    {{ (resourceMeta[resource.kind] || resourceMeta.other).label }}
+                </a>
+            </div>
         </div>
 
         <Deferred data="up_next">

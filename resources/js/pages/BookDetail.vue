@@ -48,7 +48,9 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                     <IconX class="h-3.5 w-3.5" aria-hidden="true" /> Clear
                 </button>
             </div>
-            <div class="mt-3 flex flex-wrap gap-2">
+            <!-- auto-fill 1fr: equal columns that fill the row edge-to-edge and
+                 wrap into filled rows (calendar-style), instead of ragged flex-wrap -->
+            <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-2">
                 <button
                     v-for="chapter in chapters"
                     :key="chapter"
@@ -59,7 +61,7 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'border-white/15 text-gray-300 hover:border-white/30 hover:text-white'
                     "
-                    class="focus-visible:ring-ring inline-flex h-10 min-w-10 items-center justify-center rounded-lg border px-2 text-sm font-medium tabular-nums transition-colors duration-150 outline-none focus-visible:ring-2"
+                    class="focus-visible:ring-ring flex h-10 items-center justify-center rounded-lg border text-sm font-medium tabular-nums transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
                     {{ chapter }}
                 </button>
