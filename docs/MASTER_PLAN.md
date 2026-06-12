@@ -28,9 +28,13 @@
 - ✅ Epic 6 phase 1 polish deployed (#176): mobile horizontal overflow fixed
   (w-svw overlay), keyboard-focusable cards, visible active-nav, lazy images,
   reduced-motion-safe micro-interactions, 44px targets, brand tokens.
-  ▶️ **Next: Epic 2 importer rework (upserts, multi-URL, lookups, related
-  resources, incremental sync); Epic 6 phase 2 (typography, homepage, watch
-  page, light mode).**
+- ✅ Epic 6 phases 6.0–6.3 deployed (#177): redesign direction approved via
+  mockup, typography roles (Lexend/Inria), new app shell (reka-ui Sheet nav —
+  Headless UI gone, SSR mismatch source removed), curated homepage (props
+  299 KB → 6.1 KB). Vue Motion deferred to 6.7 by design decision.
+  ▶️ **Next: Epic 6.4 watch page + 6.5 series/topic course pages (the visual
+  heart of the redesign); then Epic 2 importer rework. SSR default-on
+  candidate now the nav is reka-ui — verify hydration then enable.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
