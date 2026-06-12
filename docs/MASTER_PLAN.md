@@ -12,8 +12,10 @@
   (see docs/DEPLOYMENT.md). **Leftover:** wire Sentry + PostHog DSNs into the
   app, and `CONN_HEALTH_CHECKS=True` in production settings (postgres restarts
   500'd prod once via stale pooled connections).
-- ▶️ **Next: Epic 2.0 — emergency transcript/audio mirror off clayton.tv**
-  (953 transcripts, 836 audio links; the legacy site may die within weeks).
+- ✅ Epic 2.0 rescue resolved (see Epic 2 below): no legacy transcript corpus
+  ever existed — links were external references; bit.ly rot defused.
+  ▶️ **Next: Epic 1 leftovers (Sentry/PostHog wiring, CONN_HEALTH_CHECKS),
+  then Epic 2 importer rework (upserts, multi-URL, related resources).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
@@ -91,15 +93,20 @@ Goal: a deployable, observable beta target. (Needs SSH access + Cloudflare subdo
 - Exit: smoke page live on beta with an intentional test error visible in Sentry and a
   pageview in PostHog.
 
-### Epic 2 — Data rescue & idempotent pipeline ⚠️ time-critical
-Goal: get *all* recoverable legacy data safe before clayton.tv dies, and make imports
-non-destructive.
-- **2.0 Emergency mirror (can run before/parallel to anything):** download the 953
-  transcript files + 836 audio links referenced in the legacy dump; archive raw dumps
-  and scraped CSVs off-site.
-- Extend the Video model: transcript (text + source), audio link, multiple platform
-  URLs (the dump holds ~9.6k YouTube and ~9.6k Vimeo URLs; today only `media[0]`
-  survives).
+### Epic 2 — Data rescue & idempotent pipeline
+Goal: get all recoverable legacy data safe, and make imports non-destructive.
+- ✅ **2.0 Emergency rescue — resolved; scope was misdiagnosed.** The dump's
+  transcript/audio "links" were always external reference links
+  (printandaudio.org.uk, desiringgod.org, paultripp.com), never hosted files —
+  see data/legacy_rescue/README.md. The one genuine rot risk (162 bit.ly links)
+  is defused: resolved to permanent URLs in
+  data/legacy_rescue/external_resource_links.csv. Nothing else of value lives on
+  the dying server (its 13 self-hosted thumbnails were already 404; #81
+  fallbacks cover those videos). **Transcript search will be built on YouTube
+  captions (Epic 4), not a legacy corpus.**
+- Extend the Video model: related external resources (from the rescue mapping),
+  multiple platform URLs (the dump holds ~9.6k YouTube and ~9.6k Vimeo URLs;
+  today only `media[0]` survives).
 - Replace delete-all importers with upserts keyed on legacy ProgrammeID/ref; restore
   the unique constraints dropped "for testing" (#86); fix series→video linking; handle
   the 37 duplicate legacy refs and comma-in-topic names (#88) explicitly.
@@ -155,10 +162,11 @@ Goal: beta is the credible successor.
 
 ## 5. MoSCoW (settled 2026-06-12)
 
-**Must:** Epics 0–5 inclusive — toolchain, beta env + Sentry/PostHog wiring, data
-rescue + idempotent imports + transcript capture, real auth (single admin), YouTube
-livestream MVP with transcript fetch, transcript-aware Typesense search, a11y/UX
-baseline (light mode fix, sanitized descriptions, WCAG AA basics).
+**Must:** Epics 0–5 inclusive — toolchain, beta env + Sentry/PostHog wiring,
+idempotent imports + related-resource metadata (rescue artifacts in
+data/legacy_rescue/), real auth (single admin), YouTube livestream MVP with
+caption/transcript fetch, transcript-aware Typesense search, a11y/UX baseline
+(light mode fix, sanitized descriptions, WCAG AA basics).
 
 **Should:** Inertia v3 + SSR (gated on adapter spike), full #164 revamp polish,
 automated ingest from trusted channels (#12), advanced search filters (#7), scraper
