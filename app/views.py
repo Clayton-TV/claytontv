@@ -1,7 +1,7 @@
 from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 from inertia import defer, optional, render
 
 from catalogue.models.bible_book import Bible_Book
@@ -507,35 +507,52 @@ def topics_index(request):
 
 
 def speakers_index(request):
-    """Speaker directory: filterable, alphabetical, paginated."""
+    """Lookup-first speaker page (per docs/DESIGN_SPEC.md): a search hero for
+    "do you have X?", a curated featured tier for discovery, and the 600-name
+    long tail as a compact scroll-deferred A-Z list — never a card dump."""
     query = request.GET.get("q", "").strip()
-    speakers_qs = Speaker.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0).order_by("name")
-    if query:
-        speakers_qs = speakers_qs.filter(name__icontains=query)
+    base = Speaker.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0)
+    total = base.count()
 
-    paginator = Paginator(speakers_qs, 48)
-    try:
-        page_num = int(request.GET.get("page", 1))
-    except ValueError:
-        page_num = 1
-    paginated = paginator.page(page_num)
+    def entry(speaker):
+        return {"name": speaker.name, "videosCount": speaker.videos_count, "url": speaker.get_absolute_url()}
+
+    if query:
+        return render(
+            request,
+            "SpeakersIndex",
+            {
+                "query": query,
+                "total": total,
+                "results": [entry(s) for s in base.filter(name__icontains=query).order_by("name")[:60]],
+            },
+        )
+
+    featured = []
+    for speaker in base.order_by("-videos_count")[:8]:
+        top_series = (
+            Series.objects.filter(videos__speaker=speaker)
+            .annotate(n=Count("videos", filter=Q(videos__speaker=speaker)))
+            .order_by("-n")
+            .first()
+        )
+        featured.append({**entry(speaker), "knownFor": top_series.name if top_series else None})
+
+    def all_speakers():
+        groups = {}
+        for speaker in base.order_by("name"):
+            groups.setdefault(speaker.name[0].upper(), []).append(entry(speaker))
+        return [{"letter": letter, "speakers": speakers} for letter, speakers in sorted(groups.items())]
 
     return render(
         request,
         "SpeakersIndex",
         {
-            "speakers": [
-                {
-                    "name": s.name,
-                    "videosCount": s.videos_count,
-                    "url": s.get_absolute_url(),
-                }
-                for s in paginated.object_list
-            ],
-            "query": query,
-            "total": paginator.count,
-            "has_prev_page": paginated.has_previous(),
-            "has_next_page": paginated.has_next(),
+            "query": "",
+            "total": total,
+            "featured": featured,
+            # The full directory loads only when scrolled to (WhenVisible)
+            "all_speakers": optional(all_speakers),
         },
     )
 
