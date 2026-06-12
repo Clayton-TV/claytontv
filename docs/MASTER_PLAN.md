@@ -36,9 +36,12 @@
   deferred "More in this series" rail (first Inertia v3 deferred prop),
   Browse/Search restyled to the language, hover prefetch across nav/cards/
   chips.
-  ▶️ **Next: Epic 6.5 series/topic course landing pages (CategoriesBrowse
-  rework); Epic 2 importer rework; SSR default-on candidate (nav is reka-ui
-  now — verify hydration then enable).**
+- ✅ Epic 6.5 deployed (#179): /series course landing + /series/<name> course
+  pages + /topic grouped chips. Fixed the series zero-episode bug (third face
+  of the decoy-relation trap) and the browse_categories N+1 sweep.
+  ▶️ **Next: Epic 2 importer rework (quirk list is now long and concrete);
+  remaining 6.5b (speakers/books/ministries landings), 6.7 motion pass,
+  6.8 light mode + a11y audit; SSR default-on verify.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
