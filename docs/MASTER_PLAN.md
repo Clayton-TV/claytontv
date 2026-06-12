@@ -13,10 +13,24 @@
   PostHog + CONN_HEALTH_CHECKS — **activation awaits two values from Jamie:**
   `SENTRY_DSN` in the beta `.env` and `VITE_POSTHOG_KEY` as a GitHub beta
   environment secret.
-- ✅ Epic 2.0 rescue resolved (see Epic 2 below): no legacy transcript corpus
-  ever existed — links were external references; bit.ly rot defused.
-  ▶️ **Next: Epic 1 leftovers (Sentry/PostHog wiring, CONN_HEALTH_CHECKS),
-  then Epic 2 importer rework (upserts, multi-URL, related resources).**
+- ✅ Epic 2.0 rescue resolved: no legacy transcript corpus ever existed (links
+  were external references); bit.ly rot defused; legacy admin ID→name lookup
+  tables captured (data/legacy_rescue/lookups/). Live admin's newest programme
+  is ID 12404 vs the dump's 10732 — **~1,670 programmes added since the dump**,
+  raising the priority of Epic 2's incremental sync.
+- ✅ Livestreams live on beta: 654 flagged via backfill_livestream_flags
+  (importer had the column commented out); homepage "Watch Live" hero now
+  shows. Run the backfill after deploys until the importer rework lands.
+  "Live now" detection needs the YouTube Data API (keyless embed is dead,
+  Error 153) → Epic 4.
+- ✅ Series counts fixed (every series showed "0 programmes" — counted the
+  never-populated FK instead of the Series.videos M2M).
+- ✅ Epic 6 phase 1 polish deployed (#176): mobile horizontal overflow fixed
+  (w-svw overlay), keyboard-focusable cards, visible active-nav, lazy images,
+  reduced-motion-safe micro-interactions, 44px targets, brand tokens.
+  ▶️ **Next: Epic 2 importer rework (upserts, multi-URL, lookups, related
+  resources, incremental sync); Epic 6 phase 2 (typography, homepage, watch
+  page, light mode).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
