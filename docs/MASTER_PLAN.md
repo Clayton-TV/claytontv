@@ -73,9 +73,12 @@
   featured voices + scroll-deferred A–Z directory. **The destinations round
   is complete** — every page from the design spec's first wave now ships its
   intended answer.
+- ✅ Quick wins deployed (#187): share button (native sheet + copy/WhatsApp)
+  and localStorage watched-memory (ticks on cards + episode rows), no accounts.
   ▶️ **Next: 6.7 motion pass (Vue Motion returns for interactive moments),
-  6.8 light mode + empty states + WCAG audit (closes Epic 6). Cross-cutting
-  quick wins from the spec: share button, localStorage resume. Epic 2
+  6.8 light mode + empty states + WCAG audit (closes Epic 6). Remaining spec
+  win: localStorage "continue watching" rail (needs a small video-by-ids
+  endpoint). Epic 2
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
   orphans + identical browse-tree twins collapsed in the ingestion.)
