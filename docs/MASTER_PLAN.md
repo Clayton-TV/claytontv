@@ -3,6 +3,22 @@
 > Living document. Owner: Jamie Gardner (@thatgardnerone). Started 2026-06-12.
 > Sign-off authority for the beta release: Ettie (project director) + Frances (data lead).
 
+## 0. Current status — update every session
+
+**As of 2026-06-12 (evening):**
+- ✅ Epic 0 complete (toolchain, Inertia v3 spike, test harness, CLAUDE.md).
+- ✅ Epic 1 infrastructure complete: beta live at https://beta.claytontv.co.uk
+  (full catalogue), push-to-deploy from `beta`, server hardened/upgraded
+  (see docs/DEPLOYMENT.md). **Leftover:** wire Sentry + PostHog DSNs into the
+  app, and `CONN_HEALTH_CHECKS=True` in production settings (postgres restarts
+  500'd prod once via stale pooled connections).
+- ▶️ **Next: Epic 2.0 — emergency transcript/audio mirror off clayton.tv**
+  (953 transcripts, 836 audio links; the legacy site may die within weeks).
+- Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
+  Google Workspace creds when Epic 4 starts.
+- Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
+  mostly affect main's stale lockfiles.
+
 ## 1. Mission & urgency
 
 Clayton TV provides Christian media you can trust. The legacy site (`clayton.tv`) is
@@ -59,8 +75,8 @@ Goal: modern toolchain + a safety net, before any feature work.
   feature tests for homepage/watch/search, query-count regression test, 60%
   coverage gate in CI (65% at introduction — ratchet upward). Killed the
   homepage N+1 that 504'd beta.
-- **0.4 Agent/team docs:** CLAUDE.md, contributor quickstart for the uv world,
-  Herd proxy local HTTPS (`herd proxy claytontv http://127.0.0.1:8000 --secure`).
+- ✅ **0.4 Agent/team docs:** CLAUDE.md (commands, workflow, architecture traps),
+  README quickstart for the uv world, Herd proxy local HTTPS.
 - Exit: CI green on `beta`, dev server runs on 3.14/Django 6 locally, decision log
   updated.
 
