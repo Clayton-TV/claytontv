@@ -8,7 +8,9 @@ from .base_settings import *  # noqa: F403
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["claytontv.test", "claytontv.co.uk", "*.claytontv.co.uk"]
+# Django wildcard syntax is a leading dot (".example.com" matches subdomains);
+# the previous "*.claytontv.co.uk" entry matched nothing.
+ALLOWED_HOSTS = ["claytontv.test", "claytontv.co.uk", ".claytontv.co.uk"]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
