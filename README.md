@@ -1,154 +1,92 @@
+# Clayton TV
+
+Clayton TV provides Christian media you can trust.
+
+> The revamp roadmap lives in [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+
 ## 1. Clone the repository
-Start by cloning the repository and navigating to the project directory:
+
 ```bash
 git clone git@github.com:clayton-tv/claytontv.git
 cd claytontv
 ```
 
-## 2. Create a virtual environment
-The project uses Python 3.12. You can either install Python 3.12 on your system or use a version manager like `pyenv` to manage multiple Python versions.
+## 2. Install uv
 
-### A. Using `pyenv` (recommended)
-Install pyenv if you haven't already.
+The project uses [uv](https://docs.astral.sh/uv/) for Python and dependency
+management. uv installs the right Python (3.14, pinned in `.python-version`)
+automatically — no pyenv or system Python required.
+
 ```bash
-curl https://pyenv.run | bash
+# macOS / Linux / WSL
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
-
-You can check if `pyenv` is installed by running:
-```bash
-pyenv --version
-```
-
-Then, install Python 3.12 using `pyenv`:
-```bash
-pyenv install 3.12.10
-```
-
-Verify the installation shows the correct version, which should be `3.12.10`:
-```bash
-python --version 
-# Should output: Python 3.12.10
-```
-
-> Note: The project contains a `.python-version` file, which specifies the Python version to use. If you have `pyenv` installed, it will automatically switch to the specified version when you navigate to the project directory.
-
-You can now skip to Step 3 to install the dependencies.
-
-### B. Using a global Python installation (Not recommended)
-First, you will need to install Python 3.12 on your system. You can download it from the official Python website or use a package manager like `apt`, `brew`, or `choco` depending on your operating system.
-You can check if Python 3.12 is installed by running:
-```bash
-python --version
-# or
-python3 --version
-```
-If Python 3.12 is installed, you can create a virtual environment using the following command:
-```bash
-python3.12 -m venv venv
-source venv/bin/activate
-```
-
-You can now continue to Step 3 to install the dependencies.
 
 ## 3. Install dependencies
-> Make sure you have activated your virtual environment from Step 2 before running the following commands.
 
-This project uses Poetry for dependency management. Verify that Poetry is installed by running:
 ```bash
-poetry --version # Should show Poetry version 1.8.3 or later
+uv sync
+uv run pre-commit install
 ```
 
-### Install Poetry
-If you don't have Poetry installed, you can install it as follows.
-#### Linux, macOS, or WSL
-```bash
-curl -sSL https://install.python-poetry.org | python -
-```
+This creates `.venv/`, installs all locked dependencies (including dev tools),
+and sets up the pre-commit hooks.
 
-#### Windows (PowerShell)
-> Note: If you have installed Python through the Microsoft Store, replace `py` with `python` in the following command.
-```bash
-# Windows PowerShell
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
-```
-### Use Poetry to install dependencies
-Set up the project environment and install the dependencies:
-```bash
-poetry env use 3.12.10
-poetry install
-poetry run pre-commit install
-```
+## 4. Set up the environment
 
-This will:
-- Configure poetry to use Python 3.12.10.
-- Install all the dependencies listed in `pyproject.toml`.
-- Set up pre-commit hooks for code quality checks.
-
-## 4. Activate the Poetry environment
-We use Poe the Poet as a task manager, which helps self-document useful commands.
-
-Activate the poetry environment
 ```bash
-eval $(poetry env activate)
-```
-
-List the project commands
-```bash
-poe
+cp .env.example .env
+uv run poe generate-key   # writes a SECRET_KEY into .env
 ```
 
 ## 5. Run the application
-Before getting started, make sure you have the environment variables set up. You can copy the `.env.example` file to `.env` and modify it as needed:
+
+We use [Poe the Poet](https://poethepoet.natn.io/) as a task runner; it
+self-documents the useful commands:
+
 ```bash
-cp .env.example .env
+uv run poe          # list all tasks
+uv run poe dev      # run Django + Vite together (the usual dev loop)
 ```
 
-Generate a secret key and set it in the `.env` file:
+> Tip: `uv run` always uses the project venv — there is nothing to "activate".
+> If you prefer shorter commands, `source .venv/bin/activate` once per shell
+> and drop the `uv run` prefix.
+
+### Local HTTPS (optional, macOS)
+
+With [Laravel Herd](https://herd.laravel.com) installed you can proxy the dev
+server behind trusted local HTTPS:
+
 ```bash
-poe generate-key
+herd proxy claytontv http://127.0.0.1:8000 --secure
+# → https://claytontv.test
 ```
 
-Start the development environment using the following command:
+## 6. Everyday commands
+
 ```bash
-poe dev
-```
-> Note: The first time you run this command, you'll be asked to allow the package `concurrently` to be installed. Simply type `y` and hit enter.
-
-## 6. Troubleshooting
-
-## 7. More
-By way of documentation, this section details a few key aspects of the repository.
-
-### Manage
-To save a few extra key presses, you can run the django management commands directly using Poe.
-```bash
-poe manage
-# e.g. poe manage runserver
+uv run poe manage <cmd>   # any Django management command
+uv run poe test           # pytest suite
+uv run poe fix            # ruff lint --fix + format
+uv run poe lint-check     # lint without fixing (CI parity)
+uv run poe format-check   # format check (CI parity)
 ```
 
-### Pre-Commit Hooks
-The repository uses pre-commit hooks to enforce code quality checks. 
-These run automatically before each commit.
-You can find the configuration in the `.pre-commit-config.yaml` file.
+Pre-commit hooks (ruff + gitleaks) run automatically on commit; run them
+manually with:
 
-If you want to manually check the status of the hooks, you can run:
 ```bash
-pre-commit run --all-files --show-diff-on-failure
+uv run pre-commit run --all-files --show-diff-on-failure
 ```
 
-### Code Formatting and Linting
-Ruff is a fast Python linter and code formatter. It is used to enforce code style and catch common errors.
+## 7. Stack at a glance
 
-You can run the ruff formatter and linter with:
-```bash
-poe format
-poe lint
-```
-
-### Testing
-The repository uses pytest for testing. 
-
-You can run the tests using:
-```bash
-poe test
-```
+- **Backend:** Python 3.14, Django 6, Inertia (inertia-django), SQLite locally /
+  PostgreSQL in production
+- **Frontend:** Vue 3 + TypeScript + Vite + Tailwind CSS 4, shadcn-vue (reka-ui)
+- **Quality:** ruff, pytest (+pytest-django), oxlint/eslint/prettier, pre-commit,
+  gitleaks

@@ -1,51 +1,47 @@
-[tool.poetry]
+[project]
 name = "claytontv"
 version = "0.1.0"
 description = "Clayton TV provides Christian media you can trust."
-authors = ["Jamie Gardner <jamie@tgo.dev>"]
+authors = [{ name = "Jamie Gardner", email = "jamie@tgo.dev" }]
 readme = "README.md"
-package-mode = false
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0,<7.0",
+    "python-dotenv>=1.1",
+    "psycopg[binary]>=3.3",
+    "redis>=5.2",
+    "gunicorn>=23.0",
+    "poethepoet>=0.34",
+    "whitenoise>=6.9",
+    "dj-database-url>=2.3",
+    "inertia-django>=1.2",
+    "django-vite>=3.1",
+]
 
-[tool.poetry.dependencies]
-python = "~3.12.10"
-django = "^5.2.1"
-python-dotenv = "^1.1.0"
-psycopg2-binary = "^2.9.10"
-gunicorn = "^23.0.0"
-poethepoet = "^0.34.0"
-whitenoise = "^6.9.0"
-dj-database-url = "^2.3.0"
-inertia-django = "^1.2.0"
-django-vite = "^3.1.0"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^4.2.0"
-ruff = "^0.11.8"
-pytest = "^8.3.5"
-concurrently = "^2.1"
-pytest-django = "^4.11.1"
-django-seed = "^0.3.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2",
+    "ruff>=0.11",
+    "pytest>=8.3",
+    "pytest-django>=4.11",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.test_settings"
 
 [tool.poe.tasks]
 run = "python manage.py runserver --settings app.local_settings"
-format-check = "poetry run ruff format --check ."
-lint-check = "poetry run ruff check ."
+format-check = "ruff format --check ."
+lint-check = "ruff check ."
 
 [tool.poe.tasks.prod]
 help = "Run a production-like server"
 sequence = [
     "npm install",
     "npm run build-only",
-    "poetry run poe manage collectstatic --noinput",
-    "poetry run poe manage migrate",
-    "poetry run gunicorn app.wsgi"
+    "poe manage collectstatic --noinput",
+    "poe manage migrate",
+    "gunicorn app.wsgi",
 ]
 default_item_type = "cmd"
 
@@ -59,11 +55,11 @@ cmd = "python manage.py ${args}"
 
 [tool.poe.tasks.format]
 help = "Format all Python files according to the project style"
-cmd = "poetry run ruff format ."
+cmd = "ruff format ."
 
 [tool.poe.tasks.lint]
 help = "Lint all Python files and fix any fixable issues"
-cmd = "poetry run ruff check --fix ."
+cmd = "ruff check --fix ."
 
 [tool.poe.tasks.fix]
 help = "Lint and format all Python files"
@@ -71,7 +67,7 @@ sequence = ["lint", "format"]
 
 [tool.poe.tasks.test]
 help = "Run the test suite"
-cmd = "poetry run pytest"
+cmd = "pytest"
 
 [tool.poe.tasks.generate-key]
 help = "Generate a Django secret key and write it to the .env file if SECRET_KEY is empty"
