@@ -31,6 +31,8 @@ from .views import (
     browse_topic,
     index,
     search,
+    series_index,
+    topics_index,
     video,
 )
 
@@ -53,7 +55,7 @@ urlpatterns = [
     path("channel/", browse_categories, name="browse_categories_channel"),
     path("demographic/", browse_categories, name="browse_categories_demographic"),
     path("ministry/", browse_categories, name="browse_categories_ministry"),
-    path("series/", browse_categories, name="browse_categories_series"),
+    path("series/", series_index, name="browse_categories_series"),
     path("speaker/", browse_categories, name="browse_categories_speaker"),
-    path("topic/", browse_categories, name="browse_categories_topic"),
+    path("topic/", topics_index, name="browse_categories_topic"),
 ]

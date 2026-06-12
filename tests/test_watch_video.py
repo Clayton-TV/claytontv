@@ -8,7 +8,8 @@ pytestmark = pytest.mark.django_db
 
 def test_watch_page_renders_video_with_metadata(client):
     series = SeriesFactory(name="John's Gospel")
-    video = VideoFactory(name="The Word Became Flesh", series=series)
+    video = VideoFactory(name="The Word Became Flesh")
+    series.videos.add(video)  # series membership lives on the Series.videos M2M
     video.topic.add(TopicFactory(name="Incarnation"))
     video.speaker.add(SpeakerFactory(name="Jane Doe"))
 
