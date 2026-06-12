@@ -84,7 +84,7 @@ class Command(BaseCommand):
                             # number_in_series = row['number_in_series'],
                             name=row["Name"],
                             # speaker = row['speaker'],
-                            # is_livestream = row['IsLivestream'],
+                            is_livestream=row.get("IsLivestream", "").strip() == "1",
                             # topic = row['topic']
                             thumbnail=row["Thumbnail"],
                             date_recorded=self.parse_video_date(
