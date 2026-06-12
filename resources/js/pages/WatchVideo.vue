@@ -41,7 +41,7 @@ vueWatch(
 
 const viewer = ref(null);
 
-const onProgress = (seconds, duration) => saveProgress(props.video.id, seconds, duration);
+const onProgress = (seconds, duration) => saveProgress(props.video.id, seconds, duration, props.video.name);
 
 const onEnded = () => {
     const next = props.up_next?.next;

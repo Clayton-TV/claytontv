@@ -84,9 +84,16 @@
   a 42s episode played out, ended, navigated, and the next episode autoplayed.
   NOTE: Claude-in-Chrome cannot stream media (player UIs load, media stalls) —
   use Claude Preview for playback verification.
-  ▶️ **Next in 6.9: command palette (⌘K, shadcn Command) + global shortcuts →
-  persistent mini-player → continue-watching rail; transcript embeddings as a
-  parallel backend track (folds into Epic 5). Then 6.7 motion pass and 6.8
+- ✅ 6.9 slice 3 (#190): ⌘K command palette (shadcn Command over a capped
+  /api/palette endpoint — videos + series/speakers/topics/ministries/books
+  with counts), header search became the palette trigger, global shortcuts
+  (⌘K, /, ?) with a "?" help sheet, "Continue watching" group from
+  localStorage progress. Vendored command+dialog ui components (registry
+  fetch; CLI needs components.json we don't keep) with one patch: re-filter
+  on async item registration.
+  ▶️ **Next in 6.9: persistent mini-player → continue-watching rail on the
+  homepage; transcript embeddings as a parallel backend track (folds into
+  Epic 5). Then 6.7 motion pass and 6.8
   light mode + empty states + WCAG audit close Epic 6. Epic 2
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
