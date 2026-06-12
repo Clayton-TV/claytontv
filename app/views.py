@@ -30,7 +30,11 @@ def video_card_props(videos):
 
 
 def index(request):
-    livestreams = Video.objects.filter(is_livestream=True).order_by("-date_recorded")[:10]
+    # The homepage "Watch Live" section is for streams that are live or about
+    # to start — state we only get from the YouTube Data API (Epic 4). Until
+    # then it stays hidden rather than presenting old recordings as live.
+    # Past streams remain browsable at /livestreams.
+    livestreams = Video.objects.none()
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:10]
     topics_all = Topic.objects.all()
 
@@ -86,8 +90,8 @@ def browse_all_livestreams(request):
         request,
         "Browse",
         {
-            "title": "Live Streams",
-            "description": f"All livestreamed content, most recent first (page {page_num} of {paginator.num_pages})",
+            "title": "Past Live Streams",
+            "description": f"Recordings of previous live services, most recent first (page {page_num} of {paginator.num_pages})",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),

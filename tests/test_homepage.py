@@ -22,7 +22,9 @@ def test_homepage_renders_welcome_with_catalogue_props(client):
 
     props = page["props"]
     assert [v["name"] for v in props["latest_videos"]] == ["Romans 8 - More Than Conquerors"]
-    assert [v["name"] for v in props["livestreams"]] == ["Sunday Live"]
+    # "Watch Live" is for genuinely live/upcoming broadcasts (YouTube API,
+    # Epic 4) — past stream recordings must never appear there as if live.
+    assert props["livestreams"] == []
 
     (topic_entry,) = props["topics_data"]
     assert topic_entry["name"] == "Grace"

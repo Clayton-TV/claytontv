@@ -56,15 +56,13 @@ const getVideoThumbnail = (video) => {
                 <p class="line-clamp-1 h-6 truncate text-sm text-white tabular-nums">
                     {{ video.date_recorded ? 'Recorded: ' + video.date_recorded : 'Added: ' + video.date_created }}
                 </p>
+                <!-- A pulsing LIVE badge on a years-old recording is a lie; it returns
+                     in Epic 4 driven by real broadcast state from the YouTube API. -->
                 <p
-                    class="bg-primary text-primary-foreground flex w-min items-center gap-x-1.5 rounded px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase sm:px-2"
+                    class="flex w-min items-center rounded bg-white/15 px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase sm:px-2"
                     v-if="video.is_livestream"
                 >
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-50 motion-reduce:animate-none" />
-                        <span class="relative inline-flex h-full w-full rounded-full bg-white" />
-                    </span>
-                    <span class="pb-[1.5px]">Live</span>
+                    <span class="pb-[1.5px] whitespace-nowrap">Streamed</span>
                 </p>
             </div>
         </div>

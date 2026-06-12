@@ -141,6 +141,18 @@ Goal: real authentication and a workable editorial flow for Ettie/delegates.
 
 ### Epic 4 — YouTube livestream MVP (the headline feature)
 Goal: Sunday livestream → searchable library, automatically.
+
+**Product spec (Jamie, 2026-06-12):** "Given I'm an older church member who
+can't attend the morning service today, when I go to claytontv near the
+livestream's start time, then I see an option to play the livestream when it
+starts." Live/upcoming is ephemeral, API-driven state; once a stream ends it
+archives into the main library for search/reference. Model *provenance*
+(`is_livestream` — it was streamed) separately from *broadcast state*
+(upcoming/live/ended + scheduled start, from the API). Open product questions
+for Ettie: how early to surface the upcoming stream (15 min? 1 h? persistent
+"next service" slot with countdown — recommended for elderly early-arrivers);
+whether archived streams merge into "Latest" or sit behind a "Services"
+filter (weekly services would otherwise flood it).
 - YouTube Data API client (creds from Jamie's Google Workspace; channel
   `UCvME6kEF02MqliB5TNHFLZA`; spike notes in #109).
 - Scheduled jobs (cron/supervisord): discover upcoming/live broadcasts; livestream page
