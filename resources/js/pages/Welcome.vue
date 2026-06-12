@@ -9,6 +9,7 @@ import { IconArrowRight } from '@tabler/icons-vue';
 
 const props = defineProps({
     livestreams: { type: Array, default: () => [] },
+    next_service: { type: Object, default: null },
     latest_videos: { type: Array, default: () => [] },
     featured_series: { type: Array, default: () => [] },
     topics_data: { type: Array, default: () => [] },
@@ -54,7 +55,7 @@ const entrance = (delayMs) => ({
                 </div>
             </div>
             <div v-bind="entrance(80)">
-                <NextServiceCard />
+                <NextServiceCard :livestreams="livestreams" :next-service="next_service" />
             </div>
         </section>
 

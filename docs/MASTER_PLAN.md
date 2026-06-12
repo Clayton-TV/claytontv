@@ -107,10 +107,15 @@
   leftovers: ministry trees, series covers (first-episode thumbnail), the
   227 duplicate-URL programmes from 2.1. (✅ Series dedup done: 2,667→1,905,
   orphans + identical browse-tree twins collapsed in the ingestion.)
-  Epic 4 (YouTube API) awaits Workspace creds; sync activation awaits
-  LEGACY_ADMIN credentials in the beta .env.**
+  ✅ Epic 4 MVP built (#192): LiveStream model + sync_live_streams
+  (hourly --discover search / 5-min cheap refresh, channels self-discovered
+  from the catalogue's livestream videos) + homepage live/next-service slot
+  with three honest states. Awaiting YOUTUBE_API_KEY (Jamie mints in the
+  tgosolutionsltd gcloud project — runbook in DEPLOYMENT.md) before the
+  beta cron goes live. Legacy sync activation still awaits LEGACY_ADMIN
+  credentials in the beta .env.**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
-  Google Workspace creds when Epic 4 starts.
+  YOUTUBE_API_KEY in beta .env (and local .env for a live smoke test).
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
   mostly affect main's stale lockfiles.
 

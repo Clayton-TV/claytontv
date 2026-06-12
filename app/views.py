@@ -16,6 +16,7 @@ from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import Video
 from catalogue.passages import parse_passage, passage_label
+from catalogue.youtube_live import homepage_live_props
 
 pagination_per_page = 24
 
@@ -25,12 +26,13 @@ def index(request):
     series and topics. Everything else is one click deeper — the previous
     everything-dump shipped ~300 kB of props and 1,069 series cards.
 
-    `livestreams` is for genuinely live/upcoming broadcasts (YouTube API,
-    Epic 4); until then it stays empty rather than presenting recordings as
-    live. Series counts use the Series.videos M2M (what link_series populates);
-    topic counts use the reverse of Video.topic (what link_videos populates).
+    `livestreams`/`next_service` come from the LiveStream table kept fresh by
+    the sync_live_streams command (Epic 4). Series counts use the
+    Series.videos M2M (what link_series populates); topic counts use the
+    reverse of Video.topic (what link_videos populates).
     """
     latest_videos = Video.objects.filter(is_livestream=False).order_by("-date_recorded")[:6]
+    live_now, next_service = homepage_live_props()
 
     def featured_series():
         return [
@@ -61,7 +63,8 @@ def index(request):
         request,
         "Welcome",
         {
-            "livestreams": [],
+            "livestreams": live_now,
+            "next_service": next_service,
             "latest_videos": video_card_props(latest_videos),
             # Below-the-fold sections load when scrolled into view (WhenVisible):
             # their queries don't run at all on first paint.
