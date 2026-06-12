@@ -7,11 +7,12 @@
 
 **As of 2026-06-12 (evening):**
 - ✅ Epic 0 complete (toolchain, Inertia v3 spike, test harness, CLAUDE.md).
-- ✅ Epic 1 infrastructure complete: beta live at https://beta.claytontv.co.uk
-  (full catalogue), push-to-deploy from `beta`, server hardened/upgraded
-  (see docs/DEPLOYMENT.md). **Leftover:** wire Sentry + PostHog DSNs into the
-  app, and `CONN_HEALTH_CHECKS=True` in production settings (postgres restarts
-  500'd prod once via stale pooled connections).
+- ✅ Epic 1 complete: beta live at https://beta.claytontv.co.uk (full
+  catalogue), push-to-deploy from `beta`, server hardened/upgraded
+  (docs/DEPLOYMENT.md). Observability wired (#175): Sentry + cookieless
+  PostHog + CONN_HEALTH_CHECKS — **activation awaits two values from Jamie:**
+  `SENTRY_DSN` in the beta `.env` and `VITE_POSTHOG_KEY` as a GitHub beta
+  environment secret.
 - ✅ Epic 2.0 rescue resolved (see Epic 2 below): no legacy transcript corpus
   ever existed — links were external references; bit.ly rot defused.
   ▶️ **Next: Epic 1 leftovers (Sentry/PostHog wiring, CONN_HEALTH_CHECKS),
