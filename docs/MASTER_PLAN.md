@@ -53,10 +53,17 @@
   ordered memberships, number_in_series, clean names — 690 mangled ones
   fixed), livestream flags now owned by the authoritative LIVE STREAMS tree,
   series URLs by stable id_number.
-  ▶️ **Next: 2.3 live-admin incremental scraper (in-repo, ~1,670 missing
-  programmes, cron) + dedup pass (227 duplicate listings itemized; CSV-era
-  series twins visible on /series); then the design-spec "destinations"
-  round (now fed: number_in_series, related resources, clean series).**
+- ✅ Epic 2.3 deployed: in-repo live-admin sync (same upsert core, cookie
+  auth with expiry detection, hourly cron installed on beta). **Activation
+  awaits Jamie pasting a fresh LEGACY_ADMIN_COOKIE into the beta .env**
+  (runbook in docs/DEPLOYMENT.md) — then the ~1,670 missing programmes
+  backfill via `sync_live_admin --pages 40` once, and hourly sync after.
+  ClayScraper + ctvDBreform are now fully superseded.
+  ▶️ **Next: the design-spec "destinations" round (speaker detail → series
+  detail v2 with numbered episode rows → book detail with passage strip →
+  speakers index pivot), plus the dedup pass (227 itemized + series twins).
+  Epic 2 leftovers: dedup, ministry trees, derived data (passage parsing,
+  series covers).**
 - Waiting on: Vimeo account answers from Ettie (asked 8pm 2026-06-12);
   Google Workspace creds when Epic 4 starts.
 - Dependabot triage: npm transitives fixed on beta (#174); remaining alerts
