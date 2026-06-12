@@ -64,6 +64,29 @@ const formatSchedule = (iso: string) => {
         </div>
     </div>
 
+    <!-- Service starts within the half-hour: embed the stream's own waiting
+         room — it shows the countdown and begins by itself when live -->
+    <div v-else-if="nextService?.starts_soon" class="border-primary/40 overflow-hidden rounded-xl border bg-white/[0.03]">
+        <div class="aspect-video w-full bg-black">
+            <iframe
+                class="h-full w-full"
+                :src="getEmbedUrl(nextService.url) || undefined"
+                allow="autoplay; clipboard-write; fullscreen; picture-in-picture"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+                :title="nextService.title"
+            ></iframe>
+        </div>
+        <div class="p-4">
+            <div class="flex items-center gap-2">
+                <span class="bg-primary inline-block h-2 w-2 rounded-full" aria-hidden="true"></span>
+                <p class="text-primary text-xs font-bold tracking-wider uppercase">Starting soon</p>
+            </div>
+            <p class="font-display mt-2 text-lg leading-snug font-bold text-gray-50">{{ nextService.title }}</p>
+            <p class="mt-1 text-sm text-gray-400 tabular-nums">{{ formatSchedule(nextService.scheduled_start) }} — the stream will begin here.</p>
+        </div>
+    </div>
+
     <!-- A real scheduled service: honest date and time, no countdown theatre -->
     <div v-else-if="nextService" class="rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
         <div class="flex items-center gap-2">
