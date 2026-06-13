@@ -9,8 +9,11 @@ import re
 from datetime import date
 
 # Topic names arrive with tree-depth prefixes of MINUS SIGN (U+2212) or
-# hyphens; categories arrive SHOUTING with stray whitespace.
-_DEPTH_PREFIX = re.compile(r"^[\s−\-]+")  # noqa: RUF001 — U+2212 is what the data contains
+# hyphens; categories arrive SHOUTING with stray whitespace. Some prefixes are
+# the MINUS SIGN double-encoded (UTF-8 bytes E2 88 92 read as Latin-1 →
+# U+00E2 U+0088 U+0092) — strip that exact triplet too, but not a lone "â"
+# (a name may legitimately begin with it).
+_DEPTH_PREFIX = re.compile("^(?:[\\s\u2212\\-]|\u00e2\u0088\u0092)+")  # U+2212 MINUS, or its double-encoding (E2 88 92)
 _WHITESPACE = re.compile(r"\s+")
 # programmeRef trailing date: "...CINews25.10.24" → 25 Oct 2024 (DD.MM.YY)
 _REF_DATE = re.compile(r"(\d{2})\.(\d{2})\.(\d{2})")

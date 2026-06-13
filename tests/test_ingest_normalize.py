@@ -35,6 +35,15 @@ def test_clean_name_collapses_the_whitespace_that_made_duplicates():
 def test_clean_topic_name_strips_dropdown_depth_prefixes():
     assert clean_topic_name("−−− The Sovereignty of God") == "The Sovereignty of God"  # noqa: RUF001
     assert clean_topic_name("--- Prayer") == "Prayer"
+
+
+def test_clean_topic_name_strips_mojibake_depth_prefix():
+    # The depth-marker MINUS SIGN (U+2212) double-encoded: UTF-8 bytes E2 88 92 read
+    # as Latin-1 → U+00E2 U+0088 U+0092. Real data: "The Grace of God".
+    mojibake = "âââ The Grace of God"
+    assert clean_topic_name(mojibake) == "The Grace of God"
+    # A name legitimately starting with â must NOT be stripped.
+    assert clean_topic_name("âccent on grace") == "âccent on grace"
     assert clean_topic_name("Apologetics") == "Apologetics"
 
 

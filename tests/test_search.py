@@ -31,3 +31,14 @@ def test_search_first_page_includes_matching_categories(client):
     assert ("Topics", "Grace") in categories
     assert ("Speakers", "Grace Jones") in categories
     assert ("Series", "Amazing Grace") in categories
+
+
+def test_search_category_labels_are_cleaned(client):
+    # Phase 6: depth-prefix mojibake leaked into search category chips.
+    video = VideoFactory()
+    video.topic.add(TopicFactory(name="â\x88\x92â\x88\x92â\x88\x92 Grace abounds"))
+
+    page = inertia_page(client.get("/search", {"search": "grace"}))
+
+    topic_names = [c["name"] for c in page["props"]["categories"] if c["category"] == "Topics"]
+    assert "Grace abounds" in topic_names
