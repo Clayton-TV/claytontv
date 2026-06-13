@@ -124,25 +124,39 @@ export function usePlayer(iframe: Ref<HTMLIFrameElement | null>, videoUrl: strin
         if (provider === 'vimeo') attachVimeo();
     };
 
+    // Commands → the YouTube embed go via the low-level postMessage protocol the
+    // IFrame API speaks, NOT youtube.playVideo()/seekTo(). The API reliably
+    // *receives* events from our persistent iframe (state flows back), but the
+    // player object's command methods are flaky against an iframe it didn't
+    // create itself — controlling it from the mini-player silently no-ops.
+    // Posting commands straight to contentWindow is robust to that. Getters
+    // (getCurrentTime/getDuration) still come off the YT.Player via infoDelivery.
+    const ytCommand = (func: string, args: unknown[] = []) => {
+        iframe.value?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), '*');
+    };
+
     const play = () => {
-        youtube?.playVideo?.();
+        ytCommand('playVideo');
         vimeo?.play().catch(() => {});
     };
     const pause = () => {
-        youtube?.pauseVideo?.();
+        ytCommand('pauseVideo');
         vimeo?.pause().catch(() => {});
     };
     const toggle = () => (playing.value ? pause() : play());
     const seekTo = (seconds: number) => {
         const target = Math.max(0, seconds);
-        youtube?.seekTo?.(target, true);
+        ytCommand('seekTo', [target, true]);
         vimeo?.setCurrentTime(target).catch(() => {});
         position.value = target;
+        // Reflect the new spot immediately (the heartbeat is paused while paused,
+        // so without this the mini-player bar wouldn't move until playback resumes)
+        callbacks.onProgress?.(target, duration.value);
     };
     const seekBy = (seconds: number) => seekTo(position.value + seconds);
     const toggleMute = () => {
-        if (youtube) {
-            muted.value ? youtube.unMute?.() : youtube.mute?.();
+        if (provider === 'youtube') {
+            ytCommand(muted.value ? 'unMute' : 'mute');
             muted.value = !muted.value;
         }
         vimeo?.getMuted().then((m) => {
