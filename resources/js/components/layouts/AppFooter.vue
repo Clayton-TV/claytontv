@@ -18,7 +18,7 @@ const columns = [
         links: [
             { name: 'Latest', href: '/latest' },
             { name: 'Series', href: '/series' },
-            { name: 'Past live streams', href: '/livestreams' },
+            { name: 'Services', href: '/livestreams' },
         ],
     },
     {

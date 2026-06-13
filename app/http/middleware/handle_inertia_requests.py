@@ -2,6 +2,8 @@ import os
 
 from inertia import share
 
+from catalogue.youtube_live import is_live_now
+
 # from .models import User
 
 
@@ -22,6 +24,10 @@ class HandleInertiaRequests:
                 }
             },
             sidebarOpen=request.COOKIES.get("sidebar_state", "false") == "true",
+            # Global flag for the "Live" nav indicator (one cheap exists()).
+            # Skipped for JSON /api/ endpoints (e.g. the keystroke-hot palette)
+            # which never render the nav, so they pay nothing for it.
+            live_now=False if request.path.startswith("/api/") else is_live_now(),
         )
 
         response = self.get_response(request)

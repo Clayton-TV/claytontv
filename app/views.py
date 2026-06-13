@@ -16,7 +16,7 @@ from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import Video
 from catalogue.passages import parse_passage, passage_label
-from catalogue.youtube_live import homepage_live_props
+from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_streams
 
 pagination_per_page = 24
 
@@ -81,21 +81,25 @@ def index(request):
 
 
 def browse_all_livestreams(request):
-    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by(RECENT_FIRST), pagination_per_page)
-    page_num = 1
+    """The Services destination: live now + upcoming scheduled services + the
+    past-services archive in one place (Epic 4). One obvious page for the
+    Sunday service, calm when nothing is on."""
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
+    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by(RECENT_FIRST), pagination_per_page)
     paginated = paginator.page(page_num)
     return render(
         request,
-        "Browse",
+        "Services",
         {
-            "title": "Past Live Streams",
-            "description": f"Recordings of previous live services, most recent first "
-            f"(page {page_num} of {paginator.num_pages})",
-            "videos": video_card_props(paginated.object_list),
+            "title": "Services",
+            "live": live_streams(),
+            "upcoming": upcoming_streams(),
+            "past": video_card_props(paginated.object_list),
+            "page": page_num,
+            "num_pages": paginator.num_pages,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
         },
