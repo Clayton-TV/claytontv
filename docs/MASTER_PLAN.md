@@ -115,9 +115,15 @@
   URL), sizes its own depth (page-until-known, no --pages guesswork),
   ingests per page (crash-safe), and fails loudly on an empty page 0.
   Sibling repos (ClayScraper/ctvDBreform) confirmed dead/not checked out —
-  the in-repo sync is the only pipeline. Backfill of ~1,700 programmes run
-  on beta 2026-06-12. NOTE: mediaUpdate.asp also exposes MediaDuration —
-  durations are harvestable in a later pass.
+  the in-repo sync is the only pipeline. Backfill of ~1,700 programmes
+  completed on beta 2026-06-13 (617 created, 711 updated; 9,862 videos).
+  Hourly self-sizing cron re-armed. Of 322 undated rows, 45 had a date
+  encoded in their programmeRef (admin left the date field blank) —
+  recovered via date_from_ref + a one-off backfill_dates_from_ref command
+  (#198); 277 remain genuinely undateable (music/audiobook content,
+  correctly nulls-last). /latest/ verified fresh; series+topic links
+  nonzero at full volume. NOTE: mediaUpdate.asp also exposes MediaDuration
+  — durations harvestable in a later pass.
   ✅ Epic 4 MVP built (#192): LiveStream model + sync_live_streams
   (hourly --discover search / 5-min cheap refresh, channels self-discovered
   from the catalogue's livestream videos) + homepage live/next-service slot
