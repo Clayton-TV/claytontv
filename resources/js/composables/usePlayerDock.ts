@@ -1,4 +1,4 @@
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 /**
  * Shared state for the persistent player (the "dock"). The iframe lives in
@@ -36,6 +36,39 @@ const controls = shallowRef<DockControls | null>(null);
 
 const mode = computed(() => (current.value ? (placeholder.value ? 'docked' : 'mini') : 'hidden'));
 
+// ----- survive a page refresh -----
+// The dock is in-memory, so a reload would drop whatever's playing. Mirror the
+// active video + position to localStorage (client-side; nothing to do with the
+// Django session) and rehydrate on boot via restore(). Cleared on close().
+const STORAGE_KEY = 'ctv:active-player';
+
+const persist = () => {
+    if (typeof localStorage === 'undefined') return;
+    if (!current.value) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+    }
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+            id: current.value.id,
+            name: current.value.name,
+            url: current.value.url,
+            position: Math.floor(position.value),
+        }),
+    );
+};
+
+// Save when the video changes (incl. clear on close) and as playback advances,
+// throttled so we're not writing every heartbeat tick.
+let lastSavedAt = 0;
+watch(current, persist);
+watch(position, (seconds) => {
+    if (!current.value || Math.abs(seconds - lastSavedAt) < 5) return;
+    lastSavedAt = seconds;
+    persist();
+});
+
 export function usePlayerDock() {
     /** Make this the playing video. Returns false (no-op) when it already is —
      * that's the seamless maximize: same iframe, playback never stops. */
@@ -63,6 +96,27 @@ export function usePlayerDock() {
         if (!el && !playing.value) close();
     };
 
+    /** Rehydrate the dock from localStorage on app boot (paused, at the saved
+     * timecode). No-op if nothing was playing or it's already restored. Called
+     * once from app.ts. */
+    const restore = () => {
+        if (typeof localStorage === 'undefined' || current.value) return;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        try {
+            const saved = JSON.parse(raw);
+            if (saved?.id && saved?.url) {
+                load({ id: saved.id, name: saved.name, url: saved.url }, { startAt: saved.position || 0 });
+                // load() zeroes position; seed it with the saved timecode so the
+                // bar shows the right spot (and a paused restore doesn't persist 0
+                // back over the saved value before the heartbeat catches up).
+                position.value = saved.position || 0;
+            }
+        } catch {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+    };
+
     return {
         current,
         next,
@@ -77,5 +131,6 @@ export function usePlayerDock() {
         load,
         close,
         setPlaceholder,
+        restore,
     };
 }
