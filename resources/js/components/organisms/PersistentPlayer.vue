@@ -140,7 +140,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         :class="
             dock.mode.value === 'docked'
                 ? 'z-10 overflow-hidden rounded-xl border border-white/10'
-                : 'mini-in fixed right-4 bottom-4 z-50 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/15 bg-gray-900 shadow-2xl'
+                : 'mini-in fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/15 bg-gray-900 shadow-2xl'
         "
     >
         <div :class="dock.mode.value === 'docked' ? 'h-full w-full' : 'aspect-video w-full'">

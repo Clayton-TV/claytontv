@@ -4,7 +4,10 @@
 <html class="h-full" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
+    {# viewport-fit=cover enables env(safe-area-inset-*) for notched devices. #}
+    {# Pinch-zoom is deliberately left enabled (no user-scalable=no / maximum-scale): #}
+    {# elderly users rely on it. Input-zoom is prevented via 16px controls in app.css. #}
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
 
     <script>
         // This script is used to detect the user's preferred color scheme and set the class on the html element.
@@ -35,7 +38,15 @@
     </style>
 
     <link rel="icon" href="{% static 'favicon.ico' %}" sizes="any" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+
+    {# Installability: add-to-homescreen → full-screen, chromeless app. #}
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Clayton TV">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
