@@ -5,6 +5,46 @@
 
 ## 0. Current status — update every session
 
+**As of 2026-06-13 — Functionality Overhaul in progress** (plan:
+`~/.claude/plans/synthetic-purring-shamir.md`; UX audit + 7-phase subplan,
+approved). All slices ship as their own PR → beta, TDD + Claude-Preview
+verified (view the app at **localhost:8000**, not 5173 — Vite is assets only).
+
+- ✅ Epic 4 closed: YouTube live/upcoming sync (#192-194) + Services
+  destination (#205) + starting-soon hero (#196). Key in beta .env; crons
+  armed (discover hourly, refresh 5-min, durations daily, legacy sync hourly).
+- ✅ Legacy staleness fixed: LEGACY_ADMIN creds set; sync hardened
+  (self-sizing, per-page, media-hop for the link the meta form dropped) +
+  ~1,700 backfill (#195); ref-date recovery (#197/#198); demographics linked
+  from CSV (#199); durations harvested (#200).
+- **Functionality Overhaul phases:** P1 close-Epic-6 ✅ (empty states +
+  text-size #202; motion #203; a11y skip-link #204) — **light mode + theme
+  toggle DEFERRED (#30, the one P1 piece left):** big repaint of the
+  hardcoded-grey dark surface (365 occ / 42 files); dark tokens already
+  mirror the greys so a semantic-token migration is low-risk to dark, but
+  Jamie wants eyes on it → do as its own reviewed PR. P2 Services ✅. P3
+  faceted /browse ✅ (#206). P4 durations everywhere ✅ (#207). P5 audiences
+  /audience + nav restructure (Home·Browse·Latest·Live) ✅ (#208).
+  ▶️ **REMAINING: P6 data blemishes, P7 app-feel/PWA, + the deferred light mode.**
+- **P6 data-quality (next, findings ready):** (a) topics_index shows a
+  duplicate group because two category strings exist — `"Christian Life"`
+  (16) and the typo `"Christian LIfe"` (1); fix by normalizing the grouping
+  key (casefold/clean) while keeping a tidy display label. (b) Search/topics
+  show a mojibake name: Topic "The Grace of God" is stored as the depth
+  prefix double-encoded — bytes `E2 88 92`×3 (UTF-8 "−−−") decoded as
+  Latin-1, i.e. `â`×3. `clean_topic_name` strips real
+  U+2212/hyphen prefixes but not this mojibake; extend its prefix regex (or
+  a normalize step) to strip the `â` sequence too, and apply
+  cleaning to the search category labels. (Duplicate series name-variants in
+  search e.g. "...& Truth" vs "...and Truth" are genuinely distinct rows —
+  leave out of scope; a data merge, not display.)
+- **P7 app-feel/PWA:** input-zoom fix via 16px (NOT maximum-scale — keep
+  pinch-zoom, hard rule), user-select/touch-callout on buttons, manifest +
+  icons + apple-touch-icon, safe-area insets. Service worker flagged, not built.
+- Verification tooling reminders live in ~/.claude memory (MEMORY.md):
+  localhost:8000 vs 5173; Claude-in-Chrome can't stream media (use Preview);
+  decoy relations (Video.series FK + Video.ministry M2M both unpopulated).
+
 **As of 2026-06-12 (evening):**
 - ✅ Epic 0 complete (toolchain, Inertia v3 spike, test harness, CLAUDE.md).
 - ✅ Epic 1 complete: beta live at https://beta.claytontv.co.uk (full
