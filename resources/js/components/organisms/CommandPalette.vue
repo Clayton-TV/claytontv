@@ -81,7 +81,7 @@ const navShortcuts = [
 
 <template>
     <CommandDialog v-model:open="paletteOpen" title="Search" description="Search teaching, series, speakers and more">
-        <CommandInput placeholder="Search teaching, series, speakers…" @update:model-value="onQuery" />
+        <CommandInput aria-label="Search teaching, series, speakers" placeholder="Search teaching, series, speakers…" @update:model-value="onQuery" />
         <CommandList>
             <CommandEmpty v-if="query.trim()">No matches for “{{ query }}”</CommandEmpty>
 
