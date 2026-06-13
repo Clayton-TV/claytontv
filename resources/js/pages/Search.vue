@@ -2,7 +2,7 @@
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
-const props = defineProps({
+defineProps({
     categories: {
         type: Array,
         default: () => [],

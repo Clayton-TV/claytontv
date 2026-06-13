@@ -190,7 +190,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         :class="
             dock.mode.value === 'docked'
                 ? 'border-border z-10 overflow-hidden rounded-xl border'
-                : 'mini-in bg-card fixed inset-x-0 bottom-0 z-50 flex h-[calc(4.5rem+env(safe-area-inset-bottom))] flex-row items-stretch overflow-hidden border-t border-border pb-[env(safe-area-inset-bottom)] sm:inset-x-auto sm:right-[calc(1rem+env(safe-area-inset-right))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:h-auto sm:w-[min(340px,calc(100vw-2rem))] sm:flex-col sm:rounded-xl sm:border sm:border-input sm:pb-0 sm:shadow-2xl'
+                : 'mini-in bg-card border-border sm:border-input fixed inset-x-0 bottom-0 z-50 flex h-[calc(4.5rem+env(safe-area-inset-bottom))] flex-row items-stretch overflow-hidden border-t pb-[env(safe-area-inset-bottom)] sm:inset-x-auto sm:right-[calc(1rem+env(safe-area-inset-right))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:h-auto sm:w-[min(340px,calc(100vw-2rem))] sm:flex-col sm:rounded-xl sm:border sm:pb-0 sm:shadow-2xl'
         "
     >
         <!-- One persistent iframe, reflowed: a compact thumbnail on the mobile

@@ -15,17 +15,34 @@ export default defineConfigWithVueTs(
         files: ['**/*.{ts,mts,tsx,vue}'],
     },
 
-    globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']) as any,
+    // Only lint our own frontend source. Without these, eslint walks the Python
+    // venv and Django's vendored admin JS (staticfiles), producing hundreds of
+    // bogus errors from minified third-party code.
+    globalIgnores([
+        '**/dist/**',
+        '**/dist-ssr/**',
+        '**/coverage/**',
+        '**/node_modules/**',
+        '**/.venv/**',
+        '**/staticfiles_collected/**',
+        '**/static/**',
+        'public/**',
+        'bootstrap/ssr/**',
+        '**/vendor/**',
+        'tailwind.config.js',
+        'resources/js/components/ui/**',
+    ]) as any,
 
     pluginVue.configs['flat/essential'] as any,
     vueTsConfigs.recommended,
     {
-        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'resources/js/components/ui/*'],
-    },
-    {
         rules: {
             'vue/multi-word-component-names': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
+            // The overhaul's components are a mix of <script setup> (JS) and
+            // <script setup lang="ts">. Accept both rather than force a TS
+            // migration here; a later pass can tighten this to ts-only.
+            'vue/block-lang': ['error', { script: { lang: ['ts', 'js'], allowNoLang: true } }],
         },
     },
     ...(pluginOxlint.configs['flat/recommended'] as any[]),

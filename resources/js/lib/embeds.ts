@@ -3,7 +3,7 @@
 export type Provider = 'youtube' | 'vimeo' | null;
 
 export const getYoutubeId = (videoUrl: string): string | undefined => {
-    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     return videoUrl.match(youtubeRegex)?.[2];
 };
 

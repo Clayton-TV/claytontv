@@ -8,7 +8,7 @@ import { getEmbedUrl } from '~/lib/embeds';
 
 // Live now + upcoming scheduled services + the past-services archive.
 // Calm when nothing is on: just the archive.
-const props = defineProps({
+defineProps({
     title: { type: String, required: true },
     live: { type: Array, default: () => [] },
     upcoming: { type: Array, default: () => [] },
