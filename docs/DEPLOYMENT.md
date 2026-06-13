@@ -107,6 +107,76 @@ URL carries its privacy hash (or the video is public). Hashless older Vimeo
 videos stay null until re-synced from the admin (mediaUpdate.asp exposes
 MediaDuration in ms) or a Vimeo API token is configured.
 
+## Typesense search (#213)
+
+Search (`/search`, the ⌘K palette `/api/palette`) is served by a **self-hosted
+Typesense** container with a **graceful ORM fallback** — if Typesense is
+unconfigured or unreachable, the views fall back to ORM `icontains` and search
+keeps working (the failure is logged + sent to Sentry). So the container is a
+performance/quality layer, not a hard dependency.
+
+**Where it lives.** A persistent compose project at
+`/srv/beta-claytontv/shared/typesense/` (NOT a per-deploy release dir, so it
+survives deploys):
+
+```yaml
+# /srv/beta-claytontv/shared/typesense/docker-compose.yml
+name: claytontv-beta-search
+services:
+  typesense:
+    image: typesense/typesense:28.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8108:8108"   # loopback ONLY — Django is the sole client
+    environment:
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+      TYPESENSE_ENABLE_CORS: "false"
+    volumes:
+      - typesense-beta-data:/data
+volumes:
+  typesense-beta-data:
+```
+
+- **Bound to `127.0.0.1:8108` only** — never exposed off-box; **do not open 8108
+  in ufw**. The API key lives in `shared/typesense/.env` (compose) and is
+  mirrored into the app's `shared/.env` as `TYPESENSE_API_KEY` (+
+  `TYPESENSE_HOST=127.0.0.1`, `TYPESENSE_PORT=8108`, `TYPESENSE_PROTOCOL=http`).
+- Docker installed from the Ubuntu repo (`docker.io` + `docker-compose-v2`),
+  service `enabled`; container `restart: unless-stopped` → both survive reboots.
+
+**Provisioning (one-off, as a sudo user — the `dev` deploy user can't manage
+Docker):**
+
+```bash
+sudo apt-get install -y docker.io docker-compose-v2 && sudo systemctl enable --now docker
+# create shared/typesense/{docker-compose.yml,.env}; put a fresh key (openssl rand -hex 32)
+# in shared/typesense/.env AND append TYPESENSE_* to shared/.env
+cd /srv/beta-claytontv/shared/typesense && sudo docker compose up -d
+```
+
+**Ops:**
+
+```bash
+TS=/srv/beta-claytontv/shared/typesense
+sudo docker compose -f $TS/docker-compose.yml ps          # status
+sudo docker compose -f $TS/docker-compose.yml logs -f     # logs
+sudo docker compose -f $TS/docker-compose.yml restart     # restart
+curl -s http://127.0.0.1:8108/health                      # → {"ok":true}
+
+# Rebuild the index from the DB (drop + recreate + batched import). Run after the
+# destructive importers and whenever the index drifts:
+sudo -u dev bash -lc 'cd /srv/beta-claytontv/current && .venv/bin/python manage.py reindex_search'
+```
+
+> After changing `shared/.env`, restart the app so it reloads the env:
+> `sudo systemctl restart gunicorn-claytontv-beta.service` (env is read once at
+> worker start via `load_dotenv`).
+
+Local dev: `docker compose up typesense` (repo-root `docker-compose.yml`) +
+`uv run poe manage reindex_search`. Prod is **not** wired yet — a later,
+legacy-team-coordinated step.
+
 ## Error pages
 
 On-brand, self-contained (inline CSS + inline logo; no Vite/CDN/app context):
