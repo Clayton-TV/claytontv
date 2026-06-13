@@ -9,6 +9,7 @@ from inertia import defer, optional, render
 from app.browse import browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
+from app.sanitize import sanitize_description
 from catalogue.ingest.normalize import clean_name, clean_topic_name
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
@@ -333,7 +334,9 @@ def video(request, id):
                     "id": video_object.id,
                     "name": video_object.name,
                     "url": video_object.url,
-                    "description": video_object.description,
+                    # Legacy descriptions carry raw HTML rendered via v-html;
+                    # sanitize before it reaches the client (issue #110).
+                    "description": sanitize_description(video_object.description),
                     "date_recorded": video_object.date_recorded,
                     "date_created": video_object.date_created,
                     "duration_seconds": video_object.duration_seconds,
