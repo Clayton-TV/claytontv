@@ -6,6 +6,7 @@ import SeriesCard from '@/molecules/SeriesCard.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Link, WhenVisible } from '@inertiajs/vue3';
 import { IconArrowRight } from '@tabler/icons-vue';
+import { useEntrance } from '~/composables/useEntrance';
 
 const props = defineProps({
     livestreams: { type: Array, default: () => [] },
@@ -18,13 +19,9 @@ const props = defineProps({
 
 const latestVideoUrl = props.latest_videos.length ? `/video/${props.latest_videos[0].id}` : '/latest';
 
-// One quiet entrance per page-load, staggered top-to-bottom as reading order —
-// information hierarchy, not decoration. CSS animation via tw-animate-css;
-// motion-reduce collapses it entirely.
-const entrance = (delayMs) => ({
-    class: 'animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-300 ease-out motion-reduce:animate-none',
-    style: { animationDelay: `${delayMs}ms` },
-});
+// Shared staggered page entrance (see useEntrance) — information hierarchy,
+// reduced-motion safe.
+const { entrance } = useEntrance();
 </script>
 
 <template>
