@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SharedData } from '@/types';
 import { SidebarProvider } from '@/ui/sidebar';
+import { ToastViewport } from '@/ui/toast';
 import { usePage } from '@inertiajs/vue3';
 
 interface Props {
@@ -19,4 +20,6 @@ const isOpen = usePage<SharedData>().props.sidebarOpen;
     <SidebarProvider v-else :default-open="isOpen">
         <slot />
     </SidebarProvider>
+    <!-- Single app-wide toast outlet; fed by the useToast() store. -->
+    <ToastViewport />
 </template>

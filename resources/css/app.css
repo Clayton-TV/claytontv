@@ -86,6 +86,10 @@
    renders the fuller gamut automatically; on sRGB it clamps gracefully. */
 :root {
     --radius: 0.5rem;
+    /* Stacking order for floating layers. Toasts sit above dialogs and the
+       player dock so feedback is never hidden (placeholder for the fuller
+       token system in #150). */
+    --z-toast: 400;
     --background: oklch(0.985 0.004 264);
     --foreground: oklch(0.21 0.024 264);
     --card: oklch(1 0 0);

@@ -1,10 +1,13 @@
 <script setup>
 import { IconBrandWhatsapp, IconCheck, IconLink, IconShare } from '@tabler/icons-vue';
 import { computed, ref } from 'vue';
+import { useToast } from '~/composables/useToast';
 
 const props = defineProps({
     title: { type: String, required: true },
 });
+
+const toast = useToast();
 
 const copied = ref(false);
 const menuOpen = ref(false);
@@ -26,9 +29,11 @@ const copyLink = async () => {
     try {
         await navigator.clipboard.writeText(shareUrl());
         copied.value = true;
+        toast.success('Link copied to clipboard');
         setTimeout(() => (copied.value = false), 2000);
     } catch {
         copied.value = false;
+        toast.error('Could not copy the link');
     }
 };
 
