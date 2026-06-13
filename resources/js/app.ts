@@ -5,6 +5,7 @@ import { createApp, createSSRApp, DefineComponent, h } from 'vue';
 import { initializeAnalytics } from '~/lib/analytics';
 import { resolvePageComponent } from '~/lib/inertia-helper';
 import { initializeTheme } from './composables/useAppearance';
+import { initializeTextScale } from './composables/useTextScale';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 
@@ -43,4 +44,5 @@ createInertiaApp({
 });
 
 initializeTheme();
+initializeTextScale();
 initializeAnalytics();

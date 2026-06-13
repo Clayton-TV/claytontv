@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LogoMark from '@/atoms/LogoMark.vue';
+import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import { Link } from '@inertiajs/vue3';
 import { IconBrandGithub, IconBrandVimeo, IconBrandYoutube } from '@tabler/icons-vue';
 
@@ -59,20 +60,26 @@ const columns = [
             </nav>
         </div>
         <div class="border-t border-white/5">
-            <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 lg:px-8">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 lg:px-8">
                 <p class="text-xs text-gray-600">© {{ year }} Clayton TV</p>
-                <div class="flex gap-1">
-                    <a
-                        v-for="social in socials"
-                        :key="social.name"
-                        :href="social.href"
-                        :aria-label="social.name"
-                        rel="noopener"
-                        target="_blank"
-                        class="focus-visible:ring-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-500 transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
-                    >
-                        <component :is="social.icon" class="h-5 w-5 stroke-[1.5]" aria-hidden="true" />
-                    </a>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-600">Text size</span>
+                        <TextSizeControl />
+                    </div>
+                    <div class="flex gap-1">
+                        <a
+                            v-for="social in socials"
+                            :key="social.name"
+                            :href="social.href"
+                            :aria-label="social.name"
+                            rel="noopener"
+                            target="_blank"
+                            class="focus-visible:ring-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-500 transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
+                        >
+                            <component :is="social.icon" class="h-5 w-5 stroke-[1.5]" aria-hidden="true" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

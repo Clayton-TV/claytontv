@@ -168,6 +168,13 @@
         @apply border-border outline-ring/50;
     }
 
+    /* User text-size preference (useTextScale): multiplies the browser's own
+       root font-size, so every rem-based size scales proportionally. Defaults
+       to 1 when unset; never disables pinch-zoom. */
+    html {
+        font-size: calc(100% * var(--text-scale, 1));
+    }
+
     body {
         @apply bg-background text-foreground;
     }
