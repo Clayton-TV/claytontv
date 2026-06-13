@@ -6,7 +6,7 @@ import SeriesCard from '@/molecules/SeriesCard.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Deferred, Head, Link } from '@inertiajs/vue3';
 
-const props = defineProps({
+defineProps({
     speaker: { type: Object, required: true },
     series: { type: Array, default: null },
     videos: { type: Array, default: () => [] },

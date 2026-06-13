@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import CardSkeleton from '@/atoms/CardSkeleton.vue';
 import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import CardSkeleton from '@/atoms/CardSkeleton.vue';
 import { useCategoryFilter, type CategoryItem, type SortOrder } from '~/composables/useCategoryFilter';
 const props = defineProps({
     categories_data: {

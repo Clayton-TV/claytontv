@@ -59,6 +59,12 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      - name: Lint code
+        run: npm run lint-check
+
+      - name: Check formatting
+        run: npm run format-check
+
   test:
     name: Unit Tests
     runs-on: ubuntu-latest

@@ -2,7 +2,7 @@
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 import { Head } from '@inertiajs/vue3';
 
-const props = defineProps({
+defineProps({
     videos: {
         type: Array,
     },

@@ -48,7 +48,8 @@ export function useBrowseFilters(getActive: () => Active) {
 
     const setSingle = (facet: keyof Active, value: string) => {
         const p = params();
-        p.get(facet) === value ? p.delete(facet) : p.set(facet, value);
+        if (p.get(facet) === value) p.delete(facet);
+        else p.set(facet, value);
         go(p);
     };
 

@@ -2,11 +2,11 @@ import '../css/app.css';
 
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createApp, createSSRApp, type DefineComponent, h } from 'vue';
+import { initializeTheme } from '~/composables/useAppearance';
 import { useFlash } from '~/composables/useFlash';
+import { initializeTextScale } from '~/composables/useTextScale';
 import { initializeAnalytics } from '~/lib/analytics';
 import { resolvePageComponent } from '~/lib/inertia-helper';
-import { initializeTheme } from '~/composables/useAppearance';
-import { initializeTextScale } from '~/composables/useTextScale';
 
 import AppLayout from '@/layouts/AppLayout.vue';
 
