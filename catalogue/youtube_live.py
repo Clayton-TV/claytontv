@@ -16,6 +16,7 @@ import re
 import time
 from datetime import timedelta
 
+import requests
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -38,18 +39,27 @@ class YoutubeApiError(RuntimeError):
 
 
 def api_get(session, endpoint, **params):
-    """GET with retries: YouTube intermittently 403s requests from
-    datacenter IPs ("cannot act on behalf of the specified Google account"
-    — observed ~1 in 3 from app03 with a valid, unrestricted-IP key)."""
+    """GET with retries over two transient failure modes seen from app03:
+    YouTube intermittently 403s requests from datacenter IPs ("cannot act on
+    behalf of the specified Google account" — ~1 in 3 with a valid,
+    unrestricted-IP key), and the connection itself is occasionally reset
+    mid-handshake (ConnectionResetError 104). Both are retried; a persistent
+    failure raises YoutubeApiError for the caller to handle (the sync command
+    treats that as a skip, not a crash)."""
     params["key"] = os.environ["YOUTUBE_API_KEY"]
-    response = None
+    last_error = "no response"
     for attempt in range(RETRY_ATTEMPTS):
         if attempt:
             time.sleep(RETRY_DELAY_SECONDS * attempt)
-        response = session.get(f"{API_BASE}/{endpoint}", params=params, timeout=20)
+        try:
+            response = session.get(f"{API_BASE}/{endpoint}", params=params, timeout=20)
+        except requests.RequestException as exc:
+            last_error = f"request failed: {exc}"
+            continue
         if response.status_code == 200:
             return response.json()
-    raise YoutubeApiError(f"{endpoint} returned {response.status_code}: {getattr(response, 'text', '')[:300]}")
+        last_error = f"returned {response.status_code}: {getattr(response, 'text', '')[:300]}"
+    raise YoutubeApiError(f"{endpoint} {last_error}")
 
 
 def youtube_id(url):
