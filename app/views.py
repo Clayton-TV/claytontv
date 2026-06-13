@@ -326,7 +326,19 @@ def video(request, id):
             request,
             "WatchVideo",
             {
-                "video": video_object,
+                # A plain dict, never the model: serializing a Video follows its
+                # M2M relations (series → demographic → video → …) and recurses
+                # forever under SSR. Mirror video_card_props' raw-field approach.
+                "video": {
+                    "id": video_object.id,
+                    "name": video_object.name,
+                    "url": video_object.url,
+                    "description": video_object.description,
+                    "date_recorded": video_object.date_recorded,
+                    "date_created": video_object.date_created,
+                    "duration_seconds": video_object.duration_seconds,
+                    "is_livestream": video_object.is_livestream,
+                },
                 "video_metadata": video_metadata,
                 "passage": passage_badge,
                 "resources": resources,

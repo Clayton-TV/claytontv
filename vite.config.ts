@@ -8,7 +8,11 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd());
 
     return {
-        base: '/static/',
+        // Runtime-imported chunks (lazy pages, dynamic icons) resolve against
+        // `base`. In production collectstatic serves the Vite output under
+        // /static/build/ (django-vite static_url_prefix="build"), so the base
+        // must match or those chunks 404. Dev serves from the Vite dev server.
+        base: mode === 'production' ? '/static/build/' : '/static/',
         publicDir: false,
         build: {
             manifest: 'manifest.json',
