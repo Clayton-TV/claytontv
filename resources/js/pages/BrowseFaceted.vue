@@ -26,7 +26,9 @@ const filtersOpen = ref(false);
 
 <template>
     <Head title="Browse teaching" />
-    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
+    <!-- pb removed on desktop so the filter-rail divider meets the footer's top
+         border; the results column carries its own bottom padding instead. -->
+    <div class="mx-auto max-w-6xl px-4 pt-10 pb-10 lg:px-8 lg:pb-0">
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
                 <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Browse teaching</h1>
@@ -61,7 +63,7 @@ const filtersOpen = ref(false);
                 </div>
             </aside>
 
-            <div class="mt-6 lg:mt-0">
+            <div class="mt-6 lg:mt-0 lg:pb-10">
                 <div class="mb-5"><FilterChips :facets="facets" :active="active" @remove="remove" @clear="clearAll" /></div>
                 <VideoCardGrid
                     :videos="videos"

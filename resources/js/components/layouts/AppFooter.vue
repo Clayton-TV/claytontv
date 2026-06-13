@@ -35,7 +35,7 @@ const columns = [
 </script>
 
 <template>
-    <footer class="border-border mt-16 border-t">
+    <footer class="border-border border-t">
         <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-[1.2fr_1fr_1fr] lg:px-8">
             <div>
                 <div class="flex items-center gap-2.5">
