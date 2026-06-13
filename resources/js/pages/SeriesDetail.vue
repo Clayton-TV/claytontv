@@ -2,7 +2,7 @@
 import EpisodeRow from '@/molecules/EpisodeRow.vue';
 import PaginationNav from '@/molecules/PaginationNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { IconBook2, IconPlayerPlayFilled } from '@tabler/icons-vue';
+import { BookOpen, Play } from 'lucide-vue-next';
 
 const props = defineProps({
     series_meta: { type: Object, required: true },
@@ -39,7 +39,7 @@ const positionFor = (episode, index) => episode.number ?? props.page_start + ind
     <div class="mx-auto max-w-4xl px-4 py-10 lg:px-8">
         <header class="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div class="bg-primary/10 flex h-24 w-24 flex-none items-center justify-center rounded-2xl" aria-hidden="true">
-                <IconBook2 class="text-primary h-10 w-10 stroke-[1.5]" />
+                <BookOpen class="text-primary h-10 w-10 stroke-[1.5]" />
             </div>
             <div class="min-w-0">
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">Series</p>
@@ -58,7 +58,7 @@ const positionFor = (episode, index) => episode.number ?? props.page_start + ind
                     prefetch
                     class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 focus-visible:ring-offset-background mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                    <IconPlayerPlayFilled class="h-4 w-4" aria-hidden="true" />
+                    <Play class="h-4 w-4" aria-hidden="true" fill="currentColor" />
                     Start from the beginning
                 </Link>
             </div>

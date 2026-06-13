@@ -1,7 +1,7 @@
 <script setup>
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { IconBook, IconX } from '@tabler/icons-vue';
+import { Book, X } from 'lucide-vue-next';
 
 const props = defineProps({
     book: { type: Object, required: true },
@@ -27,7 +27,7 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
         <header class="flex items-start gap-5">
             <div class="bg-primary/10 flex h-16 w-16 flex-none items-center justify-center rounded-2xl" aria-hidden="true">
-                <IconBook class="text-primary h-8 w-8 stroke-[1.5]" />
+                <Book class="text-primary h-8 w-8 stroke-[1.5]" />
             </div>
             <div>
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">{{ book.section }}</p>
@@ -45,7 +45,7 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                     @click="selectChapter(selected_chapter)"
                     class="focus-visible:ring-ring text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded text-xs font-medium outline-none focus-visible:ring-2"
                 >
-                    <IconX class="h-3.5 w-3.5" aria-hidden="true" /> Clear
+                    <X class="h-3.5 w-3.5" aria-hidden="true" /> Clear
                 </button>
             </div>
             <!-- auto-fill 1fr: equal columns that fill the row edge-to-edge and

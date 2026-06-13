@@ -1,6 +1,6 @@
 <script setup>
 import LogoMark from '@/atoms/LogoMark.vue';
-import { IconCheck, IconPlayerPlay } from '@tabler/icons-vue';
+import { Check, Play } from 'lucide-vue-next';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 import { formatDuration } from '~/lib/duration';
 
@@ -17,7 +17,7 @@ const getVideoThumbnail = (video) => {
     if (video.thumbnail?.startsWith('http')) {
         return video.thumbnail;
     } else {
-        const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const youtubeRegex = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const youtubeId = video.url.match(youtubeRegex)?.[2];
         if (youtubeId) {
             // Derive the thumbnail from the YouTube video ID when none is stored
@@ -50,14 +50,14 @@ const getVideoThumbnail = (video) => {
             v-if="hasWatched(video.id)"
             class="bg-primary text-primary-foreground absolute top-2 right-2 z-10 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
         >
-            <IconCheck class="h-3 w-3" aria-hidden="true" /> Watched
+            <Check class="h-3 w-3" aria-hidden="true" /> Watched
         </span>
 
         <div
             class="absolute inset-0 flex h-min w-min items-center justify-center place-self-center rounded-full bg-black/30 p-2 opacity-90 backdrop-blur-[2px] transition-opacity duration-200 ease-out group-hover:opacity-100"
             aria-hidden="true"
         >
-            <IconPlayerPlay class="h-14 w-14 stroke-1 text-gray-100" />
+            <Play class="h-14 w-14 stroke-1 text-gray-100" />
         </div>
 
         <div class="z-10 flex w-full flex-col gap-y-1 place-self-end bg-black/60 px-2.5 py-3.5 backdrop-blur-sm sm:px-3.5 sm:py-2">

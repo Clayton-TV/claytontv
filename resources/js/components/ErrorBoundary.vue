@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import EmptyState from '@/molecules/EmptyState.vue';
 import { router } from '@inertiajs/vue3';
-import { IconAlertTriangle } from '@tabler/icons-vue';
+import { TriangleAlert } from 'lucide-vue-next';
 import { onErrorCaptured, ref } from 'vue';
 
 // Catches render/setup errors from the page below so one broken page shows a
@@ -27,7 +27,7 @@ const reload = () => window.location.reload();
 <template>
     <EmptyState
         v-if="failed"
-        :icon="IconAlertTriangle"
+        :icon="TriangleAlert"
         title="Something went wrong"
         message="This page didn't load properly. Reloading usually sorts it."
     >

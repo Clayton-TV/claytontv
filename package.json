@@ -39,7 +39,6 @@
   },
   "dependencies": {
     "@inertiajs/vue3": "^3.4.0",
-    "@tabler/icons-vue": "^3.34.0",
     "@tailwindcss/vite": "^4.1.6",
     "@vimeo/player": "^2.30.4",
     "@vitejs/plugin-vue": "^5.2.4",

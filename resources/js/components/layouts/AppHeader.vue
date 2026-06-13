@@ -7,7 +7,7 @@ import CommandPalette from '@/organisms/CommandPalette.vue';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
 import { Link, usePage } from '@inertiajs/vue3';
-import { IconChevronDown, IconMenu2, IconSearch } from '@tabler/icons-vue';
+import { ChevronDown, Menu, Search } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePalette } from '~/composables/usePalette';
 
@@ -87,7 +87,7 @@ const navLink = (active: boolean) =>
                 <DropdownMenu>
                     <DropdownMenuTrigger :class="navLink(isBrowseSection())" :aria-current="isBrowseSection() ? 'page' : undefined">
                         Browse
-                        <IconChevronDown class="h-4 w-4 opacity-70" aria-hidden="true" />
+                        <ChevronDown class="h-4 w-4 opacity-70" aria-hidden="true" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" class="w-64">
                         <DropdownMenuItem v-for="link in browseLinks" :key="link.href" as-child>
@@ -125,7 +125,7 @@ const navLink = (active: boolean) =>
                 @click="openPalette"
                 class="focus-visible:ring-ring border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground ml-auto hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border px-3 transition-colors duration-150 outline-none focus-visible:ring-2 sm:flex"
             >
-                <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
+                <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span class="text-base">Search teaching…</span>
                 <kbd class="border-border bg-muted ml-auto rounded border px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
             </button>
@@ -135,7 +135,7 @@ const navLink = (active: boolean) =>
                     class="focus-visible:ring-ring text-muted-foreground hover:text-foreground ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-md outline-none focus-visible:ring-2 sm:ml-0 lg:hidden"
                     aria-label="Open menu"
                 >
-                    <IconMenu2 class="h-6 w-6" aria-hidden="true" />
+                    <Menu class="h-6 w-6" aria-hidden="true" />
                 </SheetTrigger>
                 <SheetContent side="right" class="border-border bg-background text-foreground overflow-y-auto">
                     <SheetHeader>
@@ -146,7 +146,7 @@ const navLink = (active: boolean) =>
                             @click="openPalette"
                             class="focus-visible:ring-ring border-border bg-muted text-muted-foreground flex h-11 w-full cursor-pointer items-center gap-2 rounded-lg border px-4 text-base outline-none focus-visible:ring-2"
                         >
-                            <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
+                            <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
                             Search teaching…
                         </button>
                     </div>

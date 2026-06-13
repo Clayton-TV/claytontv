@@ -1,7 +1,7 @@
 <script setup>
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 import { Head } from '@inertiajs/vue3';
-import { IconBroadcast } from '@tabler/icons-vue';
+import { Radio } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useEntrance } from '~/composables/useEntrance';
 import { getEmbedUrl } from '~/lib/embeds';
@@ -73,7 +73,7 @@ const formatSchedule = (iso) => {
                             <span
                                 class="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
                             >
-                                <IconBroadcast class="h-5 w-5" aria-hidden="true" /> Watch live
+                                <Radio class="h-5 w-5" aria-hidden="true" /> Watch live
                             </span>
                         </span>
                     </button>

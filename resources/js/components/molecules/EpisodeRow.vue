@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { IconCheck, IconPlayerPlayFilled } from '@tabler/icons-vue';
+import { Check, Play } from 'lucide-vue-next';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 import { formatDuration } from '~/lib/duration';
 
@@ -39,7 +39,7 @@ const thumb = (episode) => {
                 class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                 aria-hidden="true"
             >
-                <IconPlayerPlayFilled class="h-7 w-7 text-white drop-shadow" />
+                <Play class="h-7 w-7 text-white drop-shadow" fill="currentColor" />
             </span>
             <span
                 v-if="formatDuration(episode.duration_seconds)"
@@ -57,7 +57,7 @@ const thumb = (episode) => {
             class="text-primary mr-1 inline-flex shrink-0 items-center gap-1 text-xs font-medium"
             title="You've watched this"
         >
-            <IconCheck class="h-3.5 w-3.5" aria-hidden="true" /> Watched
+            <Check class="h-3.5 w-3.5" aria-hidden="true" /> Watched
         </span>
     </Link>
 </template>

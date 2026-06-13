@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { IconArrowRight, IconBroadcast } from '@tabler/icons-vue';
+import { ArrowRight, Radio } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { getEmbedUrl } from '~/lib/embeds';
 
@@ -44,7 +44,7 @@ const formatSchedule = (iso: string) => {
                 <span
                     class="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-transform duration-150 ease-out group-hover:scale-105 motion-reduce:transition-none"
                 >
-                    <IconBroadcast class="h-5 w-5" aria-hidden="true" />
+                    <Radio class="h-5 w-5" aria-hidden="true" />
                     Watch live
                 </span>
             </span>
@@ -103,7 +103,7 @@ const formatSchedule = (iso: string) => {
             class="focus-visible:ring-ring bg-muted text-foreground hover:bg-accent mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             Watch past services
-            <IconArrowRight class="h-4 w-4" aria-hidden="true" />
+            <ArrowRight class="h-4 w-4" aria-hidden="true" />
         </Link>
     </div>
 
@@ -122,7 +122,7 @@ const formatSchedule = (iso: string) => {
             class="focus-visible:ring-ring bg-muted text-foreground hover:bg-accent mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             Watch past services
-            <IconArrowRight class="h-4 w-4" aria-hidden="true" />
+            <ArrowRight class="h-4 w-4" aria-hidden="true" />
         </Link>
     </div>
 </template>

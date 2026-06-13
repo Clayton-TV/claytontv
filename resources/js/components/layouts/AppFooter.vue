@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import BrandVimeo from '@/atoms/BrandVimeo.vue';
 import LogoMark from '@/atoms/LogoMark.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
 import { Link } from '@inertiajs/vue3';
-import { IconBrandGithub, IconBrandVimeo, IconBrandYoutube } from '@tabler/icons-vue';
+import { Github, Youtube } from 'lucide-vue-next';
 
 const year = new Date().getFullYear();
 
 const socials = [
-    { name: 'YouTube', href: 'https://www.youtube.com/channel/UCvME6kEF02MqliB5TNHFLZA', icon: IconBrandYoutube },
-    { name: 'Vimeo', href: 'https://vimeo.com/user22232841', icon: IconBrandVimeo },
-    { name: 'GitHub', href: 'https://github.com/Clayton-TV', icon: IconBrandGithub },
+    { name: 'YouTube', href: 'https://www.youtube.com/channel/UCvME6kEF02MqliB5TNHFLZA', icon: Youtube },
+    { name: 'Vimeo', href: 'https://vimeo.com/user22232841', icon: BrandVimeo },
+    { name: 'GitHub', href: 'https://github.com/Clayton-TV', icon: Github },
 ];
 
 const columns = [

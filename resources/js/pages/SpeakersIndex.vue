@@ -2,7 +2,7 @@
 import SectionHeading from '@/molecules/SectionHeading.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Head, Link, WhenVisible, router } from '@inertiajs/vue3';
-import { IconSearch, IconX } from '@tabler/icons-vue';
+import { Search, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -44,10 +44,7 @@ const initials = (name) =>
             <form @submit.prevent="submit" class="mt-5">
                 <label class="sr-only" for="speaker-search">Search speakers</label>
                 <div class="relative">
-                    <IconSearch
-                        class="text-muted-foreground pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2"
-                        aria-hidden="true"
-                    />
+                    <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" aria-hidden="true" />
                     <input
                         id="speaker-search"
                         v-model="filter"
@@ -69,7 +66,7 @@ const initials = (name) =>
                     @click="clear"
                     class="focus-visible:ring-ring text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded text-xs font-medium outline-none focus-visible:ring-2"
                 >
-                    <IconX class="h-3.5 w-3.5" aria-hidden="true" /> Clear
+                    <X class="h-3.5 w-3.5" aria-hidden="true" /> Clear
                 </button>
             </div>
             <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -2,7 +2,7 @@
 import PaginationNav from '@/molecules/PaginationNav.vue';
 import SeriesCard from '@/molecules/SeriesCard.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { IconSearch } from '@tabler/icons-vue';
+import { Search } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -33,10 +33,7 @@ const submitFilter = () => {
             <form @submit.prevent="submitFilter" class="w-full sm:w-72">
                 <label class="sr-only" for="series-filter">Filter series</label>
                 <div class="relative">
-                    <IconSearch
-                        class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-                        aria-hidden="true"
-                    />
+                    <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" aria-hidden="true" />
                     <input
                         id="series-filter"
                         v-model="filter"

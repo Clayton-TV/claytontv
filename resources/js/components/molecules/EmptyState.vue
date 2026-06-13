@@ -1,12 +1,12 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { IconMoodSearch } from '@tabler/icons-vue';
+import { SearchX } from 'lucide-vue-next';
 
 // A calm, reusable "nothing here" panel — icon, heading, a reassuring line,
 // and an optional way forward. Used for empty grids, no search results, and
 // not-found pages so a non-technical user is never left staring at a blank.
 defineProps({
-    icon: { type: [Object, Function], default: () => IconMoodSearch },
+    icon: { type: [Object, Function], default: () => SearchX },
     title: { type: String, required: true },
     message: { type: String, default: '' },
     ctaHref: { type: String, default: '' },
