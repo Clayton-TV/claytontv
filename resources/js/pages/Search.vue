@@ -53,7 +53,13 @@ const props = defineProps({
         </section>
 
         <div class="mt-10">
-            <VideoCardGrid :videos :has_prev_page :has_next_page />
+            <VideoCardGrid
+                :videos
+                :has_prev_page
+                :has_next_page
+                empty-title="No matching videos"
+                empty-message="We couldn't find any videos for that search. Try a different word, a speaker's name, or a Bible book."
+            />
         </div>
     </div>
 </template>

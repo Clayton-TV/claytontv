@@ -1,5 +1,6 @@
 <script setup>
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
+import EmptyState from '@/molecules/EmptyState.vue';
 import { Link, router } from '@inertiajs/vue3';
 defineProps({
     videos: {
@@ -19,6 +20,14 @@ defineProps({
     },
     has_next_page: {
         type: Boolean,
+    },
+    emptyTitle: {
+        type: String,
+        default: 'Nothing here yet',
+    },
+    emptyMessage: {
+        type: String,
+        default: 'There are no videos to show. Try browsing the latest teaching or another part of the library.',
     },
 });
 
@@ -44,7 +53,9 @@ const nextPage = () => {
             <p v-if="description" class="mt-2 text-sm text-gray-500" v-html="description"></p>
         </div>
 
-        <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <EmptyState v-if="!videos.length" :title="emptyTitle" :message="emptyMessage" cta-href="/latest" cta-label="Browse the latest teaching" />
+
+        <ul v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <li v-for="video in videos" :key="video.id" class="relative isolate aspect-video">
                 <Link
                     :href="`/video/` + video.id"

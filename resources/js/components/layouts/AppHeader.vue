@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import LogoMark from '@/atoms/LogoMark.vue';
 import ShortcutsHelp from '@/molecules/ShortcutsHelp.vue';
+import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import CommandPalette from '@/organisms/CommandPalette.vue';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -123,6 +124,10 @@ const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigat
                             {{ option.name }}
                         </Link>
                     </nav>
+                    <div class="mt-4 flex items-center justify-between border-t border-white/10 px-4 pt-4">
+                        <span class="text-sm text-gray-400">Text size</span>
+                        <TextSizeControl />
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>
