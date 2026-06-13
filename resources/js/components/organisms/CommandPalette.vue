@@ -133,8 +133,10 @@ const navShortcuts = [
                 <CommandGroup v-if="results.videos.length" heading="Videos">
                     <CommandItem v-for="video in results.videos" :key="video.id" :value="`v-${video.id} ${video.name}`" @select="go(video.url)">
                         <IconVideo class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span class="truncate">{{ video.name }}</span>
-                        <span v-if="video.date" class="text-muted-foreground ml-auto text-xs tabular-nums">{{ video.date }}</span>
+                        <span class="min-w-0 flex-1 truncate">{{ video.name }}</span>
+                        <span v-if="video.date" class="text-muted-foreground ml-auto shrink-0 text-xs whitespace-nowrap tabular-nums">{{
+                            video.date
+                        }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup v-if="results.categories.length" heading="Browse">

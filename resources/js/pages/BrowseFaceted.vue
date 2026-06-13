@@ -52,13 +52,13 @@ const filtersOpen = ref(false);
         </div>
 
         <div class="mt-6 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
-            <!-- Desktop sidebar: sticky under the header, one scroll region that
-                 fills the viewport so it's clearly a scrollable container. -->
-            <aside
-                class="ctv-scroll hidden self-start lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:pr-2 lg:pb-8"
-                aria-label="Filters"
-            >
-                <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
+            <!-- Desktop filter rail: a full-height bordered panel (so the space
+                 below the facets reads as an intentional rail, not a void) with
+                 the facets in a sticky, viewport-height scroll region inside it. -->
+            <aside class="lg:border-border hidden lg:block lg:border-r lg:pr-6" aria-label="Filters">
+                <div class="ctv-scroll sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pb-8">
+                    <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
+                </div>
             </aside>
 
             <div class="mt-6 lg:mt-0">
