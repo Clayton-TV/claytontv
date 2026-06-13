@@ -1,7 +1,7 @@
 from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Q, Sum
 from django.http import JsonResponse
 from inertia import defer, optional, render
 
@@ -700,6 +700,8 @@ def browse_series(request, id):
     paginated = paginator.page(page_num)
 
     start_episode = episodes.first()
+    # Total runtime across the whole series (all pages), where durations exist.
+    total_runtime = series.videos.aggregate(total=Sum("duration_seconds"))["total"]
     return render(
         request,
         "SeriesDetail",
@@ -708,6 +710,7 @@ def browse_series(request, id):
                 "name": series.name,
                 "summary": series.summary,
                 "videosCount": series.videos_count,
+                "total_runtime": total_runtime,
                 "year_start": series.year_start,
                 "year_end": series.year_end,
             },
@@ -720,6 +723,7 @@ def browse_series(request, id):
                     "url": f"/video/{v.id}",
                     "date": v.date_recorded.isoformat() if v.date_recorded else None,
                     "thumbnail": v.thumbnail,
+                    "duration_seconds": v.duration_seconds,
                 }
                 for v in paginated.object_list
             ],

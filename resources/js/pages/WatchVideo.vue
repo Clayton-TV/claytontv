@@ -8,6 +8,7 @@ import { IconBook, IconFileText, IconHeadphones, IconRotateClockwise } from '@ta
 import { onBeforeUnmount, onMounted, ref, watch as vueWatch } from 'vue';
 import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
+import { formatDuration } from '~/lib/duration';
 
 const props = defineProps({
     video: { type: Object, required: true },
@@ -116,6 +117,7 @@ const entries = (key) => {
             <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <p class="text-sm text-gray-500 tabular-nums">
                     {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
+                    <template v-if="formatDuration(video.duration_seconds)"> · {{ formatDuration(video.duration_seconds) }}</template>
                 </p>
                 <ShareButton :title="video.name" />
             </div>
