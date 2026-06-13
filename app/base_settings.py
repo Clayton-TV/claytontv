@@ -114,6 +114,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Typesense search backend (catalogue/search.py). Optional everywhere: when
+# unconfigured (no API key) or unreachable, the search views fall back to ORM
+# icontains, so search never hard-fails. Beta/prod run a loopback-only container
+# (docs/DEPLOYMENT.md); local dev uses docker-compose.yml.
+TYPESENSE = {
+    "api_key": os.getenv("TYPESENSE_API_KEY", ""),
+    "host": os.getenv("TYPESENSE_HOST", "127.0.0.1"),
+    "port": os.getenv("TYPESENSE_PORT", "8108"),
+    "protocol": os.getenv("TYPESENSE_PROTOCOL", "http"),
+    "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
+}
+
 # Logging
 LOGGING = {
     "version": 1,

@@ -1,0 +1,20 @@
+# Local Typesense for search development only. Beta/prod run their own
+# persistent container provisioned on the server (see docs/DEPLOYMENT.md) — this
+# file is not used there. Bound to loopback so it is never exposed off-machine.
+#
+#   docker compose up typesense      # or: uv run poe typesense
+#   uv run poe manage reindex_search
+#
+# Set TYPESENSE_API_KEY in your .env to the same value (default: dev-typesense-key).
+services:
+  typesense:
+    image: typesense/typesense:28.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8108:8108"
+    volumes:
+      - typesense-data:/data
+    command: "--data-dir /data --api-key=${TYPESENSE_API_KEY:-dev-typesense-key} --enable-cors"
+
+volumes:
+  typesense-data:

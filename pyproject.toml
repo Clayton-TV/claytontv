@@ -18,6 +18,7 @@ dependencies = [
     "django-vite>=3.1",
     "sentry-sdk>=2.62.0",
     "beautifulsoup4>=4.15.0",
+    "typesense>=2.0.0",
 ]
 
 [dependency-groups]
@@ -85,6 +86,10 @@ sequence = ["lint", "format"]
 [tool.poe.tasks.test]
 help = "Run the test suite"
 cmd = "pytest"
+
+[tool.poe.tasks.typesense]
+help = "Run a local Typesense container for search development"
+cmd = "docker compose up typesense"
 
 [tool.poe.tasks.generate-key]
 help = "Generate a Django secret key and write it to the .env file if SECRET_KEY is empty"
