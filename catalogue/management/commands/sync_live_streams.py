@@ -13,7 +13,7 @@ import os
 import requests
 from django.core.management.base import BaseCommand
 
-from catalogue.youtube_live import discover_broadcasts, discover_channels, refresh_statuses
+from catalogue.youtube_live import YoutubeApiError, discover_broadcasts, discover_channels, refresh_statuses
 
 
 class Command(BaseCommand):
@@ -28,10 +28,18 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("YOUTUBE_API_KEY not set — skipping live-stream sync."))
             return
         session = requests.Session()
-        if options["discover"]:
-            channels = discover_channels(session)
-            found = discover_broadcasts(session, channels)
-            self.stdout.write(self.style.SUCCESS(f"Searched {len(channels)} channels; {found} broadcasts upserted."))
-        else:
-            checked = refresh_statuses(session)
-            self.stdout.write(self.style.SUCCESS(f"Refreshed {checked} active broadcasts."))
+        try:
+            if options["discover"]:
+                channels = discover_channels(session)
+                found = discover_broadcasts(session, channels)
+                self.stdout.write(
+                    self.style.SUCCESS(f"Searched {len(channels)} channels; {found} broadcasts upserted.")
+                )
+            else:
+                checked = refresh_statuses(session)
+                self.stdout.write(self.style.SUCCESS(f"Refreshed {checked} active broadcasts."))
+        except YoutubeApiError as exc:
+            # Transient upstream failures (intermittent datacenter-IP 403s,
+            # connection resets) shouldn't crash a cron that reruns in minutes
+            # — and shouldn't page Sentry. Warn and exit 0.
+            self.stderr.write(self.style.WARNING(f"YouTube API unavailable, skipping this run: {exc}"))

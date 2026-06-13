@@ -8,8 +8,10 @@ Channel table is empty, so nothing is hardcoded.
 """
 
 import datetime
+import io
 
 import pytest
+import requests
 
 from catalogue.models import LiveStream
 from catalogue.youtube_live import discover_broadcasts, discover_channels, refresh_statuses
@@ -202,6 +204,60 @@ def test_persistent_api_failure_still_raises(monkeypatch):
 
     with _pytest.raises(YoutubeApiError):
         refresh_statuses(FlakySession(99, FakeSession({})))
+
+
+class ResettingSession:
+    """Raises a connection error for the first N calls, then defers — models
+    YouTube resetting the TCP connection mid-handshake (ConnectionResetError
+    104, "Connection reset by peer") as observed from app03. CLAYTONTV-2."""
+
+    def __init__(self, failures, then):
+        self.failures = failures
+        self.then = then
+        self.attempts = 0
+
+    def get(self, url, params=None, timeout=None):
+        self.attempts += 1
+        if self.attempts <= self.failures:
+            raise requests.exceptions.ConnectionError(
+                "('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+            )
+        return self.then.get(url, params=params, timeout=timeout)
+
+
+def test_transient_connection_resets_are_retried(monkeypatch):
+    """A connection reset raises before any HTTP status exists, so it must be
+    retried at the request layer — not just on non-200 responses."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setattr("catalogue.youtube_live.RETRY_DELAY_SECONDS", 0)
+    LiveStream.objects.create(video_id="vid12345678", title="Service", channel_id="UC1", status="upcoming")
+    recovered = FakeSession({"videos": {"items": [video_item("vid12345678", started="2026-06-14T10:30:00Z")]}})
+    session = ResettingSession(2, recovered)
+
+    refresh_statuses(session)
+
+    assert LiveStream.objects.get(video_id="vid12345678").status == "live"
+    assert session.attempts == 3
+
+
+def test_sync_command_exits_cleanly_when_youtube_unavailable(monkeypatch):
+    """Regression for CLAYTONTV-2: a persistent upstream failure must not
+    crash the 5-minute cron (and page Sentry) — the command warns and exits 0."""
+    from django.core.management import call_command
+
+    from catalogue.youtube_live import YoutubeApiError
+
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+
+    def boom(session):
+        raise YoutubeApiError("videos request failed: Connection reset by peer")
+
+    monkeypatch.setattr("catalogue.management.commands.sync_live_streams.refresh_statuses", boom)
+
+    err = io.StringIO()
+    call_command("sync_live_streams", stdout=io.StringIO(), stderr=err)  # must not raise
+
+    assert "skipping this run" in err.getvalue().lower()
 
 
 def test_homepage_serves_live_and_next_service(client):
