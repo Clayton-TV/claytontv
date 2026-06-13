@@ -1,0 +1,41 @@
+name: Close linked issues on beta merge
+
+# We deploy from `beta`, but GitHub only auto-closes issues referenced by
+# closing keywords when a PR merges into the DEFAULT branch (`main`). This
+# replicates that behaviour for `beta`: when a PR merges, any
+# "Closes/Fixes/Resolves #N" in its body is closed with a note.
+on:
+  pull_request:
+    types: [closed]
+    branches: [beta]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  close-issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close issues referenced by closing keywords
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # GitHub's closing keywords: close(s|d), fix(es|ed), resolve(s|d).
+          numbers=$(printf '%s' "$BODY" \
+            | grep -ioE '(close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+#[0-9]+' \
+            | grep -oE '[0-9]+' | sort -u)
+          if [ -z "$numbers" ]; then
+            echo "No closing keywords in PR #$PR body — nothing to close."
+            exit 0
+          fi
+          for n in $numbers; do
+            echo "Closing #$n (deployed to beta via #$PR)"
+            gh issue close "$n" --repo "$REPO" \
+              -c "Resolved and deployed to **beta** via #$PR. (Auto-closed on beta merge — \`main\` is the default branch, so GitHub's keyword-closing doesn't fire for beta.)" \
+              || echo "Skipped #$n (already closed, or it's a PR/cross-repo ref)."
+          done
