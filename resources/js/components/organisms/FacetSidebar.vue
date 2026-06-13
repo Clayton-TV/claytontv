@@ -75,7 +75,7 @@ const ntBooks = computed(() => (props.facets.book || []).filter((b) => b.testame
         <!-- Speaker (multi, top voices) -->
         <fieldset v-if="facets.speaker.length">
             <legend class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Speaker</legend>
-            <div class="mt-3 flex max-h-64 flex-col gap-1 overflow-y-auto pr-1">
+            <div class="mt-3 flex flex-col gap-1">
                 <label
                     v-for="opt in facets.speaker"
                     :key="opt.value"
@@ -97,7 +97,7 @@ const ntBooks = computed(() => (props.facets.book || []).filter((b) => b.testame
         <!-- Book (multi, grouped) -->
         <fieldset v-if="facets.book.length">
             <legend class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Bible book</legend>
-            <div class="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1">
+            <div class="mt-3 space-y-3">
                 <div v-if="otBooks.length">
                     <p class="text-muted-foreground px-3 text-[11px] font-medium tracking-wide uppercase">Old Testament</p>
                     <label

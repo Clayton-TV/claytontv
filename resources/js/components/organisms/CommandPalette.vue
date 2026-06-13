@@ -5,19 +5,40 @@ import {
     IconArrowRight,
     IconBook,
     IconCategory,
+    IconCheck,
     IconClock,
+    IconDeviceDesktop,
     IconLayoutGrid,
     IconMicrophone,
+    IconMoon,
+    IconRestore,
     IconSearch,
     IconSparkles,
+    IconSun,
+    IconTextDecrease,
+    IconTextIncrease,
     IconVideo,
 } from '@tabler/icons-vue';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useAppearance } from '~/composables/useAppearance';
 import { usePalette } from '~/composables/usePalette';
+import { useTextScale } from '~/composables/useTextScale';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 
 const { paletteOpen } = usePalette();
 const { continueWatching } = useWatchHistory();
+const { appearance, updateAppearance } = useAppearance();
+const { scale, increase, decrease, reset, canIncrease, canDecrease, isDefault } = useTextScale();
+
+// Theme + text-size live inside the palette too — selecting one applies it
+// immediately and keeps the palette open so the change is visible and you can
+// fine-tune (e.g. tap "Larger text" twice). Searchable by "theme"/"text size".
+const themeOptions = [
+    { value: 'light', label: 'Light theme', icon: IconSun },
+    { value: 'system', label: 'Use system theme', icon: IconDeviceDesktop },
+    { value: 'dark', label: 'Dark theme', icon: IconMoon },
+];
+const scalePercent = computed(() => `${Math.round(scale.value * 100)}%`);
 
 const query = ref('');
 const results = ref({ videos: [], categories: [] });
@@ -135,6 +156,38 @@ const navShortcuts = [
                     </CommandItem>
                 </CommandGroup>
             </template>
+
+            <!-- Always available (and searchable): theme + text size. Applying
+                 one keeps the palette open so the change is visible. -->
+            <CommandSeparator />
+            <CommandGroup heading="Theme">
+                <CommandItem
+                    v-for="option in themeOptions"
+                    :key="option.value"
+                    :value="`theme ${option.value} colour appearance`"
+                    @select="updateAppearance(option.value)"
+                >
+                    <component :is="option.icon" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>{{ option.label }}</span>
+                    <IconCheck v-if="appearance === option.value" class="text-primary ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
+                </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Text size">
+                <CommandItem value="text size larger bigger increase" :disabled="!canIncrease()" @select="increase()">
+                    <IconTextIncrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Larger text</span>
+                    <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
+                </CommandItem>
+                <CommandItem value="text size smaller decrease" :disabled="!canDecrease()" @select="decrease()">
+                    <IconTextDecrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Smaller text</span>
+                    <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
+                </CommandItem>
+                <CommandItem value="text size reset default" :disabled="isDefault()" @select="reset()">
+                    <IconRestore class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Reset text size</span>
+                </CommandItem>
+            </CommandGroup>
         </CommandList>
     </CommandDialog>
 </template>

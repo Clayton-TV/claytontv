@@ -52,8 +52,12 @@ const filtersOpen = ref(false);
         </div>
 
         <div class="mt-6 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
-            <!-- Desktop sidebar -->
-            <aside class="hidden lg:block" aria-label="Filters">
+            <!-- Desktop sidebar: sticky under the header, one scroll region that
+                 fills the viewport so it's clearly a scrollable container. -->
+            <aside
+                class="ctv-scroll hidden self-start lg:sticky lg:top-20 lg:block lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:pr-2 lg:pb-8"
+                aria-label="Filters"
+            >
                 <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
             </aside>
 
