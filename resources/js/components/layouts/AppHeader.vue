@@ -2,6 +2,7 @@
 import LogoMark from '@/atoms/LogoMark.vue';
 import ShortcutsHelp from '@/molecules/ShortcutsHelp.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
+import ThemeToggle from '@/molecules/ThemeToggle.vue';
 import CommandPalette from '@/organisms/CommandPalette.vue';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
@@ -64,11 +65,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
 const navLink = (active: boolean) =>
-    `${active ? 'bg-white/10 text-white' : 'text-gray-400'} focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2`;
+    `${active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'} focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 outline-none hover:text-foreground focus-visible:ring-2`;
 </script>
 
 <template>
-    <header class="pt-safe px-safe sticky top-0 z-40 border-b border-white/5 bg-gray-950/90 backdrop-blur-md">
+    <header class="pt-safe px-safe border-border bg-background/90 sticky top-0 z-40 border-b backdrop-blur-md">
         <div class="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 lg:px-8">
             <Link
                 href="/"
@@ -76,7 +77,7 @@ const navLink = (active: boolean) =>
                 aria-label="Clayton TV home"
             >
                 <LogoMark class="fill-primary h-7 w-auto" />
-                <span class="font-display hidden text-[15px] font-bold tracking-wide text-gray-50 sm:block">Clayton&nbsp;TV</span>
+                <span class="font-display text-foreground hidden text-[15px] font-bold tracking-wide sm:block">Clayton&nbsp;TV</span>
             </Link>
 
             <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
@@ -122,28 +123,28 @@ const navLink = (active: boolean) =>
             <!-- Looks like the old search field; opens the command palette -->
             <button
                 @click="openPalette"
-                class="focus-visible:ring-ring ml-auto hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-gray-500 transition-colors duration-150 outline-none hover:bg-white/10 hover:text-gray-400 focus-visible:ring-2 sm:flex"
+                class="focus-visible:ring-ring border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground ml-auto hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border px-3 transition-colors duration-150 outline-none focus-visible:ring-2 sm:flex"
             >
                 <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span class="text-base">Search teaching…</span>
-                <kbd class="ml-auto rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
+                <kbd class="border-border bg-muted ml-auto rounded border px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
             </button>
 
             <Sheet v-model:open="mobileNavOpen">
                 <SheetTrigger
-                    class="focus-visible:ring-ring ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-300 outline-none hover:text-white focus-visible:ring-2 sm:ml-0 lg:hidden"
+                    class="focus-visible:ring-ring text-muted-foreground hover:text-foreground ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-md outline-none focus-visible:ring-2 sm:ml-0 lg:hidden"
                     aria-label="Open menu"
                 >
                     <IconMenu2 class="h-6 w-6" aria-hidden="true" />
                 </SheetTrigger>
-                <SheetContent side="right" class="overflow-y-auto border-white/10 bg-gray-950 text-gray-100">
+                <SheetContent side="right" class="border-border bg-background text-foreground overflow-y-auto">
                     <SheetHeader>
-                        <SheetTitle class="font-display text-left text-gray-50">Clayton TV</SheetTitle>
+                        <SheetTitle class="font-display text-foreground text-left">Clayton TV</SheetTitle>
                     </SheetHeader>
                     <div class="px-4 pb-2">
                         <button
                             @click="openPalette"
-                            class="focus-visible:ring-ring flex h-11 w-full cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 text-base text-gray-500 outline-none focus-visible:ring-2"
+                            class="focus-visible:ring-ring border-border bg-muted text-muted-foreground flex h-11 w-full cursor-pointer items-center gap-2 rounded-lg border px-4 text-base outline-none focus-visible:ring-2"
                         >
                             <IconSearch class="h-4 w-4 shrink-0" aria-hidden="true" />
                             Search teaching…
@@ -153,38 +154,38 @@ const navLink = (active: boolean) =>
                         <Link
                             href="/"
                             @click="mobileNavOpen = false"
-                            :class="isCurrent('/') ? 'bg-white/10 text-white' : 'text-gray-300'"
-                            class="focus-visible:ring-ring rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
+                            :class="isCurrent('/') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                            class="focus-visible:ring-ring hover:bg-accent hover:text-foreground rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
                             Home
                         </Link>
 
-                        <p class="px-4 pt-3 pb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">Browse</p>
+                        <p class="text-muted-foreground px-4 pt-3 pb-1 text-xs font-semibold tracking-wider uppercase">Browse</p>
                         <Link
                             v-for="link in browseLinks"
                             :key="link.href"
                             :href="link.href"
                             @click="mobileNavOpen = false"
-                            :class="isCurrent(link.href) ? 'bg-white/10 text-white' : 'text-gray-300'"
-                            class="focus-visible:ring-ring rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
+                            :class="isCurrent(link.href) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                            class="focus-visible:ring-ring hover:bg-accent hover:text-foreground rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
                             {{ link.name }}
                         </Link>
 
-                        <p class="px-4 pt-3 pb-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">Watch</p>
+                        <p class="text-muted-foreground px-4 pt-3 pb-1 text-xs font-semibold tracking-wider uppercase">Watch</p>
                         <Link
                             href="/latest"
                             @click="mobileNavOpen = false"
-                            :class="isCurrent('/latest') ? 'bg-white/10 text-white' : 'text-gray-300'"
-                            class="focus-visible:ring-ring rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
+                            :class="isCurrent('/latest') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                            class="focus-visible:ring-ring hover:bg-accent hover:text-foreground rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
                             Latest
                         </Link>
                         <Link
                             href="/livestreams"
                             @click="mobileNavOpen = false"
-                            :class="isCurrent('/livestreams') ? 'bg-white/10 text-white' : 'text-gray-300'"
-                            class="focus-visible:ring-ring inline-flex items-center gap-2 rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
+                            :class="isCurrent('/livestreams') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
+                            class="focus-visible:ring-ring hover:bg-accent hover:text-foreground inline-flex items-center gap-2 rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
                             Live
                             <span v-if="liveNow" class="relative flex h-2 w-2">
@@ -196,8 +197,12 @@ const navLink = (active: boolean) =>
                             </span>
                         </Link>
                     </nav>
-                    <div class="mt-4 flex items-center justify-between border-t border-white/10 px-4 pt-4">
-                        <span class="text-sm text-gray-400">Text size</span>
+                    <div class="border-border mt-4 flex items-center justify-between border-t px-4 pt-4">
+                        <span class="text-muted-foreground text-sm">Theme</span>
+                        <ThemeToggle />
+                    </div>
+                    <div class="flex items-center justify-between px-4 pt-3">
+                        <span class="text-muted-foreground text-sm">Text size</span>
                         <TextSizeControl />
                     </div>
                 </SheetContent>

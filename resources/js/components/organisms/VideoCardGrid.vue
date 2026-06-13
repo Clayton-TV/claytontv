@@ -50,10 +50,10 @@ const nextPage = () => {
 <template>
     <section v-bind="entrance()" class="flex flex-col gap-y-6">
         <div v-if="title || description">
-            <h1 v-if="title" class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">
+            <h1 v-if="title" class="font-display text-foreground text-2xl font-bold sm:text-3xl">
                 {{ title }}
             </h1>
-            <p v-if="description" class="mt-2 text-sm text-gray-500" v-html="description"></p>
+            <p v-if="description" class="text-muted-foreground mt-2 text-sm" v-html="description"></p>
         </div>
 
         <EmptyState v-if="!videos.length" :title="emptyTitle" :message="emptyMessage" cta-href="/latest" cta-label="Browse the latest teaching" />
@@ -64,7 +64,7 @@ const nextPage = () => {
                     :href="`/video/` + video.id"
                     :id="video.id"
                     prefetch
-                    class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                    class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                     <VideoCardItem :video="video" />
                     <span class="sr-only"> View video for {{ video.name }} </span>
@@ -74,14 +74,14 @@ const nextPage = () => {
 
         <nav v-if="has_prev_page || has_next_page" class="flex justify-center gap-x-3" aria-label="Pagination">
             <button
-                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
+                class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
                 @click="prevPage()"
                 :disabled="!has_prev_page"
             >
                 Previous
             </button>
             <button
-                class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
+                class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
                 @click="nextPage()"
                 :disabled="!has_next_page"
             >

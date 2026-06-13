@@ -25,21 +25,24 @@ const submitFilter = () => {
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Series</h1>
-                <p class="mt-2 text-sm text-gray-500 tabular-nums">
+                <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Series</h1>
+                <p class="text-muted-foreground mt-2 text-sm tabular-nums">
                     {{ total }} series{{ query ? ` matching “${query}”` : '' }}, most episodes first
                 </p>
             </div>
             <form @submit.prevent="submitFilter" class="w-full sm:w-72">
                 <label class="sr-only" for="series-filter">Filter series</label>
                 <div class="relative">
-                    <IconSearch class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-500" aria-hidden="true" />
+                    <IconSearch
+                        class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+                        aria-hidden="true"
+                    />
                     <input
                         id="series-filter"
                         v-model="filter"
                         type="search"
                         placeholder="Filter series…"
-                        class="focus:ring-ring h-11 w-full rounded-lg border border-white/10 bg-white/5 pr-3 pl-9 text-base text-gray-100 transition-colors duration-150 placeholder:text-gray-500 focus:bg-white/10 focus:ring-2 focus:outline-none"
+                        class="focus:ring-ring border-border bg-muted text-foreground placeholder:text-muted-foreground focus:bg-accent h-11 w-full rounded-lg border pr-3 pl-9 text-base transition-colors duration-150 focus:ring-2 focus:outline-none"
                     />
                 </div>
             </form>
@@ -48,7 +51,7 @@ const submitFilter = () => {
         <div class="mt-8 grid gap-5 sm:grid-cols-2">
             <SeriesCard v-for="entry in series" :key="entry.url" :series="entry" />
         </div>
-        <p v-if="!series.length" class="mt-12 text-center text-sm text-gray-500">No series match “{{ query }}”.</p>
+        <p v-if="!series.length" class="text-muted-foreground mt-12 text-center text-sm">No series match “{{ query }}”.</p>
 
         <div class="mt-10">
             <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />

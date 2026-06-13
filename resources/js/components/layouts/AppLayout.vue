@@ -6,11 +6,11 @@ import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
 
 <template>
     <!-- relative: PersistentPlayer's docked mode positions in document coords -->
-    <div class="relative flex min-h-full flex-col bg-gray-950">
+    <div class="bg-background relative flex min-h-full flex-col">
         <!-- Keyboard users skip the nav straight to content -->
         <a
             href="#main"
-            class="bg-primary text-primary-foreground sr-only z-50 rounded-md px-4 py-2 text-sm font-semibold focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:outline-none focus:ring-2 focus:ring-white"
+            class="bg-primary text-primary-foreground sr-only z-50 rounded-md px-4 py-2 text-sm font-semibold focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:ring-2 focus:ring-white focus:outline-none"
         >
             Skip to content
         </a>

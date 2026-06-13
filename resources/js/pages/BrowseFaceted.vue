@@ -26,24 +26,28 @@ const filtersOpen = ref(false);
 
 <template>
     <Head title="Browse teaching" />
-    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
+    <!-- On desktop the filter-rail divider should meet the footer's top border:
+         drop our bottom padding and cancel the footer's mt-16 (the results column
+         carries its own bottom padding so content isn't cramped). Other pages keep
+         the footer's normal top margin. -->
+    <div class="mx-auto max-w-6xl px-4 pt-10 pb-10 lg:-mb-16 lg:px-8 lg:pb-0">
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Browse teaching</h1>
-                <p class="mt-2 text-sm text-gray-500 tabular-nums">{{ total }} {{ total === 1 ? 'video' : 'videos' }}</p>
+                <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Browse teaching</h1>
+                <p class="text-muted-foreground mt-2 text-sm tabular-nums">{{ total }} {{ total === 1 ? 'video' : 'videos' }}</p>
             </div>
             <!-- Mobile: open the filters in a sheet -->
             <Sheet v-model:open="filtersOpen">
                 <SheetTrigger
-                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-medium text-gray-200 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 lg:hidden"
+                    class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium outline-none focus-visible:ring-2 lg:hidden"
                 >
                     <IconAdjustmentsHorizontal class="h-4 w-4" aria-hidden="true" />
                     Filters<span v-if="activeCount()" class="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 text-xs">{{
                         activeCount()
                     }}</span>
                 </SheetTrigger>
-                <SheetContent side="left" class="overflow-y-auto border-white/10 bg-gray-950 text-gray-100">
-                    <SheetHeader><SheetTitle class="font-display text-left text-gray-50">Filters</SheetTitle></SheetHeader>
+                <SheetContent side="left" class="border-border bg-background text-foreground overflow-y-auto">
+                    <SheetHeader><SheetTitle class="font-display text-foreground text-left">Filters</SheetTitle></SheetHeader>
                     <div class="px-4 py-2">
                         <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
                     </div>
@@ -52,12 +56,16 @@ const filtersOpen = ref(false);
         </div>
 
         <div class="mt-6 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-8">
-            <!-- Desktop sidebar -->
-            <aside class="hidden lg:block" aria-label="Filters">
-                <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
+            <!-- Desktop filter rail: a full-height bordered panel (so the space
+                 below the facets reads as an intentional rail, not a void) with
+                 the facets in a sticky, viewport-height scroll region inside it. -->
+            <aside class="lg:border-border hidden lg:block lg:border-r lg:pr-6" aria-label="Filters">
+                <div class="ctv-scroll sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto pb-8">
+                    <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
+                </div>
             </aside>
 
-            <div class="mt-6 lg:mt-0">
+            <div class="mt-6 lg:mt-0 lg:pb-10">
                 <div class="mb-5"><FilterChips :facets="facets" :active="active" @remove="remove" @clear="clearAll" /></div>
                 <VideoCardGrid
                     :videos="videos"

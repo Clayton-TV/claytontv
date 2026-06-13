@@ -31,19 +31,19 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
             </div>
             <div>
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">{{ book.section }}</p>
-                <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">{{ book.name }}</h1>
-                <p class="mt-1 text-sm text-gray-500 tabular-nums">{{ book.videosCount }} {{ book.videosCount === 1 ? 'talk' : 'talks' }}</p>
+                <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">{{ book.name }}</h1>
+                <p class="text-muted-foreground mt-1 text-sm tabular-nums">{{ book.videosCount }} {{ book.videosCount === 1 ? 'talk' : 'talks' }}</p>
             </div>
         </header>
 
         <!-- Chapter strip: jump straight to teaching on a chapter -->
         <section v-if="chapters.length" class="mt-8" aria-label="Chapters">
             <div class="flex items-center justify-between">
-                <h2 class="text-xs font-semibold tracking-wider text-gray-500 uppercase">By chapter</h2>
+                <h2 class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">By chapter</h2>
                 <button
                     v-if="selected_chapter"
                     @click="selectChapter(selected_chapter)"
-                    class="focus-visible:ring-ring inline-flex items-center gap-1 rounded text-xs font-medium text-gray-400 outline-none hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded text-xs font-medium outline-none focus-visible:ring-2"
                 >
                     <IconX class="h-3.5 w-3.5" aria-hidden="true" /> Clear
                 </button>
@@ -59,7 +59,7 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                     :class="
                         chapter === selected_chapter
                             ? 'bg-primary text-primary-foreground border-primary'
-                            : 'border-white/15 text-gray-300 hover:border-white/30 hover:text-white'
+                            : 'border-input text-foreground hover:border-ring hover:text-foreground'
                     "
                     class="focus-visible:ring-ring flex h-10 items-center justify-center rounded-lg border text-sm font-medium tabular-nums transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
@@ -74,7 +74,7 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                     <Link
                         :href="`/video/${video.id}`"
                         prefetch
-                        class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                        class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                         <VideoCardItem :video="video" />
                         <span
@@ -87,7 +87,9 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
                     </Link>
                 </li>
             </ul>
-            <p v-if="!videos.length" class="mt-12 text-center text-sm text-gray-500">No teaching on {{ book.name }} {{ selected_chapter }} yet.</p>
+            <p v-if="!videos.length" class="text-muted-foreground mt-12 text-center text-sm">
+                No teaching on {{ book.name }} {{ selected_chapter }} yet.
+            </p>
         </section>
     </div>
 </template>

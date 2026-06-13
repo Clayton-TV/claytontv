@@ -139,8 +139,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         :style="frameStyle"
         :class="
             dock.mode.value === 'docked'
-                ? 'z-10 overflow-hidden rounded-xl border border-white/10'
-                : 'mini-in fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/15 bg-gray-900 shadow-2xl'
+                ? 'border-border z-10 overflow-hidden rounded-xl border'
+                : 'mini-in border-input bg-card fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 w-[min(340px,calc(100vw-2rem))] overflow-hidden rounded-xl border shadow-2xl'
         "
     >
         <div :class="dock.mode.value === 'docked' ? 'h-full w-full' : 'aspect-video w-full'">
@@ -157,7 +157,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <div v-if="dock.mode.value === 'mini'" class="flex flex-col gap-1 px-3 pt-2 pb-2.5">
             <button
                 @click="expand"
-                class="focus-visible:ring-ring cursor-pointer truncate text-left text-sm font-medium text-gray-100 outline-none hover:underline focus-visible:ring-2"
+                class="focus-visible:ring-ring text-foreground cursor-pointer truncate text-left text-sm font-medium outline-none hover:underline focus-visible:ring-2"
                 :title="dock.current.value.name"
             >
                 {{ dock.current.value.name }}
@@ -174,7 +174,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             <div class="flex items-center gap-1">
                 <button
                     @click="dock.controls.value?.toggle()"
-                    class="focus-visible:ring-ring inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-gray-200 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring text-foreground hover:bg-accent hover:text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     :aria-label="dock.playing.value ? 'Pause' : 'Play'"
                 >
                     <IconPlayerPause v-if="dock.playing.value" class="h-5 w-5" aria-hidden="true" />
@@ -183,25 +183,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 <button
                     v-if="dock.next.value"
                     @click="playNext"
-                    class="focus-visible:ring-ring inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-gray-200 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring text-foreground hover:bg-accent hover:text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     aria-label="Next episode"
                     :title="`Next: ${dock.next.value.name}`"
                 >
                     <IconPlayerTrackNext class="h-5 w-5" aria-hidden="true" />
                 </button>
-                <span class="ml-1 text-xs text-gray-500 tabular-nums">
+                <span class="text-muted-foreground ml-1 text-xs tabular-nums">
                     {{ formatTime(dock.position.value) }}<template v-if="dock.duration.value"> / {{ formatTime(dock.duration.value) }}</template>
                 </span>
                 <button
                     @click="expand"
-                    class="focus-visible:ring-ring ml-auto inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-gray-300 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground ml-auto inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     aria-label="Open watch page"
                 >
                     <IconArrowsDiagonal class="h-5 w-5" aria-hidden="true" />
                 </button>
                 <button
                     @click="dock.close()"
-                    class="focus-visible:ring-ring inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-gray-300 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     aria-label="Close player"
                 >
                     <IconX class="h-5 w-5" aria-hidden="true" />

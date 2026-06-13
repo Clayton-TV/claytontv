@@ -9,10 +9,7 @@ export function updateTheme(value: Appearance) {
 
     if (value === 'system') {
         const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
-
-        // FIXME: Currently the light mode looks awful due to various hardcoded colours. Force dark mode for now until that is fixed. See also /templates/app.html
-        //const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
-        const systemTheme = 'dark';
+        const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
 
         document.documentElement.classList.toggle('dark', systemTheme === 'dark');
     } else {

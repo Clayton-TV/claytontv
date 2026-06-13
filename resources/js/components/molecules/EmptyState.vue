@@ -15,14 +15,14 @@ defineProps({
 </script>
 
 <template>
-    <div class="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] px-6 py-16 text-center">
-        <component :is="icon" class="h-12 w-12 text-gray-600" aria-hidden="true" />
-        <p class="font-display mt-4 text-xl font-bold text-gray-100">{{ title }}</p>
-        <p v-if="message" class="mt-2 max-w-md text-sm leading-relaxed text-gray-400">{{ message }}</p>
+    <div class="border-border bg-card flex flex-col items-center justify-center rounded-xl border px-6 py-16 text-center">
+        <component :is="icon" class="text-muted-foreground h-12 w-12" aria-hidden="true" />
+        <p class="font-display text-foreground mt-4 text-xl font-bold">{{ title }}</p>
+        <p v-if="message" class="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">{{ message }}</p>
         <Link
             v-if="ctaHref && ctaLabel"
             :href="ctaHref"
-            class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 mt-6 inline-flex min-h-11 items-center rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+            class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 focus-visible:ring-offset-background mt-6 inline-flex min-h-11 items-center rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
             {{ ctaLabel }}
         </Link>

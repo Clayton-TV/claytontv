@@ -18,7 +18,9 @@ const forwarded = useForwardPropsEmits(props, emits)
 
 <template>
   <Dialog v-slot="slotProps" v-bind="forwarded">
-    <DialogContent class="overflow-hidden p-0 ">
+    <!-- Nudge the close button to centre on the h-9 search row (the generic
+         top-4/right-4 is tuned for p-6 dialogs, not this p-0 palette). -->
+    <DialogContent class="overflow-hidden p-0 [&>button]:top-2.5 [&>button]:right-3">
       <DialogHeader class="sr-only">
         <DialogTitle>{{ title }}</DialogTitle>
         <DialogDescription>{{ description }}</DialogDescription>

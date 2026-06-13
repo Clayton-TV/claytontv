@@ -101,10 +101,10 @@ function selectCategory(category) {
 
 <template>
     <div class="justify-items-center space-y-2">
-        <h2 class="mt-8 text-center text-3xl font-bold text-gray-100" v-if="title">
+        <h2 class="text-foreground mt-8 text-center text-3xl font-bold" v-if="title">
             {{ title }}
         </h2>
-        <p class="mt-2 text-center text-gray-400" v-if="description">
+        <p class="text-muted-foreground mt-2 text-center" v-if="description">
             {{ description }}
         </p>
     </div>
@@ -116,8 +116,8 @@ function selectCategory(category) {
                 class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md"
             >
                 <button
-                    class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
-                    :class="category === selectedCategory ? 'bg-primary' : 'bg-gray-700'"
+                    class="me-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
+                    :class="category === selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'"
                     @click="selectCategory(category)"
                 >
                     {{ category }}
@@ -133,7 +133,7 @@ function selectCategory(category) {
             <span v-else-if="subcategories_sort_order === 'count'"> (most programmes first)</span>
         </h1>
         <div v-if="isLoadingSubCategories" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-            <CardSkeleton v-for="skeletonIndex in 6" :key="skeletonIndex" :rowCount="1" :customClasses="'bg-blue-950'" :darkText="false" />
+            <CardSkeleton v-for="skeletonIndex in 6" :key="skeletonIndex" :rowCount="1" :customClasses="'bg-muted'" />
         </div>
         <ul v-else class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 xl:gap-x-8">
             <Link

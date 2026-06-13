@@ -13,7 +13,7 @@ const { increase, decrease, reset, canIncrease, canDecrease, isDefault } = useTe
             @click="decrease()"
             :disabled="!canDecrease()"
             aria-label="Decrease text size"
-            class="focus-visible:ring-ring inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md text-gray-400 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+            class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
         >
             <IconLetterA class="h-3.5 w-3.5" aria-hidden="true" />
         </button>
@@ -21,7 +21,7 @@ const { increase, decrease, reset, canIncrease, canDecrease, isDefault } = useTe
             @click="reset()"
             :disabled="isDefault()"
             aria-label="Reset text size"
-            class="focus-visible:ring-ring inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md text-gray-400 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+            class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
         >
             <IconLetterA class="h-5 w-5" aria-hidden="true" />
         </button>
@@ -29,7 +29,7 @@ const { increase, decrease, reset, canIncrease, canDecrease, isDefault } = useTe
             @click="increase()"
             :disabled="!canIncrease()"
             aria-label="Increase text size"
-            class="focus-visible:ring-ring inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md text-gray-400 outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
+            class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
         >
             <IconLetterA class="h-6 w-6" aria-hidden="true" />
         </button>

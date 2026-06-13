@@ -38,23 +38,23 @@ const { entrance } = useEntrance();
         <section class="grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1.3fr_1fr]" aria-label="Welcome">
             <div v-bind="entrance(0)">
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">Christian media you can trust</p>
-                <h1 class="font-display mt-3 text-4xl leading-[1.15] font-bold text-gray-50 sm:text-5xl">
+                <h1 class="font-display text-foreground mt-3 text-4xl leading-[1.15] font-bold sm:text-5xl">
                     Teaching for every<br class="hidden sm:block" />
                     step of the journey
                 </h1>
-                <p class="mt-4 max-w-md text-base leading-relaxed text-gray-400">
+                <p class="text-muted-foreground mt-4 max-w-md text-base leading-relaxed">
                     Sermons, series and courses from churches and ministries you know — free, searchable, and always here.
                 </p>
                 <div class="mt-7 flex flex-wrap gap-3">
                     <Link
                         :href="latestVideoUrl"
-                        class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 inline-flex min-h-12 items-center rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+                        class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 focus-visible:ring-offset-background inline-flex min-h-12 items-center rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     >
                         Watch latest sermon
                     </Link>
                     <Link
                         href="/series"
-                        class="focus-visible:ring-ring inline-flex min-h-12 items-center rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                        class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-12 items-center rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
                     >
                         Browse series
                     </Link>
@@ -72,7 +72,7 @@ const { entrance } = useEntrance();
                     <Link
                         :href="`/video/${video.id}`"
                         prefetch
-                        class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                        class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                         <VideoCardItem :video="video" />
                         <span class="sr-only">View video for {{ video.name }}</span>
@@ -91,10 +91,10 @@ const { entrance } = useEntrance();
                     :key="tile.href"
                     :href="tile.href"
                     prefetch
-                    class="group focus-visible:ring-ring flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-6 text-center transition-colors duration-150 outline-none hover:border-white/25 hover:bg-white/[0.06] focus-visible:ring-2"
+                    class="group focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent flex flex-col items-center justify-center gap-2 rounded-xl border px-3 py-6 text-center transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
                     <component :is="tile.icon" class="text-primary h-7 w-7" aria-hidden="true" />
-                    <span class="text-sm font-medium text-gray-200">{{ tile.label }}</span>
+                    <span class="text-foreground text-sm font-medium">{{ tile.label }}</span>
                 </Link>
             </div>
         </section>
@@ -104,9 +104,9 @@ const { entrance } = useEntrance();
         <WhenVisible data="featured_series" :buffer="300">
             <template #fallback>
                 <section class="mt-14" aria-label="Featured series">
-                    <Skeleton class="h-8 w-56 bg-white/5" />
+                    <Skeleton class="bg-muted h-8 w-56" />
                     <div class="mt-5 grid gap-5 sm:grid-cols-2">
-                        <Skeleton v-for="n in 4" :key="n" class="h-28 rounded-xl bg-white/5" />
+                        <Skeleton v-for="n in 4" :key="n" class="bg-muted h-28 rounded-xl" />
                     </div>
                 </section>
             </template>
@@ -121,9 +121,9 @@ const { entrance } = useEntrance();
         <WhenVisible :data="['topics_data', 'topics_total']" :buffer="300">
             <template #fallback>
                 <section class="mt-14 pb-4" aria-label="Browse by topic">
-                    <Skeleton class="h-8 w-56 bg-white/5" />
+                    <Skeleton class="bg-muted h-8 w-56" />
                     <div class="mt-5 flex flex-wrap gap-2.5">
-                        <Skeleton v-for="n in 8" :key="n" class="h-11 w-28 rounded-full bg-white/5" />
+                        <Skeleton v-for="n in 8" :key="n" class="bg-muted h-11 w-28 rounded-full" />
                     </div>
                 </section>
             </template>
@@ -135,7 +135,7 @@ const { entrance } = useEntrance();
                         :key="topic.url"
                         :href="topic.url"
                         prefetch
-                        class="focus-visible:ring-ring inline-flex min-h-11 items-center rounded-full border border-white/15 px-4 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                        class="focus-visible:ring-ring border-input text-muted-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center rounded-full border px-4 text-[13px] transition-colors duration-150 outline-none focus-visible:ring-2"
                     >
                         {{ topic.name }}
                     </Link>

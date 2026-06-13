@@ -5,19 +5,44 @@ import {
     IconArrowRight,
     IconBook,
     IconCategory,
+    IconCheck,
     IconClock,
+    IconDeviceDesktop,
     IconLayoutGrid,
     IconMicrophone,
+    IconMoon,
+    IconRestore,
     IconSearch,
     IconSparkles,
+    IconSun,
+    IconTextDecrease,
+    IconTextIncrease,
     IconVideo,
 } from '@tabler/icons-vue';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useAppearance } from '~/composables/useAppearance';
 import { usePalette } from '~/composables/usePalette';
+import { useTextScale } from '~/composables/useTextScale';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 
 const { paletteOpen } = usePalette();
 const { continueWatching } = useWatchHistory();
+const { appearance, updateAppearance } = useAppearance();
+const { scale, increase, decrease, reset, canIncrease, canDecrease, isDefault } = useTextScale();
+
+// Theme + text-size live inside the palette too — selecting one applies it
+// immediately and keeps the palette open so the change is visible and you can
+// fine-tune (e.g. tap "Larger text" twice). Searchable by "theme"/"text size".
+// keywords = hidden search synonyms so intent words ("appearance", "contrast",
+// "accessibility"…) surface these even though they aren't in the visible label.
+const appearanceKeywords = ['appearance', 'colour', 'color', 'theme', 'accessibility', 'a11y'];
+const themeOptions = [
+    { value: 'light', label: 'Light theme', icon: IconSun, keywords: [...appearanceKeywords, 'bright', 'day'] },
+    { value: 'system', label: 'Use system theme', icon: IconDeviceDesktop, keywords: [...appearanceKeywords, 'auto', 'os', 'default'] },
+    { value: 'dark', label: 'Dark theme', icon: IconMoon, keywords: [...appearanceKeywords, 'night', 'contrast', 'dim'] },
+];
+const textSizeKeywords = ['text', 'font', 'size', 'accessibility', 'a11y', 'zoom', 'readability', 'legibility'];
+const scalePercent = computed(() => `${Math.round(scale.value * 100)}%`);
 
 const query = ref('');
 const results = ref({ videos: [], categories: [] });
@@ -93,12 +118,12 @@ const navShortcuts = [
                     <CommandItem v-for="item in continueWatching()" :key="item.id" :value="`resume-${item.id}`" @select="go(`/video/${item.id}`)">
                         <IconClock class="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ item.name }}</span>
-                        <span class="ml-auto text-xs text-gray-500 tabular-nums">{{ formatTime(item.t) }} / {{ formatTime(item.d) }}</span>
+                        <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ formatTime(item.t) }} / {{ formatTime(item.d) }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Go to">
                     <CommandItem v-for="nav in navShortcuts" :key="nav.url" :value="nav.name" @select="go(nav.url)">
-                        <IconArrowRight class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <IconArrowRight class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         {{ nav.name }}
                     </CommandItem>
                 </CommandGroup>
@@ -107,9 +132,11 @@ const navShortcuts = [
             <template v-else>
                 <CommandGroup v-if="results.videos.length" heading="Videos">
                     <CommandItem v-for="video in results.videos" :key="video.id" :value="`v-${video.id} ${video.name}`" @select="go(video.url)">
-                        <IconVideo class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
-                        <span class="truncate">{{ video.name }}</span>
-                        <span v-if="video.date" class="ml-auto text-xs text-gray-500 tabular-nums">{{ video.date }}</span>
+                        <IconVideo class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span class="min-w-0 flex-1 truncate">{{ video.name }}</span>
+                        <span v-if="video.date" class="text-muted-foreground ml-auto shrink-0 text-xs whitespace-nowrap tabular-nums">{{
+                            video.date
+                        }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup v-if="results.categories.length" heading="Browse">
@@ -119,22 +146,70 @@ const navShortcuts = [
                         :value="`c-${category.kind}-${category.name}`"
                         @select="go(category.url)"
                     >
-                        <component :is="kindIcons[category.kind] || IconCategory" class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <component :is="kindIcons[category.kind] || IconCategory" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ category.name }}</span>
-                        <span class="ml-auto flex items-center gap-2 text-xs text-gray-500">
+                        <span class="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
                             <span v-if="category.count" class="tabular-nums">{{ category.count }} videos</span>
-                            <span class="rounded bg-white/10 px-1.5 py-0.5 text-[10px] tracking-wide uppercase">{{ category.kind }}</span>
+                            <span class="bg-muted rounded px-1.5 py-0.5 text-[10px] tracking-wide uppercase">{{ category.kind }}</span>
                         </span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup>
                     <CommandItem :value="`all ${query}`" @select="go(`/search?search=${encodeURIComponent(query.trim())}`)">
-                        <IconSearch class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <IconSearch class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         See all results for “{{ query.trim() }}”
                     </CommandItem>
                 </CommandGroup>
             </template>
+
+            <!-- Always available (and searchable): theme + text size. Applying
+                 one keeps the palette open so the change is visible. -->
+            <CommandSeparator />
+            <CommandGroup heading="Appearance">
+                <CommandItem
+                    v-for="option in themeOptions"
+                    :key="option.value"
+                    :value="`theme-${option.value}`"
+                    :keywords="option.keywords"
+                    @select="updateAppearance(option.value)"
+                >
+                    <component :is="option.icon" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>{{ option.label }}</span>
+                    <IconCheck v-if="appearance === option.value" class="text-primary ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
+                </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Accessibility">
+                <CommandItem
+                    value="text-larger"
+                    :keywords="[...textSizeKeywords, 'larger', 'bigger', 'increase']"
+                    :disabled="!canIncrease()"
+                    @select="increase()"
+                >
+                    <IconTextIncrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Larger text</span>
+                    <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
+                </CommandItem>
+                <CommandItem
+                    value="text-smaller"
+                    :keywords="[...textSizeKeywords, 'smaller', 'decrease', 'compact']"
+                    :disabled="!canDecrease()"
+                    @select="decrease()"
+                >
+                    <IconTextDecrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Smaller text</span>
+                    <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
+                </CommandItem>
+                <CommandItem
+                    value="text-reset"
+                    :keywords="[...textSizeKeywords, 'reset', 'default', 'normal']"
+                    :disabled="isDefault()"
+                    @select="reset()"
+                >
+                    <IconRestore class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span>Reset text size</span>
+                </CommandItem>
+            </CommandGroup>
         </CommandList>
     </CommandDialog>
 </template>

@@ -28,11 +28,11 @@ const props = defineProps({
 <template>
     <Head :title="title" />
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-        <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">{{ title }}</h1>
-        <p v-if="description" class="mt-2 text-sm text-gray-500">{{ description }}</p>
+        <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">{{ title }}</h1>
+        <p v-if="description" class="text-muted-foreground mt-2 text-sm">{{ description }}</p>
 
         <section v-if="categories?.length" class="mt-8" aria-label="Matching categories">
-            <h2 class="text-xs font-medium tracking-wider text-gray-500 uppercase">
+            <h2 class="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 {{ categories.length }} matching {{ categories.length === 1 ? 'category' : 'categories' }}
             </h2>
             <div class="mt-3 flex flex-wrap gap-2.5">
@@ -41,11 +41,11 @@ const props = defineProps({
                     :key="category.url"
                     :href="category.url"
                     prefetch
-                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-[13px] transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
                     <span>{{ category.name }}</span>
-                    <span class="text-xs text-gray-500">{{ category.category }}</span>
-                    <span v-if="category.videosCount" class="rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] text-gray-300 tabular-nums">
+                    <span class="text-muted-foreground text-xs">{{ category.category }}</span>
+                    <span v-if="category.videosCount" class="bg-muted text-foreground rounded-full px-1.5 py-0.5 text-[11px] tabular-nums">
                         {{ category.videosCount }}
                     </span>
                 </Link>

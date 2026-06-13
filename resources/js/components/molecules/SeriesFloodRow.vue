@@ -12,7 +12,7 @@ defineProps({
     <Link
         :href="item.url"
         prefetch
-        class="group focus-visible:ring-ring col-span-full flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-colors duration-150 outline-none hover:border-white/25 hover:bg-white/[0.06] focus-visible:ring-2 sm:gap-5 sm:p-4"
+        class="group focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent col-span-full flex items-center gap-4 rounded-xl border p-3 transition-colors duration-150 outline-none focus-visible:ring-2 sm:gap-5 sm:p-4"
     >
         <!-- Fanned thumbnails signal "a stack of episodes" at a glance -->
         <span class="relative h-16 w-32 shrink-0 sm:h-20 sm:w-40" aria-hidden="true">
@@ -32,11 +32,13 @@ defineProps({
 
         <span class="min-w-0 flex-1">
             <span class="text-primary block text-xs font-semibold tracking-wider uppercase">Series</span>
-            <span class="mt-0.5 block truncate text-base font-bold text-gray-100 sm:text-lg">{{ item.name }}</span>
-            <span class="mt-0.5 block text-sm text-gray-400"> {{ item.count }} new {{ item.count === 1 ? 'episode' : 'episodes' }} </span>
+            <span class="text-foreground mt-0.5 block truncate text-base font-bold sm:text-lg">{{ item.name }}</span>
+            <span class="text-muted-foreground mt-0.5 block text-sm"> {{ item.count }} new {{ item.count === 1 ? 'episode' : 'episodes' }} </span>
         </span>
 
-        <span class="flex shrink-0 items-center gap-1 text-sm font-medium text-gray-400 transition-colors duration-150 group-hover:text-white">
+        <span
+            class="text-muted-foreground group-hover:text-foreground flex shrink-0 items-center gap-1 text-sm font-medium transition-colors duration-150"
+        >
             <span class="hidden sm:inline">View series</span>
             <IconChevronRight class="h-5 w-5" aria-hidden="true" />
         </span>
