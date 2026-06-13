@@ -4,6 +4,7 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createApp, createSSRApp, type DefineComponent, h } from 'vue';
 import { initializeTheme } from '~/composables/useAppearance';
 import { useFlash } from '~/composables/useFlash';
+import { usePlayerDock } from '~/composables/usePlayerDock';
 import { initializeTextScale } from '~/composables/useTextScale';
 import { initializeAnalytics } from '~/lib/analytics';
 import { resolvePageComponent } from '~/lib/inertia-helper';
@@ -65,3 +66,7 @@ router.on('networkError', () => {
 initializeTheme();
 initializeTextScale();
 initializeAnalytics();
+// Bring back the mini-player if a video was playing before a refresh (paused,
+// at the saved timecode). A watch page re-docks itself, so this only floats it
+// on other pages.
+usePlayerDock().restore();
