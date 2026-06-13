@@ -5,16 +5,16 @@ import SectionHeading from '@/molecules/SectionHeading.vue';
 import SeriesCard from '@/molecules/SeriesCard.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Link, WhenVisible } from '@inertiajs/vue3';
-import { IconAdjustmentsHorizontal, IconArrowRight, IconBook, IconLayoutGrid, IconMicrophone, IconMoodKid, IconTag } from '@tabler/icons-vue';
+import { ArrowRight, Baby, Book, LayoutGrid, Mic, SlidersHorizontal, Tag } from 'lucide-vue-next';
 import { useEntrance } from '~/composables/useEntrance';
 
 const findBy = [
-    { label: 'Filter all', href: '/browse', icon: IconAdjustmentsHorizontal },
-    { label: 'Series', href: '/series', icon: IconLayoutGrid },
-    { label: 'Topics', href: '/topic', icon: IconTag },
-    { label: 'Speakers', href: '/speaker', icon: IconMicrophone },
-    { label: 'Bible books', href: '/book', icon: IconBook },
-    { label: 'For every age', href: '/audience', icon: IconMoodKid },
+    { label: 'Filter all', href: '/browse', icon: SlidersHorizontal },
+    { label: 'Series', href: '/series', icon: LayoutGrid },
+    { label: 'Topics', href: '/topic', icon: Tag },
+    { label: 'Speakers', href: '/speaker', icon: Mic },
+    { label: 'Bible books', href: '/book', icon: Book },
+    { label: 'For every age', href: '/audience', icon: Baby },
 ];
 
 const props = defineProps({
@@ -144,7 +144,7 @@ const { entrance } = useEntrance();
                         class="text-primary focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[13px] font-medium outline-none hover:underline focus-visible:ring-2"
                     >
                         All {{ topics_total }} topics
-                        <IconArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
+                        <ArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
                     </Link>
                 </div>
             </section>

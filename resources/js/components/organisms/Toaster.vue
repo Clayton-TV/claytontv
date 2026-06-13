@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { IconAlertTriangle, IconCheck, IconInfoCircle, IconX } from '@tabler/icons-vue';
+import { Check, Info, TriangleAlert, X } from 'lucide-vue-next';
 import { watch } from 'vue';
 import { useFlash, type FlashLevel } from '~/composables/useFlash';
 
@@ -19,11 +19,11 @@ watch(
     { immediate: true },
 );
 
-const icons: Record<FlashLevel, typeof IconCheck> = {
-    success: IconCheck,
-    info: IconInfoCircle,
-    warning: IconAlertTriangle,
-    error: IconAlertTriangle,
+const icons: Record<FlashLevel, typeof Check> = {
+    success: Check,
+    info: Info,
+    warning: TriangleAlert,
+    error: TriangleAlert,
 };
 const accent: Record<FlashLevel, string> = {
     success: 'text-emerald-500',
@@ -53,7 +53,7 @@ const accent: Record<FlashLevel, string> = {
                     aria-label="Dismiss"
                     class="text-muted-foreground hover:text-foreground focus-visible:ring-ring -mr-1 shrink-0 rounded outline-none focus-visible:ring-2"
                 >
-                    <IconX class="h-4 w-4" aria-hidden="true" />
+                    <X class="h-4 w-4" aria-hidden="true" />
                 </button>
             </div>
         </TransitionGroup>

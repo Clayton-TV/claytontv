@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { IconArrowRight } from '@tabler/icons-vue';
+import { ArrowRight } from 'lucide-vue-next';
 
 defineProps({
     topic_groups: { type: Array, default: () => [] },
@@ -26,7 +26,7 @@ const prettify = (category) => category.toLowerCase();
                 <span class="font-display text-foreground block text-base font-bold">Looking for Kids, Youth or Adults?</span>
                 <span class="text-muted-foreground mt-0.5 block text-sm">Browse teaching for every age</span>
             </span>
-            <IconArrowRight class="text-primary h-5 w-5 shrink-0" aria-hidden="true" />
+            <ArrowRight class="text-primary h-5 w-5 shrink-0" aria-hidden="true" />
         </Link>
 
         <section v-for="group in topic_groups" :key="group.category" class="mt-10" :aria-label="group.category">

@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { IconChevronRight, IconStack2 } from '@tabler/icons-vue';
+import { ChevronRight, Layers } from 'lucide-vue-next';
 
 defineProps({
     // {name, url, count, thumbnails: [...]} from the latest feed
@@ -26,7 +26,7 @@ defineProps({
                 <img :src="thumb" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover" onerror="this.style.opacity='0'" />
             </span>
             <span v-if="!item.thumbnails.length" class="absolute inset-0 flex items-center justify-center rounded-md bg-gray-800">
-                <IconStack2 class="h-7 w-7 text-gray-500" />
+                <Layers class="h-7 w-7 text-gray-500" />
             </span>
         </span>
 
@@ -40,7 +40,7 @@ defineProps({
             class="text-muted-foreground group-hover:text-foreground flex shrink-0 items-center gap-1 text-sm font-medium transition-colors duration-150"
         >
             <span class="hidden sm:inline">View series</span>
-            <IconChevronRight class="h-5 w-5" aria-hidden="true" />
+            <ChevronRight class="h-5 w-5" aria-hidden="true" />
         </span>
     </Link>
 </template>

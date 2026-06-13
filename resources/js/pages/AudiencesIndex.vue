@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { IconMoodKid } from '@tabler/icons-vue';
+import { Baby } from 'lucide-vue-next';
 import { useEntrance } from '~/composables/useEntrance';
 
 // Image-led Kids/Youth/Adults tiles for the parent/kids persona — one tap to
@@ -39,7 +39,7 @@ const thumb = (audience) => (audience.thumbnail?.startsWith('http') ? audience.t
                         class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                         onerror="this.style.opacity='0'"
                     />
-                    <IconMoodKid class="h-12 w-12 text-white/80" aria-hidden="true" />
+                    <Baby class="h-12 w-12 text-white/80" aria-hidden="true" />
                 </div>
                 <div class="p-5">
                     <p class="font-display text-foreground text-xl font-bold">{{ audience.name }}</p>

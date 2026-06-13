@@ -5,7 +5,7 @@ import FacetSidebar from '@/organisms/FacetSidebar.vue';
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
 import { Head } from '@inertiajs/vue3';
-import { IconAdjustmentsHorizontal } from '@tabler/icons-vue';
+import { SlidersHorizontal } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useBrowseFilters } from '~/composables/useBrowseFilters';
 
@@ -41,7 +41,7 @@ const filtersOpen = ref(false);
                 <SheetTrigger
                     class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium outline-none focus-visible:ring-2 lg:hidden"
                 >
-                    <IconAdjustmentsHorizontal class="h-4 w-4" aria-hidden="true" />
+                    <SlidersHorizontal class="h-4 w-4" aria-hidden="true" />
                     Filters<span v-if="activeCount()" class="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 text-xs">{{
                         activeCount()
                     }}</span>

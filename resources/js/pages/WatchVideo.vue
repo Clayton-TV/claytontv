@@ -4,7 +4,7 @@ import SectionHeading from '@/molecules/SectionHeading.vue';
 import ShareButton from '@/molecules/ShareButton.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Deferred, Head, Link } from '@inertiajs/vue3';
-import { IconBook, IconFileText, IconHeadphones, IconRotateClockwise } from '@tabler/icons-vue';
+import { Book, FileText, Headphones, RotateCw } from 'lucide-vue-next';
 import { onBeforeUnmount, onMounted, ref, watch as vueWatch } from 'vue';
 import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
@@ -58,9 +58,9 @@ const formatTime = (totalSeconds) => {
 };
 
 const resourceMeta = {
-    transcript: { label: 'Read the transcript', icon: IconFileText },
-    audio: { label: 'Listen to the audio', icon: IconHeadphones },
-    other: { label: 'Related resource', icon: IconFileText },
+    transcript: { label: 'Read the transcript', icon: FileText },
+    audio: { label: 'Listen to the audio', icon: Headphones },
+    other: { label: 'Related resource', icon: FileText },
 };
 
 // Ordered, labelled metadata groups; absent keys simply don't render.
@@ -93,7 +93,7 @@ const entries = (key) => {
                 @click="startOver"
                 class="focus-visible:ring-ring text-primary inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-md px-2 font-medium outline-none hover:underline focus-visible:ring-2"
             >
-                <IconRotateClockwise class="h-4 w-4" aria-hidden="true" />
+                <RotateCw class="h-4 w-4" aria-hidden="true" />
                 Start over
             </button>
         </p>
@@ -107,7 +107,7 @@ const entries = (key) => {
                     prefetch
                     class="bg-primary/15 text-primary focus-visible:ring-ring hover:bg-primary/25 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-semibold tabular-nums transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
-                    <IconBook class="h-4 w-4" aria-hidden="true" />
+                    <Book class="h-4 w-4" aria-hidden="true" />
                     {{ passage.label }}
                 </Link>
                 <span v-if="video.is_livestream" class="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-bold tracking-wide uppercase">

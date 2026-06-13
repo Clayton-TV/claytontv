@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { IconArrowRight } from '@tabler/icons-vue';
+import { ArrowRight } from 'lucide-vue-next';
 
 defineProps({
     title: { type: String, required: true },
@@ -18,7 +18,7 @@ defineProps({
             class="focus-visible:ring-ring text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 rounded text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             {{ moreLabel }}
-            <IconArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
+            <ArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
     </div>
 </template>

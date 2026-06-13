@@ -1,7 +1,7 @@
 <script setup>
 import PlayerFrame from '@/organisms/PlayerFrame.vue';
 import { router } from '@inertiajs/vue3';
-import { IconArrowsDiagonal, IconPlayerPause, IconPlayerPlay, IconPlayerTrackNext, IconX } from '@tabler/icons-vue';
+import { Maximize2, Pause, Play, SkipForward, X } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
@@ -256,8 +256,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     class="focus-visible:ring-ring text-foreground hover:bg-accent hover:text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     :aria-label="dock.playing.value ? 'Pause' : 'Play'"
                 >
-                    <IconPlayerPause v-if="dock.playing.value" class="h-5 w-5" aria-hidden="true" />
-                    <IconPlayerPlay v-else class="h-5 w-5" aria-hidden="true" />
+                    <Pause v-if="dock.playing.value" class="h-5 w-5" aria-hidden="true" />
+                    <Play v-else class="h-5 w-5" aria-hidden="true" />
                 </button>
                 <button
                     v-if="dock.next.value"
@@ -266,7 +266,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     aria-label="Next episode"
                     :title="`Next: ${dock.next.value.name}`"
                 >
-                    <IconPlayerTrackNext class="h-5 w-5" aria-hidden="true" />
+                    <SkipForward class="h-5 w-5" aria-hidden="true" />
                 </button>
                 <span class="text-muted-foreground ml-1 hidden text-xs tabular-nums sm:inline">
                     {{ formatTime(dock.position.value) }}<template v-if="dock.duration.value"> / {{ formatTime(dock.duration.value) }}</template>
@@ -276,14 +276,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground ml-auto hidden h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2 sm:inline-flex"
                     aria-label="Open watch page"
                 >
-                    <IconArrowsDiagonal class="h-5 w-5" aria-hidden="true" />
+                    <Maximize2 class="h-5 w-5" aria-hidden="true" />
                 </button>
                 <button
                     @click="dock.close()"
                     class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-2"
                     aria-label="Close player"
                 >
-                    <IconX class="h-5 w-5" aria-hidden="true" />
+                    <X class="h-5 w-5" aria-hidden="true" />
                 </button>
             </div>
         </div>

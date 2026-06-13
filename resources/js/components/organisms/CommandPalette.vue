@@ -2,23 +2,23 @@
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/ui/command';
 import { router } from '@inertiajs/vue3';
 import {
-    IconArrowRight,
-    IconBook,
-    IconCategory,
-    IconCheck,
-    IconClock,
-    IconDeviceDesktop,
-    IconLayoutGrid,
-    IconMicrophone,
-    IconMoon,
-    IconRestore,
-    IconSearch,
-    IconSparkles,
-    IconSun,
-    IconTextDecrease,
-    IconTextIncrease,
-    IconVideo,
-} from '@tabler/icons-vue';
+    AArrowDown,
+    AArrowUp,
+    ArrowRight,
+    Book,
+    Check,
+    Clock,
+    LayoutGrid,
+    Mic,
+    Monitor,
+    Moon,
+    RotateCcw,
+    Search,
+    Shapes,
+    Sparkles,
+    Sun,
+    Video,
+} from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { useAppearance } from '~/composables/useAppearance';
 import { usePalette } from '~/composables/usePalette';
@@ -37,9 +37,9 @@ const { scale, increase, decrease, reset, canIncrease, canDecrease, isDefault } 
 // "accessibility"…) surface these even though they aren't in the visible label.
 const appearanceKeywords = ['appearance', 'colour', 'color', 'theme', 'accessibility', 'a11y'];
 const themeOptions = [
-    { value: 'light', label: 'Light theme', icon: IconSun, keywords: [...appearanceKeywords, 'bright', 'day'] },
-    { value: 'system', label: 'Use system theme', icon: IconDeviceDesktop, keywords: [...appearanceKeywords, 'auto', 'os', 'default'] },
-    { value: 'dark', label: 'Dark theme', icon: IconMoon, keywords: [...appearanceKeywords, 'night', 'contrast', 'dim'] },
+    { value: 'light', label: 'Light theme', icon: Sun, keywords: [...appearanceKeywords, 'bright', 'day'] },
+    { value: 'system', label: 'Use system theme', icon: Monitor, keywords: [...appearanceKeywords, 'auto', 'os', 'default'] },
+    { value: 'dark', label: 'Dark theme', icon: Moon, keywords: [...appearanceKeywords, 'night', 'contrast', 'dim'] },
 ];
 const textSizeKeywords = ['text', 'font', 'size', 'accessibility', 'a11y', 'zoom', 'readability', 'legibility'];
 const scalePercent = computed(() => `${Math.round(scale.value * 100)}%`);
@@ -50,11 +50,11 @@ let debounceTimer = null;
 let inFlight = null;
 
 const kindIcons = {
-    Series: IconLayoutGrid,
-    Speaker: IconMicrophone,
-    Topic: IconCategory,
-    Ministry: IconSparkles,
-    Book: IconBook,
+    Series: LayoutGrid,
+    Speaker: Mic,
+    Topic: Shapes,
+    Ministry: Sparkles,
+    Book: Book,
 };
 
 const onQuery = (value) => {
@@ -116,14 +116,14 @@ const navShortcuts = [
             <template v-if="!query.trim()">
                 <CommandGroup v-if="continueWatching().length" heading="Continue watching">
                     <CommandItem v-for="item in continueWatching()" :key="item.id" :value="`resume-${item.id}`" @select="go(`/video/${item.id}`)">
-                        <IconClock class="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
+                        <Clock class="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ item.name }}</span>
                         <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ formatTime(item.t) }} / {{ formatTime(item.d) }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Go to">
                     <CommandItem v-for="nav in navShortcuts" :key="nav.url" :value="nav.name" @select="go(nav.url)">
-                        <IconArrowRight class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                        <ArrowRight class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         {{ nav.name }}
                     </CommandItem>
                 </CommandGroup>
@@ -132,7 +132,7 @@ const navShortcuts = [
             <template v-else>
                 <CommandGroup v-if="results.videos.length" heading="Videos">
                     <CommandItem v-for="video in results.videos" :key="video.id" :value="`v-${video.id} ${video.name}`" @select="go(video.url)">
-                        <IconVideo class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                        <Video class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="min-w-0 flex-1 truncate">{{ video.name }}</span>
                         <span v-if="video.date" class="text-muted-foreground ml-auto shrink-0 text-xs whitespace-nowrap tabular-nums">{{
                             video.date
@@ -146,7 +146,7 @@ const navShortcuts = [
                         :value="`c-${category.kind}-${category.name}`"
                         @select="go(category.url)"
                     >
-                        <component :is="kindIcons[category.kind] || IconCategory" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                        <component :is="kindIcons[category.kind] || Shapes" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ category.name }}</span>
                         <span class="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
                             <span v-if="category.count" class="tabular-nums">{{ category.count }} videos</span>
@@ -157,7 +157,7 @@ const navShortcuts = [
                 <CommandSeparator />
                 <CommandGroup>
                     <CommandItem :value="`all ${query}`" @select="go(`/search?search=${encodeURIComponent(query.trim())}`)">
-                        <IconSearch class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                        <Search class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         See all results for “{{ query.trim() }}”
                     </CommandItem>
                 </CommandGroup>
@@ -176,7 +176,7 @@ const navShortcuts = [
                 >
                     <component :is="option.icon" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>{{ option.label }}</span>
-                    <IconCheck v-if="appearance === option.value" class="text-primary ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
+                    <Check v-if="appearance === option.value" class="text-primary ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
                 </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Accessibility">
@@ -186,7 +186,7 @@ const navShortcuts = [
                     :disabled="!canIncrease()"
                     @select="increase()"
                 >
-                    <IconTextIncrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <AArrowUp class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Larger text</span>
                     <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
                 </CommandItem>
@@ -196,7 +196,7 @@ const navShortcuts = [
                     :disabled="!canDecrease()"
                     @select="decrease()"
                 >
-                    <IconTextDecrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <AArrowDown class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Smaller text</span>
                     <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
                 </CommandItem>
@@ -206,7 +206,7 @@ const navShortcuts = [
                     :disabled="isDefault()"
                     @select="reset()"
                 >
-                    <IconRestore class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
+                    <RotateCcw class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Reset text size</span>
                 </CommandItem>
             </CommandGroup>

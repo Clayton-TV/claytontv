@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconDeviceDesktop, IconMoon, IconSun } from '@tabler/icons-vue';
+import { Monitor, Moon, Sun } from 'lucide-vue-next';
 import { useAppearance } from '~/composables/useAppearance';
 
 // Light / System / Dark segmented control. Default is "system" (follows the
@@ -7,9 +7,9 @@ import { useAppearance } from '~/composables/useAppearance';
 const { appearance, updateAppearance } = useAppearance();
 
 const options = [
-    { value: 'light', label: 'Light', icon: IconSun },
-    { value: 'system', label: 'System', icon: IconDeviceDesktop },
-    { value: 'dark', label: 'Dark', icon: IconMoon },
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'system', label: 'System', icon: Monitor },
+    { value: 'dark', label: 'Dark', icon: Moon },
 ] as const;
 </script>
 

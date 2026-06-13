@@ -1,5 +1,6 @@
 <script setup>
-import { IconBrandWhatsapp, IconCheck, IconLink, IconShare } from '@tabler/icons-vue';
+import BrandWhatsapp from '@/atoms/BrandWhatsapp.vue';
+import { Check, Link, Share2 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -50,7 +51,7 @@ const onClick = () => {
             class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
             aria-label="Share this video"
         >
-            <IconShare class="h-4 w-4" aria-hidden="true" />
+            <Share2 class="h-4 w-4" aria-hidden="true" />
             Share
         </button>
 
@@ -63,8 +64,8 @@ const onClick = () => {
                 @click="copyLink"
                 class="focus-visible:ring-ring text-foreground hover:bg-accent flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm outline-none focus-visible:ring-2"
             >
-                <IconCheck v-if="copied" class="text-primary h-4 w-4" aria-hidden="true" />
-                <IconLink v-else class="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                <Check v-if="copied" class="text-primary h-4 w-4" aria-hidden="true" />
+                <Link v-else class="text-muted-foreground h-4 w-4" aria-hidden="true" />
                 {{ copied ? 'Link copied' : 'Copy link' }}
             </button>
             <a
@@ -73,7 +74,7 @@ const onClick = () => {
                 rel="noopener"
                 class="focus-visible:ring-ring text-foreground hover:bg-accent flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm outline-none focus-visible:ring-2"
             >
-                <IconBrandWhatsapp class="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                <BrandWhatsapp class="text-muted-foreground h-4 w-4" aria-hidden="true" />
                 Share on WhatsApp
             </a>
         </div>

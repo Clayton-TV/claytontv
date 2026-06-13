@@ -1,5 +1,5 @@
 <script setup>
-import { IconX } from '@tabler/icons-vue';
+import { X } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 // Active filters as removable chips, so an elderly user always sees, in plain
@@ -36,7 +36,7 @@ const chips = computed(() => {
             class="bg-primary/15 text-primary focus-visible:ring-ring hover:bg-primary/25 inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3 text-sm font-medium outline-none focus-visible:ring-2"
         >
             {{ chip.label }}
-            <IconX class="h-3.5 w-3.5" aria-hidden="true" />
+            <X class="h-3.5 w-3.5" aria-hidden="true" />
             <span class="sr-only">Remove filter</span>
         </button>
         <button
