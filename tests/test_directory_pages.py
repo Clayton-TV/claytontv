@@ -102,22 +102,21 @@ class TestMinistriesIndex:
         assert [m["name"] for m in page["props"]["ministries"]] == ["Jesmond Parish Church"]
 
 
-def test_demographic_landing_redirects_to_topics(client):
+def test_demographic_landing_redirects_to_audiences(client):
+    # Audiences now have their own /audience/ area (Phase 5), not folded into Topics.
     response = client.get("/demographic/")
     assert response.status_code == 302
-    assert response.headers["Location"] == "/topic/"
+    assert response.headers["Location"] == "/audience/"
 
 
-def test_topics_page_includes_audiences(client):
+def test_topics_page_no_longer_folds_in_audiences(client):
+    # Superseded by the dedicated /audience/ area — see tests/test_audiences.py.
     kids = DemographicFactory(name="Kids")
-    video = VideoFactory()
-    video.demographic.add(kids)
+    VideoFactory().demographic.add(kids)
 
     props = inertia_page(client.get("/topic/"))["props"]
 
-    (audience,) = props["audiences"]
-    assert audience["name"] == "Kids"
-    assert audience["videosCount"] == 1
+    assert "audiences" not in props
 
 
 def test_catalogue_stub_is_gone(client):

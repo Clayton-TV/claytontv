@@ -71,11 +71,14 @@ watch(paletteOpen, (open) => {
 });
 
 const navShortcuts = [
+    { name: 'Browse & filter all teaching', url: '/browse/' },
     { name: 'Latest teaching', url: '/latest/' },
+    { name: 'Live & services', url: '/livestreams/' },
     { name: 'Series', url: '/series/' },
     { name: 'Topics', url: '/topic/' },
     { name: 'Speakers', url: '/speaker/' },
     { name: 'Bible books', url: '/book/' },
+    { name: 'For every age (Kids, Youth, Adults)', url: '/audience/' },
 ];
 </script>
 

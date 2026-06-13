@@ -43,6 +43,7 @@ class Demographic(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        """Returns the URL to access a detailed record for the demographic"""
+        """URL for this audience. Audiences now have their own /audience/ area
+        (own nav item), no longer reached via the Topics page."""
         encoded_name = quote(self.name, safe="")  # Encode the name, escaping all special characters
-        return reverse("browse_demographic", args=[encoded_name])
+        return reverse("browse_audience", args=[encoded_name])
