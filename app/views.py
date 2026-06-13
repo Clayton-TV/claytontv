@@ -5,6 +5,7 @@ from django.db.models import Count, F, Q
 from django.http import JsonResponse
 from inertia import defer, optional, render
 
+from app.browse import browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
 from catalogue.models.bible_book import Bible_Book
@@ -179,6 +180,12 @@ def palette(request):
     ]
 
     return JsonResponse({"videos": videos, "categories": categories})
+
+
+def browse_faceted(request):
+    """Combinatorial discovery surface (see app/browse.py). Coexists with the
+    single-relation browse_* pages, which stay as pre-filtered entry points."""
+    return render(request, "BrowseFaceted", browse_props(request, RECENT_FIRST, pagination_per_page, Paginator))
 
 
 def search(request):

@@ -11,6 +11,7 @@ import { usePalette } from '~/composables/usePalette';
 
 const navOptions = [
     { name: 'Home', href: '/' },
+    { name: 'Browse', href: '/browse' },
     { name: 'Series', href: '/series' },
     { name: 'Topics', href: '/topic' },
     { name: 'Speakers', href: '/speaker' },
