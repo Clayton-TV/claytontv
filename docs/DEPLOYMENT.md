@@ -106,3 +106,20 @@ Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
 URL carries its privacy hash (or the video is public). Hashless older Vimeo
 videos stay null until re-synced from the admin (mediaUpdate.asp exposes
 MediaDuration in ms) or a Vimeo API token is configured.
+
+## Error pages
+
+On-brand, self-contained (inline CSS + inline logo; no Vite/CDN/app context):
+
+- **Django** (`DEBUG=False`): `templates/404.html`, `500.html`, `403.html` — the
+  exact names Django's default handlers render, so no custom `handlerXXX` needed.
+- **nginx upstream-down (502/503/504):** gunicorn is down so Django can't render;
+  nginx serves `public/50x.html` (collected to `staticfiles_collected/50x.html`).
+  Add to each vhost's `server` block (`sites-available/beta-claytontv` and
+  `claytontv`), then `sudo nginx -t && sudo systemctl reload nginx`:
+
+      error_page 502 503 504 /50x.html;
+      location = /50x.html {
+          internal;
+          root /srv/beta-claytontv/current/staticfiles_collected;  # prod: /srv/claytontv/...
+      }

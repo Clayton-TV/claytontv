@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Something went wrong · Clayton TV</title>
+    <style>
+        /* Self-contained: a 500 has no app context, Vite, or CDN to rely on.
+           Colours mirror the app's dark theme + brand red (#ef4444). */
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            background: #121316;
+            color: #f4f4f6;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            display: grid;
+            place-items: center;
+            padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap { max-width: 30rem; text-align: center; }
+        .logo { width: 44px; height: 44px; margin: 0 auto 1.75rem; display: block; }
+        .code { color: #ef4444; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; }
+        h1 { margin: 0.5rem 0 0; font-size: clamp(1.6rem, 6vw, 2.25rem); font-weight: 700; letter-spacing: -0.01em; }
+        p { margin: 0.75rem 0 0; color: #9aa0ac; font-size: 1.0625rem; }
+        .btn {
+            display: inline-block; margin-top: 1.75rem; padding: 0.7rem 1.25rem;
+            background: #ef4444; color: #fff; text-decoration: none;
+            border-radius: 0.6rem; font-weight: 600; font-size: 0.95rem;
+        }
+        .btn:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <svg class="logo" viewBox="0 0 16 16" fill="#ef4444" aria-hidden="true">
+            <path d="M 2.0712038,6.1634008e-4 C 1.3134368,-0.02482266 0.82196262,0.74157314 0.92826002,1.4382677 c 0,4.4735396 0,8.9470793 0,13.4206183 -0.042312,0.903498 1.11910278,1.477969 1.82321878,0.922569 C 6.6745888,13.516194 10.597699,11.250934 14.520808,8.9856727 15.3318,8.5728919 15.248741,7.2703498 14.409737,6.9393284 10.486639,4.6770236 6.5635408,2.4147186 2.6404438,0.15241354 2.4683108,0.05313754 2.2698838,3.3604008e-4 2.0712038,6.1634008e-4 Z M 3.6896298,4.4585439 c 0.70609,0.083618 1.41218,0.2324607 2.11827,0.2759826 0.649668,-0.091994 1.299335,-0.183988 1.949003,-0.2759826 0.317732,2.2650526 0.635465,4.5301051 0.953197,6.7951581 -0.677878,0.0945 -1.355757,0.189002 -2.033636,0.283504 -0.317733,-2.2635651 -0.635465,-4.5271299 -0.953197,-6.7906943 -0.317733,2.2635644 -0.635465,4.5271292 -0.953197,6.7906943 -0.677879,-0.0945 -1.355758,-0.189003 -2.033637,-0.283504 0.317732,-2.265053 0.635465,-4.5301055 0.953197,-6.7951581 z" />
+        </svg>
+        <p class="code">Error 500</p>
+        <h1>Something went wrong</h1>
+        <p>That's on us — an unexpected error stopped this page loading. Please try again in a moment.</p>
+        <a class="btn" href="/">Back to home</a>
+    </main>
+</body>
+</html>
