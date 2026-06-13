@@ -1,6 +1,29 @@
 """The executable quirk ledger — every rule earned by real legacy data."""
 
-from catalogue.ingest.normalize import clean_name, clean_topic_name, clean_year, detect_platform, is_livestream_name
+from catalogue.ingest.normalize import (
+    clean_name,
+    clean_topic_name,
+    clean_year,
+    date_from_ref,
+    detect_platform,
+    is_livestream_name,
+)
+
+
+def test_date_from_ref_recovers_dates_the_admin_left_blank():
+    # The programmeRef encodes DD.MM.YY even when the date field is empty —
+    # 45 such programmes found in the 2026-06 backfill.
+    assert date_from_ref("MD8280CINews25.10.24") == "2024-10-25"
+    assert date_from_ref("1MD8142SDF13.07.25") == "2025-07-13"
+    assert date_from_ref("YT6336SermonPM31.05.26") == "2026-05-31"
+
+
+def test_date_from_ref_rejects_non_dates():
+    assert date_from_ref("YT6325KidsTalk") is None  # no DD.MM.YY group
+    assert date_from_ref("REF99.99.99") is None  # impossible day/month
+    assert date_from_ref("MD8201.13.25") is None  # month 13
+    assert date_from_ref("") is None
+    assert date_from_ref(None) is None
 
 
 def test_clean_name_collapses_the_whitespace_that_made_duplicates():

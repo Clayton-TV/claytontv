@@ -6,11 +6,28 @@ tests/test_ingest_normalize.py are the executable quirk ledger.
 """
 
 import re
+from datetime import date
 
 # Topic names arrive with tree-depth prefixes of MINUS SIGN (U+2212) or
 # hyphens; categories arrive SHOUTING with stray whitespace.
 _DEPTH_PREFIX = re.compile(r"^[\s−\-]+")  # noqa: RUF001 — U+2212 is what the data contains
 _WHITESPACE = re.compile(r"\s+")
+# programmeRef trailing date: "...CINews25.10.24" → 25 Oct 2024 (DD.MM.YY)
+_REF_DATE = re.compile(r"(\d{2})\.(\d{2})\.(\d{2})")
+
+
+def date_from_ref(ref):
+    """Recover a recording date from a programmeRef when the admin's date
+    field was left blank (45 such programmes in the 2026-06 backfill). The
+    ref encodes DD.MM.YY; returns an ISO string or None if absent/invalid."""
+    match = _REF_DATE.search(ref or "")
+    if not match:
+        return None
+    day, month, year = (int(part) for part in match.groups())
+    try:
+        return date(2000 + year, month, day).isoformat()
+    except ValueError:  # impossible day/month combination
+        return None
 
 
 def clean_text(value):

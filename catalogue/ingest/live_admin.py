@@ -19,6 +19,8 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
+from .normalize import date_from_ref
+
 BASE_URL = os.environ.get("LEGACY_ADMIN_BASE_URL", "https://clayton.tv/adminsection")
 PAGE_SIZE = 50
 MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
@@ -200,6 +202,10 @@ def to_dump_record(programme_id, meta):
                 break
             except ValueError:
                 continue
+    # The admin frequently leaves programmeDate blank but the ref still
+    # encodes DD.MM.YY — recover it rather than sink the video undated.
+    if date is None:
+        date = date_from_ref(meta.get("ref"))
 
     media = []
     if meta.get("url"):
