@@ -13,6 +13,15 @@ const props = defineProps({
     has_next_page: { type: Boolean },
 });
 
+// Whole-series runtime as a rounded "Xh Ym" / "Ym" — a course-length cue.
+const totalRuntime = () => {
+    const seconds = props.series_meta.total_runtime;
+    if (!seconds) return null;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.round((seconds % 3600) / 60);
+    return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
+};
+
 const looksLikeYear = (value) => /^\d{4}$/.test(String(value ?? '').trim());
 
 const years = () => {
@@ -37,6 +46,7 @@ const positionFor = (episode, index) => episode.number ?? props.page_start + ind
                 <h1 class="font-display mt-1 text-2xl leading-tight font-bold text-gray-50 sm:text-3xl">{{ series_meta.name }}</h1>
                 <p class="mt-2 text-sm text-gray-500 tabular-nums">
                     {{ series_meta.videosCount }} {{ series_meta.videosCount === 1 ? 'episode' : 'episodes' }}
+                    <template v-if="totalRuntime()"> · {{ totalRuntime() }}</template>
                     <template v-if="years()"> · {{ years() }}</template>
                 </p>
                 <p v-if="series_meta.summary" class="mt-3 max-w-prose text-[15px] leading-relaxed text-gray-400">

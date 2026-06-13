@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { IconCheck, IconPlayerPlayFilled } from '@tabler/icons-vue';
 import { useWatchHistory } from '~/composables/useWatchHistory';
+import { formatDuration } from '~/lib/duration';
 
 defineProps({
     episode: { type: Object, required: true },
@@ -39,6 +40,12 @@ const thumb = (episode) => {
                 aria-hidden="true"
             >
                 <IconPlayerPlayFilled class="h-7 w-7 text-white drop-shadow" />
+            </span>
+            <span
+                v-if="formatDuration(episode.duration_seconds)"
+                class="absolute right-1 bottom-1 rounded bg-black/75 px-1 py-0.5 text-[10px] font-semibold text-white tabular-nums"
+            >
+                {{ formatDuration(episode.duration_seconds) }}
             </span>
         </span>
         <span class="min-w-0 flex-1">
