@@ -19,12 +19,19 @@ import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+import httpx
 import typesense
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 COLLECTION = "content"
+
+# What "Typesense is unavailable" looks like in practice: API-level errors AND the
+# raw httpx transport errors the client re-raises on a real outage (connection
+# refused, timeout) — those do NOT subclass TypesenseClientError. Catch both so an
+# outage is a quiet fallback, not an unexpected error.
+TYPESENSE_ERRORS = (typesense.exceptions.TypesenseClientError, httpx.HTTPError)
 
 # Canonical kinds stored on every doc. The views map these to their own display
 # labels ("Series", "Bible Book", …) — keep the index labels stable.
@@ -132,11 +139,13 @@ def build_category_doc(*, kind, pk, name, text, url, videos_count):
     }
 
 
-def iter_content_docs():
-    """Yield a Typesense doc for every searchable object. Counts mirror the view
-    queries exactly so the proxy returns identical numbers."""
-    from django.db.models import Count
-
+def _category_specs():
+    """Per-category-model indexing spec, the single source of truth for both the
+    full reindex and single-object upserts. Each entry:
+    ``model -> (kind, count_relation, name_fn, text_fn)``. ``count_relation`` is
+    the relation the views Count — Series via the ``videos`` M2M (the FK reverse
+    is never populated), everything else via the ``video`` reverse.
+    """
     from catalogue.ingest.normalize import clean_name, clean_topic_name
     from catalogue.models.bible_book import Bible_Book
     from catalogue.models.channel import Channel
@@ -145,82 +154,72 @@ def iter_content_docs():
     from catalogue.models.series import Series
     from catalogue.models.speaker import Speaker
     from catalogue.models.topic import Topic
+
+    return {
+        Series: (KIND_SERIES, "videos", lambda o: clean_name(o.name), lambda o: o.summary or ""),
+        Speaker: (KIND_SPEAKER, "video", lambda o: clean_name(o.name), lambda o: o.bio or ""),
+        Topic: (KIND_TOPIC, "video", lambda o: clean_topic_name(o.name), lambda o: o.summary or ""),
+        Bible_Book: (KIND_BOOK, "video", lambda o: o.get_name_display(), lambda o: o.summary or ""),
+        Channel: (KIND_CHANNEL, "video", lambda o: clean_name(o.name), lambda o: o.summary or ""),
+        Ministry: (KIND_MINISTRY, "video", lambda o: clean_name(o.name), lambda o: o.summary or ""),
+        Demographic: (KIND_AUDIENCE, "video", lambda o: clean_name(o.name), lambda o: o.summary or ""),
+    }
+
+
+def iter_content_docs():
+    """Yield a Typesense doc for every searchable object. Counts mirror the view
+    queries exactly so the proxy returns identical numbers."""
+    from django.db.models import Count
+
     from catalogue.models.video import Video
 
     for v in Video.objects.all().iterator():
         yield build_video_doc(v)
 
-    # Series videos live on the Series.videos M2M (the FK reverse is never set).
-    for s in Series.objects.annotate(n=Count("videos")).iterator():
-        yield build_category_doc(
-            kind=KIND_SERIES,
-            pk=s.pk,
-            name=clean_name(s.name),
-            text=s.summary or "",
-            url=s.get_absolute_url(),
-            videos_count=s.n,
-        )
+    for model, (kind, relation, name_fn, text_fn) in _category_specs().items():
+        for obj in model.objects.annotate(n=Count(relation)).iterator():
+            yield build_category_doc(
+                kind=kind,
+                pk=obj.pk,
+                name=name_fn(obj),
+                text=text_fn(obj),
+                url=obj.get_absolute_url(),
+                videos_count=obj.n,
+            )
 
-    for sp in Speaker.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_SPEAKER,
-            pk=sp.pk,
-            name=clean_name(sp.name),
-            text=sp.bio or "",
-            url=sp.get_absolute_url(),
-            videos_count=sp.n,
-        )
 
-    for t in Topic.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_TOPIC,
-            pk=t.pk,
-            name=clean_topic_name(t.name),
-            text=t.summary or "",
-            url=t.get_absolute_url(),
-            videos_count=t.n,
-        )
+def kind_for(model):
+    """The index ``kind`` for a model class, or ``None`` if it isn't indexed."""
+    from catalogue.models.video import Video
 
-    # Bible books: the display name lives behind a choice code; index that.
-    for b in Bible_Book.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_BOOK,
-            pk=b.pk,
-            name=b.get_name_display(),
-            text=b.summary or "",
-            url=b.get_absolute_url(),
-            videos_count=b.n,
-        )
+    if model is Video:
+        return KIND_VIDEO
+    spec = _category_specs().get(model)
+    return spec[0] if spec else None
 
-    for c in Channel.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_CHANNEL,
-            pk=c.pk,
-            name=clean_name(c.name),
-            text=c.summary or "",
-            url=c.get_absolute_url(),
-            videos_count=c.n,
-        )
 
-    for m in Ministry.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_MINISTRY,
-            pk=m.pk,
-            name=clean_name(m.name),
-            text=m.summary or "",
-            url=m.get_absolute_url(),
-            videos_count=m.n,
-        )
+def build_doc_for(obj):
+    """Build the content doc for a single instance (video or category), or
+    ``None`` if its model isn't indexed. Category counts are computed fresh."""
+    from django.db.models import Count
 
-    for a in Demographic.objects.annotate(n=Count("video")).iterator():
-        yield build_category_doc(
-            kind=KIND_AUDIENCE,
-            pk=a.pk,
-            name=clean_name(a.name),
-            text=a.summary or "",
-            url=a.get_absolute_url(),
-            videos_count=a.n,
-        )
+    from catalogue.models.video import Video
+
+    if isinstance(obj, Video):
+        return build_video_doc(obj)
+    spec = _category_specs().get(type(obj))
+    if spec is None:
+        return None
+    kind, relation, name_fn, text_fn = spec
+    count = type(obj).objects.filter(pk=obj.pk).aggregate(n=Count(relation))["n"] or 0
+    return build_category_doc(
+        kind=kind,
+        pk=obj.pk,
+        name=name_fn(obj),
+        text=text_fn(obj),
+        url=obj.get_absolute_url(),
+        videos_count=count,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -262,6 +261,40 @@ def reindex(*, batch_size=500, log=None):
     if batch:
         total += _import_batch(client, batch)
     return total
+
+
+def index_object(obj):
+    """Upsert one object's doc. Best-effort: returns ``False`` (never raises)
+    when Typesense is unconfigured or unreachable, so the model save it's wired
+    to via a signal can't be blocked by a search outage."""
+    client = get_client()
+    if client is None:
+        return False
+    doc = build_doc_for(obj)
+    if doc is None:
+        return False
+    try:
+        client.collections[COLLECTION].documents.upsert(doc)
+    except TYPESENSE_ERRORS as exc:
+        logger.warning("Typesense upsert failed for %s: %s", doc.get("id"), exc)
+        return False
+    return True
+
+
+def delete_object(kind, pk):
+    """Delete one object's doc. Best-effort (see :func:`index_object`); a missing
+    doc counts as success."""
+    client = get_client()
+    if client is None:
+        return False
+    try:
+        client.collections[COLLECTION].documents[f"{kind}:{pk}"].delete()
+    except typesense.exceptions.ObjectNotFound:
+        return True
+    except TYPESENSE_ERRORS as exc:
+        logger.warning("Typesense delete failed for %s:%s: %s", kind, pk, exc)
+        return False
+    return True
 
 
 # --------------------------------------------------------------------------- #
@@ -309,7 +342,7 @@ def search_videos(query, *, page=1, per_page=24):
                 "include_fields": "pk,name,url,date_display,is_livestream,kind,videos_count",
             }
         )
-    except typesense.exceptions.TypesenseClientError as e:
+    except TYPESENSE_ERRORS as e:
         raise SearchUnavailableError(str(e)) from e
     return [_hit(h["document"]) for h in res.get("hits", [])], res.get("found", 0)
 
@@ -331,7 +364,7 @@ def search_categories(query, *, kinds, per_kind=6):
                 "include_fields": "pk,name,url,kind,videos_count",
             }
         )
-    except typesense.exceptions.TypesenseClientError as e:
+    except TYPESENSE_ERRORS as e:
         raise SearchUnavailableError(str(e)) from e
     hits = []
     for group in res.get("grouped_hits", []):

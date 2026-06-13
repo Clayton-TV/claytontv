@@ -28,6 +28,21 @@ def test_get_client_is_none_without_api_key(settings):
     assert search.get_client() is None
 
 
+def test_search_raises_unavailable_on_connection_failure(settings):
+    # Configured but unreachable (dead port). The client raises a raw httpx
+    # transport error; the helper must convert it to SearchUnavailableError so
+    # the view treats an outage as a quiet ORM fallback, not a Sentry-worthy bug.
+    settings.TYPESENSE = {
+        "api_key": "x",
+        "host": "127.0.0.1",
+        "port": "9",  # discard port — connection refused immediately
+        "protocol": "http",
+        "connection_timeout_seconds": 1,
+    }
+    with pytest.raises(search.SearchUnavailableError):
+        search.search_videos("anything")
+
+
 def test_build_video_doc_shape():
     video = VideoFactory(
         name="Romans 8",
