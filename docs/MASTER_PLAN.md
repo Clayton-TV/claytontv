@@ -5,6 +5,31 @@
 
 ## 0. Current status — update every session
 
+**As of 2026-06-13 (late) — Functionality Overhaul COMPLETE; Epic 5 (search) shipped.**
+Beta is feature-complete on the core product; remaining work is editorial auth
+(Epic 3) and the hardening/cutover runbook (Epic 7).
+
+- ✅ **Functionality Overhaul fully closed** — P1–P7 all live, including the
+  previously-deferred **light mode + theme toggle** (ThemeToggle in header +
+  ⌘K palette), P6 data blemishes (topic dedup + mojibake clean), and P7
+  app-feel/PWA (16px inputs, manifest+icons, safe-area). Earlier status lines
+  below that list these as "remaining" are superseded.
+- ✅ **Post-overhaul player + draft-PR sweep** (≈#218–#234): mini-player
+  controls fixed (YouTube postMessage), Instagram-style reel scrubber,
+  full-width mobile bar, refresh-persistence (localStorage); dead starter-kit
+  scaffolding removed; icons consolidated to lucide; HTML descriptions
+  sanitized (#224); type-check + lint/format added as CI gates; #225 closed.
+- ✅ **Epic 5 — Typesense hybrid search COMPLETE & live on beta** (#235–#239):
+  unified `content` collection, palette + `/search` served by Typesense with a
+  graceful ORM fallback (search never hard-fails), loopback-only container on
+  app03, live `post_save`/`post_delete` indexing + nightly reconcile cron, and
+  a palette server-tier loading shimmer. Typo/synonym/ranked verified on beta.
+  Harvested from mtbu's spike #167 (credited, left open). **Prod rollout
+  deferred** — legacy-team coordination; no container on prod yet.
+- ▶️ **NEXT: Epic 3 (auth & editorial admin)**, then **Epic 7 (hardening +
+  cutover readiness)**. Epic 5 transcript-aware search is a data-gated stretch
+  (captions only accrue from new livestreams; no legacy transcript corpus).
+
 **As of 2026-06-13 — Functionality Overhaul in progress** (plan:
 `~/.claude/plans/synthetic-purring-shamir.md`; UX audit + 7-phase subplan,
 approved). All slices ship as their own PR → beta, TDD + Claude-Preview
@@ -302,14 +327,19 @@ filter (weekly services would otherwise flood it).
 - Exit: a real Sunday stream observed end-to-end on beta: live page → library entry
   with transcript, untouched by human hands.
 
-### Epic 5 — Search (Typesense + transcripts)
+### Epic 5 — Search (Typesense + transcripts) — ✅ core complete (#235–#239)
 Goal: instant, typo-tolerant search across titles, taxonomy, and transcript text.
-Builds on Matt's stalled Typesense exploration (#167) — we own it now, on our branches.
-- Typesense provisioned on the server (the open infra question from #167).
-- Index videos/series/speakers/topics + transcript text; reindex hooks on import and
-  on livestream transition.
-- Instant-search UI; advanced filters (bible book, speaker, topic — #7).
-- Exit: search "Romans 8" and find talks whose *transcript* mentions it.
+Built fresh on `beta`, harvesting mtbu's stalled spike #167 (credited, left open).
+- ✅ Typesense provisioned on app03 beta (loopback-only container; docs/DEPLOYMENT.md).
+- ✅ Unified `content` collection (videos/series/speakers/topics/books/channels/
+  ministries/audiences); `reindex_search` + live `post_save`/`post_delete` signals
+  + nightly reconcile cron.
+- ✅ Palette + `/search` query Typesense with a graceful ORM fallback (typo/synonym/
+  ranked, counts baked in — zero N+1); palette loading shimmer.
+- 🔲 **Transcript text** (data-gated): index YouTube caption text once it accrues from
+  livestreams. Advanced filters (#7) and `pgvector` semantic search remain optional.
+- 🔲 **Prod rollout** — deferred to legacy-team coordination.
+- Exit (core) met: "genisis"/"ephesains" return ranked Genesis/Ephesians hits on beta.
 
 ### Epic 6 — full redesign (supersedes the #164 "polish the existing layout" framing)
 Goal: redesign the entire site from use cases — not iterate the inherited
