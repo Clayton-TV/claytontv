@@ -550,24 +550,34 @@ def topics_index(request):
             }
         )
 
-    audiences = [
-        {
-            "name": d.name,
-            "videosCount": d.videos_count,
-            "url": d.get_absolute_url(),
-        }
-        for d in Demographic.objects.annotate(videos_count=Count("video")).order_by("name")
-    ]
-
     return render(
         request,
         "TopicsIndex",
         {
-            "audiences": audiences,
+            # Audiences moved to their own /audience/ area (TopicsIndex shows a
+            # pointer link instead of folding them in here).
             "topic_groups": [{"category": category, "topics": topics} for category, topics in sorted(groups.items())],
             "total": Topic.objects.count(),
         },
     )
+
+
+def audiences_index(request):
+    """Dedicated audiences landing (Kids/Youth/Adults) — image-led tiles for
+    the parent/kids persona, its own nav area rather than buried in Topics."""
+    audiences = [
+        {
+            "name": d.name,
+            "summary": d.summary,
+            "thumbnail": d.thumbnail,
+            "videosCount": d.videos_count,
+            "url": d.get_absolute_url(),
+        }
+        for d in Demographic.objects.annotate(videos_count=Count("video"))
+        .filter(videos_count__gt=0)
+        .order_by("-videos_count")
+    ]
+    return render(request, "AudiencesIndex", {"audiences": audiences})
 
 
 def speakers_index(request):

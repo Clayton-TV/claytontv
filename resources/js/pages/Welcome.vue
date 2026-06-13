@@ -5,8 +5,17 @@ import SectionHeading from '@/molecules/SectionHeading.vue';
 import SeriesCard from '@/molecules/SeriesCard.vue';
 import { Skeleton } from '@/ui/skeleton';
 import { Link, WhenVisible } from '@inertiajs/vue3';
-import { IconArrowRight } from '@tabler/icons-vue';
+import { IconAdjustmentsHorizontal, IconArrowRight, IconBook, IconLayoutGrid, IconMicrophone, IconMoodKid, IconTag } from '@tabler/icons-vue';
 import { useEntrance } from '~/composables/useEntrance';
+
+const findBy = [
+    { label: 'Filter all', href: '/browse', icon: IconAdjustmentsHorizontal },
+    { label: 'Series', href: '/series', icon: IconLayoutGrid },
+    { label: 'Topics', href: '/topic', icon: IconTag },
+    { label: 'Speakers', href: '/speaker', icon: IconMicrophone },
+    { label: 'Bible books', href: '/book', icon: IconBook },
+    { label: 'For every age', href: '/audience', icon: IconMoodKid },
+];
 
 const props = defineProps({
     livestreams: { type: Array, default: () => [] },
@@ -70,6 +79,24 @@ const { entrance } = useEntrance();
                     </Link>
                 </li>
             </ul>
+        </section>
+
+        <!-- Discoverable on-ramp to the directories (so the "Browse" dropdown
+             is never the only way in for the primary persona). -->
+        <section v-bind="entrance(180)" class="mt-14" aria-label="Find teaching by">
+            <SectionHeading title="Find teaching by…" />
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <Link
+                    v-for="tile in findBy"
+                    :key="tile.href"
+                    :href="tile.href"
+                    prefetch
+                    class="group focus-visible:ring-ring flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-6 text-center transition-colors duration-150 outline-none hover:border-white/25 hover:bg-white/[0.06] focus-visible:ring-2"
+                >
+                    <component :is="tile.icon" class="text-primary h-7 w-7" aria-hidden="true" />
+                    <span class="text-sm font-medium text-gray-200">{{ tile.label }}</span>
+                </Link>
+            </div>
         </section>
 
         <!-- Below the fold: props are optional() server-side; WhenVisible
