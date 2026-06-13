@@ -1,6 +1,9 @@
+import logging
+import math
 from collections import Counter
 from urllib.parse import unquote  # Import for URL decoding
 
+import sentry_sdk
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q, Sum
 from django.http import JsonResponse
@@ -10,6 +13,7 @@ from app.browse import browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
 from app.sanitize import sanitize_description
+from catalogue import search as search_index
 from catalogue.ingest.normalize import clean_name, clean_topic_name
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
@@ -24,10 +28,34 @@ from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_s
 
 pagination_per_page = 24
 
+logger = logging.getLogger(__name__)
+
 # Newest first with undated entries at the END on both engines: Postgres
 # defaults DESC to NULLS FIRST (undated videos would top every rail),
 # SQLite to nulls last — the mismatch hid this locally.
 RECENT_FIRST = F("date_recorded").desc(nulls_last=True)
+
+# Index `kind` → the display label each surface uses. The palette and the search
+# page label the same kinds differently (kept for output parity).
+PALETTE_KIND_LABELS = {
+    search_index.KIND_SERIES: "Series",
+    search_index.KIND_SPEAKER: "Speaker",
+    search_index.KIND_TOPIC: "Topic",
+    search_index.KIND_MINISTRY: "Ministry",
+    search_index.KIND_BOOK: "Book",
+}
+SEARCH_KIND_LABELS = {
+    search_index.KIND_CHANNEL: "Channels",
+    search_index.KIND_AUDIENCE: "Demographics",
+    search_index.KIND_MINISTRY: "Ministries",
+    search_index.KIND_SERIES: "Series",
+    search_index.KIND_SPEAKER: "Speakers",
+    search_index.KIND_TOPIC: "Topics",
+    search_index.KIND_BOOK: "Bible Book",
+}
+# Per-kind cap for the full search page (the ORM path is uncapped; Typesense
+# ranks by relevance so a generous cap keeps the chip list useful but bounded).
+SEARCH_CATEGORY_LIMIT = 20
 
 
 def index(request):
@@ -158,11 +186,38 @@ PALETTE_LIMIT = 6
 
 def palette(request):
     """Grouped name-only search for the ⌘K command palette. Fired on every
-    keystroke, so: no description scans, hard caps, JSON not Inertia."""
+    keystroke, so: hard caps, JSON not Inertia. Served by Typesense (typo- and
+    synonym-tolerant) with a graceful ORM fallback so it never hard-fails."""
     query = request.GET.get("q", "").strip()
     if not query:
         return JsonResponse({"videos": [], "categories": []})
 
+    try:
+        payload = _palette_typesense(query)
+    except search_index.SearchUnavailableError as exc:
+        logger.info("palette: Typesense unavailable, using ORM fallback (%s)", exc)
+        payload = _palette_orm(query)
+    except Exception:
+        logger.warning("palette: Typesense proxy error, using ORM fallback", exc_info=True)
+        sentry_sdk.capture_exception()
+        payload = _palette_orm(query)
+
+    return JsonResponse(payload)
+
+
+def _palette_typesense(query):
+    video_hits, _ = search_index.search_videos(query, page=1, per_page=PALETTE_LIMIT)
+    videos = [{"id": h.pk, "name": h.name, "url": h.url, "date": h.date_display} for h in video_hits]
+
+    categories = [
+        {"kind": PALETTE_KIND_LABELS[h.kind], "name": h.name, "url": h.url, "count": h.videos_count}
+        for h in search_index.search_categories(query, kinds=list(PALETTE_KIND_LABELS), per_kind=PALETTE_LIMIT)
+    ]
+    return {"videos": videos, "categories": categories}
+
+
+def _palette_orm(query):
+    """Name-only ORM search — the fallback when Typesense is unavailable."""
     videos = [
         {"id": v.id, "name": v.name, "url": f"/video/{v.id}", "date": v.date_recorded or v.date_created}
         for v in Video.objects.filter(name__icontains=query).order_by(RECENT_FIRST)[:PALETTE_LIMIT]
@@ -185,7 +240,7 @@ def palette(request):
         for b in Bible_Book.objects.filter(summary__icontains=query).annotate(n=Count("video"))[:PALETTE_LIMIT]
     ]
 
-    return JsonResponse({"videos": videos, "categories": categories})
+    return {"videos": videos, "categories": categories}
 
 
 def browse_faceted(request):
@@ -195,17 +250,71 @@ def browse_faceted(request):
 
 
 def search(request):
+    """Full-page search. Served by Typesense (relevance-ranked, typo- and
+    synonym-tolerant) with a graceful ORM fallback so search never hard-fails.
+    Categories appear on page 1 only; both engines return the same prop shape."""
     searchquery = request.GET["search"]
-    page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
+
+    try:
+        props = _search_typesense(searchquery, page_num)
+    except search_index.SearchUnavailableError as exc:
+        logger.info("search: Typesense unavailable, using ORM fallback (%s)", exc)
+        props = _search_orm(searchquery, page_num)
+    except Exception:
+        logger.warning("search: Typesense proxy error, using ORM fallback", exc_info=True)
+        sentry_sdk.capture_exception()
+        props = _search_orm(searchquery, page_num)
+
+    return render(request, "Search", props)
+
+
+def _search_typesense(searchquery, page_num):
+    hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
+    # Hydrate the ranked ids in one query, preserving Typesense's relevance order.
+    by_id = {str(v.id): v for v in Video.objects.filter(id__in=[h.pk for h in hits])}
+    ordered = [by_id[h.pk] for h in hits if h.pk in by_id]
+
+    total_pages = max(1, math.ceil(found / pagination_per_page))
+    props = {
+        "title": f"Search for '{searchquery}'",
+        "description": f"Found {found} {'video' if found == 1 else 'videos'} (page {page_num} of {total_pages})",
+        "videos": video_card_props(ordered),
+        "has_prev_page": page_num > 1,
+        "has_next_page": page_num * pagination_per_page < found,
+    }
+    if page_num == 1:
+        cat_hits = search_index.search_categories(
+            searchquery, kinds=list(SEARCH_KIND_LABELS), per_kind=SEARCH_CATEGORY_LIMIT
+        )
+        props["categories"] = [
+            {"category": SEARCH_KIND_LABELS[h.kind], "name": h.name, "videosCount": h.videos_count, "url": h.url}
+            for h in cat_hits
+        ]
+    return props
+
+
+def _search_orm(searchquery, page_num):
+    """ORM ``icontains`` search — the fallback when Typesense is unavailable."""
     video_results = []
     video_results += Video.objects.filter(name__icontains=searchquery)
     video_results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in video_results]
     paginator = Paginator(video_results, pagination_per_page)
     paginated = paginator.page(page_num)
+    description = (
+        f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} "
+        f"(page {page_num} of {paginator.num_pages})"
+    )
+    props = {
+        "title": f"Search for '{searchquery}'",
+        "description": description,
+        "videos": video_card_props(paginated.object_list),
+        "has_prev_page": paginated.has_previous(),
+        "has_next_page": paginated.has_next(),
+    }
     if page_num == 1:
         category_results = []
         for model, model_name in [
@@ -240,32 +349,8 @@ def search(request):
             }
             for x in Bible_Book.objects.filter(summary__icontains=searchquery).annotate(n=Count("video"))
         ]
-        return render(
-            request,
-            "Search",
-            {
-                "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
-                "videos": video_card_props(paginated.object_list),
-                "categories": category_results,
-                "has_prev_page": paginated.has_previous(),
-                "has_next_page": paginated.has_next(),
-            },
-        )
-    else:
-        return render(
-            request,
-            "Search",
-            {
-                "title": f"Search for '{searchquery}'",
-                "description": f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} \
-(page {page_num} of {paginator.num_pages})",
-                "videos": video_card_props(paginated.object_list),
-                "has_prev_page": paginated.has_previous(),
-                "has_next_page": paginated.has_next(),
-            },
-        )
+        props["categories"] = category_results
+    return props
 
 
 def video(request, id):

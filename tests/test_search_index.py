@@ -18,6 +18,7 @@ from tests.factories import (
     TopicFactory,
     VideoFactory,
 )
+from tests.utils import typesense_env_config
 
 pytestmark = pytest.mark.django_db
 
@@ -108,10 +109,14 @@ def test_iter_content_docs_covers_each_kind_with_counts():
 
 
 @pytest.fixture
-def live_client():
-    client = search.get_client()
-    if client is None:
+def live_client(settings):
+    # test_settings disables Typesense; opt back in from the environment for this
+    # test only so the rest of the suite stays deterministic on the ORM path.
+    config = typesense_env_config()
+    if config is None:
         pytest.skip("Typesense not configured (set TYPESENSE_API_KEY)")
+    settings.TYPESENSE = config
+    client = search.get_client()
     try:
         client.collections.retrieve()
     except Exception:
