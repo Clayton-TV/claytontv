@@ -5,8 +5,10 @@ import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
 </script>
 
 <template>
-    <!-- relative: PersistentPlayer's docked mode positions in document coords -->
-    <div class="bg-background relative flex min-h-full flex-col">
+    <!-- relative: PersistentPlayer's docked mode positions in document coords.
+         overflow-x-clip: belt-and-braces against any descendant forcing
+         horizontal scroll on mobile (clip, not hidden, so sticky still works). -->
+    <div class="bg-background relative flex min-h-full flex-col overflow-x-clip">
         <!-- Keyboard users skip the nav straight to content -->
         <a
             href="#main"
