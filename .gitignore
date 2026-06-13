@@ -47,3 +47,6 @@ coverage
 
 # Inertia SSR build output
 bootstrap/ssr/
+
+# Claude workflow worktrees (local only)
+.claude/worktrees/

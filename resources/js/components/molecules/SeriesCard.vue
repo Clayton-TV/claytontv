@@ -18,7 +18,7 @@ defineProps({
             <IconBook2 class="text-primary h-8 w-8 stroke-[1.5]" />
         </div>
         <div class="min-w-0">
-            <h3 class="text-foreground truncate text-[15px] font-semibold">{{ series.name }}</h3>
+            <h3 class="text-foreground line-clamp-2 text-[15px] font-semibold">{{ series.name }}</h3>
             <p v-if="series.summary" class="text-muted-foreground mt-1 line-clamp-2 text-[13px] leading-relaxed">{{ series.summary }}</p>
             <p class="bg-muted text-muted-foreground mt-2 inline-block rounded-md px-2 py-0.5 text-xs tabular-nums">
                 {{ series.videosCount }} {{ countNoun }}{{ series.videosCount === 1 ? '' : 's' }}
