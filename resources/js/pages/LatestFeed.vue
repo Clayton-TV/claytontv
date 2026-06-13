@@ -4,7 +4,10 @@ import PaginationNav from '@/molecules/PaginationNav.vue';
 import SeriesFloodRow from '@/molecules/SeriesFloodRow.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { useEntrance } from '~/composables/useEntrance';
 import { useLastVisit } from '~/composables/useLastVisit';
+
+const { entrance } = useEntrance();
 
 const props = defineProps({
     title: { type: String, required: true },
@@ -36,7 +39,7 @@ const dividerBeforeId = computed(() => {
         <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Latest</h1>
         <p class="mt-2 text-sm text-gray-500">New teaching and recent series, most recent first.</p>
 
-        <section v-for="group in groups" :key="group.label" class="mt-10" :aria-label="group.label">
+        <section v-for="(group, i) in groups" :key="group.label" v-bind="entrance(80 + i * 70)" class="mt-10" :aria-label="group.label">
             <h2 class="flex items-center gap-3 text-sm font-semibold tracking-wider text-gray-400 uppercase">
                 {{ group.label }}
                 <span class="h-px flex-1 bg-white/10" aria-hidden="true"></span>

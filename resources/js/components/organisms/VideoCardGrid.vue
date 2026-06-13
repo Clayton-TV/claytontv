@@ -2,6 +2,9 @@
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import EmptyState from '@/molecules/EmptyState.vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useEntrance } from '~/composables/useEntrance';
+
+const { entrance } = useEntrance();
 defineProps({
     videos: {
         type: Array,
@@ -45,7 +48,7 @@ const nextPage = () => {
 </script>
 
 <template>
-    <section class="flex flex-col gap-y-6">
+    <section v-bind="entrance()" class="flex flex-col gap-y-6">
         <div v-if="title || description">
             <h1 v-if="title" class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">
                 {{ title }}
