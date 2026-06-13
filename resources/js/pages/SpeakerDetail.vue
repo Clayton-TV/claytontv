@@ -36,18 +36,20 @@ const initials = (name) =>
             </span>
             <div>
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">Speaker</p>
-                <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">{{ speaker.name }}</h1>
-                <p class="mt-1 text-sm text-gray-500 tabular-nums">{{ speaker.talksCount }} {{ speaker.talksCount === 1 ? 'talk' : 'talks' }}</p>
+                <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">{{ speaker.name }}</h1>
+                <p class="text-muted-foreground mt-1 text-sm tabular-nums">
+                    {{ speaker.talksCount }} {{ speaker.talksCount === 1 ? 'talk' : 'talks' }}
+                </p>
             </div>
         </header>
 
-        <p v-if="speaker.bio" class="mt-5 max-w-prose text-[15px] leading-relaxed text-gray-400">{{ speaker.bio }}</p>
+        <p v-if="speaker.bio" class="text-muted-foreground mt-5 max-w-prose text-[15px] leading-relaxed">{{ speaker.bio }}</p>
 
         <Deferred data="series">
             <template #fallback>
                 <section class="mt-12" aria-label="Series">
-                    <Skeleton class="h-7 w-56 bg-white/5" />
-                    <div class="mt-5 grid gap-5 sm:grid-cols-2"><Skeleton v-for="n in 2" :key="n" class="h-28 rounded-xl bg-white/5" /></div>
+                    <Skeleton class="bg-muted h-7 w-56" />
+                    <div class="mt-5 grid gap-5 sm:grid-cols-2"><Skeleton v-for="n in 2" :key="n" class="bg-muted h-28 rounded-xl" /></div>
                 </section>
             </template>
             <section v-if="series?.length" class="mt-12" aria-label="Series">
@@ -65,7 +67,7 @@ const initials = (name) =>
                     <Link
                         :href="`/video/${video.id}`"
                         prefetch
-                        class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                        class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                     >
                         <VideoCardItem :video="video" />
                         <span class="sr-only">View video for {{ video.name }}</span>

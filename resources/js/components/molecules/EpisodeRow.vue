@@ -22,9 +22,9 @@ const thumb = (episode) => {
     <Link
         :href="episode.url"
         prefetch
-        class="group focus-visible:ring-ring flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 transition-colors duration-150 outline-none hover:border-white/20 hover:bg-white/[0.06] focus-visible:ring-2"
+        class="group focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent flex items-center gap-4 rounded-xl border p-3 transition-colors duration-150 outline-none focus-visible:ring-2"
     >
-        <span class="w-6 shrink-0 text-center text-sm font-medium text-gray-500 tabular-nums">{{ position }}</span>
+        <span class="text-muted-foreground w-6 shrink-0 text-center text-sm font-medium tabular-nums">{{ position }}</span>
         <span class="relative aspect-video w-28 shrink-0 overflow-hidden rounded-md bg-gray-800 sm:w-32">
             <img
                 v-if="thumb(episode)"
@@ -49,8 +49,8 @@ const thumb = (episode) => {
             </span>
         </span>
         <span class="min-w-0 flex-1">
-            <span class="block truncate text-[15px] font-medium text-gray-100">{{ episode.name }}</span>
-            <span v-if="episode.date" class="mt-0.5 block text-xs text-gray-500 tabular-nums">{{ episode.date }}</span>
+            <span class="text-foreground block truncate text-[15px] font-medium">{{ episode.name }}</span>
+            <span v-if="episode.date" class="text-muted-foreground mt-0.5 block text-xs tabular-nums">{{ episode.date }}</span>
         </span>
         <span
             v-if="hasWatched(episode.id)"

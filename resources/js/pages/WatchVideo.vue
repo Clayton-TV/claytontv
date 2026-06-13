@@ -87,7 +87,7 @@ const entries = (key) => {
         <div ref="placeholderEl" class="aspect-video w-full rounded-xl bg-black" aria-hidden="true"></div>
 
         <!-- Quiet note when playback picked up where the viewer left off -->
-        <p v-if="resumedFrom" class="mt-3 flex items-center gap-2 text-sm text-gray-400">
+        <p v-if="resumedFrom" class="text-muted-foreground mt-3 flex items-center gap-2 text-sm">
             <span class="tabular-nums">Resuming from {{ formatTime(resumedFrom) }}</span>
             <button
                 @click="startOver"
@@ -100,7 +100,7 @@ const entries = (key) => {
 
         <div class="mt-6">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h1 class="font-display text-2xl leading-tight font-bold text-gray-50 sm:text-3xl">{{ video.name }}</h1>
+                <h1 class="font-display text-foreground text-2xl leading-tight font-bold sm:text-3xl">{{ video.name }}</h1>
                 <Link
                     v-if="passage"
                     :href="passage.url"
@@ -110,12 +110,12 @@ const entries = (key) => {
                     <IconBook class="h-4 w-4" aria-hidden="true" />
                     {{ passage.label }}
                 </Link>
-                <span v-if="video.is_livestream" class="rounded bg-white/10 px-2 py-0.5 text-xs font-bold tracking-wide text-gray-300 uppercase">
+                <span v-if="video.is_livestream" class="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-bold tracking-wide uppercase">
                     Streamed
                 </span>
             </div>
             <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
-                <p class="text-sm text-gray-500 tabular-nums">
+                <p class="text-muted-foreground text-sm tabular-nums">
                     {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
                     <template v-if="formatDuration(video.duration_seconds)"> · {{ formatDuration(video.duration_seconds) }}</template>
                 </p>
@@ -125,13 +125,13 @@ const entries = (key) => {
             <div class="mt-5 space-y-3">
                 <template v-for="group in metaGroups" :key="group.key">
                     <div v-if="entries(group.key).length" class="flex flex-wrap items-baseline gap-2">
-                        <span class="w-24 shrink-0 text-xs font-medium tracking-wider text-gray-500 uppercase">{{ group.label }}</span>
+                        <span class="text-muted-foreground w-24 shrink-0 text-xs font-medium tracking-wider uppercase">{{ group.label }}</span>
                         <Link
                             v-for="entry in entries(group.key)"
                             :key="entry.url"
                             :href="entry.url"
                             prefetch
-                            class="focus-visible:ring-ring inline-flex min-h-9 items-center rounded-full border border-white/10 px-3.5 text-[13px] text-gray-300 transition-colors duration-150 outline-none hover:border-white/25 hover:text-white focus-visible:ring-2"
+                            class="focus-visible:ring-ring border-border text-muted-foreground hover:border-ring hover:text-foreground inline-flex min-h-9 items-center rounded-full border px-3.5 text-[13px] transition-colors duration-150 outline-none focus-visible:ring-2"
                         >
                             {{ entry.name }}
                         </Link>
@@ -139,7 +139,7 @@ const entries = (key) => {
                 </template>
             </div>
 
-            <p v-if="video.description" class="mt-6 max-w-prose text-[15px] leading-relaxed text-gray-400" v-html="video.description"></p>
+            <p v-if="video.description" class="text-muted-foreground mt-6 max-w-prose text-[15px] leading-relaxed" v-html="video.description"></p>
 
             <!-- Rescued companion links (transcripts/audio on partner sites) -->
             <div v-if="resources.length" class="mt-6 flex flex-wrap gap-3">
@@ -149,7 +149,7 @@ const entries = (key) => {
                     :href="resource.url"
                     rel="noopener"
                     target="_blank"
-                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
                     <component :is="(resourceMeta[resource.kind] || resourceMeta.other).icon" class="h-4 w-4" aria-hidden="true" />
                     {{ (resourceMeta[resource.kind] || resourceMeta.other).label }}
@@ -160,9 +160,9 @@ const entries = (key) => {
         <Deferred data="up_next">
             <template #fallback>
                 <section class="mt-12" aria-label="More in this series">
-                    <Skeleton class="h-7 w-64 bg-white/5" />
+                    <Skeleton class="bg-muted h-7 w-64" />
                     <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        <Skeleton v-for="n in 3" :key="n" class="aspect-video rounded-lg bg-white/5" />
+                        <Skeleton v-for="n in 3" :key="n" class="bg-muted aspect-video rounded-lg" />
                     </div>
                 </section>
             </template>
@@ -174,7 +174,7 @@ const entries = (key) => {
                         <Link
                             :href="`/video/${item.id}`"
                             prefetch
-                            class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                            class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                         >
                             <VideoCardItem :video="item" />
                             <span class="sr-only">View video for {{ item.name }}</span>

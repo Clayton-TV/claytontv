@@ -41,7 +41,7 @@ const chips = computed(() => {
         </button>
         <button
             @click="emit('clear')"
-            class="focus-visible:ring-ring min-h-9 cursor-pointer rounded-full px-3 text-sm text-gray-400 outline-none hover:text-white focus-visible:ring-2"
+            class="focus-visible:ring-ring text-muted-foreground hover:text-foreground min-h-9 cursor-pointer rounded-full px-3 text-sm outline-none focus-visible:ring-2"
         >
             Clear all
         </button>

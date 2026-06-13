@@ -22,14 +22,14 @@ const goTo = (page: number) => {
 <template>
     <nav v-if="hasPrevPage || hasNextPage" class="flex justify-center gap-x-3" aria-label="Pagination">
         <button
-            class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
+            class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
             :disabled="!hasPrevPage"
             @click="goTo(currentPage() - 1)"
         >
             Previous
         </button>
         <button
-            class="focus-visible:ring-ring min-h-11 cursor-pointer rounded-lg border border-white/15 px-5 text-sm font-medium text-gray-200 transition-colors duration-150 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 disabled:cursor-default disabled:opacity-35 disabled:hover:border-white/15"
+            class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
             :disabled="!hasNextPage"
             @click="goTo(currentPage() + 1)"
         >

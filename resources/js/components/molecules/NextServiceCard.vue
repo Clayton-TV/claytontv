@@ -27,7 +27,7 @@ const formatSchedule = (iso: string) => {
 
 <template>
     <!-- LIVE now: one tap from the homepage into the service -->
-    <div v-if="live" class="border-primary/40 overflow-hidden rounded-xl border bg-white/[0.03]">
+    <div v-if="live" class="border-primary/40 bg-card overflow-hidden rounded-xl border">
         <div v-if="watching && liveEmbedUrl" class="aspect-video w-full bg-black">
             <iframe
                 class="h-full w-full"
@@ -59,14 +59,14 @@ const formatSchedule = (iso: string) => {
                 </span>
                 <p class="text-primary text-xs font-bold tracking-wider uppercase">Live now</p>
             </div>
-            <p class="font-display mt-2 text-lg leading-snug font-bold text-gray-50">{{ live.title }}</p>
-            <p v-if="live.channel" class="mt-1 text-sm text-gray-400">{{ live.channel }}</p>
+            <p class="font-display text-foreground mt-2 text-lg leading-snug font-bold">{{ live.title }}</p>
+            <p v-if="live.channel" class="text-muted-foreground mt-1 text-sm">{{ live.channel }}</p>
         </div>
     </div>
 
     <!-- Service starts within the half-hour: embed the stream's own waiting
          room — it shows the countdown and begins by itself when live -->
-    <div v-else-if="nextService?.starts_soon" class="border-primary/40 overflow-hidden rounded-xl border bg-white/[0.03]">
+    <div v-else-if="nextService?.starts_soon" class="border-primary/40 bg-card overflow-hidden rounded-xl border">
         <div class="aspect-video w-full bg-black">
             <iframe
                 class="h-full w-full"
@@ -82,23 +82,25 @@ const formatSchedule = (iso: string) => {
                 <span class="bg-primary inline-block h-2 w-2 rounded-full" aria-hidden="true"></span>
                 <p class="text-primary text-xs font-bold tracking-wider uppercase">Starting soon</p>
             </div>
-            <p class="font-display mt-2 text-lg leading-snug font-bold text-gray-50">{{ nextService.title }}</p>
-            <p class="mt-1 text-sm text-gray-400 tabular-nums">{{ formatSchedule(nextService.scheduled_start) }} — the stream will begin here.</p>
+            <p class="font-display text-foreground mt-2 text-lg leading-snug font-bold">{{ nextService.title }}</p>
+            <p class="text-muted-foreground mt-1 text-sm tabular-nums">
+                {{ formatSchedule(nextService.scheduled_start) }} — the stream will begin here.
+            </p>
         </div>
     </div>
 
     <!-- A real scheduled service: honest date and time, no countdown theatre -->
-    <div v-else-if="nextService" class="rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+    <div v-else-if="nextService" class="border-border bg-card rounded-xl border p-5 sm:p-6">
         <div class="flex items-center gap-2">
             <span class="bg-primary inline-block h-2 w-2 rounded-full" aria-hidden="true"></span>
-            <p class="text-xs font-medium tracking-wider text-gray-400 uppercase">Next service</p>
+            <p class="text-muted-foreground text-xs font-medium tracking-wider uppercase">Next service</p>
         </div>
-        <p class="font-display mt-3 text-lg leading-snug font-bold text-gray-50">{{ nextService.title }}</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-gray-300 tabular-nums">{{ formatSchedule(nextService.scheduled_start) }}</p>
-        <p class="mt-1 text-sm text-gray-400">The stream will appear here when it starts.</p>
+        <p class="font-display text-foreground mt-3 text-lg leading-snug font-bold">{{ nextService.title }}</p>
+        <p class="text-foreground mt-1.5 text-sm leading-relaxed tabular-nums">{{ formatSchedule(nextService.scheduled_start) }}</p>
+        <p class="text-muted-foreground mt-1 text-sm">The stream will appear here when it starts.</p>
         <Link
             href="/livestreams"
-            class="focus-visible:ring-ring mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-white/5 px-4 text-sm font-medium text-gray-100 transition-colors duration-150 outline-none hover:bg-white/10 focus-visible:ring-2"
+            class="focus-visible:ring-ring bg-muted text-foreground hover:bg-accent mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             Watch past services
             <IconArrowRight class="h-4 w-4" aria-hidden="true" />
@@ -106,18 +108,18 @@ const formatSchedule = (iso: string) => {
     </div>
 
     <!-- Nothing live or scheduled: the quiet evergreen card -->
-    <div v-else class="rounded-xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+    <div v-else class="border-border bg-card rounded-xl border p-5 sm:p-6">
         <div class="flex items-center gap-2">
             <span class="bg-primary inline-block h-2 w-2 rounded-full" aria-hidden="true"></span>
-            <p class="text-xs font-medium tracking-wider text-gray-400 uppercase">Sunday services</p>
+            <p class="text-muted-foreground text-xs font-medium tracking-wider uppercase">Sunday services</p>
         </div>
-        <p class="font-display mt-3 text-lg font-bold text-gray-50">Live streams appear here</p>
-        <p class="mt-1.5 text-sm leading-relaxed text-gray-400">
+        <p class="font-display text-foreground mt-3 text-lg font-bold">Live streams appear here</p>
+        <p class="text-muted-foreground mt-1.5 text-sm leading-relaxed">
             Morning and evening services stream live most Sundays. Until then, catch up on recent services any time.
         </p>
         <Link
             href="/livestreams"
-            class="focus-visible:ring-ring mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-white/5 px-4 text-sm font-medium text-gray-100 transition-colors duration-150 outline-none hover:bg-white/10 focus-visible:ring-2"
+            class="focus-visible:ring-ring bg-muted text-foreground hover:bg-accent mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             Watch past services
             <IconArrowRight class="h-4 w-4" aria-hidden="true" />

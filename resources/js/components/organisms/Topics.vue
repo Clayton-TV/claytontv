@@ -42,8 +42,8 @@ function selectCategory(category) {
 
 <template>
     <div class="mb-4 justify-items-center space-y-2">
-        <h2 class="text-center text-3xl font-bold text-gray-100">Explore Topics</h2>
-        <p class="text-center text-gray-400">There are a variety of topics for you to discover</p>
+        <h2 class="text-foreground text-center text-3xl font-bold">Explore Topics</h2>
+        <p class="text-muted-foreground text-center">There are a variety of topics for you to discover</p>
     </div>
     <div class="w-full items-center justify-center overflow-x-hidden pt-4">
         <ul class="flex snap-x snap-mandatory gap-x-0 overflow-x-auto px-2">
@@ -53,8 +53,8 @@ function selectCategory(category) {
                 class="relative isolate mb-3 flex w-auto shrink-0 snap-center flex-col justify-end gap-y-2 rounded-md"
             >
                 <button
-                    class="me-2 rounded-full px-4 py-2 font-bold text-white hover:bg-red-400"
-                    :class="category === selectedCategory ? 'bg-claytonRed' : 'bg-gray-700'"
+                    class="me-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
+                    :class="category === selectedCategory ? 'bg-claytonRed text-white' : 'bg-muted text-foreground'"
                     @click="selectCategory(category)"
                 >
                     {{ category }}

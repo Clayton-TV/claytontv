@@ -11,11 +11,11 @@ defineProps({
 
 <template>
     <div class="mb-5 flex items-baseline justify-between gap-4">
-        <h2 class="font-display text-xl font-bold text-gray-50 sm:text-2xl">{{ title }}</h2>
+        <h2 class="font-display text-foreground text-xl font-bold sm:text-2xl">{{ title }}</h2>
         <Link
             v-if="moreHref"
             :href="moreHref"
-            class="focus-visible:ring-ring inline-flex shrink-0 items-center gap-1 rounded text-sm font-medium text-gray-400 transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
+            class="focus-visible:ring-ring text-muted-foreground hover:text-foreground inline-flex shrink-0 items-center gap-1 rounded text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
         >
             {{ moreLabel }}
             <IconArrowRight class="h-3.5 w-3.5" aria-hidden="true" />

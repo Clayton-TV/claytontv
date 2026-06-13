@@ -27,13 +27,13 @@ function updateShownLetters(dir) {
 </script>
 
 <template>
-    <div class="bg-gray-200 p-2">
+    <div class="bg-muted p-2">
         <div class="px-3 pb-2 text-lg">Filter A-Z:</div>
         <ul class="grid auto-cols-fr grid-flow-col text-center text-lg text-nowrap" role="radio">
             <!-- Full list will be visible on larger screens -->
             <div id="fullList" class="hidden lg:contents xl:contents 2xl:contents">
                 <div v-for="lettersGroup in letters" class="contents">
-                    <li v-for="x in lettersGroup" class="hover:border-claytonRed m-0.5 rounded border-2 border-gray-400">
+                    <li v-for="x in lettersGroup" class="hover:border-claytonRed border-border m-0.5 rounded border-2">
                         {{ x }}
                     </li>
                 </div>
@@ -50,7 +50,7 @@ function updateShownLetters(dir) {
                     v-bind:id="'lettersDiv' + lettersIndex"
                     v-bind:style="lettersSet == lettersIndex ? 'display: contents' : 'display: none'"
                 >
-                    <li v-for="x in lettersGroup" class="hover:border-claytonRed m-0.5 rounded border-2 border-gray-400">
+                    <li v-for="x in lettersGroup" class="hover:border-claytonRed border-border m-0.5 rounded border-2">
                         {{ x }}
                     </li>
                 </div>

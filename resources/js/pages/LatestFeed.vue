@@ -36,19 +36,19 @@ const dividerBeforeId = computed(() => {
 <template>
     <Head :title="title" />
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-        <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Latest</h1>
-        <p class="mt-2 text-sm text-gray-500">New teaching and recent series, most recent first.</p>
+        <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Latest</h1>
+        <p class="text-muted-foreground mt-2 text-sm">New teaching and recent series, most recent first.</p>
 
         <section v-for="(group, i) in groups" :key="group.label" v-bind="entrance(80 + i * 70)" class="mt-10" :aria-label="group.label">
-            <h2 class="flex items-center gap-3 text-sm font-semibold tracking-wider text-gray-400 uppercase">
+            <h2 class="text-muted-foreground flex items-center gap-3 text-sm font-semibold tracking-wider uppercase">
                 {{ group.label }}
-                <span class="h-px flex-1 bg-white/10" aria-hidden="true"></span>
+                <span class="bg-muted h-px flex-1" aria-hidden="true"></span>
             </h2>
 
             <ul class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <template v-for="item in group.items" :key="`${item.type}-${item.id}`">
                     <li v-if="item.id === dividerBeforeId" class="col-span-full" aria-hidden="true">
-                        <p class="flex items-center gap-3 text-xs font-medium text-gray-500">
+                        <p class="text-muted-foreground flex items-center gap-3 text-xs font-medium">
                             <span class="bg-primary/40 h-px flex-1" aria-hidden="true"></span>
                             You've seen everything below this
                             <span class="bg-primary/40 h-px flex-1" aria-hidden="true"></span>
@@ -61,7 +61,7 @@ const dividerBeforeId = computed(() => {
                         <Link
                             :href="`/video/${item.id}`"
                             prefetch
-                            class="focus-visible:ring-ring block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                            class="focus-visible:ring-ring focus-visible:ring-offset-background block h-full w-full rounded-lg transition-transform duration-200 ease-out outline-none hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                         >
                             <VideoCardItem :video="item" />
                             <span class="sr-only">View video for {{ item.name }}</span>
@@ -71,7 +71,7 @@ const dividerBeforeId = computed(() => {
             </ul>
         </section>
 
-        <p v-if="num_pages > 1" class="mt-10 text-center text-xs text-gray-500 tabular-nums">Page {{ page }} of {{ num_pages }}</p>
+        <p v-if="num_pages > 1" class="text-muted-foreground mt-10 text-center text-xs tabular-nums">Page {{ page }} of {{ num_pages }}</p>
         <div class="mt-4">
             <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>

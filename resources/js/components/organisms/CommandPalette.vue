@@ -93,12 +93,12 @@ const navShortcuts = [
                     <CommandItem v-for="item in continueWatching()" :key="item.id" :value="`resume-${item.id}`" @select="go(`/video/${item.id}`)">
                         <IconClock class="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ item.name }}</span>
-                        <span class="ml-auto text-xs text-gray-500 tabular-nums">{{ formatTime(item.t) }} / {{ formatTime(item.d) }}</span>
+                        <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ formatTime(item.t) }} / {{ formatTime(item.d) }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Go to">
                     <CommandItem v-for="nav in navShortcuts" :key="nav.url" :value="nav.name" @select="go(nav.url)">
-                        <IconArrowRight class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <IconArrowRight class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         {{ nav.name }}
                     </CommandItem>
                 </CommandGroup>
@@ -107,9 +107,9 @@ const navShortcuts = [
             <template v-else>
                 <CommandGroup v-if="results.videos.length" heading="Videos">
                     <CommandItem v-for="video in results.videos" :key="video.id" :value="`v-${video.id} ${video.name}`" @select="go(video.url)">
-                        <IconVideo class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <IconVideo class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ video.name }}</span>
-                        <span v-if="video.date" class="ml-auto text-xs text-gray-500 tabular-nums">{{ video.date }}</span>
+                        <span v-if="video.date" class="text-muted-foreground ml-auto text-xs tabular-nums">{{ video.date }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup v-if="results.categories.length" heading="Browse">
@@ -119,18 +119,18 @@ const navShortcuts = [
                         :value="`c-${category.kind}-${category.name}`"
                         @select="go(category.url)"
                     >
-                        <component :is="kindIcons[category.kind] || IconCategory" class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <component :is="kindIcons[category.kind] || IconCategory" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         <span class="truncate">{{ category.name }}</span>
-                        <span class="ml-auto flex items-center gap-2 text-xs text-gray-500">
+                        <span class="text-muted-foreground ml-auto flex items-center gap-2 text-xs">
                             <span v-if="category.count" class="tabular-nums">{{ category.count }} videos</span>
-                            <span class="rounded bg-white/10 px-1.5 py-0.5 text-[10px] tracking-wide uppercase">{{ category.kind }}</span>
+                            <span class="bg-muted rounded px-1.5 py-0.5 text-[10px] tracking-wide uppercase">{{ category.kind }}</span>
                         </span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup>
                     <CommandItem :value="`all ${query}`" @select="go(`/search?search=${encodeURIComponent(query.trim())}`)">
-                        <IconSearch class="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                        <IconSearch class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                         See all results for “{{ query.trim() }}”
                     </CommandItem>
                 </CommandGroup>

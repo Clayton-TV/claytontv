@@ -10,19 +10,14 @@
     <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
 
     <script>
-        // This script is used to detect the user's preferred color scheme and set the class on the html element.
+        // Set the colour scheme before first paint to avoid a flash. Mirrors
+        // resources/js/composables/useAppearance.ts (which takes over on mount).
         (function() {
-            // TODO: persist the user's choice in localStorage (via a util, likely called from a base layout)
             const appearance = localStorage.getItem('appearance') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            if (appearance === 'system') {
-                // FIXME: Currently the light mode looks awful due to various hardcoded colours. Force dark mode for now until that is fixed. See also /resources/js/composables/useAppearance.ts
-                // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const prefersDark = true;
-
-                if (prefersDark) {
-                    document.documentElement.classList.add('dark');
-                }
+            if (appearance === 'dark' || (appearance === 'system' && prefersDark)) {
+                document.documentElement.classList.add('dark');
             }
         })();
     </script>

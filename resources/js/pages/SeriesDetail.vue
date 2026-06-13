@@ -43,20 +43,20 @@ const positionFor = (episode, index) => episode.number ?? props.page_start + ind
             </div>
             <div class="min-w-0">
                 <p class="text-primary text-xs font-semibold tracking-[0.12em] uppercase">Series</p>
-                <h1 class="font-display mt-1 text-2xl leading-tight font-bold text-gray-50 sm:text-3xl">{{ series_meta.name }}</h1>
-                <p class="mt-2 text-sm text-gray-500 tabular-nums">
+                <h1 class="font-display text-foreground mt-1 text-2xl leading-tight font-bold sm:text-3xl">{{ series_meta.name }}</h1>
+                <p class="text-muted-foreground mt-2 text-sm tabular-nums">
                     {{ series_meta.videosCount }} {{ series_meta.videosCount === 1 ? 'episode' : 'episodes' }}
                     <template v-if="totalRuntime()"> · {{ totalRuntime() }}</template>
                     <template v-if="years()"> · {{ years() }}</template>
                 </p>
-                <p v-if="series_meta.summary" class="mt-3 max-w-prose text-[15px] leading-relaxed text-gray-400">
+                <p v-if="series_meta.summary" class="text-muted-foreground mt-3 max-w-prose text-[15px] leading-relaxed">
                     {{ series_meta.summary }}
                 </p>
                 <Link
                     v-if="start_url"
                     :href="start_url"
                     prefetch
-                    class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+                    class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 focus-visible:ring-offset-background mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                     <IconPlayerPlayFilled class="h-4 w-4" aria-hidden="true" />
                     Start from the beginning

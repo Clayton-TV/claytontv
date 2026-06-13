@@ -29,21 +29,21 @@ const filtersOpen = ref(false);
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Browse teaching</h1>
-                <p class="mt-2 text-sm text-gray-500 tabular-nums">{{ total }} {{ total === 1 ? 'video' : 'videos' }}</p>
+                <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Browse teaching</h1>
+                <p class="text-muted-foreground mt-2 text-sm tabular-nums">{{ total }} {{ total === 1 ? 'video' : 'videos' }}</p>
             </div>
             <!-- Mobile: open the filters in a sheet -->
             <Sheet v-model:open="filtersOpen">
                 <SheetTrigger
-                    class="focus-visible:ring-ring inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-medium text-gray-200 outline-none hover:border-white/30 hover:text-white focus-visible:ring-2 lg:hidden"
+                    class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-medium outline-none focus-visible:ring-2 lg:hidden"
                 >
                     <IconAdjustmentsHorizontal class="h-4 w-4" aria-hidden="true" />
                     Filters<span v-if="activeCount()" class="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 text-xs">{{
                         activeCount()
                     }}</span>
                 </SheetTrigger>
-                <SheetContent side="left" class="overflow-y-auto border-white/10 bg-gray-950 text-gray-100">
-                    <SheetHeader><SheetTitle class="font-display text-left text-gray-50">Filters</SheetTitle></SheetHeader>
+                <SheetContent side="left" class="border-border bg-background text-foreground overflow-y-auto">
+                    <SheetHeader><SheetTitle class="font-display text-foreground text-left">Filters</SheetTitle></SheetHeader>
                     <div class="px-4 py-2">
                         <FacetSidebar :facets="facets" :is-active="isActive" @single="setSingle" @toggle="toggleMulti" />
                     </div>

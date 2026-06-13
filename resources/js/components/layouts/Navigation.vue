@@ -76,11 +76,11 @@ const moreMenuItems = [
                     <a v-for="(item, index) in browseMenuItems" :key="index" :href="item.url" class="underline font-bold mx-2 mb-3 lg:my-0 flex">{{ item.name }}</a>
 
                     <div id="searchBox" class="mx-2 mb-1 mt-5 lg:my-0 lg:mr-0 lg:flex grow min-w-40 lg:max-w-96">
-                        <form class="rounded-xl hover:outline-claytonRed focus-within:outline-claytonRed bg-gray-800 hover:outline focus-within:outline focus-within:bg-gray-700 flex flex-wrap shrink grow">
+                        <form class="rounded-xl hover:outline-claytonRed focus-within:outline-claytonRed bg-muted hover:outline focus-within:outline focus-within:bg-muted flex flex-wrap shrink grow">
                             <input
                                 type="search"
                                 id="navbar-search"
-                                class="p-2 text-gray-100 bg-transparent outline-none w-20 flex shrink grow"
+                                class="p-2 text-foreground bg-transparent outline-none w-20 flex shrink grow"
                                 placeholder="Search"
                                 required />
                             <button

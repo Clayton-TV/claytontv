@@ -20,7 +20,7 @@ defineProps({
             <div class="contents" v-if="video_metadata.channel">
                 <div class="py-2">Channel</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link :href="video_metadata.channel.url" class="rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400">{{
+                    <Link :href="video_metadata.channel.url" class="bg-muted text-foreground rounded-full px-4 py-2 font-bold hover:bg-red-400">{{
                         video_metadata.channel.name
                     }}</Link>
                 </div>
@@ -29,7 +29,7 @@ defineProps({
             <div class="contents" v-if="video_metadata.series">
                 <div class="py-2">Series</div>
                 <div class="flex flex-wrap gap-y-2">
-                    <Link :href="video_metadata.series.url" class="rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400">{{
+                    <Link :href="video_metadata.series.url" class="bg-muted text-foreground rounded-full px-4 py-2 font-bold hover:bg-red-400">{{
                         video_metadata.series.name
                     }}</Link>
                 </div>
@@ -42,7 +42,7 @@ defineProps({
                         v-for="x in video_metadata.topic"
                         :href="x.url"
                         :key="x.name"
-                        class="mr-2 rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400"
+                        class="bg-muted text-foreground mr-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
                         >{{ x.name }}</Link
                     >
                 </div>
@@ -55,7 +55,7 @@ defineProps({
                         v-for="x in video_metadata.ministry"
                         :href="x.url"
                         :key="x.name"
-                        class="mr-2 rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400"
+                        class="bg-muted text-foreground mr-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
                         >{{ x.name }}</Link
                     >
                 </div>
@@ -68,7 +68,7 @@ defineProps({
                         v-for="x in video_metadata.speaker"
                         :href="x.url"
                         :key="x.name"
-                        class="mr-2 rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400"
+                        class="bg-muted text-foreground mr-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
                         >{{ x.name }}</Link
                     >
                 </div>
@@ -81,7 +81,7 @@ defineProps({
                         v-for="x in video_metadata.bible_book"
                         :href="x.url"
                         :key="x.name"
-                        class="mr-2 rounded-full bg-gray-700 px-4 py-2 font-bold whitespace-nowrap text-white hover:bg-red-400"
+                        class="bg-muted text-foreground mr-2 rounded-full px-4 py-2 font-bold whitespace-nowrap hover:bg-red-400"
                         >{{ x.name }}</Link
                     >
                 </div>
@@ -94,7 +94,7 @@ defineProps({
                         v-for="x in video_metadata.demographic"
                         :href="x.url"
                         :key="x.name"
-                        class="mr-2 rounded-full bg-gray-700 px-4 py-2 font-bold text-white hover:bg-red-400"
+                        class="bg-muted text-foreground mr-2 rounded-full px-4 py-2 font-bold hover:bg-red-400"
                         >{{ x.name }}</Link
                     >
                 </div>

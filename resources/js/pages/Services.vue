@@ -36,8 +36,8 @@ const formatSchedule = (iso) => {
 <template>
     <Head :title="title" />
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-        <h1 class="font-display text-2xl font-bold text-gray-50 sm:text-3xl">Services</h1>
-        <p class="mt-2 text-sm text-gray-500">Watch live, see what's coming up, or catch up on a past service.</p>
+        <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Services</h1>
+        <p class="text-muted-foreground mt-2 text-sm">Watch live, see what's coming up, or catch up on a past service.</p>
 
         <!-- LIVE NOW — the most important thing on the page when present -->
         <section v-if="live.length" v-bind="entrance(0)" class="mt-8" aria-label="Live now">
@@ -51,7 +51,7 @@ const formatSchedule = (iso) => {
                 Live now
             </h2>
             <div class="mt-4 grid gap-6" :class="live.length > 1 ? 'lg:grid-cols-2' : ''">
-                <div v-for="stream in live" :key="stream.video_id" class="border-primary/40 overflow-hidden rounded-xl border bg-white/[0.03]">
+                <div v-for="stream in live" :key="stream.video_id" class="border-primary/40 bg-muted overflow-hidden rounded-xl border">
                     <div v-if="watching.has(stream.video_id)" class="aspect-video w-full bg-black">
                         <iframe
                             class="h-full w-full"
@@ -78,8 +78,8 @@ const formatSchedule = (iso) => {
                         </span>
                     </button>
                     <div class="p-4">
-                        <p class="font-display text-lg leading-snug font-bold text-gray-50">{{ stream.title }}</p>
-                        <p v-if="stream.channel" class="mt-1 text-sm text-gray-400">{{ stream.channel }}</p>
+                        <p class="font-display text-foreground text-lg leading-snug font-bold">{{ stream.title }}</p>
+                        <p v-if="stream.channel" class="text-muted-foreground mt-1 text-sm">{{ stream.channel }}</p>
                     </div>
                 </div>
             </div>
@@ -87,19 +87,19 @@ const formatSchedule = (iso) => {
 
         <!-- UPCOMING — real scheduled services -->
         <section v-if="upcoming.length" v-bind="entrance(80)" class="mt-12" aria-label="Upcoming services">
-            <h2 class="text-sm font-semibold tracking-wider text-gray-400 uppercase">Coming up</h2>
+            <h2 class="text-muted-foreground text-sm font-semibold tracking-wider uppercase">Coming up</h2>
             <ul class="mt-4 grid gap-4 sm:grid-cols-2">
-                <li v-for="stream in upcoming" :key="stream.video_id" class="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-                    <p class="font-display text-base leading-snug font-bold text-gray-50">{{ stream.title }}</p>
-                    <p class="mt-1.5 text-sm text-gray-300 tabular-nums">{{ formatSchedule(stream.scheduled_start) }}</p>
-                    <p class="mt-1 text-xs text-gray-500">The stream will appear here when it starts.</p>
+                <li v-for="stream in upcoming" :key="stream.video_id" class="border-border bg-muted rounded-xl border p-5">
+                    <p class="font-display text-foreground text-base leading-snug font-bold">{{ stream.title }}</p>
+                    <p class="text-foreground mt-1.5 text-sm tabular-nums">{{ formatSchedule(stream.scheduled_start) }}</p>
+                    <p class="text-muted-foreground mt-1 text-xs">The stream will appear here when it starts.</p>
                 </li>
             </ul>
         </section>
 
         <!-- PAST — the archive, lower down / "catch up" -->
         <section v-bind="entrance(160)" class="mt-12" aria-label="Past services">
-            <h2 class="text-sm font-semibold tracking-wider text-gray-400 uppercase">
+            <h2 class="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
                 {{ live.length || upcoming.length ? 'Catch up on past services' : 'Past services' }}
             </h2>
             <div class="mt-4">
