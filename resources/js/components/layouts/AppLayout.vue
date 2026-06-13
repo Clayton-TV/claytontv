@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import ErrorBoundary from '@/ErrorBoundary.vue';
 import AppFooter from '@/layouts/AppFooter.vue';
 import AppHeader from '@/layouts/AppHeader.vue';
 import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
+import Toaster from '@/organisms/Toaster.vue';
 </script>
 
 <template>
@@ -18,10 +20,14 @@ import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
         </a>
         <AppHeader />
         <main id="main" tabindex="-1" class="flex-1 outline-none">
-            <slot />
+            <!-- Contains a page render error to a calm fallback; the shell survives -->
+            <ErrorBoundary>
+                <slot />
+            </ErrorBoundary>
         </main>
         <AppFooter />
-        <!-- The shared player outlives page navigations (persistent layout) -->
+        <!-- The shared player + toasts outlive page navigations (persistent layout) -->
         <PersistentPlayer />
+        <Toaster />
     </div>
 </template>
