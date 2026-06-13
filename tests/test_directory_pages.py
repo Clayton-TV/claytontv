@@ -6,6 +6,7 @@ from tests.factories import (
     MinistryFactory,
     SeriesFactory,
     SpeakerFactory,
+    TopicFactory,
     VideoFactory,
 )
 from tests.utils import inertia_page
@@ -121,3 +122,39 @@ def test_topics_page_no_longer_folds_in_audiences(client):
 
 def test_catalogue_stub_is_gone(client):
     assert client.get("/catalogue/").status_code == 404
+
+
+class TestTopicsIndexDataBlemishes:
+    """Phase 6: the legacy taxonomy leaks case-typo category duplicates and
+    depth-prefix mojibake into topic names — clean both at the view layer."""
+
+    def test_case_typo_category_variants_merge_into_one_group(self, client):
+        # Real blemish: 'Christian Life' (16 topics) vs the typo 'Christian LIfe' (1).
+        TopicFactory(name="Prayer", category="Christian Life")
+        TopicFactory(name="Suffering", category="Christian LIfe")
+
+        props = inertia_page(client.get("/topic/"))["props"]
+        groups = {g["category"]: g for g in props["topic_groups"]}
+
+        assert "Christian LIfe" not in groups
+        assert "Christian Life" in groups  # the majority spelling wins
+        names = {t["name"] for t in groups["Christian Life"]["topics"]}
+        assert names == {"Prayer", "Suffering"}
+
+    def test_whitespace_category_variants_merge(self, client):
+        TopicFactory(name="Grace", category="Doctrine")
+        TopicFactory(name="Glory", category="Doctrine ")  # trailing space
+
+        props = inertia_page(client.get("/topic/"))["props"]
+        categories = [g["category"] for g in props["topic_groups"]]
+
+        assert categories.count("Doctrine") == 1
+
+    def test_depth_prefix_mojibake_stripped_from_topic_names(self, client):
+        # MINUS SIGN (U+2212) double-encoded as bytes E2 88 92 → U+00E2 U+0088 U+0092.
+        TopicFactory(name="â" * 3 + " The Grace of God", category="Doctrine")
+
+        props = inertia_page(client.get("/topic/"))["props"]
+        names = [t["name"] for g in props["topic_groups"] for t in g["topics"]]
+
+        assert "The Grace of God" in names

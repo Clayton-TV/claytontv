@@ -1,3 +1,4 @@
+from collections import Counter
 from urllib.parse import unquote  # Import for URL decoding
 
 from django.core.paginator import Paginator
@@ -8,6 +9,7 @@ from inertia import defer, optional, render
 from app.browse import browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
+from catalogue.ingest.normalize import clean_name, clean_topic_name
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.channel import Channel
 from catalogue.models.demograpic import Demographic
@@ -170,8 +172,11 @@ def palette(request):
         # Series videos live on the Series.videos M2M, not the FK reverse
         count_relation = "videos" if model is Series else "video"
         matches = model.objects.filter(name__icontains=query).annotate(n=Count(count_relation)).order_by("-n")
+        # Topic names carry depth-prefix mojibake; others just stray whitespace.
+        clean_label = clean_topic_name if model is Topic else clean_name
         categories += [
-            {"kind": kind, "name": m.name, "url": m.get_absolute_url(), "count": m.n} for m in matches[:PALETTE_LIMIT]
+            {"kind": kind, "name": clean_label(m.name), "url": m.get_absolute_url(), "count": m.n}
+            for m in matches[:PALETTE_LIMIT]
         ]
     # Book names are choice codes; the display name lives in summary
     categories += [
@@ -214,10 +219,12 @@ def search(request):
             # Series videos live on the Series.videos M2M, not the FK reverse
             count_relation = "videos" if model is Series else "video"
             matches = matches.annotate(n=Count(count_relation))
+            # Topic names carry depth-prefix mojibake; others just stray whitespace.
+            clean_label = clean_topic_name if model is Topic else clean_name
             category_results += [
                 {
                     "category": model_name,
-                    "name": x.name,
+                    "name": clean_label(x.name),
                     "videosCount": x.n,
                     "url": x.get_absolute_url(),
                 }
@@ -538,17 +545,31 @@ def series_index(request):
 
 
 def topics_index(request):
-    """All topics grouped under the legacy taxonomy's parent categories,
-    headed by the three audiences (the old /demographic landing folded in)."""
-    groups = {}
+    """All topics grouped under the legacy taxonomy's parent categories.
+
+    The legacy data leaks two blemishes here (Phase 6): category strings have
+    case-typo and whitespace near-duplicates ('Christian Life' vs the typo
+    'Christian LIfe'), and topic names carry depth-prefix mojibake. Merge
+    categories on a case-folded key (showing the most common spelling) and
+    strip the prefixes from names."""
+    groups = {}  # folded key -> {"labels": Counter, "topics": [...]}
     for topic in Topic.objects.annotate(videos_count=Count("video")).order_by("name"):
-        groups.setdefault(topic.category or "Other", []).append(
+        category = clean_name(topic.category) or "Other"
+        group = groups.setdefault(category.casefold(), {"labels": Counter(), "topics": []})
+        group["labels"][category] += 1
+        group["topics"].append(
             {
-                "name": topic.name,
+                "name": clean_topic_name(topic.name),
                 "videosCount": topic.videos_count,
                 "url": topic.get_absolute_url(),
             }
         )
+
+    topic_groups = []
+    for group in groups.values():
+        group["topics"].sort(key=lambda topic: topic["name"].casefold())
+        topic_groups.append({"category": group["labels"].most_common(1)[0][0], "topics": group["topics"]})
+    topic_groups.sort(key=lambda group: group["category"].casefold())
 
     return render(
         request,
@@ -556,7 +577,7 @@ def topics_index(request):
         {
             # Audiences moved to their own /audience/ area (TopicsIndex shows a
             # pointer link instead of folding them in here).
-            "topic_groups": [{"category": category, "topics": topics} for category, topics in sorted(groups.items())],
+            "topic_groups": topic_groups,
             "total": Topic.objects.count(),
         },
     )
