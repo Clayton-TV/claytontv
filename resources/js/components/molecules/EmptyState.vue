@@ -15,7 +15,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="border-border bg-muted flex flex-col items-center justify-center rounded-xl border px-6 py-16 text-center">
+    <div class="border-border bg-card flex flex-col items-center justify-center rounded-xl border px-6 py-16 text-center">
         <component :is="icon" class="text-muted-foreground h-12 w-12" aria-hidden="true" />
         <p class="font-display text-foreground mt-4 text-xl font-bold">{{ title }}</p>
         <p v-if="message" class="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">{{ message }}</p>

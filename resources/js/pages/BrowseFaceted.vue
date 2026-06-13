@@ -26,9 +26,11 @@ const filtersOpen = ref(false);
 
 <template>
     <Head title="Browse teaching" />
-    <!-- pb removed on desktop so the filter-rail divider meets the footer's top
-         border; the results column carries its own bottom padding instead. -->
-    <div class="mx-auto max-w-6xl px-4 pt-10 pb-10 lg:px-8 lg:pb-0">
+    <!-- On desktop the filter-rail divider should meet the footer's top border:
+         drop our bottom padding and cancel the footer's mt-16 (the results column
+         carries its own bottom padding so content isn't cramped). Other pages keep
+         the footer's normal top margin. -->
+    <div class="mx-auto max-w-6xl px-4 pt-10 pb-10 lg:-mb-16 lg:px-8 lg:pb-0">
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
                 <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Browse teaching</h1>

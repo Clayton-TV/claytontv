@@ -27,7 +27,7 @@ const thumb = (audience) => (audience.thumbnail?.startsWith('http') ? audience.t
                 :key="audience.url"
                 :href="audience.url"
                 prefetch
-                class="group focus-visible:ring-ring border-border bg-muted hover:border-ring block overflow-hidden rounded-2xl border transition-colors duration-150 outline-none focus-visible:ring-2"
+                class="group focus-visible:ring-ring border-border bg-card hover:border-ring block overflow-hidden rounded-2xl border transition-colors duration-150 outline-none focus-visible:ring-2"
             >
                 <div class="from-primary/30 relative flex aspect-[16/9] items-center justify-center bg-gradient-to-br to-gray-900">
                     <img

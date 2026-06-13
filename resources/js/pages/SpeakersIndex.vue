@@ -77,7 +77,7 @@ const initials = (name) =>
                     <Link
                         :href="speaker.url"
                         prefetch
-                        class="focus-visible:ring-ring border-border bg-muted hover:border-ring hover:bg-accent flex items-center gap-3.5 rounded-xl border p-3.5 transition-colors duration-150 outline-none focus-visible:ring-2"
+                        class="focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent flex items-center gap-3.5 rounded-xl border p-3.5 transition-colors duration-150 outline-none focus-visible:ring-2"
                     >
                         <span
                             class="bg-primary/10 text-primary flex h-11 w-11 flex-none items-center justify-center rounded-full text-sm font-semibold"
@@ -107,7 +107,7 @@ const initials = (name) =>
                         :key="speaker.url"
                         :href="speaker.url"
                         prefetch
-                        class="focus-visible:ring-ring border-border bg-muted hover:border-ring hover:bg-accent flex items-center gap-4 rounded-xl border p-4 transition-colors duration-150 outline-none focus-visible:ring-2"
+                        class="focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent flex items-center gap-4 rounded-xl border p-4 transition-colors duration-150 outline-none focus-visible:ring-2"
                     >
                         <span
                             class="bg-primary/10 text-primary flex h-14 w-14 flex-none items-center justify-center rounded-full text-lg font-semibold"

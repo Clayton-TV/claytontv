@@ -91,7 +91,7 @@ const { entrance } = useEntrance();
                     :key="tile.href"
                     :href="tile.href"
                     prefetch
-                    class="group focus-visible:ring-ring border-border bg-muted hover:border-ring hover:bg-accent flex flex-col items-center justify-center gap-2 rounded-xl border px-3 py-6 text-center transition-colors duration-150 outline-none focus-visible:ring-2"
+                    class="group focus-visible:ring-ring border-border bg-card hover:border-ring hover:bg-accent flex flex-col items-center justify-center gap-2 rounded-xl border px-3 py-6 text-center transition-colors duration-150 outline-none focus-visible:ring-2"
                 >
                     <component :is="tile.icon" class="text-primary h-7 w-7" aria-hidden="true" />
                     <span class="text-foreground text-sm font-medium">{{ tile.label }}</span>

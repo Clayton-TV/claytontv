@@ -51,7 +51,7 @@ const formatSchedule = (iso) => {
                 Live now
             </h2>
             <div class="mt-4 grid gap-6" :class="live.length > 1 ? 'lg:grid-cols-2' : ''">
-                <div v-for="stream in live" :key="stream.video_id" class="border-primary/40 bg-muted overflow-hidden rounded-xl border">
+                <div v-for="stream in live" :key="stream.video_id" class="border-primary/40 bg-card overflow-hidden rounded-xl border">
                     <div v-if="watching.has(stream.video_id)" class="aspect-video w-full bg-black">
                         <iframe
                             class="h-full w-full"
@@ -89,7 +89,7 @@ const formatSchedule = (iso) => {
         <section v-if="upcoming.length" v-bind="entrance(80)" class="mt-12" aria-label="Upcoming services">
             <h2 class="text-muted-foreground text-sm font-semibold tracking-wider uppercase">Coming up</h2>
             <ul class="mt-4 grid gap-4 sm:grid-cols-2">
-                <li v-for="stream in upcoming" :key="stream.video_id" class="border-border bg-muted rounded-xl border p-5">
+                <li v-for="stream in upcoming" :key="stream.video_id" class="border-border bg-card rounded-xl border p-5">
                     <p class="font-display text-foreground text-base leading-snug font-bold">{{ stream.title }}</p>
                     <p class="text-foreground mt-1.5 text-sm tabular-nums">{{ formatSchedule(stream.scheduled_start) }}</p>
                     <p class="text-muted-foreground mt-1 text-xs">The stream will appear here when it starts.</p>

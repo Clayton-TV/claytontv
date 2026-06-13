@@ -98,7 +98,9 @@
     --secondary-foreground: oklch(0.24 0.022 264);
     --muted: oklch(0.968 0.006 264);
     --muted-foreground: oklch(0.552 0.032 264);
-    --accent: oklch(0.958 0.009 264);
+    /* accent is the hover/active surface — kept distinctly darker than muted so
+       bg-muted → hover:bg-accent reads clearly in light mode. */
+    --accent: oklch(0.93 0.014 264);
     --accent-foreground: oklch(0.24 0.022 264);
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.916 0.011 264);
@@ -113,7 +115,7 @@
     --sidebar-foreground: oklch(0.21 0.024 264);
     --sidebar-primary: oklch(0.637 0.237 25.331);
     --sidebar-primary-foreground: oklch(0.971 0.013 17.38);
-    --sidebar-accent: oklch(0.958 0.009 264);
+    --sidebar-accent: oklch(0.93 0.014 264);
     --sidebar-accent-foreground: oklch(0.24 0.022 264);
     --sidebar-border: oklch(0.916 0.011 264);
     --sidebar-ring: oklch(0.637 0.237 25.331);
