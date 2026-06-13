@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.messages import get_messages
 from inertia import share
 
 from catalogue.youtube_live import is_live_now
@@ -28,6 +29,12 @@ class HandleInertiaRequests:
             # Skipped for JSON /api/ endpoints (e.g. the keystroke-hot palette)
             # which never render the nav, so they pay nothing for it.
             live_now=False if request.path.startswith("/api/") else is_live_now(),
+            # One-shot flash messages (Django messages → toast). Skipped for
+            # /api/ so a keystroke-hot endpoint can't consume a pending message
+            # before the page that should show it renders.
+            flash=[]
+            if request.path.startswith("/api/")
+            else [{"level": m.level_tag, "message": str(m)} for m in get_messages(request)],
         )
 
         response = self.get_response(request)
