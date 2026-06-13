@@ -27,7 +27,8 @@ uv run poe dev      # Django + Vite dev servers (or use .claude/launch.json)
 uv run poe test     # pytest (coverage gate: 60%)
 uv run poe fix      # ruff lint --fix + format
 uv run poe manage <cmd>
-npm run build-only  # production asset build (type-check is known-broken, #148)
+npm run build-only  # production asset build
+npm run type-check  # vue-tsc against tsconfig.app.json (runs in CI)
 ```
 
 Local HTTPS: `herd proxy claytontv http://127.0.0.1:8000 --secure` →

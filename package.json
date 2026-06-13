@@ -8,7 +8,7 @@
     "build-only": "vite build",
     "build-ssr": "vite build --ssr resources/js/ssr.ts --outDir bootstrap/ssr",
     "ssr": "node bootstrap/ssr/ssr.js",
-    "type-check": "vue-tsc --build",
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json",
     "lint:oxlint": "oxlint . --fix -D correctness --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint": "run-s lint:*",

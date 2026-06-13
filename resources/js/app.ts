@@ -1,7 +1,7 @@
 import '../css/app.css';
 
 import { createInertiaApp, router } from '@inertiajs/vue3';
-import { createApp, createSSRApp, DefineComponent, h } from 'vue';
+import { createApp, createSSRApp, type DefineComponent, h } from 'vue';
 import { useFlash } from '~/composables/useFlash';
 import { initializeAnalytics } from '~/lib/analytics';
 import { resolvePageComponent } from '~/lib/inertia-helper';
@@ -51,13 +51,14 @@ createInertiaApp({
     },
 });
 
-// A failed visit (server 500 / non-Inertia response / network drop) shows a
-// friendly toast instead of Inertia's raw error modal.
-router.on('invalid', (event) => {
+// A failed visit shows a friendly toast instead of Inertia's raw error modal.
+// The v3 client renamed these events: 'invalid' → 'httpException' (a non-Inertia
+// / error HTTP response, e.g. a raw 500 page) and 'exception' → 'networkError'.
+router.on('httpException', (event) => {
     event.preventDefault();
     useFlash().push("That page couldn't be loaded. Please try again.", 'error');
 });
-router.on('exception', () => {
+router.on('networkError', () => {
     useFlash().push('A network error stopped that request. Please try again.', 'error');
 });
 

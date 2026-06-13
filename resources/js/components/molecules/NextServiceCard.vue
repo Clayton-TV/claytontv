@@ -8,8 +8,8 @@ import { getEmbedUrl } from '~/lib/embeds';
 // states: live right now (embedded player), a scheduled next service
 // (real date/time), or the quiet evergreen fallback.
 const props = defineProps({
-    livestreams: { type: Array, default: () => [] },
-    nextService: { type: Object, default: null },
+    livestreams: { type: Array as () => Record<string, any>[], default: () => [] },
+    nextService: { type: Object as () => Record<string, any> | null, default: null },
 });
 
 const live = computed(() => props.livestreams[0] ?? null);

@@ -17,6 +17,7 @@ export type SortOrder = 'alphabetical' | 'count' | 'none';
 
 export interface CategoryItem {
     name: string;
+    url: string;
     category: string | string[];
     videosCount: number;
     [key: string]: unknown;
@@ -64,9 +65,9 @@ export function useCategoryFilter(
 
     const sortedCategories = computed(() => {
         if (categoriesSortOrder === 'alphabetical') {
-            return categories.value.toSorted((a, b) => a.localeCompare(b));
+            return [...categories.value].sort((a, b) => a.localeCompare(b));
         } else if (categoriesSortOrder === 'count') {
-            return categories.value.toSorted((a, b) => categoryCounts.value[b] - categoryCounts.value[a]);
+            return [...categories.value].sort((a, b) => categoryCounts.value[b] - categoryCounts.value[a]);
         }
         return categories.value;
     });
@@ -80,9 +81,9 @@ export function useCategoryFilter(
         }
 
         if (subcategoriesSortOrder === 'alphabetical') {
-            return filtered.toSorted((a, b) => a.name.localeCompare(b.name));
+            return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
         } else if (subcategoriesSortOrder === 'count') {
-            return filtered.toSorted((a, b) => b.videosCount - a.videosCount);
+            return [...filtered].sort((a, b) => b.videosCount - a.videosCount);
         }
         return filtered;
     });
