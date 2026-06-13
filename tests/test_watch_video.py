@@ -20,6 +20,19 @@ def test_watch_page_renders_video_with_metadata(client):
     assert page["component"] == "WatchVideo"
 
     props = page["props"]
+    # `video` must be a plain dict of scalar fields, never the Video model:
+    # serializing the model walks its M2M relations into an infinite
+    # Video → series → demographic → video cycle (crashes on real data).
+    assert set(props["video"]) == {
+        "id",
+        "name",
+        "url",
+        "description",
+        "date_recorded",
+        "date_created",
+        "duration_seconds",
+        "is_livestream",
+    }
     assert props["video"]["name"] == "The Word Became Flesh"
     metadata = props["video_metadata"]
     assert metadata["series"]["name"] == "John's Gospel"
