@@ -7,10 +7,12 @@ import { computed, onMounted, onUnmounted, ref } from "vue"
 import { cn } from "@/lib/utils"
 import { useCommand, useCommandGroup } from "."
 
-const props = defineProps<ListboxItemProps & { class?: HTMLAttributes["class"] }>()
+// `keywords` are hidden search synonyms (cmdk-style): the filter matches them in
+// addition to the visible label, so e.g. "font" or "contrast" can surface an item.
+const props = defineProps<ListboxItemProps & { class?: HTMLAttributes["class"], keywords?: string[] }>()
 const emits = defineEmits<ListboxItemEmits>()
 
-const delegatedProps = reactiveOmit(props, "class")
+const delegatedProps = reactiveOmit(props, "class", "keywords")
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
@@ -41,8 +43,10 @@ onMounted(() => {
   if (!(currentElement.value instanceof HTMLElement))
     return
 
-  // textValue to perform filter
-  allItems.value.set(id, currentElement.value.textContent ?? (props.value?.toString() ?? ""))
+  // textValue to perform filter — visible label plus any hidden keywords
+  const text = currentElement.value.textContent ?? (props.value?.toString() ?? "")
+  const keywords = props.keywords?.length ? ` ${props.keywords.join(" ")}` : ""
+  allItems.value.set(id, text + keywords)
 
   const groupId = groupContext?.id
   if (groupId) {

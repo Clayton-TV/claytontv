@@ -33,11 +33,15 @@ const { scale, increase, decrease, reset, canIncrease, canDecrease, isDefault } 
 // Theme + text-size live inside the palette too — selecting one applies it
 // immediately and keeps the palette open so the change is visible and you can
 // fine-tune (e.g. tap "Larger text" twice). Searchable by "theme"/"text size".
+// keywords = hidden search synonyms so intent words ("appearance", "contrast",
+// "accessibility"…) surface these even though they aren't in the visible label.
+const appearanceKeywords = ['appearance', 'colour', 'color', 'theme', 'accessibility', 'a11y'];
 const themeOptions = [
-    { value: 'light', label: 'Light theme', icon: IconSun },
-    { value: 'system', label: 'Use system theme', icon: IconDeviceDesktop },
-    { value: 'dark', label: 'Dark theme', icon: IconMoon },
+    { value: 'light', label: 'Light theme', icon: IconSun, keywords: [...appearanceKeywords, 'bright', 'day'] },
+    { value: 'system', label: 'Use system theme', icon: IconDeviceDesktop, keywords: [...appearanceKeywords, 'auto', 'os', 'default'] },
+    { value: 'dark', label: 'Dark theme', icon: IconMoon, keywords: [...appearanceKeywords, 'night', 'contrast', 'dim'] },
 ];
+const textSizeKeywords = ['text', 'font', 'size', 'accessibility', 'a11y', 'zoom', 'readability', 'legibility'];
 const scalePercent = computed(() => `${Math.round(scale.value * 100)}%`);
 
 const query = ref('');
@@ -160,11 +164,12 @@ const navShortcuts = [
             <!-- Always available (and searchable): theme + text size. Applying
                  one keeps the palette open so the change is visible. -->
             <CommandSeparator />
-            <CommandGroup heading="Theme">
+            <CommandGroup heading="Appearance">
                 <CommandItem
                     v-for="option in themeOptions"
                     :key="option.value"
-                    :value="`theme ${option.value} colour appearance`"
+                    :value="`theme-${option.value}`"
+                    :keywords="option.keywords"
                     @select="updateAppearance(option.value)"
                 >
                     <component :is="option.icon" class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
@@ -172,18 +177,33 @@ const navShortcuts = [
                     <IconCheck v-if="appearance === option.value" class="text-primary ml-auto h-4 w-4 shrink-0" aria-hidden="true" />
                 </CommandItem>
             </CommandGroup>
-            <CommandGroup heading="Text size">
-                <CommandItem value="text size larger bigger increase" :disabled="!canIncrease()" @select="increase()">
+            <CommandGroup heading="Accessibility">
+                <CommandItem
+                    value="text-larger"
+                    :keywords="[...textSizeKeywords, 'larger', 'bigger', 'increase']"
+                    :disabled="!canIncrease()"
+                    @select="increase()"
+                >
                     <IconTextIncrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Larger text</span>
                     <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
                 </CommandItem>
-                <CommandItem value="text size smaller decrease" :disabled="!canDecrease()" @select="decrease()">
+                <CommandItem
+                    value="text-smaller"
+                    :keywords="[...textSizeKeywords, 'smaller', 'decrease', 'compact']"
+                    :disabled="!canDecrease()"
+                    @select="decrease()"
+                >
                     <IconTextDecrease class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Smaller text</span>
                     <span class="text-muted-foreground ml-auto text-xs tabular-nums">{{ scalePercent }}</span>
                 </CommandItem>
-                <CommandItem value="text size reset default" :disabled="isDefault()" @select="reset()">
+                <CommandItem
+                    value="text-reset"
+                    :keywords="[...textSizeKeywords, 'reset', 'default', 'normal']"
+                    :disabled="isDefault()"
+                    @select="reset()"
+                >
                     <IconRestore class="text-muted-foreground h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Reset text size</span>
                 </CommandItem>
