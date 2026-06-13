@@ -88,6 +88,11 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles_collected"
 
 INERTIA_LAYOUT = "app.html"
+# Fail loud if a view passes a raw model/queryset as a prop (see the encoder
+# docstring): the default encoder would recurse on our cyclic relations.
+from app.inertia_encoder import StrictInertiaJsonEncoder  # noqa: E402
+
+INERTIA_JSON_ENCODER = StrictInertiaJsonEncoder
 
 DJANGO_VITE = {
     "default": {
