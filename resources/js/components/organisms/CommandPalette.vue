@@ -46,6 +46,7 @@ const scalePercent = computed(() => `${Math.round(scale.value * 100)}%`);
 
 const query = ref('');
 const results = ref({ videos: [], categories: [] });
+const loading = ref(false); // server tier (Typesense) is fetching
 let debounceTimer = null;
 let inFlight = null;
 
@@ -61,17 +62,23 @@ const onQuery = (value) => {
     query.value = value;
     clearTimeout(debounceTimer);
     if (!value.trim()) {
+        loading.value = false;
         results.value = { videos: [], categories: [] };
         return;
     }
+    loading.value = true; // the server tier is working; instant items already show
     debounceTimer = setTimeout(async () => {
         inFlight?.abort();
         inFlight = new AbortController();
+        const { signal } = inFlight;
         try {
-            const response = await fetch(`/api/palette?q=${encodeURIComponent(value.trim())}`, { signal: inFlight.signal });
+            const response = await fetch(`/api/palette?q=${encodeURIComponent(value.trim())}`, { signal });
             results.value = await response.json();
+            loading.value = false;
         } catch {
-            // aborted or offline — keep showing the previous results
+            // Superseded by a newer keystroke → keep the indicator (that fetch
+            // owns it now); offline/error → stop it and keep previous results.
+            if (!signal.aborted) loading.value = false;
         }
     }, 180);
 };
@@ -92,6 +99,7 @@ watch(paletteOpen, (open) => {
     if (open) {
         query.value = '';
         results.value = { videos: [], categories: [] };
+        loading.value = false;
     }
 });
 
@@ -110,8 +118,13 @@ const navShortcuts = [
 <template>
     <CommandDialog v-model:open="paletteOpen" title="Search" description="Search teaching, series, speakers and more">
         <CommandInput aria-label="Search teaching, series, speakers" placeholder="Search teaching, series, speakers…" @update:model-value="onQuery" />
+        <!-- Server tier (Typesense) loading hint: a slim indeterminate line. The
+             instant client-filtered items below already show while it fetches. -->
+        <div v-if="loading" class="bg-primary/15 relative h-0.5 overflow-hidden" role="status" aria-label="Searching">
+            <div class="ctv-indeterminate bg-primary absolute inset-y-0 left-0 w-2/5"></div>
+        </div>
         <CommandList>
-            <CommandEmpty v-if="query.trim()">No matches for “{{ query }}”</CommandEmpty>
+            <CommandEmpty v-if="query.trim() && !loading">No matches for “{{ query }}”</CommandEmpty>
 
             <template v-if="!query.trim()">
                 <CommandGroup v-if="continueWatching().length" heading="Continue watching">
@@ -213,3 +226,26 @@ const navShortcuts = [
         </CommandList>
     </CommandDialog>
 </template>
+
+<style scoped>
+/* Indeterminate progress sweep for the server-tier loading line. */
+.ctv-indeterminate {
+    animation: ctv-indeterminate 1.1s ease-in-out infinite;
+}
+@keyframes ctv-indeterminate {
+    0% {
+        transform: translateX(-120%);
+    }
+    100% {
+        transform: translateX(360%);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    /* No sweep: show a calm, static full-width hint instead. */
+    .ctv-indeterminate {
+        animation: none;
+        width: 100%;
+        opacity: 0.6;
+    }
+}
+</style>
