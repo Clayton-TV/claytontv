@@ -68,7 +68,7 @@ const navLink = (active: boolean) =>
 </script>
 
 <template>
-    <header class="sticky top-0 z-40 border-b border-white/5 bg-gray-950/90 backdrop-blur-md">
+    <header class="pt-safe px-safe sticky top-0 z-40 border-b border-white/5 bg-gray-950/90 backdrop-blur-md">
         <div class="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 lg:px-8">
             <Link
                 href="/"
