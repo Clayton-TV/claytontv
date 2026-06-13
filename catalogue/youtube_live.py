@@ -150,30 +150,50 @@ def _parse(value):
     return parse_datetime(value) if value else None
 
 
+def _serialize_live(stream):
+    return {
+        "video_id": stream.video_id,
+        "title": stream.title,
+        "url": stream.url,
+        "thumbnail": stream.thumbnail,
+        "channel": stream.channel_title,
+    }
+
+
+def _serialize_upcoming(stream):
+    return {
+        "video_id": stream.video_id,
+        "title": stream.title,
+        "url": stream.url,
+        "channel": stream.channel_title,
+        "scheduled_start": stream.scheduled_start,
+        # Inside the pre-service window the card embeds the stream's waiting
+        # room (countdown; starts by itself when live) instead of a static
+        # schedule.
+        "starts_soon": stream.scheduled_start <= timezone.now() + STARTS_SOON_WINDOW,
+    }
+
+
+def live_streams():
+    return [_serialize_live(s) for s in LiveStream.objects.filter(status="live").order_by("-actual_start")]
+
+
+def upcoming_streams():
+    return [
+        _serialize_upcoming(s)
+        for s in LiveStream.objects.filter(status="upcoming", scheduled_start__gte=timezone.now()).order_by(
+            "scheduled_start"
+        )
+    ]
+
+
+def is_live_now():
+    """Cheap existence check for the global "live" nav indicator."""
+    return LiveStream.objects.filter(status="live").exists()
+
+
 def homepage_live_props():
     """What the homepage hero slot needs: anything live right now, and the
     next scheduled service."""
-    live = [
-        {"video_id": s.video_id, "title": s.title, "url": s.url, "thumbnail": s.thumbnail, "channel": s.channel_title}
-        for s in LiveStream.objects.filter(status="live").order_by("-actual_start")
-    ]
-    upcoming = (
-        LiveStream.objects.filter(status="upcoming", scheduled_start__gte=timezone.now())
-        .order_by("scheduled_start")
-        .first()
-    )
-    next_service = (
-        {
-            "video_id": upcoming.video_id,
-            "title": upcoming.title,
-            "url": upcoming.url,
-            "scheduled_start": upcoming.scheduled_start,
-            # Inside the pre-service window the card embeds the stream's
-            # waiting room (countdown; starts by itself when live) instead
-            # of a static schedule
-            "starts_soon": upcoming.scheduled_start <= timezone.now() + STARTS_SOON_WINDOW,
-        }
-        if upcoming
-        else None
-    )
-    return live, next_service
+    upcoming = upcoming_streams()
+    return live_streams(), (upcoming[0] if upcoming else None)

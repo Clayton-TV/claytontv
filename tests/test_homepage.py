@@ -108,7 +108,9 @@ def test_homepage_query_count_does_not_grow_with_catalogue_size(client, django_a
     for series in SeriesFactory.create_batch(20):
         series.videos.add(VideoFactory())
 
-    with django_assert_max_num_queries(6):
+    # 6 for the page + 1 constant global "live now" nav flag (cheap exists()
+    # on the small LiveStream table, shared by the Inertia middleware).
+    with django_assert_max_num_queries(7):
         response = client.get("/")
 
     assert response.status_code == 200

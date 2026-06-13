@@ -6,7 +6,7 @@ import CommandPalette from '@/organisms/CommandPalette.vue';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
 import { Link, usePage } from '@inertiajs/vue3';
 import { IconMenu2, IconSearch } from '@tabler/icons-vue';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePalette } from '~/composables/usePalette';
 
 const navOptions = [
@@ -15,12 +15,15 @@ const navOptions = [
     { name: 'Topics', href: '/topic' },
     { name: 'Speakers', href: '/speaker' },
     { name: 'Latest', href: '/latest' },
+    { name: 'Live', href: '/livestreams', live: true },
 ];
 
 const page = usePage();
 const mobileNavOpen = ref(false);
 
 const isCurrent = (href: string) => (href === '/' ? page.url === '/' : page.url.startsWith(href));
+// Global "a service is on air" flag (shared from the Inertia middleware)
+const liveNow = computed(() => page.props.live_now === true);
 
 const { paletteOpen, helpOpen } = usePalette();
 
@@ -74,10 +77,17 @@ const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigat
                     :href="option.href"
                     prefetch
                     :class="isCurrent(option.href) ? 'bg-white/10 text-white' : 'text-gray-400'"
-                    class="focus-visible:ring-ring rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
+                    class="focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 outline-none hover:text-white focus-visible:ring-2"
                     :aria-current="isCurrent(option.href) ? 'page' : undefined"
                 >
                     {{ option.name }}
+                    <span v-if="option.live && liveNow" class="relative flex h-2 w-2" :title="'A service is live now'">
+                        <span
+                            class="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:animate-none"
+                        ></span>
+                        <span class="bg-primary relative inline-flex h-2 w-2 rounded-full"></span>
+                        <span class="sr-only">live now</span>
+                    </span>
                 </Link>
             </nav>
 
@@ -118,10 +128,17 @@ const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigat
                             :href="option.href"
                             @click="mobileNavOpen = false"
                             :class="isCurrent(option.href) ? 'bg-white/10 text-white' : 'text-gray-300'"
-                            class="focus-visible:ring-ring rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
+                            class="focus-visible:ring-ring inline-flex items-center gap-2 rounded-md px-4 py-3 text-base font-medium outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2"
                             :aria-current="isCurrent(option.href) ? 'page' : undefined"
                         >
                             {{ option.name }}
+                            <span v-if="option.live && liveNow" class="relative flex h-2 w-2">
+                                <span
+                                    class="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 motion-reduce:animate-none"
+                                ></span>
+                                <span class="bg-primary relative inline-flex h-2 w-2 rounded-full"></span>
+                                <span class="sr-only">live now</span>
+                            </span>
                         </Link>
                     </nav>
                     <div class="mt-4 flex items-center justify-between border-t border-white/10 px-4 pt-4">

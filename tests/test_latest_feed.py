@@ -130,5 +130,6 @@ def test_feed_query_count_does_not_grow_with_catalogue_size(client, django_asser
     for n in range(40):
         VideoFactory(date_recorded=datetime.date(2026, 5, 1) - datetime.timedelta(days=n))
 
-    with django_assert_max_num_queries(6):
+    # +1 for the constant global "live now" nav flag (Inertia middleware).
+    with django_assert_max_num_queries(7):
         client.get("/latest/")
