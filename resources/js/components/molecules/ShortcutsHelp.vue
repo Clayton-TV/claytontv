@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { usePalette } from '~/composables/usePalette';
 

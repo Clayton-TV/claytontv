@@ -1,6 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import createServer from '@inertiajs/vue3/server';
-import { DefineComponent, createSSRApp, h } from 'vue';
+import { type DefineComponent, createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { resolvePageComponent } from '~/lib/inertia-helper';
 

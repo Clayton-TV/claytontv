@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ALargeSmall } from 'lucide-vue-next';
 import { useTextScale } from '~/composables/useTextScale';
 
