@@ -1,6 +1,15 @@
 """Card-sized video serialization, shared by page views and the latest feed."""
 
-VIDEO_CARD_FIELDS = ("id", "name", "url", "thumbnail", "date_recorded", "date_created", "is_livestream")
+VIDEO_CARD_FIELDS = (
+    "id",
+    "name",
+    "url",
+    "thumbnail",
+    "date_recorded",
+    "date_created",
+    "is_livestream",
+    "duration_seconds",
+)
 
 
 def video_card_props(videos):

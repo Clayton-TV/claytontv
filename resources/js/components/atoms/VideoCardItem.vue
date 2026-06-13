@@ -2,6 +2,7 @@
 import LogoMark from '@/atoms/LogoMark.vue';
 import { IconCheck, IconPlayerPlay } from '@tabler/icons-vue';
 import { useWatchHistory } from '~/composables/useWatchHistory';
+import { formatDuration } from '~/lib/duration';
 
 defineProps({
     video: {
@@ -74,6 +75,12 @@ const getVideoThumbnail = (video) => {
                     v-if="video.is_livestream"
                 >
                     <span class="pb-[1.5px] whitespace-nowrap">Streamed</span>
+                </p>
+                <p
+                    v-else-if="formatDuration(video.duration_seconds)"
+                    class="flex w-min items-center rounded bg-white/15 px-1.5 py-0.5 text-xs font-semibold text-white tabular-nums sm:px-2"
+                >
+                    <span class="whitespace-nowrap">{{ formatDuration(video.duration_seconds) }}</span>
                 </p>
             </div>
         </div>

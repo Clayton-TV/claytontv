@@ -48,6 +48,12 @@ class Video(models.Model):
 
     thumbnail = models.TextField(max_length=200, help_text="Thumbnail Location", null=True)
 
+    duration_seconds = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Runtime in whole seconds, harvested from the hosting platform (YouTube/Vimeo).",
+    )
+
     alternate_urls = models.JSONField(
         default=list,
         blank=True,
