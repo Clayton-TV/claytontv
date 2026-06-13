@@ -91,3 +91,18 @@ Data API v3 (mint with `gcloud services api-keys create
 logs a warning and exits 0, so the cron can be armed first. Channels are
 discovered from the catalogue's own recent livestream videos — nothing to
 configure when the church changes channels.
+
+## Video duration harvest (Epic 4)
+
+`harvest_durations` fills `Video.duration_seconds` from the hosting
+platforms — YouTube `videos.list` contentDetails (batched, ~1 unit/50) and
+Vimeo oEmbed (no auth). Never touches the legacy admin. Idempotent
+(null-only; `--refresh` re-fetches). Recommended daily cron (not yet
+installed — add when ready):
+
+    37 4 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py harvest_durations >> /srv/beta-claytontv/shared/logs/durations.log 2>&1
+
+Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
+URL carries its privacy hash (or the video is public). Hashless older Vimeo
+videos stay null until re-synced from the admin (mediaUpdate.asp exposes
+MediaDuration in ms) or a Vimeo API token is configured.
