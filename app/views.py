@@ -6,9 +6,10 @@ from urllib.parse import unquote  # Import for URL decoding
 import sentry_sdk
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q, Sum
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from inertia import defer, optional, render
 
+from app.auth import can_edit_content
 from app.browse import browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
@@ -22,7 +23,7 @@ from catalogue.models.ministry import Ministry
 from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
-from catalogue.models.video import Video
+from catalogue.models.video import PUBLISHED, Video, published_count
 from catalogue.passages import parse_passage, passage_label
 from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_streams
 
@@ -68,7 +69,7 @@ def index(request):
     Series.videos M2M (what link_series populates); topic counts use the
     reverse of Video.topic (what link_videos populates).
     """
-    latest_videos = Video.objects.filter(is_livestream=False).order_by(RECENT_FIRST)[:6]
+    latest_videos = Video.objects.published().filter(is_livestream=False).order_by(RECENT_FIRST)[:6]
     live_now, next_service = homepage_live_props()
 
     def featured_series():
@@ -79,7 +80,7 @@ def index(request):
                 "videosCount": s.videos_count,
                 "url": s.get_absolute_url(),
             }
-            for s in Series.objects.annotate(videos_count=Count("videos"))
+            for s in Series.objects.annotate(videos_count=published_count("videos"))
             .filter(videos_count__gt=0)
             .order_by("-videos_count")[:4]
         ]
@@ -91,7 +92,7 @@ def index(request):
                 "videosCount": t.videos_count,
                 "url": t.get_absolute_url(),
             }
-            for t in Topic.objects.annotate(videos_count=Count("video"))
+            for t in Topic.objects.annotate(videos_count=published_count("video"))
             .filter(videos_count__gt=0)
             .order_by("-videos_count")[:12]
         ]
@@ -120,7 +121,8 @@ def browse_all_livestreams(request):
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
-    paginator = Paginator(Video.objects.filter(is_livestream=True).order_by(RECENT_FIRST), pagination_per_page)
+    livestreams = Video.objects.published().filter(is_livestream=True).order_by(RECENT_FIRST)
+    paginator = Paginator(livestreams, pagination_per_page)
     paginated = paginator.page(page_num)
     return render(
         request,
@@ -157,7 +159,7 @@ def next_in_series(video_object, series=None):
     series = series or Series.objects.filter(videos=video_object).first()
     if series is None:
         return None
-    episodes = list(series.videos.all())
+    episodes = list(series.videos.filter(status=PUBLISHED))
     episodes.sort(
         key=lambda v: (
             v.number_in_series is None,
@@ -166,7 +168,10 @@ def next_in_series(video_object, series=None):
             v.id,
         )
     )
-    position = [v.id for v in episodes].index(video_object.id)
+    ids = [v.id for v in episodes]
+    if video_object.id not in ids:  # e.g. a draft asking for its "next" — none publicly
+        return None
+    position = ids.index(video_object.id)
     return episodes[position + 1] if position + 1 < len(episodes) else None
 
 
@@ -220,14 +225,14 @@ def _palette_orm(query):
     """Name-only ORM search — the fallback when Typesense is unavailable."""
     videos = [
         {"id": v.id, "name": v.name, "url": f"/video/{v.id}", "date": v.date_recorded or v.date_created}
-        for v in Video.objects.filter(name__icontains=query).order_by(RECENT_FIRST)[:PALETTE_LIMIT]
+        for v in Video.objects.published().filter(name__icontains=query).order_by(RECENT_FIRST)[:PALETTE_LIMIT]
     ]
 
     categories = []
     for model, kind in [(Series, "Series"), (Speaker, "Speaker"), (Topic, "Topic"), (Ministry, "Ministry")]:
         # Series videos live on the Series.videos M2M, not the FK reverse
         count_relation = "videos" if model is Series else "video"
-        matches = model.objects.filter(name__icontains=query).annotate(n=Count(count_relation)).order_by("-n")
+        matches = model.objects.filter(name__icontains=query).annotate(n=published_count(count_relation)).order_by("-n")
         # Topic names carry depth-prefix mojibake; others just stray whitespace.
         clean_label = clean_topic_name if model is Topic else clean_name
         categories += [
@@ -235,9 +240,9 @@ def _palette_orm(query):
             for m in matches[:PALETTE_LIMIT]
         ]
     # Book names are choice codes; the display name lives in summary
+    books = Bible_Book.objects.filter(summary__icontains=query).annotate(n=published_count("video"))[:PALETTE_LIMIT]
     categories += [
-        {"kind": "Book", "name": b.get_name_display(), "url": b.get_absolute_url(), "count": b.n}
-        for b in Bible_Book.objects.filter(summary__icontains=query).annotate(n=Count("video"))[:PALETTE_LIMIT]
+        {"kind": "Book", "name": b.get_name_display(), "url": b.get_absolute_url(), "count": b.n} for b in books
     ]
 
     return {"videos": videos, "categories": categories}
@@ -300,8 +305,10 @@ def _search_typesense(searchquery, page_num):
 def _search_orm(searchquery, page_num):
     """ORM ``icontains`` search — the fallback when Typesense is unavailable."""
     video_results = []
-    video_results += Video.objects.filter(name__icontains=searchquery)
-    video_results += [v for v in Video.objects.filter(description__icontains=searchquery) if v not in video_results]
+    video_results += Video.objects.published().filter(name__icontains=searchquery)
+    video_results += [
+        v for v in Video.objects.published().filter(description__icontains=searchquery) if v not in video_results
+    ]
     paginator = Paginator(video_results, pagination_per_page)
     paginated = paginator.page(page_num)
     description = (
@@ -328,7 +335,7 @@ def _search_orm(searchquery, page_num):
             matches = model.objects.filter(name__icontains=searchquery)
             # Series videos live on the Series.videos M2M, not the FK reverse
             count_relation = "videos" if model is Series else "video"
-            matches = matches.annotate(n=Count(count_relation))
+            matches = matches.annotate(n=published_count(count_relation))
             # Topic names carry depth-prefix mojibake; others just stray whitespace.
             clean_label = clean_topic_name if model is Topic else clean_name
             category_results += [
@@ -347,13 +354,13 @@ def _search_orm(searchquery, page_num):
                 "videosCount": x.n,
                 "url": x.get_absolute_url(),
             }
-            for x in Bible_Book.objects.filter(summary__icontains=searchquery).annotate(n=Count("video"))
+            for x in Bible_Book.objects.filter(summary__icontains=searchquery).annotate(n=published_count("video"))
         ]
         props["categories"] = category_results
     return props
 
 
-def video(request, id):
+def video(request, id):  # noqa: C901 — pre-existing watch-page assembler; the draft guard adds one branch
     try:
         # Prefetch the M2M relations the metadata + passage blocks walk, so the
         # watch page's initial render stays a handful of queries (bible_book in
@@ -363,6 +370,9 @@ def video(request, id):
             .prefetch_related("topic", "ministry", "speaker", "bible_book", "demographic")
             .get(id=id)
         )
+        # Drafts are not public — only editors/staff may preview them.
+        if video_object.status != PUBLISHED and not can_edit_content(request.user):
+            raise Http404
         video_metadata = {}
         # The Video.series FK is never populated; membership lives on Series.videos
         video_series = Series.objects.filter(videos=video_object).first()
@@ -410,7 +420,9 @@ def video(request, id):
             following = next_in_series(video_object, series)
             return {
                 "series": {"name": series.name, "url": series.get_absolute_url()},
-                "videos": video_card_props(series.videos.exclude(id=video_object.id).order_by(RECENT_FIRST)[:6]),
+                "videos": video_card_props(
+                    series.videos.filter(status=PUBLISHED).exclude(id=video_object.id).order_by(RECENT_FIRST)[:6]
+                ),
                 # The episode autoplay advances to when this one ends
                 "next": video_card_props([following])[0] if following else None,
             }
@@ -462,7 +474,7 @@ def browse_bible_book(request, id):
         return render(request, "Browse", {"videos": [], "title": f"Bible book not found: '{decoded_id}'"})
 
     book_name = bible_book.get_name_display()
-    all_videos = list(bible_book.video_set.order_by(RECENT_FIRST))
+    all_videos = list(bible_book.video_set.filter(status=PUBLISHED).order_by(RECENT_FIRST))
 
     # Derive the passage from each title; teaching that names a chapter is
     # ordered by chapter (a book reads in order), the rest ("topical") trails.
@@ -520,7 +532,7 @@ def browse_channel(request, id):
             },
         )
 
-    paginator = Paginator(channel.video_set.all(), pagination_per_page)
+    paginator = Paginator(channel.video_set.filter(status=PUBLISHED), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -556,7 +568,7 @@ def browse_demographic(request, id):
             },
         )
 
-    paginator = Paginator(demographic.video_set.all(), pagination_per_page)
+    paginator = Paginator(demographic.video_set.filter(status=PUBLISHED), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -592,7 +604,7 @@ def browse_ministry(request, id):
             },
         )
 
-    paginator = Paginator(ministry.video_set.all(), pagination_per_page)
+    paginator = Paginator(ministry.video_set.filter(status=PUBLISHED), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -616,7 +628,7 @@ def series_index(request):
     """All series as course-style cards: filterable, paginated, most-watched-in first."""
     query = request.GET.get("q", "").strip()
     series_qs = (
-        Series.objects.annotate(videos_count=Count("videos"))
+        Series.objects.annotate(videos_count=published_count("videos"))
         .filter(videos_count__gt=0)
         .order_by("-videos_count", "name")
     )
@@ -660,7 +672,7 @@ def topics_index(request):
     categories on a case-folded key (showing the most common spelling) and
     strip the prefixes from names."""
     groups = {}  # folded key -> {"labels": Counter, "topics": [...]}
-    for topic in Topic.objects.annotate(videos_count=Count("video")).order_by("name"):
+    for topic in Topic.objects.annotate(videos_count=published_count("video")).order_by("name"):
         category = clean_name(topic.category) or "Other"
         group = groups.setdefault(category.casefold(), {"labels": Counter(), "topics": []})
         group["labels"][category] += 1
@@ -701,7 +713,7 @@ def audiences_index(request):
             "videosCount": d.videos_count,
             "url": d.get_absolute_url(),
         }
-        for d in Demographic.objects.annotate(videos_count=Count("video"))
+        for d in Demographic.objects.annotate(videos_count=published_count("video"))
         .filter(videos_count__gt=0)
         .order_by("-videos_count")
     ]
@@ -713,7 +725,7 @@ def speakers_index(request):
     "do you have X?", a curated featured tier for discovery, and the 600-name
     long tail as a compact scroll-deferred A-Z list — never a card dump."""
     query = request.GET.get("q", "").strip()
-    base = Speaker.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0)
+    base = Speaker.objects.annotate(videos_count=published_count("video")).filter(videos_count__gt=0)
     total = base.count()
 
     def entry(speaker):
@@ -734,7 +746,7 @@ def speakers_index(request):
     for speaker in base.order_by("-videos_count")[:8]:
         top_series = (
             Series.objects.filter(videos__speaker=speaker)
-            .annotate(n=Count("videos", filter=Q(videos__speaker=speaker)))
+            .annotate(n=Count("videos", filter=Q(videos__speaker=speaker, videos__status=PUBLISHED)))
             .order_by("-n")
             .first()
         )
@@ -762,7 +774,7 @@ def speakers_index(request):
 def books_index(request):
     """All 66 Bible books in canonical order, grouped by section."""
     groups = {}
-    books = Bible_Book.objects.annotate(videos_count=Count("video"))
+    books = Bible_Book.objects.annotate(videos_count=published_count("video"))
     for book in sorted(books, key=lambda b: int(b.order) if str(b.order).isdigit() else 999):
         groups.setdefault(book.get_type_display(), []).append(
             {
@@ -784,6 +796,7 @@ def books_index(request):
 
 def ministries_index(request):
     """All ministries and churches with content, alphabetically."""
+    rows = Ministry.objects.annotate(videos_count=published_count("video")).filter(videos_count__gt=0).order_by("name")
     ministries = [
         {
             "name": m.name,
@@ -791,7 +804,7 @@ def ministries_index(request):
             "videosCount": m.videos_count,
             "url": m.get_absolute_url(),
         }
-        for m in Ministry.objects.annotate(videos_count=Count("video")).filter(videos_count__gt=0).order_by("name")
+        for m in rows
     ]
 
     return render(
@@ -809,7 +822,7 @@ def browse_series(request, id):
 
     # Canonical route is by id_number (names collide); old name-based links
     # still resolve as a fallback.
-    series_qs = Series.objects.annotate(videos_count=Count("videos"))
+    series_qs = Series.objects.annotate(videos_count=published_count("videos"))
     try:
         series = series_qs.filter(id_number=decoded_id).first() or series_qs.filter(name=decoded_id).first()
         if series is None:
@@ -828,7 +841,7 @@ def browse_series(request, id):
     # Episodes live on the Series.videos M2M (the video_set FK reverse is never
     # populated). Order by episode number where ingestion assigned one, oldest
     # first — a course reads start-to-finish, not newest-first.
-    episodes = series.videos.order_by("number_in_series", "date_recorded")
+    episodes = series.videos.filter(status=PUBLISHED).order_by("number_in_series", "date_recorded")
     paginator = Paginator(episodes, 50)
     page_num = 1
     try:
@@ -839,7 +852,7 @@ def browse_series(request, id):
 
     start_episode = episodes.first()
     # Total runtime across the whole series (all pages), where durations exist.
-    total_runtime = series.videos.aggregate(total=Sum("duration_seconds"))["total"]
+    total_runtime = series.videos.filter(status=PUBLISHED).aggregate(total=Sum("duration_seconds"))["total"]
     return render(
         request,
         "SeriesDetail",
@@ -884,7 +897,7 @@ def browse_speaker(request, id):
             {"videos": [], "title": f"Speaker not found: '{decoded_id}'"},
         )
 
-    talks = speaker.video_set.order_by(RECENT_FIRST)
+    talks = speaker.video_set.filter(status=PUBLISHED).order_by(RECENT_FIRST)
     paginator = Paginator(talks, pagination_per_page)
     page_num = 1
     try:
@@ -899,7 +912,7 @@ def browse_speaker(request, id):
             {"name": s.name, "summary": s.summary, "videosCount": s.videos_count, "url": s.get_absolute_url()}
             for s in Series.objects.filter(videos__speaker=speaker)
             .distinct()
-            .annotate(videos_count=Count("videos"))
+            .annotate(videos_count=published_count("videos"))
             .order_by("-videos_count")[:6]
         ]
 
@@ -934,7 +947,7 @@ def browse_topic(request, id):
             },
         )
 
-    paginator = Paginator(topic.video_set.all(), pagination_per_page)
+    paginator = Paginator(topic.video_set.filter(status=PUBLISHED), pagination_per_page)
     page_num = 1
     try:
         page_num = int(request.GET.get("page", 1))
@@ -971,7 +984,7 @@ def browse_categories(request):
                 "videosCount": b.videos_count,
                 "url": b.get_absolute_url(),
             }
-            for b in Bible_Book.objects.annotate(videos_count=Count("video"))
+            for b in Bible_Book.objects.annotate(videos_count=published_count("video"))
         ]
         title = "Bible Books"
         description = "Browsing all Bible books"
@@ -986,7 +999,7 @@ def browse_categories(request):
                 "videosCount": c.videos_count,
                 "url": c.get_absolute_url(),
             }
-            for c in Channel.objects.annotate(videos_count=Count("video"))
+            for c in Channel.objects.annotate(videos_count=published_count("video"))
         ]
         title = "Channels"
         description = "Browsing all known channels"
@@ -1001,7 +1014,7 @@ def browse_categories(request):
                 "videosCount": d.videos_count,
                 "url": d.get_absolute_url(),
             }
-            for d in Demographic.objects.annotate(videos_count=Count("video"))
+            for d in Demographic.objects.annotate(videos_count=published_count("video"))
         ]
         title = "Demographic"
         description = "Browsing all known demographics"
@@ -1015,7 +1028,7 @@ def browse_categories(request):
                 "videosCount": m.videos_count,
                 "url": m.get_absolute_url(),
             }
-            for m in Ministry.objects.annotate(videos_count=Count("video")).prefetch_related("channel")
+            for m in Ministry.objects.annotate(videos_count=published_count("video")).prefetch_related("channel")
         ]
         title = "Ministries"
         description = "Browsing all known ministries"
@@ -1030,7 +1043,7 @@ def browse_categories(request):
                 "videosCount": s.videos_count,
                 "url": s.get_absolute_url(),
             }
-            for s in Speaker.objects.annotate(videos_count=Count("video"))
+            for s in Speaker.objects.annotate(videos_count=published_count("video"))
         ]
         title = "Speakers"
         description = "Browsing all known speakers"

@@ -8,10 +8,9 @@ data (0 linked), like the Video.series FK decoy. NEVER filter Video.series
 (dead FK) — series membership lives only on Series.videos.
 """
 
-from django.db.models import Count
-
 from app.cards import video_card_props
 from catalogue.models import Bible_Book, Demographic, Speaker, Video
+from catalogue.models.video import published_count
 
 # Duration bands in seconds: short < 15m, medium 15-40m, long >= 40m.
 DURATION_BANDS = {"short": (None, 900), "medium": (900, 2400), "long": (2400, None)}
@@ -38,7 +37,7 @@ def parse_filters(request):
 def filtered_videos(active, ordering):
     """Build the result queryset. .distinct() because M2M __in joins multiply
     rows when a video matches several selected values in one facet."""
-    qs = Video.objects.all()
+    qs = Video.objects.published()
     if active["speaker"]:
         qs = qs.filter(speaker__id__in=active["speaker"])
     if active["book"]:
@@ -64,20 +63,22 @@ def facet_options(active):
     reflect the whole catalogue, not the current other-facet selections, so
     the choices don't reshuffle as an elderly user clicks). Three cheap
     aggregate queries for the populated facets; type/length are fixed."""
-    books = list(Bible_Book.objects.annotate(n=Count("video")).filter(n__gt=0).order_by("order"))
+    books = list(Bible_Book.objects.annotate(n=published_count("video")).filter(n__gt=0).order_by("order"))
     book_opts = [
         {"value": b.name, "label": b.get_name_display(), "count": b.n, "testament": "nt" if _is_nt(b) else "ot"}
         for b in books
     ]
-    speakers = Speaker.objects.annotate(n=Count("video")).filter(n__gt=0).order_by("-n", "name")[:TOP_SPEAKERS]
+    speakers = (
+        Speaker.objects.annotate(n=published_count("video")).filter(n__gt=0).order_by("-n", "name")[:TOP_SPEAKERS]
+    )
     # Always include selected speakers even if outside the top N, so chips/labels resolve
     selected_ids = set(active["speaker"])
     shown_ids = {str(s.id) for s in speakers}
-    extra = Speaker.objects.filter(id__in=selected_ids - shown_ids).annotate(n=Count("video"))
+    extra = Speaker.objects.filter(id__in=selected_ids - shown_ids).annotate(n=published_count("video"))
     speaker_opts = [{"value": str(s.id), "label": s.name, "count": s.n} for s in list(speakers) + list(extra)]
     audience_opts = [
         {"value": d.name, "label": d.name, "count": d.n}
-        for d in Demographic.objects.annotate(n=Count("video")).filter(n__gt=0).order_by("-n")
+        for d in Demographic.objects.annotate(n=published_count("video")).filter(n__gt=0).order_by("-n")
     ]
     return {
         "type": TYPE_OPTIONS,

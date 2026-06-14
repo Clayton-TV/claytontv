@@ -1,6 +1,7 @@
 from typing import ClassVar  # Add typing imports
 
 from django.db import models  # import the model class that all models are based on
+from django.db.models import Count, Q
 from django.urls import reverse  # generate urls by reversing url pattern
 
 # from .series import Series
@@ -13,6 +14,25 @@ from .label import Label
 
 # Now import the models that we need to link to:
 # from .channel import Channel
+
+# Publication state. Legacy + Studio-published content is "published" (visible on
+# the public site); Studio creates content as "draft" until a human publishes.
+DRAFT = "draft"
+PUBLISHED = "published"
+
+
+def published_count(relation="video"):
+    """A ``Count`` annotation over only *published* videos, reached via the given
+    reverse relation name ("video" for most models, "videos" for the Series M2M).
+    Use instead of ``Count(relation)`` on public category counts so draft-only
+    categories don't show or inflate their tallies."""
+    return Count(relation, filter=Q(**{f"{relation}__status": PUBLISHED}))
+
+
+class VideoQuerySet(models.QuerySet):
+    def published(self):
+        """Public videos only. The canonical source for every public surface."""
+        return self.filter(status=PUBLISHED)
 
 
 # Now the actual class definition for the model (database table):
@@ -45,6 +65,16 @@ class Video(models.Model):
     speaker = models.ManyToManyField("Speaker", blank=True, help_text="The speakers/artist in the video.")
     is_livestream = models.BooleanField(default=False, help_text="Whether the video was a live stream.")
     topic = models.ManyToManyField("Topic", help_text="Select topics for this video.")
+
+    # Publication state. Defaults to "published" so the existing catalogue stays
+    # live after the migration; Studio-created videos start as "draft".
+    status = models.CharField(
+        max_length=12,
+        choices=[(DRAFT, "Draft"), (PUBLISHED, "Published")],
+        default=PUBLISHED,
+        db_index=True,
+        help_text="Draft videos are hidden from the public site until published.",
+    )
 
     thumbnail = models.TextField(max_length=200, help_text="Thumbnail Location", null=True)
 
@@ -86,6 +116,8 @@ class Video(models.Model):
         blank=True,
         help_text="The series the video is part of.",
     )
+
+    objects = VideoQuerySet.as_manager()
 
     class Meta:
         ordering: ClassVar[list[str]] = ["date_created"]
