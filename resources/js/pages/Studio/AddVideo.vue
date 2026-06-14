@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TaxonomySelect from '@/molecules/TaxonomySelect.vue';
+import ClassificationFields from '@/molecules/ClassificationFields.vue';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -218,55 +218,15 @@ const recordedLabel = computed(() => (preview.value?.date_recorded ? preview.val
             <fieldset class="space-y-4">
                 <legend class="text-foreground text-base font-semibold">Classification</legend>
                 <p class="text-muted-foreground -mt-2 text-sm">All optional — you can refine these later.</p>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <TaxonomySelect
-                        id="tax-speakers"
-                        label="Speakers"
-                        :options="props.taxonomy.speakers"
-                        v-model="form.speaker_ids"
-                        multiple
-                        placeholder="Add speakers…"
-                    />
-                    <TaxonomySelect
-                        id="tax-series"
-                        label="Series"
-                        :options="props.taxonomy.series"
-                        v-model="form.series_id"
-                        placeholder="Choose a series…"
-                    />
-                    <TaxonomySelect
-                        id="tax-topics"
-                        label="Topics"
-                        :options="props.taxonomy.topics"
-                        v-model="form.topic_ids"
-                        multiple
-                        placeholder="Add topics…"
-                    />
-                    <TaxonomySelect
-                        id="tax-books"
-                        label="Bible books"
-                        :options="props.taxonomy.bible_books"
-                        v-model="form.bible_book_ids"
-                        multiple
-                        placeholder="Add Bible books…"
-                    />
-                    <TaxonomySelect
-                        id="tax-audiences"
-                        label="Audiences"
-                        :options="props.taxonomy.demographics"
-                        v-model="form.demographic_ids"
-                        multiple
-                        placeholder="Add audiences…"
-                    />
-                    <TaxonomySelect
-                        id="tax-ministries"
-                        label="Ministries"
-                        :options="props.taxonomy.ministries"
-                        v-model="form.ministry_ids"
-                        multiple
-                        placeholder="Add ministries…"
-                    />
-                </div>
+                <ClassificationFields
+                    :taxonomy="props.taxonomy"
+                    v-model:speaker-ids="form.speaker_ids"
+                    v-model:topic-ids="form.topic_ids"
+                    v-model:bible-book-ids="form.bible_book_ids"
+                    v-model:demographic-ids="form.demographic_ids"
+                    v-model:ministry-ids="form.ministry_ids"
+                    v-model:series-id="form.series_id"
+                />
             </fieldset>
 
             <!-- Actions -->

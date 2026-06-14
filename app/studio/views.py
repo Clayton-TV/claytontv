@@ -324,3 +324,55 @@ def create_video(request):
     verb = "Published" if video.status == PUBLISHED else "Saved as draft"
     messages.success(request, f"{verb}: “{video.name}”.")
     return redirect("/studio")
+
+
+# --------------------------------------------------------------------------- #
+# Edit a video (Slice 4a)
+# --------------------------------------------------------------------------- #
+
+
+@studio_required
+@ensure_csrf_cookie
+def edit_video(request, id):
+    """``/studio/videos/<id>/edit`` — the full tabbed editor for one video."""
+    video = services.get_video_for_edit(id)
+    if video is None:
+        raise Http404
+    return render(request, "Studio/EditVideo", {"video": video, "taxonomy": services.taxonomy_options()})
+
+
+@studio_required
+@require_POST
+def update_video(request, id):
+    """``POST /studio/videos/<id>/update`` — save edits (status-neutral; publish
+    is a separate action). On a URL clash, re-render the editor with an inline
+    error (the form's typed state survives via Inertia)."""
+    post = _Payload(request)
+    try:
+        ok = services.update_video(
+            id,
+            name=post.get("name", ""),
+            description=post.get("description", ""),
+            url=post.get("url", ""),
+            thumbnail=post.get("thumbnail") or None,
+            duration_seconds=_int_or_none(post.get("duration_seconds")),
+            date_recorded=post.get("date_recorded") or None,
+            is_livestream=bool(post.get("is_livestream")),
+            number_in_series=_int_or_none(post.get("number_in_series")),
+            speaker_ids=post.getlist("speaker_ids"),
+            topic_ids=post.getlist("topic_ids"),
+            bible_book_ids=post.getlist("bible_book_ids"),
+            demographic_ids=post.getlist("demographic_ids"),
+            ministry_ids=post.getlist("ministry_ids"),
+            series_id=post.get("series_id") or None,
+            alternate_urls=post.get("alternate_urls") or [],
+            related_resources=post.get("related_resources") or [],
+        )
+    except services.DuplicateVideoError as exc:
+        share(request, errors={"url": f"“{exc.video.name}” already uses that link."})
+        props = {"video": services.get_video_for_edit(id), "taxonomy": services.taxonomy_options()}
+        return render(request, "Studio/EditVideo", props)
+    if not ok:
+        raise Http404
+    messages.success(request, "Saved.")
+    return redirect("/studio")
