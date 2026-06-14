@@ -304,9 +304,7 @@ def _mint_video_id():
         n += 1
 
 
-def _link_relations(
-    video, *, speaker_ids, topic_ids, bible_book_ids, demographic_ids, ministry_ids, series_id
-):
+def _link_relations(video, *, speaker_ids, topic_ids, bible_book_ids, demographic_ids, ministry_ids, series_id):
     """Wire the M2M classifications. Unknown ids are silently dropped (the form
     only ever submits ids it was given). Series goes through ``Series.videos``."""
     if speaker_ids:
