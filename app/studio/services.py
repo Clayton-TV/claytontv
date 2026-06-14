@@ -11,15 +11,18 @@ published alike — so these queries use ``Video.objects`` unfiltered, NOT
 """
 
 import logging
+from datetime import date
 
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
 
+from app.cards import video_edit_props
 from catalogue import search as search_index
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.demograpic import Demographic
 from catalogue.models.ministry import Ministry
+from catalogue.models.related_resource import RelatedResource
 from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
@@ -274,7 +277,7 @@ def create_video(
         status=status,
     )
 
-    _link_relations(
+    _apply_relations(
         video,
         speaker_ids=speaker_ids,
         topic_ids=topic_ids,
@@ -304,20 +307,131 @@ def _mint_video_id():
         n += 1
 
 
-def _link_relations(video, *, speaker_ids, topic_ids, bible_book_ids, demographic_ids, ministry_ids, series_id):
-    """Wire the M2M classifications. Unknown ids are silently dropped (the form
-    only ever submits ids it was given). Series goes through ``Series.videos``."""
-    if speaker_ids:
-        video.speaker.set(Speaker.objects.filter(pk__in=list(speaker_ids)))
-    if topic_ids:
-        video.topic.set(Topic.objects.filter(pk__in=list(topic_ids)))
-    if bible_book_ids:
-        video.bible_book.set(Bible_Book.objects.filter(pk__in=list(bible_book_ids)))
-    if demographic_ids:
-        video.demographic.set(Demographic.objects.filter(pk__in=list(demographic_ids)))
-    if ministry_ids:
-        video.ministry.set(Ministry.objects.filter(pk__in=list(ministry_ids)))
+def _apply_relations(video, *, speaker_ids, topic_ids, bible_book_ids, demographic_ids, ministry_ids, series_id):
+    """Set the M2M classifications to exactly the given ids — ``.set()`` so the
+    editor can *remove* relations, not only add (create passes the same shape, so
+    empty lists clear correctly). Unknown ids are silently dropped. Series goes
+    through the ``Series.videos`` M2M (re-pointed: dropped from any other series,
+    added to the chosen one), never the decoy ``Video.series`` FK."""
+    video.speaker.set(Speaker.objects.filter(pk__in=list(speaker_ids or [])))
+    video.topic.set(Topic.objects.filter(pk__in=list(topic_ids or [])))
+    video.bible_book.set(Bible_Book.objects.filter(pk__in=list(bible_book_ids or [])))
+    video.demographic.set(Demographic.objects.filter(pk__in=list(demographic_ids or [])))
+    video.ministry.set(Ministry.objects.filter(pk__in=list(ministry_ids or [])))
+
+    for series in Series.objects.filter(videos=video):
+        if str(series.pk) != str(series_id):
+            series.videos.remove(video)
     if series_id:
-        series = Series.objects.filter(pk=series_id).first()
-        if series is not None:
-            series.videos.add(video)
+        target = Series.objects.filter(pk=series_id).first()
+        if target is not None:
+            target.videos.add(video)
+
+
+# --------------------------------------------------------------------------- #
+# Edit a video (Slice 4a)
+# --------------------------------------------------------------------------- #
+
+
+def get_video_for_edit(video_id):
+    """The full editable view of one video (plain dict), or None if missing."""
+    video = (
+        Video.objects.filter(id=video_id)
+        .prefetch_related("speaker", "topic", "bible_book", "demographic", "ministry", "related_resources")
+        .first()
+    )
+    return video_edit_props(video) if video is not None else None
+
+
+def update_video(
+    video_id,
+    *,
+    name,
+    description="",
+    url,
+    thumbnail=None,
+    duration_seconds=None,
+    date_recorded=None,
+    is_livestream=False,
+    number_in_series=None,
+    speaker_ids=(),
+    topic_ids=(),
+    bible_book_ids=(),
+    demographic_ids=(),
+    ministry_ids=(),
+    series_id=None,
+    alternate_urls=None,
+    related_resources=None,
+):
+    """Update an existing video's scalar fields, classification, alternate URLs
+    and related resources. Returns True, or False if the id doesn't exist.
+
+    Publication status is NOT touched here — that goes through ``set_video_status``
+    (the editor's Publish/Unpublish buttons), keeping Save status-neutral. Raises
+    ``DuplicateVideoError`` if ``url`` is changed to one another video already uses
+    (``Video.url`` is unique)."""
+    video = Video.objects.filter(id=video_id).first()
+    if video is None:
+        return False
+
+    url = (url or "").strip()
+    clash = Video.objects.filter(url=url).exclude(id=video_id).first()
+    if clash is not None:
+        raise DuplicateVideoError(clash)
+
+    video.name = (name or "").strip()[:200] or video.name
+    video.description = description or ""
+    video.url = url
+    video.thumbnail = thumbnail
+    video.duration_seconds = duration_seconds
+    video.date_recorded = _parse_date(date_recorded)
+    video.is_livestream = bool(is_livestream)
+    video.number_in_series = number_in_series
+    video.alternate_urls = alternate_urls or []
+
+    _apply_relations(
+        video,
+        speaker_ids=speaker_ids,
+        topic_ids=topic_ids,
+        bible_book_ids=bible_book_ids,
+        demographic_ids=demographic_ids,
+        ministry_ids=ministry_ids,
+        series_id=series_id,
+    )
+    _sync_resources(video, related_resources or [])
+    # Single save after relations are set so the search signal re-indexes a doc
+    # that reflects the new scalars + facets.
+    video.save()
+    return True
+
+
+def _parse_date(value):
+    """An ISO ``YYYY-MM-DD`` string (or date) → a date, else None."""
+    if not value:
+        return None
+    if hasattr(value, "isoformat") and not isinstance(value, str):
+        return value
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+
+
+_RESOURCE_KINDS = {kind for kind, _ in RelatedResource.KINDS}
+
+
+def _sync_resources(video, resources):
+    """Make ``video.related_resources`` match the given ``[{kind, url}]`` list:
+    drop rows no longer present, create the new ones. Skips invalid/blank rows."""
+    wanted = {
+        (r.get("kind"), (r.get("url") or "").strip())
+        for r in resources
+        if r.get("kind") in _RESOURCE_KINDS and (r.get("url") or "").strip()
+    }
+    existing = {(r.kind, r.url): r for r in video.related_resources.all()}
+    for key, row in existing.items():
+        if key not in wanted:
+            row.delete()
+    for kind, url in wanted:
+        if (kind, url) not in existing:
+            RelatedResource.objects.create(video=video, kind=kind, url=url)

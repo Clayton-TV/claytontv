@@ -298,9 +298,11 @@ const resultLabel = computed(() => {
                                             Open on site
                                         </a>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem disabled>
-                                        <Pencil class="size-4" aria-hidden="true" />
-                                        Edit (coming soon)
+                                    <DropdownMenuItem as-child>
+                                        <Link :href="`/studio/videos/${video.id}/edit`">
+                                            <Pencil class="size-4" aria-hidden="true" />
+                                            Edit
+                                        </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

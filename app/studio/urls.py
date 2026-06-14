@@ -14,6 +14,9 @@ urlpatterns = [
     path("dev-login", views.dev_login, name="studio_dev_login"),
     # JSON metadata preview for the Add form (not Inertia).
     path("api/fetch-metadata", views.fetch_metadata_api, name="studio_fetch_metadata"),
+    # Editor (Slice 4a).
+    path("videos/<str:id>/edit", views.edit_video, name="studio_edit_video"),
+    path("videos/<str:id>/update", views.update_video, name="studio_update_video"),
     # Library mutations (all @studio_required + POST + CSRF).
     path("videos/create", views.create_video, name="studio_create_video"),
     path("videos/bulk-status", views.bulk_status, name="studio_bulk_status"),
