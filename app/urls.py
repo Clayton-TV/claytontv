@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.views.generic import RedirectView
 
 from .views import (
@@ -46,6 +46,9 @@ from .views import (
 
 urlpatterns = [
     path("", index, name="home"),
+    # Studio (Epic 3): gated editorial area. Mounted before the public catalogue
+    # routes so the /studio prefix is never shadowed by a public page.
+    path("studio/", include("app.studio.urls")),
     path("livestreams/", browse_all_livestreams, name="browse_all_livestreams"),
     path("latest/", browse_all_latest, name="browse_all_latest"),
     path("admin/", admin.site.urls),

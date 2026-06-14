@@ -3,10 +3,19 @@ import BrandVimeo from '@/atoms/BrandVimeo.vue';
 import LogoMark from '@/atoms/LogoMark.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { Github, Youtube } from 'lucide-vue-next';
+import { computed } from 'vue';
+import type { SharedData } from '~/types';
 
 const year = new Date().getFullYear();
+
+// Discreet editor entry point. Reads as "Studio" once signed in, "Editor sign
+// in" otherwise — both go to /studio (the gate redirects anonymous users on to
+// the login page). Kept visually quiet: muted, in the bottom utility row.
+// auth.user is real-or-null (anonymous), so treat it as nullable here.
+const page = usePage<SharedData>();
+const studioLabel = computed(() => (page.props.auth.user ? 'Studio' : 'Editor sign in'));
 
 const socials = [
     { name: 'YouTube', href: 'https://www.youtube.com/channel/UCvME6kEF02MqliB5TNHFLZA', icon: Youtube },
@@ -63,7 +72,15 @@ const columns = [
         </div>
         <div class="border-border border-t">
             <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 lg:px-8">
-                <p class="text-muted-foreground text-xs">© {{ year }} Clayton TV</p>
+                <div class="text-muted-foreground flex items-center gap-3 text-xs">
+                    <p>© {{ year }} Clayton TV</p>
+                    <Link
+                        href="/studio"
+                        class="focus-visible:ring-ring hover:text-foreground rounded transition-colors duration-150 outline-none focus-visible:ring-2"
+                    >
+                        {{ studioLabel }}
+                    </Link>
+                </div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <div class="flex items-center gap-2">
                         <span class="text-muted-foreground text-xs">Theme</span>
