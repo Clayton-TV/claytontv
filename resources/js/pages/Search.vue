@@ -1,7 +1,7 @@
 <script setup>
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
 import { EVENTS, track } from '~/lib/analytics';
 
 const props = defineProps({
@@ -26,22 +26,30 @@ const props = defineProps({
     },
 });
 
-// The query lives in the ?search= param (set by CommandPalette). Search is
-// server-routed, so capture search_performed on page load — results_count is the
-// current page's video count; zero-results (no videos AND no categories) is the
-// key content-gap signal for P3. Fires once per search view (Inertia mount).
-const query = new URLSearchParams(window.location.search).get('search') ?? '';
+// The query lives in the ?search= param (set by CommandPalette). usePage().url is
+// reactive, so this recomputes on every Inertia navigation — including a repeat
+// search from the global palette that REUSES this page component (no remount).
+const page = usePage();
+const query = computed(() => new URLSearchParams(page.url.split('?')[1] ?? '').get('search') ?? '');
 
-onMounted(() => {
-    const videoCount = props.videos?.length ?? 0;
-    const categoryCount = props.categories?.length ?? 0;
-    track(EVENTS.searchPerformed, {
-        query,
-        results_count: videoCount,
-        category_count: categoryCount,
-        is_zero_results: videoCount === 0 && categoryCount === 0,
-    });
-});
+// Fire search_performed when the search TERM changes (initial load + each new
+// search) but not on pagination — paging changes ?page=, not ?search=. Search is
+// server-routed, so results_count is the current page's video count; zero-results
+// (no videos AND no categories) is the key content-gap signal for P3.
+watch(
+    query,
+    (q) => {
+        const videoCount = props.videos?.length ?? 0;
+        const categoryCount = props.categories?.length ?? 0;
+        track(EVENTS.searchPerformed, {
+            query: q,
+            results_count: videoCount,
+            category_count: categoryCount,
+            is_zero_results: videoCount === 0 && categoryCount === 0,
+        });
+    },
+    { immediate: true },
+);
 </script>
 
 <template>

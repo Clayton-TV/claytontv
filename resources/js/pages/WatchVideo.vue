@@ -40,7 +40,7 @@ vueWatch(
                 id,
                 name: props.video.name,
                 url: props.video.url,
-                is_live: !!props.video.is_live,
+                is_live: !!props.video.is_livestream,
                 meta: {
                     speaker: metaNames('speaker'),
                     series: metaNames('series'),

@@ -61,11 +61,13 @@ const nextPage = () => {
 // is 1-based rank within the current page so we can see which ranks get clicked.
 const onResultClick = (video, index) => {
     if (props.trackContext !== 'search') return;
+    const currentPage = parseInt(window.location.search.match(/[?&]page=([0-9]+)/)?.[1]) || 1;
     track(EVENTS.searchResultClicked, {
         query: props.trackQuery,
-        result_position: index + 1,
+        result_position: index + 1, // 1-based rank within this page…
+        result_page: currentPage, // …disambiguated by page (rank is page-local)
         result_video_id: video.id,
-        results_count: props.videos.length,
+        page_results_count: props.videos.length,
     });
 };
 </script>
