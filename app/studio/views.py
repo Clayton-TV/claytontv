@@ -181,9 +181,23 @@ def library(request):
         {
             "q": q,
             "status": status,
+            "draft_count": services.draft_count(),
             **result,
         },
     )
+
+
+@studio_required
+@ensure_csrf_cookie
+def review(request):
+    """``/studio/review`` — the drafts triage queue. Approve (publish) / Edit /
+    Reject (soft-delete) reuse the existing Library mutation endpoints."""
+    try:
+        page = int(request.GET.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    result = services.list_videos(status=DRAFT, page=page)
+    return render(request, "Studio/Review", {**result})
 
 
 def _back_to_library(request, payload=None):

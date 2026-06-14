@@ -146,6 +146,11 @@ def _paginate(objects, page, per_page):
     }
 
 
+def draft_count():
+    """How many drafts are waiting in the review queue (alive only)."""
+    return Video.objects.filter(status=DRAFT).count()
+
+
 def set_video_status(video_id, status):
     """Set one video's publication status. Returns True if a row changed.
 
@@ -179,13 +184,27 @@ def set_videos_status(video_ids, status):
 
 
 def delete_videos(video_ids):
-    """Delete the given videos. Returns the number removed. The post_delete
-    search signal drops each from the index."""
-    deleted = 0
+    """Soft-delete the given videos (set ``deleted_at``). Returns the number
+    trashed. Recoverable via ``restore_videos`` — nothing is hard-deleted. The
+    save fires the search signal, which de-indexes trashed rows."""
+    trashed = 0
     for video in Video.objects.filter(id__in=list(video_ids)):
-        video.delete()
-        deleted += 1
-    return deleted
+        video.deleted_at = timezone.now()
+        video.save(update_fields=["deleted_at"])
+        trashed += 1
+    return trashed
+
+
+def restore_videos(video_ids):
+    """Bring soft-deleted videos back (clear ``deleted_at``). Returns the count
+    restored. Reached via ``all_objects`` since the default manager hides them;
+    the save re-indexes them."""
+    restored = 0
+    for video in Video.all_objects.filter(id__in=list(video_ids), deleted_at__isnull=False):
+        video.deleted_at = None
+        video.save(update_fields=["deleted_at"])
+        restored += 1
+    return restored
 
 
 # --------------------------------------------------------------------------- #

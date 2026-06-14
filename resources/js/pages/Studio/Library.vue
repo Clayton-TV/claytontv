@@ -36,6 +36,7 @@ const props = defineProps<{
     num_pages: number;
     has_prev_page: boolean;
     has_next_page: boolean;
+    draft_count: number;
 }>();
 
 // --- filters: search (debounced) + status -------------------------------
@@ -166,12 +167,24 @@ const resultLabel = computed(() => {
                 <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Studio — Library</h1>
                 <p class="text-muted-foreground mt-1 text-sm tabular-nums">{{ resultLabel }}</p>
             </div>
-            <Button as-child>
-                <Link href="/studio/add">
-                    <Plus class="size-4" aria-hidden="true" />
-                    Add a video
-                </Link>
-            </Button>
+            <div class="flex items-center gap-2">
+                <Button variant="outline" as-child>
+                    <Link href="/studio/review">
+                        Review
+                        <span
+                            v-if="props.draft_count"
+                            class="bg-primary text-primary-foreground ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums"
+                            >{{ props.draft_count }}</span
+                        >
+                    </Link>
+                </Button>
+                <Button as-child>
+                    <Link href="/studio/add">
+                        <Plus class="size-4" aria-hidden="true" />
+                        Add a video
+                    </Link>
+                </Button>
+            </div>
         </div>
 
         <!-- Filter bar -->

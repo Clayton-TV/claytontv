@@ -7,6 +7,7 @@ from . import views
 
 urlpatterns = [
     path("", views.library, name="studio_library"),
+    path("review", views.review, name="studio_review"),
     path("add", views.add_video, name="studio_add_video"),
     path("login", views.login_view, name="studio_login"),
     path("logout", views.logout_view, name="studio_logout"),
