@@ -2,6 +2,7 @@
 import ErrorBoundary from '@/ErrorBoundary.vue';
 import AppFooter from '@/layouts/AppFooter.vue';
 import AppHeader from '@/layouts/AppHeader.vue';
+import CookieConsent from '@/organisms/CookieConsent.vue';
 import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
 import Toaster from '@/organisms/Toaster.vue';
 </script>
@@ -29,5 +30,6 @@ import Toaster from '@/organisms/Toaster.vue';
         <!-- The shared player + toasts outlive page navigations (persistent layout) -->
         <PersistentPlayer />
         <Toaster />
+        <CookieConsent />
     </div>
 </template>

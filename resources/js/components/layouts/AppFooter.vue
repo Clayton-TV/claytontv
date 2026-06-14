@@ -6,6 +6,7 @@ import ThemeToggle from '@/molecules/ThemeToggle.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Github, Youtube } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { useCookieConsent } from '~/composables/useCookieConsent';
 import type { SharedData } from '~/types';
 
 const year = new Date().getFullYear();
@@ -16,6 +17,10 @@ const year = new Date().getFullYear();
 // auth.user is real-or-null (anonymous), so treat it as nullable here.
 const page = usePage<SharedData>();
 const studioLabel = computed(() => (page.props.auth.user ? 'Studio' : 'Editor sign in'));
+
+// Let visitors revisit their cookie choice at any time (a PECR expectation).
+// Only shown in builds that actually ship analytics.
+const { reopen: reopenCookieSettings, enabled: cookieConsentEnabled } = useCookieConsent();
 
 const socials = [
     { name: 'YouTube', href: 'https://www.youtube.com/channel/UCvME6kEF02MqliB5TNHFLZA', icon: Youtube },
@@ -80,6 +85,14 @@ const columns = [
                     >
                         {{ studioLabel }}
                     </Link>
+                    <button
+                        v-if="cookieConsentEnabled"
+                        type="button"
+                        @click="reopenCookieSettings"
+                        class="focus-visible:ring-ring hover:text-foreground rounded underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+                    >
+                        Cookie settings
+                    </button>
                 </div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <div class="flex items-center gap-2">

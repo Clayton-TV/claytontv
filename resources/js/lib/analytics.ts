@@ -1,13 +1,21 @@
 import { router } from '@inertiajs/vue3';
 import type { PostHog } from 'posthog-js';
+import { getAnalyticsConsent, onConsentChange } from '~/composables/useCookieConsent';
 
 /**
  * Privacy-respecting analytics (self-hosted PostHog).
  *
  * Activates only when VITE_POSTHOG_KEY is present at build time, so local
- * dev and CI capture nothing. Configured cookieless: persistence lives in
- * memory only, no cross-visit identifiers, no person profiles for anonymous
- * visitors — usage trends without tracking individuals.
+ * dev and CI capture nothing — and prod stays clean until the key is added.
+ *
+ * Consent-gated (PECR / UK-GDPR — see useCookieConsent):
+ *  - No analytics consent → COOKIELESS: in-memory persistence, no cross-visit
+ *    id, no autocapture, no heatmaps, no session recording. Sets no cookies.
+ *  - Analytics consent → localStorage+cookie persistence (stable per-visit id),
+ *    autocapture, heatmaps and masked session replay. The consent banner flips
+ *    this live via applyAnalyticsConsent() (persistence + recording apply
+ *    immediately; autocapture/heatmaps are init-time, so they engage on the
+ *    next page load). respect_dnt and person_profiles:'identified_only' always.
  *
  * posthog-js is heavy (~200 kB), so it loads as a lazy chunk after boot and
  * never ships in keyless builds.
@@ -50,18 +58,33 @@ export async function initializeAnalytics() {
 
     const { default: ph } = await import('posthog-js');
 
+    // Choose the initial config from any stored consent. Autocapture/heatmaps are
+    // init-time only, so a returning visitor who already opted in gets the full
+    // set from the first load; everyone else starts cookieless.
+    const consented = getAnalyticsConsent();
+
     ph.init(key, {
         api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://posthog.tgo.dev',
-        persistence: 'memory',
+        persistence: consented ? 'localStorage+cookie' : 'memory',
         person_profiles: 'identified_only',
-        autocapture: false,
+        autocapture: consented,
         capture_pageview: true,
-        capture_pageleave: false,
-        disable_session_recording: true,
+        capture_pageleave: consented,
+        capture_heatmaps: consented,
+        disable_session_recording: !consented,
+        session_recording: {
+            // Mask form inputs in recordings; general text stays visible so
+            // playback is useful (this is a sermon library, not a PII app).
+            maskAllInputs: true,
+        },
         respect_dnt: true,
     });
 
     posthog = ph;
+
+    // React to consent decisions made after boot (the banner on first visit, or
+    // the footer "Cookie settings" later).
+    onConsentChange(applyAnalyticsConsent);
 
     // Remember the entry surface so isEntryView() can flag a landing-page click.
     entryPath = normalizePath(window.location.pathname);
@@ -95,6 +118,27 @@ export async function initializeAnalytics() {
  */
 export function track(event: string, properties?: Record<string, unknown>) {
     posthog?.capture(event, properties);
+}
+
+/**
+ * Apply a consent decision to the live PostHog instance. Persistence and session
+ * recording can switch at runtime, so they take effect immediately; autocapture
+ * and heatmaps are init-time options and engage on the next page load (the
+ * decision is persisted, so the next init picks the full config). No-op until
+ * posthog-js has loaded — initializeAnalytics() seeds the correct initial state.
+ */
+function applyAnalyticsConsent(analyticsAllowed: boolean) {
+    if (!posthog) return;
+    if (analyticsAllowed) {
+        posthog.set_config({ persistence: 'localStorage+cookie' });
+        posthog.startSessionRecording();
+    } else {
+        // Revoked (or never granted): stop recording, drop the stored id and any
+        // cookies, and fall back to in-memory so nothing persists across visits.
+        posthog.stopSessionRecording();
+        posthog.set_config({ persistence: 'memory' });
+        posthog.reset();
+    }
 }
 
 /**
