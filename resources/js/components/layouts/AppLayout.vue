@@ -5,6 +5,13 @@ import AppHeader from '@/layouts/AppHeader.vue';
 import CookieConsent from '@/organisms/CookieConsent.vue';
 import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
 import Toaster from '@/organisms/Toaster.vue';
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+// The Studio is an editor workspace, not a watch context — keep the floating
+// mini-player out of it so it never overlaps the content tables.
+const page = usePage();
+const showPlayer = computed(() => !page.url.startsWith('/studio'));
 </script>
 
 <template>
@@ -28,7 +35,7 @@ import Toaster from '@/organisms/Toaster.vue';
         </main>
         <AppFooter />
         <!-- The shared player + toasts outlive page navigations (persistent layout) -->
-        <PersistentPlayer />
+        <PersistentPlayer v-if="showPlayer" />
         <Toaster />
         <CookieConsent />
     </div>
