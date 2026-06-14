@@ -89,6 +89,16 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles_collected"
 
 INERTIA_LAYOUT = "app.html"
+
+# CSRF ↔ Inertia. Inertia's request client reads the ``XSRF-TOKEN`` cookie and
+# echoes it as the ``X-XSRF-TOKEN`` header on every POST/PUT/PATCH/DELETE. Point
+# Django's CSRF machinery at those names so Inertia submissions (the Studio
+# login + mutations, Add-a-video) carry a valid token out of the box — otherwise
+# Django looks for ``csrftoken``/``X-CSRFToken`` and rejects every Inertia POST
+# with a 403. The cookie must stay JS-readable (HTTPONLY False, the default) so
+# Inertia can read it; pair with ``@ensure_csrf_cookie`` on the pages that POST.
+CSRF_COOKIE_NAME = "XSRF-TOKEN"
+CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
 # Fail loud if a view passes a raw model/queryset as a prop (see the encoder
 # docstring): the default encoder would recurse on our cyclic relations.
 from app.inertia_encoder import StrictInertiaJsonEncoder  # noqa: E402

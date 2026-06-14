@@ -96,6 +96,33 @@ def test_mutations_are_csrf_protected(db):
     assert video.status == DRAFT
 
 
+def test_mutation_accepts_inertia_xsrf_header(db):
+    """The real browser path: Inertia reads the XSRF-TOKEN cookie and sends it
+    as the X-XSRF-TOKEN header on a JSON body. Django's CSRF names are aligned to
+    those, so a CSRF-enforcing client succeeds with that header. Regression guard
+    for the 403-on-every-Inertia-POST trap (cookie/header name mismatch)."""
+    import json
+
+    from django.test import Client
+
+    csrf_client = Client(enforce_csrf_checks=True)
+    make_editor("ed_xsrf")
+    csrf_client.login(username="ed_xsrf", password=PASSWORD)
+    video = VideoFactory(status=DRAFT)
+    # ensure_csrf_cookie on the Library view primes the XSRF cookie.
+    csrf_client.get("/studio/")
+    token = csrf_client.cookies["XSRF-TOKEN"].value
+    response = csrf_client.post(
+        f"/studio/videos/{video.id}/status",
+        data=json.dumps({"status": PUBLISHED}),
+        content_type="application/json",
+        HTTP_X_XSRF_TOKEN=token,
+    )
+    assert response.status_code == 302
+    video.refresh_from_db()
+    assert video.status == PUBLISHED
+
+
 # --- the list shows all statuses -----------------------------------------
 
 
@@ -190,6 +217,24 @@ def test_bulk_status_changes_many(client):
     assert Video.objects.filter(status=PUBLISHED).count() == 2
     c.refresh_from_db()
     assert c.status == DRAFT
+
+
+def test_bulk_status_accepts_json_body(client):
+    """Inertia sends a JSON body, not form fields — the view must parse it.
+    Regression guard: request.POST is empty for real browser posts."""
+    import json
+
+    login_editor(client)
+    a = VideoFactory(status=DRAFT)
+    b = VideoFactory(status=DRAFT)
+
+    response = client.post(
+        "/studio/videos/bulk-status",
+        data=json.dumps({"status": PUBLISHED, "ids": [a.id, b.id]}),
+        content_type="application/json",
+    )
+    assert response.status_code == 302
+    assert Video.objects.filter(status=PUBLISHED, id__in=[a.id, b.id]).count() == 2
 
 
 def test_delete_removes_videos(client):

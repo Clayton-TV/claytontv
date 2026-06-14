@@ -13,9 +13,16 @@ published alike — so these queries use ``Video.objects`` unfiltered, NOT
 import logging
 
 from django.core.paginator import Paginator
+from django.db.models import Q
+from django.utils import timezone
 
 from catalogue import search as search_index
+from catalogue.models.bible_book import Bible_Book
+from catalogue.models.demograpic import Demographic
+from catalogue.models.ministry import Ministry
 from catalogue.models.series import Series
+from catalogue.models.speaker import Speaker
+from catalogue.models.topic import Topic
 from catalogue.models.video import DRAFT, PUBLISHED, Video
 
 logger = logging.getLogger(__name__)
@@ -176,3 +183,143 @@ def delete_videos(video_ids):
         video.delete()
         deleted += 1
     return deleted
+
+
+# --------------------------------------------------------------------------- #
+# Add a video (paste-a-URL intake — Slice 3)
+# --------------------------------------------------------------------------- #
+
+
+class DuplicateVideoError(Exception):
+    """The URL is already in the catalogue. Carries the existing row so the view
+    can offer a friendly "already in library — open it" link."""
+
+    def __init__(self, video):
+        self.video = video
+        super().__init__(f"Video already exists: {video.id}")
+
+
+def find_duplicate(url):
+    """The existing video at this exact URL as a ``{id, name}`` dict, or None.
+
+    A light pre-check so the Add form can warn *before* the editor fills in
+    classification. ``Video.url`` is unique, so this is the authoritative match;
+    ``create_video`` re-checks at save time to close the race.
+    """
+    existing = Video.objects.filter(url=(url or "").strip()).only("id", "name").first()
+    return {"id": existing.id, "name": existing.name} if existing else None
+
+
+def taxonomy_options():
+    """Every classification choice the Add form offers, as plain ``{id, name}``
+    lists keyed by relation. Small enough (a few thousand rows total) to ship to
+    the page once and filter client-side."""
+    return {
+        "speakers": _options(Speaker),
+        "series": _options(Series),
+        "topics": _options(Topic),
+        "bible_books": _options(Bible_Book),
+        "demographics": _options(Demographic),
+        "ministries": _options(Ministry),
+    }
+
+
+def _options(model):
+    return [{"id": str(pk), "name": name} for pk, name in model.objects.order_by("name").values_list("pk", "name")]
+
+
+def create_video(
+    *,
+    url,
+    name,
+    description="",
+    thumbnail=None,
+    duration_seconds=None,
+    date_recorded=None,
+    status=DRAFT,
+    speaker_ids=(),
+    topic_ids=(),
+    bible_book_ids=(),
+    demographic_ids=(),
+    ministry_ids=(),
+    series_id=None,
+):
+    """Create a Studio video and link its classification. Returns the Video.
+
+    Mirrors the legacy importer (``catalogue/ingest/legacy.py``): mint an ``id``
+    + ``id_number``, create the row, then link relations via ``.set()`` — and
+    crucially link series through ``Series.videos`` (the M2M), never the decoy
+    ``Video.series`` FK. Raises ``DuplicateVideoError`` if the URL already
+    exists. New content defaults to ``draft``; the post_save signal indexes it.
+    """
+    url = (url or "").strip()
+    existing = Video.objects.filter(url=url).first()
+    if existing is not None:
+        raise DuplicateVideoError(existing)
+
+    if status not in (DRAFT, PUBLISHED):
+        status = DRAFT
+
+    video_id = _mint_video_id()
+    video = Video.objects.create(
+        id=video_id,
+        id_number=video_id,  # unique by construction; legacy uses the ref, we have none
+        name=(name or "").strip()[:200] or "Untitled",
+        description=description or "",
+        url=url,
+        thumbnail=thumbnail,
+        duration_seconds=duration_seconds,
+        date_recorded=date_recorded,
+        date_created=timezone.now().date(),
+        status=status,
+    )
+
+    _link_relations(
+        video,
+        speaker_ids=speaker_ids,
+        topic_ids=topic_ids,
+        bible_book_ids=bible_book_ids,
+        demographic_ids=demographic_ids,
+        ministry_ids=ministry_ids,
+        series_id=series_id,
+    )
+    # M2M writes don't fire Video.post_save, so re-save once relations are linked
+    # to (re)index a doc that actually reflects its speaker/series/topic facets.
+    video.save()
+    return video
+
+
+def _mint_video_id():
+    """A unique, non-colliding primary key for a Studio-created video.
+
+    Legacy ids are bare numeric strings; ours are ``S`` + a zero-padded counter
+    (``S0000001``) so they never clash with a legacy id — even one the dying
+    live-admin feed imports later — and fit the 10-char ``id`` column.
+    """
+    n = Video.objects.filter(id__startswith="S").count() + 1
+    while True:
+        candidate = f"S{n:07d}"
+        if not Video.objects.filter(Q(id=candidate) | Q(id_number=candidate)).exists():
+            return candidate
+        n += 1
+
+
+def _link_relations(
+    video, *, speaker_ids, topic_ids, bible_book_ids, demographic_ids, ministry_ids, series_id
+):
+    """Wire the M2M classifications. Unknown ids are silently dropped (the form
+    only ever submits ids it was given). Series goes through ``Series.videos``."""
+    if speaker_ids:
+        video.speaker.set(Speaker.objects.filter(pk__in=list(speaker_ids)))
+    if topic_ids:
+        video.topic.set(Topic.objects.filter(pk__in=list(topic_ids)))
+    if bible_book_ids:
+        video.bible_book.set(Bible_Book.objects.filter(pk__in=list(bible_book_ids)))
+    if demographic_ids:
+        video.demographic.set(Demographic.objects.filter(pk__in=list(demographic_ids)))
+    if ministry_ids:
+        video.ministry.set(Ministry.objects.filter(pk__in=list(ministry_ids)))
+    if series_id:
+        series = Series.objects.filter(pk=series_id).first()
+        if series is not None:
+            series.videos.add(video)

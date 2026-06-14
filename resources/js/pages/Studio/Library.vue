@@ -9,9 +9,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Input } from '@/ui/input';
 import { Skeleton } from '@/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
-import { ExternalLink, Film, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
+import { ExternalLink, Film, LogOut, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { formatDuration } from '~/lib/duration';
 
@@ -146,6 +146,10 @@ function confirmDelete() {
     confirmingDelete.value = false;
 }
 
+function signOut() {
+    router.post('/studio/logout');
+}
+
 const resultLabel = computed(() => {
     const n = props.total;
     const noun = n === 1 ? 'video' : 'videos';
@@ -166,11 +170,18 @@ const resultLabel = computed(() => {
                 <h1 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Studio — Library</h1>
                 <p class="text-muted-foreground mt-1 text-sm tabular-nums">{{ resultLabel }}</p>
             </div>
-            <!-- Add a video lands in Slice 3 -->
-            <Button disabled title="Coming in the next slice" class="cursor-not-allowed">
-                <Plus class="size-4" aria-hidden="true" />
-                Add a video
-            </Button>
+            <div class="flex items-center gap-2">
+                <Button variant="ghost" size="sm" @click="signOut">
+                    <LogOut class="size-4" aria-hidden="true" />
+                    Sign out
+                </Button>
+                <Button as-child>
+                    <Link href="/studio/add">
+                        <Plus class="size-4" aria-hidden="true" />
+                        Add a video
+                    </Link>
+                </Button>
+            </div>
         </div>
 
         <!-- Filter bar -->

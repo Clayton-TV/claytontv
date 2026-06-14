@@ -7,10 +7,15 @@ from . import views
 
 urlpatterns = [
     path("", views.library, name="studio_library"),
+    path("add", views.add_video, name="studio_add_video"),
     path("login", views.login_view, name="studio_login"),
+    path("logout", views.logout_view, name="studio_logout"),
     # Beta-only secret magic link (key-gated; 404 without the secret). See settings.
     path("dev-login", views.dev_login, name="studio_dev_login"),
+    # JSON metadata preview for the Add form (not Inertia).
+    path("api/fetch-metadata", views.fetch_metadata_api, name="studio_fetch_metadata"),
     # Library mutations (all @studio_required + POST + CSRF).
+    path("videos/create", views.create_video, name="studio_create_video"),
     path("videos/bulk-status", views.bulk_status, name="studio_bulk_status"),
     path("videos/delete", views.delete_videos, name="studio_delete_videos"),
     path("videos/<str:id>/status", views.set_status, name="studio_set_status"),

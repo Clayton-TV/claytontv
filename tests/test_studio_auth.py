@@ -68,8 +68,9 @@ def test_can_edit_content_admits_staff_and_editors_only():
 def test_login_get_renders_page_and_sets_csrf_cookie(client):
     response = client.get("/studio/login")
     assert response.status_code == 200
-    # ensure_csrf_cookie must set the cookie so Inertia's axios can echo it.
-    assert "csrftoken" in response.cookies
+    # ensure_csrf_cookie must set the (Inertia-aligned) XSRF cookie so the client
+    # can echo it as X-XSRF-TOKEN on the POST.
+    assert "XSRF-TOKEN" in response.cookies
 
 
 def test_login_bad_credentials_rerenders_with_error_and_no_session(client):
@@ -90,6 +91,22 @@ def test_login_good_credentials_authenticates_and_redirects_to_studio(client):
     response = client.post(
         "/studio/login",
         {"username": "ed4", "password": "pw-correct-horse-1"},
+    )
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/studio"
+    assert "_auth_user_id" in client.session
+
+
+def test_login_accepts_json_body(client):
+    """Inertia's useForm posts a JSON body; the login view must read it
+    (request.POST is empty for real browser submissions)."""
+    import json
+
+    make_editor(username="edjson")
+    response = client.post(
+        "/studio/login",
+        data=json.dumps({"username": "edjson", "password": "pw-correct-horse-1"}),
+        content_type="application/json",
     )
     assert response.status_code == 302
     assert response.headers["Location"] == "/studio"
@@ -122,6 +139,25 @@ def test_login_when_already_authenticated_redirects(client):
     response = client.get("/studio/login")
     assert response.status_code == 302
     assert response.headers["Location"] == "/studio"
+
+
+# --- logout ---------------------------------------------------------------
+
+
+def test_logout_ends_session_and_returns_to_login(client):
+    make_editor(username="ed8")
+    client.login(username="ed8", password="pw-correct-horse-1")
+    assert "_auth_user_id" in client.session
+
+    response = client.post("/studio/logout")
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/studio/login"
+    assert "_auth_user_id" not in client.session
+
+
+def test_logout_is_post_only(client):
+    # A GET must not log anyone out (CSRF-safe; a stray link can't sign you out).
+    assert client.get("/studio/logout").status_code == 405
 
 
 # --- create_editor command ------------------------------------------------
