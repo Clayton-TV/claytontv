@@ -47,6 +47,21 @@ checkout; see the workflow file — it is the single source of truth.
 - 4 GB swapfile, swappiness 10.
 - unattended-upgrades handles security patches; full apt upgrades are manual
   (quiet-hour, other sites share the box).
+- **nginx default-deny (added 2026-06-14):** `sites-enabled/00-default-deny` is
+  the `default_server` on 80 + 443 (snakeoil cert) and `return 444`s any request
+  whose Host/SNI matches no real vhost. Vulnerability scanners hammer the box on
+  its raw Contabo hostname (`vmi2435506.contaboserver.net`) / bare IP probing for
+  leaked secrets (`/build/.env`, `/mail/sendgrid.env`, wp-/phpMyAdmin paths); these
+  used to fall through to beta's vhost → Django → a flood of `DisallowedHost`
+  Sentry errors (issue #240, 600+ events). They're now dropped at the edge before
+  any app sees them — real vhosts match by `server_name` and are untouched. Verify:
+  `curl -s -o /dev/null -w "%{http_code}" --resolve vmi2435506.contaboserver.net:443:161.97.139.3 https://vmi2435506.contaboserver.net/` → `000` (closed); the
+  real domains still return 200.
+  - **Follow-up hardening (not yet done — see the GH "server hardening v2" issue):**
+    a fail2ban jail to ban *direct* scanner IPs hitting malicious paths in
+    `access.log` (must keep **Cloudflare ranges in `ignoreip`** — some scan traffic
+    arrives via CF IPs, so naive banning would block real CF-fronted users);
+    evaluate putting beta/prod behind Cloudflare; consider CrowdSec.
 
 ## Legacy admin incremental sync (Epic 2.3)
 
