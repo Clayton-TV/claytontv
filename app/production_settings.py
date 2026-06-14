@@ -60,13 +60,16 @@ if not os.getenv("REDIS_URL"):
 
     logging.warning("REDIS_URL environment variable not set. Using local Redis instance which may not be available.")
 
+# Django's BUILT-IN Redis backend — it forwards unknown OPTIONS to the redis
+# client constructor, so the django-redis-only "CLIENT_CLASS" key raised
+# `TypeError: AbstractConnection.__init__() got an unexpected keyword argument
+# 'CLIENT_CLASS'` every time the pool opened a new connection (and a downstream
+# `IndexError: pop from empty list`). django-redis isn't installed; the built-in
+# backend needs no CLIENT_CLASS. Don't re-add it unless switching to django-redis.
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": os.getenv("REDIS_URL", "redis://localhost:6379/1"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
     }
 }
 
