@@ -34,6 +34,25 @@ class VideoQuerySet(models.QuerySet):
         """Public videos only. The canonical source for every public surface."""
         return self.filter(status=PUBLISHED)
 
+    def alive(self):
+        """Not soft-deleted."""
+        return self.filter(deleted_at__isnull=True)
+
+    def dead(self):
+        """Soft-deleted (trashed) only."""
+        return self.exclude(deleted_at__isnull=True)
+
+
+class AliveVideoManager(models.Manager.from_queryset(VideoQuerySet)):
+    """Default manager — excludes soft-deleted rows everywhere (Laravel-style
+    global scope): public surfaces, the Studio Library, reverse relations
+    (``series.videos``, ``speaker.video_set`` …) and the search reconcile all
+    skip trashed rows automatically. Reach trashed rows via ``Video.all_objects``
+    (restore / admin). Keeps all the ``VideoQuerySet`` methods (``.published()``…)."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted_at__isnull=True)
+
 
 # Now the actual class definition for the model (database table):
 class Video(models.Model):
@@ -74,6 +93,15 @@ class Video(models.Model):
         default=PUBLISHED,
         db_index=True,
         help_text="Draft videos are hidden from the public site until published.",
+    )
+
+    # Soft delete (Laravel-style). A timestamp instead of a hard DELETE so the
+    # Studio's Reject / delete is recoverable; the default manager hides these.
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="When set, the video is soft-deleted: hidden everywhere but retained for restore.",
     )
 
     thumbnail = models.TextField(max_length=200, help_text="Thumbnail Location", null=True)
@@ -117,7 +145,9 @@ class Video(models.Model):
         help_text="The series the video is part of.",
     )
 
-    objects = VideoQuerySet.as_manager()
+    # Default manager hides soft-deleted rows; all_objects sees everything.
+    objects = AliveVideoManager()
+    all_objects = VideoQuerySet.as_manager()
 
     class Meta:
         ordering: ClassVar[list[str]] = ["date_created"]
