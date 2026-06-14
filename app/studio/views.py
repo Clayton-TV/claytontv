@@ -4,11 +4,17 @@ House style: thin views. Auth lives in ``app.auth``/``app.studio.auth``; these
 just wire request → response.
 """
 
-from django.contrib.auth import authenticate, login
+import secrets
+
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model, login
+from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render, share
+
+from app.auth import can_edit_content
 
 from .auth import studio_required
 
@@ -58,6 +64,28 @@ def login_view(request):
 
 def _render_login(request):
     return render(request, "Studio/Login", {"next": _safe_next(request)})
+
+
+def dev_login(request):
+    """``/studio/dev-login?key=<secret>`` — BETA-ONLY secret magic link, NO
+    credentials. Signs in the single configured editor (``STUDIO_DEV_LOGIN_USER``).
+
+    Gated by a secret: 404 unless ``STUDIO_DEV_LOGIN_KEY`` is set AND the ``key``
+    query param matches it (constant-time) — so the endpoint is invisible without
+    the secret, even on beta. Only signs in an account that is actually an editor.
+    The key is set in beta's .env ONLY; NEVER set it on production. Remove at cutover.
+    """
+    key = getattr(settings, "STUDIO_DEV_LOGIN_KEY", "")
+    if not key or not secrets.compare_digest(request.GET.get("key", ""), key):
+        raise Http404
+    username = getattr(settings, "STUDIO_DEV_LOGIN_USER", "")
+    user = get_user_model().objects.filter(username=username).first()
+    if user is None or not can_edit_content(user):
+        raise Http404
+    # No password involved — set the session directly (the account may not even
+    # have a usable password yet). Specify the backend since we skip authenticate().
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    return redirect(DEFAULT_REDIRECT)
 
 
 @studio_required
