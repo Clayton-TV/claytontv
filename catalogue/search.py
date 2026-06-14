@@ -44,6 +44,10 @@ KIND_CHANNEL = "channel"
 KIND_MINISTRY = "ministry"
 KIND_AUDIENCE = "audience"
 
+# Mirrors catalogue.models.video.PUBLISHED (kept as a local literal to avoid an
+# import cycle); used to filter public video search to published docs.
+PUBLISHED = "published"
+
 # `name` carries more signal than the long description/bio/summary `text`.
 QUERY_BY = "name,text"
 QUERY_BY_WEIGHTS = "4,1"
@@ -60,6 +64,9 @@ CONTENT_SCHEMA = {
         {"name": "date_epoch", "type": "int64", "optional": True},
         {"name": "date_display", "type": "string", "index": False, "optional": True},
         {"name": "is_livestream", "type": "bool", "facet": True, "optional": True},
+        # Videos carry their publication state; categories are always "published".
+        # Public search filters status:=published; the Studio search omits it.
+        {"name": "status", "type": "string", "facet": True, "optional": True},
     ],
     # Global tiebreaker: more-watched categories rank first when relevance ties.
     "default_sorting_field": "videos_count",
@@ -124,6 +131,7 @@ def build_video_doc(video):
         "date_epoch": _epoch(recorded),
         "date_display": recorded.isoformat() if recorded else None,
         "is_livestream": bool(video.is_livestream),
+        "status": video.status,
     }
 
 
@@ -167,17 +175,17 @@ def _category_specs():
 
 
 def iter_content_docs():
-    """Yield a Typesense doc for every searchable object. Counts mirror the view
-    queries exactly so the proxy returns identical numbers."""
-    from django.db.models import Count
-
-    from catalogue.models.video import Video
+    """Yield a Typesense doc for every searchable object. Videos are indexed
+    regardless of status (each carries its `status`; public search filters to
+    published, the Studio search doesn't); category `videos_count` counts only
+    published videos so draft-only categories don't show publicly."""
+    from catalogue.models.video import Video, published_count
 
     for v in Video.objects.all().iterator():
         yield build_video_doc(v)
 
     for model, (kind, relation, name_fn, text_fn) in _category_specs().items():
-        for obj in model.objects.annotate(n=Count(relation)).iterator():
+        for obj in model.objects.annotate(n=published_count(relation)).iterator():
             yield build_category_doc(
                 kind=kind,
                 pk=obj.pk,
@@ -201,9 +209,7 @@ def kind_for(model):
 def build_doc_for(obj):
     """Build the content doc for a single instance (video or category), or
     ``None`` if its model isn't indexed. Category counts are computed fresh."""
-    from django.db.models import Count
-
-    from catalogue.models.video import Video
+    from catalogue.models.video import Video, published_count
 
     if isinstance(obj, Video):
         return build_video_doc(obj)
@@ -211,7 +217,7 @@ def build_doc_for(obj):
     if spec is None:
         return None
     kind, relation, name_fn, text_fn = spec
-    count = type(obj).objects.filter(pk=obj.pk).aggregate(n=Count(relation))["n"] or 0
+    count = type(obj).objects.filter(pk=obj.pk).aggregate(n=published_count(relation))["n"] or 0
     return build_category_doc(
         kind=kind,
         pk=obj.pk,
@@ -326,16 +332,20 @@ def _hit(doc):
     )
 
 
-def search_videos(query, *, page=1, per_page=24):
-    """Ranked video hits for ``query``. Returns ``(hits, found)``."""
+def search_videos(query, *, page=1, per_page=24, published_only=True):
+    """Ranked video hits for ``query``. Returns ``(hits, found)``. Public callers
+    keep ``published_only`` (drafts hidden); the Studio passes False to see all."""
     client = _require_client()
+    filter_by = f"kind:={KIND_VIDEO}"
+    if published_only:
+        filter_by += f" && status:={PUBLISHED}"
     try:
         res = client.collections[COLLECTION].documents.search(
             {
                 "q": query,
                 "query_by": QUERY_BY,
                 "query_by_weights": QUERY_BY_WEIGHTS,
-                "filter_by": f"kind:={KIND_VIDEO}",
+                "filter_by": filter_by,
                 "page": page,
                 "per_page": per_page,
                 "sort_by": "_text_match:desc,date_epoch:desc",
