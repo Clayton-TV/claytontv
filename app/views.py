@@ -355,7 +355,14 @@ def _search_orm(searchquery, page_num):
 
 def video(request, id):
     try:
-        video_object = Video.objects.get(id=id)
+        # Prefetch the M2M relations the metadata + passage blocks walk, so the
+        # watch page's initial render stays a handful of queries (bible_book in
+        # particular is iterated twice).
+        video_object = (
+            Video.objects.select_related("channel")
+            .prefetch_related("topic", "ministry", "speaker", "bible_book", "demographic")
+            .get(id=id)
+        )
         video_metadata = {}
         # The Video.series FK is never populated; membership lives on Series.videos
         video_series = Series.objects.filter(videos=video_object).first()

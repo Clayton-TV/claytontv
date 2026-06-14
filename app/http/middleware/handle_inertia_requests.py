@@ -5,7 +5,17 @@ from inertia import share
 
 from catalogue.youtube_live import is_live_now
 
-# from .models import User
+
+def _auth_user(user):
+    """Real signed-in user for Inertia, or None when anonymous. No placeholder —
+    the frontend treats a null user as logged-out (real auth lands in Epic 3)."""
+    if not user.is_authenticated:
+        return None
+    return {
+        "id": user.id,
+        "name": user.get_full_name() or user.get_username(),
+        "email": user.email,
+    }
 
 
 class HandleInertiaRequests:
@@ -17,13 +27,7 @@ class HandleInertiaRequests:
         share(
             request,
             name=os.getenv("APP_NAME"),
-            auth={
-                "user": {
-                    "id": request.user.id if request.user.is_authenticated else "123",
-                    "name": request.user.get_full_name() if request.user.is_authenticated else "Test User",
-                    "email": request.user.email if request.user.is_authenticated else "test@user.co",
-                }
-            },
+            auth={"user": _auth_user(request.user)},
             sidebarOpen=request.COOKIES.get("sidebar_state", "false") == "true",
             # Global flag for the "Live" nav indicator (one cheap exists()).
             # Skipped for JSON /api/ endpoints (e.g. the keystroke-hot palette)
