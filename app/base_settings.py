@@ -126,6 +126,17 @@ TYPESENSE = {
     "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
 }
 
+# Ollama (self-hosted LLM) for the AI content-enrichment PoC
+# (catalogue/enrichment.py, tracking issue #201). The host is reachable over
+# tailscale; defaults point at the verified host/model. PoC only — not wired
+# into runtime signals or views. Mirrors the TYPESENSE block: host + model are
+# env-configurable, never hardcoded in logic.
+OLLAMA = {
+    "host": os.getenv("OLLAMA_HOST", "http://100.81.40.52:11434"),
+    "model": os.getenv("OLLAMA_MODEL", "gemma4:31b-it-qat"),
+    "timeout_seconds": int(os.getenv("OLLAMA_TIMEOUT", "120")),
+}
+
 # Logging
 LOGGING = {
     "version": 1,
