@@ -280,7 +280,7 @@ def search(request):
 def _search_typesense(searchquery, page_num):
     hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
     # Hydrate the ranked ids in one query, preserving Typesense's relevance order.
-    by_id = {str(v.id): v for v in Video.objects.filter(id__in=[h.pk for h in hits])}
+    by_id = {str(v.id): v for v in Video.objects.published().filter(id__in=[h.pk for h in hits])}
     ordered = [by_id[h.pk] for h in hits if h.pk in by_id]
 
     total_pages = max(1, math.ceil(found / pagination_per_page))
