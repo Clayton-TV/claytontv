@@ -6,12 +6,27 @@ from .models import (
     Channel,
     Demographic,
     Label,
+    LiveStream,
     Ministry,
+    RelatedResource,
     Series,
     Speaker,
     Topic,
     Video,
 )
+
+# Brand the admin — this is the editorial/super-admin home as the legacy site
+# retires and content management moves into this project.
+admin.site.site_header = "Clayton TV admin"
+admin.site.site_title = "Clayton TV admin"
+admin.site.index_title = "Content & curation"
+
+
+class RelatedResourceInline(admin.TabularInline):
+    """Curate a video's linked resources (notes, slides, audio…) inline."""
+
+    model = RelatedResource
+    extra = 0
 
 
 # Video Admin Configuration
@@ -24,6 +39,8 @@ class VideoAdmin(admin.ModelAdmin):
     search_fields = ("name", "id_number", "description")
     ordering = ("-date_created",)
     date_hierarchy = "date_created"
+
+    inlines = (RelatedResourceInline,)
 
     # Many-to-many fields displayed with filter_horizontal for better UX
     filter_horizontal = ("bible_book", "demographic", "ministry", "speaker", "topic")
@@ -256,3 +273,26 @@ class LabelAdmin(admin.ModelAdmin):
     ordering = ("label_series",)
 
     fieldsets = (("Label Information", {"fields": ("label_series", "label_subseries", "label_episode")}),)
+
+
+# LiveStream Admin Configuration
+@admin.register(LiveStream)
+class LiveStreamAdmin(admin.ModelAdmin):
+    """Broadcast state for YouTube live/upcoming streams (kept fresh by
+    sync_live_streams). Read-mostly — edit only to correct sync glitches."""
+
+    list_display = ("title", "status", "channel_title", "scheduled_start", "actual_start", "actual_end", "updated_at")
+    list_filter = ("status", "channel_title")
+    search_fields = ("title", "video_id", "channel_title")
+    ordering = ("-scheduled_start",)
+    readonly_fields = ("updated_at",)
+
+
+# RelatedResource Admin Configuration
+@admin.register(RelatedResource)
+class RelatedResourceAdmin(admin.ModelAdmin):
+    """Extra materials attached to a video (also editable inline on the video)."""
+
+    list_display = ("video", "kind", "url")
+    list_filter = ("kind",)
+    search_fields = ("video__name", "url")
