@@ -1,21 +1,26 @@
-"""Studio views: the custom Inertia login and the (placeholder) gated index.
+"""Studio views: the custom Inertia login and the gated Library (Slice 2).
 
-House style: thin views. Auth lives in ``app.auth``/``app.studio.auth``; these
-just wire request → response.
+House style: thin views. Auth lives in ``app.auth``/``app.studio.auth``; the
+Library's data assembly and mutations live in ``app.studio.services``; these
+just wire request → service → response.
 """
 
 import secrets
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login
 from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 from inertia import render, share
 
 from app.auth import can_edit_content
+from catalogue.models.video import DRAFT, PUBLISHED
 
+from . import services
 from .auth import studio_required
 
 # Only ever redirect to local paths after login — never an attacker-supplied
@@ -88,7 +93,95 @@ def dev_login(request):
     return redirect(DEFAULT_REDIRECT)
 
 
+# --------------------------------------------------------------------------- #
+# Library (the editor content list)
+# --------------------------------------------------------------------------- #
+
+
+def _library_filters(request):
+    """The current ``(q, status, page)`` filters from a GET request."""
+    q = request.GET.get("q", "").strip()
+    status = request.GET.get("status", services.STATUS_ALL)
+    if status not in services.STATUS_CHOICES:
+        status = services.STATUS_ALL
+    try:
+        page = int(request.GET.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    return q, status, page
+
+
 @studio_required
-def index(request):
-    """``/studio`` — the gated Studio shell. Slices 2-3 fill it in."""
-    return render(request, "Studio/Index", {})
+def library(request):
+    """``/studio`` — the Library: every video (all statuses), filterable,
+    searchable, paginated. The Studio's home base."""
+    q, status, page = _library_filters(request)
+    result = services.list_videos(search=q, status=status, page=page)
+    return render(
+        request,
+        "Studio/Library",
+        {
+            "q": q,
+            "status": status,
+            **result,
+        },
+    )
+
+
+def _back_to_library(request):
+    """Redirect back to the Library, preserving the editor's current filters so a
+    mutation doesn't bounce them out of their search/status/page context. Inertia
+    treats the redirect as a navigation and re-fetches the (now-updated) list."""
+    nxt = request.POST.get("next") or "/studio"
+    if url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}):
+        return redirect(nxt)
+    return redirect("/studio")
+
+
+def _posted_status(request):
+    """The ``status`` from a mutation body, or None if not a valid choice."""
+    status = request.POST.get("status")
+    return status if status in (DRAFT, PUBLISHED) else None
+
+
+@studio_required
+@require_POST
+def set_status(request, id):
+    """Publish/unpublish a single video. Saving re-fires the search signal."""
+    status = _posted_status(request)
+    if status is None:
+        messages.error(request, "Unknown status.")
+        return _back_to_library(request)
+    if services.set_video_status(id, status):
+        messages.success(request, "Published." if status == PUBLISHED else "Moved to drafts.")
+    else:
+        messages.error(request, "That video could not be found.")
+    return _back_to_library(request)
+
+
+@studio_required
+@require_POST
+def bulk_status(request):
+    """Publish/unpublish many videos at once."""
+    status = _posted_status(request)
+    ids = request.POST.getlist("ids[]") or request.POST.getlist("ids")
+    if status is None or not ids:
+        messages.error(request, "Nothing to update.")
+        return _back_to_library(request)
+    count = services.set_videos_status(ids, status)
+    verb = "Published" if status == PUBLISHED else "Moved to drafts"
+    messages.success(request, f"{verb} {count} {'video' if count == 1 else 'videos'}.")
+    return _back_to_library(request)
+
+
+@studio_required
+@require_POST
+def delete_videos(request):
+    """Delete one or more videos. The post_delete signal drops them from search."""
+    ids = request.POST.getlist("ids[]") or request.POST.getlist("ids")
+    if not ids:
+        messages.error(request, "Nothing to delete.")
+        return _back_to_library(request)
+    count = services.delete_videos(ids)
+    messages.success(request, f"Deleted {count} {'video' if count == 1 else 'videos'}.")
+    return _back_to_library(request)
