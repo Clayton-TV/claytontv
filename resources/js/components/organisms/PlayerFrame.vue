@@ -3,8 +3,8 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { usePlayer } from '~/composables/usePlayer';
 import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
-import { getEmbedUrl } from '~/lib/embeds';
 import { EVENTS, track } from '~/lib/analytics';
+import { getEmbedUrl } from '~/lib/embeds';
 
 /**
  * The actual iframe + provider API wiring for the persistent player. One
