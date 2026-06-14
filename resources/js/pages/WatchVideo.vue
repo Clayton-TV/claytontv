@@ -28,9 +28,14 @@ const { resumePoint } = useWatchHistory();
 const placeholderEl = ref(null);
 const resumedFrom = ref(0);
 
-// Pull display names out of a video_metadata group (items are {name, url}) so
-// the player can tag video_* analytics with speaker/series/topic/bible_book.
-const metaNames = (key) => (props.video_metadata?.[key] ?? []).map((entry) => entry?.name ?? entry).filter(Boolean);
+// Pull display names out of a video_metadata group so the player can tag video_*
+// analytics with speaker/series/topic/bible_book. A group can be an array OR a
+// single object (mirrors entries() below), so coerce before mapping.
+const metaNames = (key) => {
+    const value = props.video_metadata?.[key];
+    if (!value) return [];
+    return (Array.isArray(value) ? value : [value]).map((entry) => entry?.name ?? entry).filter(Boolean);
+};
 
 vueWatch(
     () => props.video.id,
