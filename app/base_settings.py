@@ -127,6 +127,14 @@ TYPESENSE = {
     "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
 }
 
+# Studio dev login — BETA ONLY, NEVER set on production. A secret magic link:
+# GET /studio/dev-login?key=<STUDIO_DEV_LOGIN_KEY> one-click-signs-in the single
+# configured editor (STUDIO_DEV_LOGIN_USER) with NO credentials. The endpoint
+# 404s unless the key is set AND matches (so it's invisible without the secret).
+# Empty key (the default everywhere) = feature off. Remove at the prod cutover.
+STUDIO_DEV_LOGIN_KEY = os.getenv("STUDIO_DEV_LOGIN_KEY", "")
+STUDIO_DEV_LOGIN_USER = os.getenv("STUDIO_DEV_LOGIN_USER", "")
+
 # Logging
 LOGGING = {
     "version": 1,
