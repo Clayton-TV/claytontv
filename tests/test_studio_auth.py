@@ -151,6 +151,6 @@ def test_create_editor_is_idempotent():
 
 
 def test_create_editor_sets_password_when_given():
-    call_command("create_editor", "withpw", "withpw@example.com", "--password", "s3cret-pw-xyz")
+    call_command("create_editor", "withpw", "withpw@example.com", "--password", "test-editor-pw")  # gitleaks:allow
     user = User.objects.get(username="withpw")
-    assert user.check_password("s3cret-pw-xyz")
+    assert user.check_password("test-editor-pw")  # gitleaks:allow

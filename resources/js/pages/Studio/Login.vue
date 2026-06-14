@@ -96,10 +96,7 @@ const submit = () => {
             </div>
 
             <p class="text-muted-foreground mt-6 text-center text-sm">
-                <Link
-                    href="/"
-                    class="focus-visible:ring-ring hover:text-foreground rounded transition-colors outline-none focus-visible:ring-2"
-                >
+                <Link href="/" class="focus-visible:ring-ring hover:text-foreground rounded transition-colors outline-none focus-visible:ring-2">
                     Back to Clayton TV
                 </Link>
             </p>

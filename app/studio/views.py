@@ -6,19 +6,22 @@ just wire request → response.
 
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render, share
 
 from .auth import studio_required
 
 # Only ever redirect to local paths after login — never an attacker-supplied
-# absolute URL. Studio is single-host so a leading-slash check is enough.
+# absolute/off-site URL.
 DEFAULT_REDIRECT = "/studio"
 
 
 def _safe_next(request):
     nxt = request.POST.get("next") or request.GET.get("next") or ""
-    return nxt if nxt.startswith("/") and not nxt.startswith("//") else DEFAULT_REDIRECT
+    if nxt and url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}):
+        return nxt
+    return DEFAULT_REDIRECT
 
 
 @ensure_csrf_cookie

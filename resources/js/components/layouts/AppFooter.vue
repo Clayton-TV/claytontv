@@ -3,10 +3,10 @@ import BrandVimeo from '@/atoms/BrandVimeo.vue';
 import LogoMark from '@/atoms/LogoMark.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
-import type { SharedData } from '~/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Github, Youtube } from 'lucide-vue-next';
 import { computed } from 'vue';
+import type { SharedData } from '~/types';
 
 const year = new Date().getFullYear();
 
