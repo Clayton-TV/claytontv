@@ -130,9 +130,26 @@ const BROWSE_TYPES: Record<string, string> = {
 // named future kids demographic would under-report rather than misfire.
 const KIDS_PATTERN = /kid|child|infant|toddler|tot|baby|family|young|youth|teen|junior/i;
 
+// Canonicalise a path for comparison and segmenting: drop query/hash + trailing
+// slash, then decode each segment. Decoding matters for the entry-dedup check —
+// window.location.pathname and Inertia's page.url encode reserved characters
+// differently (e.g. a speaker slug "Steele, Dominic" is "Steele,%20Dominic" vs
+// "Steele%2C%20Dominic"), so without decoding the entry path would never match
+// its own initial-visit navigate and browse_viewed/$pageview would double-fire.
+// Split before decode so an encoded slash inside a segment can't create one.
 function normalizePath(url: string): string {
-    const path = url.split('?')[0].split('#')[0];
-    return path.length > 1 ? path.replace(/\/+$/, '') : path;
+    const raw = url.split('?')[0].split('#')[0];
+    const trimmed = raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
+    return trimmed
+        .split('/')
+        .map((segment) => {
+            try {
+                return decodeURIComponent(segment);
+            } catch {
+                return segment;
+            }
+        })
+        .join('/');
 }
 
 /**
@@ -143,10 +160,8 @@ function normalizePath(url: string): string {
  * topic / audience / ministry / channel detail pages.
  */
 function trackBrowseFromUrl(url: string) {
-    const segments = normalizePath(url)
-        .split('/')
-        .filter(Boolean)
-        .map((segment) => decodeURIComponent(segment));
+    // normalizePath already decodes each segment, so don't decode again here.
+    const segments = normalizePath(url).split('/').filter(Boolean);
 
     const browseType = segments.length ? BROWSE_TYPES[segments[0]] : undefined;
     if (!browseType) return;
