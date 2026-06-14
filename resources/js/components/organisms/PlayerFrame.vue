@@ -4,6 +4,7 @@ import { usePlayer } from '~/composables/usePlayer';
 import { usePlayerDock } from '~/composables/usePlayerDock';
 import { useWatchHistory } from '~/composables/useWatchHistory';
 import { getEmbedUrl } from '~/lib/embeds';
+import { EVENTS, track } from '~/lib/analytics';
 
 /**
  * The actual iframe + provider API wiring for the persistent player. One
@@ -25,13 +26,44 @@ const { saveProgress } = useWatchHistory();
 const iframe = ref(null);
 const embedUrl = getEmbedUrl(props.video.url, { start: props.start, autoplay: props.autoplay });
 
+// ----- analytics (video_play / video_progress 25·50·75 / video_complete) -----
+// Fired once each per loaded video; metadata rides as properties. Live streams
+// and zero-duration (pre-metadata) skip the % milestones — duration is the
+// elapsed time for a live stream, so milestone maths would be meaningless.
+const PROGRESS_MILESTONES = [25, 50, 75];
+const firedMilestones = new Set();
+let firedPlay = false;
+
+const videoProps = () => ({
+    video_id: props.video.id,
+    video_name: props.video.name,
+    provider: player.provider,
+    is_live: !!props.video.is_live,
+    speaker: props.video.meta?.speaker,
+    series: props.video.meta?.series,
+    topic: props.video.meta?.topic,
+    bible_book: props.video.meta?.bible_book,
+});
+
 const player = usePlayer(iframe, props.video.url, {
     onProgress: (seconds, duration) => {
         dock.position.value = seconds;
         dock.duration.value = duration;
         saveProgress(props.video.id, seconds, duration, props.video.name);
+
+        if (props.video.is_live || !duration) return;
+        const percent = (seconds / duration) * 100;
+        for (const milestone of PROGRESS_MILESTONES) {
+            if (percent >= milestone && !firedMilestones.has(milestone)) {
+                firedMilestones.add(milestone);
+                track(EVENTS.videoProgress, { ...videoProps(), percent: milestone });
+            }
+        }
     },
-    onEnded: () => emit('ended'),
+    onEnded: () => {
+        track(EVENTS.videoComplete, videoProps());
+        emit('ended');
+    },
 });
 
 onMounted(() => {
@@ -47,8 +79,14 @@ onMounted(() => {
 });
 
 // Mirror playing state into the dock (drives persist-on-navigate and the
-// mini control bar)
-watch(player.playing, (value) => (dock.playing.value = value));
+// mini control bar); fire video_play once, the first time this video starts.
+watch(player.playing, (value) => {
+    dock.playing.value = value;
+    if (value && !firedPlay) {
+        firedPlay = true;
+        track(EVENTS.videoPlay, videoProps());
+    }
+});
 onBeforeUnmount(() => {
     dock.playing.value = false;
 });

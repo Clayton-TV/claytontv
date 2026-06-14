@@ -1,8 +1,10 @@
 <script setup>
 import VideoCardGrid from '@/organisms/VideoCardGrid.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
+import { EVENTS, track } from '~/lib/analytics';
 
-defineProps({
+const props = defineProps({
     categories: {
         type: Array,
         default: () => [],
@@ -22,6 +24,23 @@ defineProps({
     has_next_page: {
         type: Boolean,
     },
+});
+
+// The query lives in the ?search= param (set by CommandPalette). Search is
+// server-routed, so capture search_performed on page load — results_count is the
+// current page's video count; zero-results (no videos AND no categories) is the
+// key content-gap signal for P3. Fires once per search view (Inertia mount).
+const query = new URLSearchParams(window.location.search).get('search') ?? '';
+
+onMounted(() => {
+    const videoCount = props.videos?.length ?? 0;
+    const categoryCount = props.categories?.length ?? 0;
+    track(EVENTS.searchPerformed, {
+        query,
+        results_count: videoCount,
+        category_count: categoryCount,
+        is_zero_results: videoCount === 0 && categoryCount === 0,
+    });
 });
 </script>
 
@@ -57,6 +76,8 @@ defineProps({
                 :videos
                 :has_prev_page
                 :has_next_page
+                track-context="search"
+                :track-query="query"
                 empty-title="No matching videos"
                 empty-message="We couldn't find any videos for that search. Try a different word, a speaker's name, or a Bible book."
             />

@@ -28,11 +28,26 @@ const { resumePoint } = useWatchHistory();
 const placeholderEl = ref(null);
 const resumedFrom = ref(0);
 
+// Pull display names out of a video_metadata group (items are {name, url}) so
+// the player can tag video_* analytics with speaker/series/topic/bible_book.
+const metaNames = (key) => (props.video_metadata?.[key] ?? []).map((entry) => entry?.name ?? entry).filter(Boolean);
+
 vueWatch(
     () => props.video.id,
     (id) => {
         const loaded = dock.load(
-            { id, name: props.video.name, url: props.video.url },
+            {
+                id,
+                name: props.video.name,
+                url: props.video.url,
+                is_live: !!props.video.is_live,
+                meta: {
+                    speaker: metaNames('speaker'),
+                    series: metaNames('series'),
+                    topic: metaNames('topic'),
+                    bible_book: metaNames('bible_book'),
+                },
+            },
             // Resume where the viewer left off, baked into the embed URL
             { autoplay: false, startAt: resumePoint(id) },
         );
