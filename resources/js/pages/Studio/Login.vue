@@ -19,7 +19,7 @@ const props = defineProps<{
 // inertia-django 1.2 has no built-in error bag; the view shares
 // `errors: { detail }` on a bad login and useForm surfaces it on `form.errors`
 // (read below as `error`). The CSRF cookie is set server-side via
-// @ensure_csrf_cookie so axios echoes X-CSRFToken on this POST.
+// @ensure_csrf_cookie so the client echoes X-XSRF-TOKEN on this POST.
 const form = useForm({
     username: '',
     password: '',
