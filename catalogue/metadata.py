@@ -15,6 +15,8 @@ Network failures / unknown URLs raise ``MetadataError`` with a human-readable
 message; the view turns that into a friendly inline error.
 """
 
+import re
+
 import requests
 
 from catalogue import durations, youtube_live
@@ -60,9 +62,13 @@ def _fetch_youtube(url, session):
     items = data.get("items") or []
     if not items:
         raise MetadataError("No YouTube video found at that link (it may be private or deleted).")
+    return _youtube_doc(yid, items[0])
 
-    snippet = items[0].get("snippet", {})
-    details = items[0].get("contentDetails", {})
+
+def _youtube_doc(yid, item):
+    """Normalise one ``videos.list`` item into our metadata dict."""
+    snippet = item.get("snippet", {})
+    details = item.get("contentDetails", {})
     published = snippet.get("publishedAt") or ""
     return {
         "platform": "youtube",
@@ -106,3 +112,94 @@ def _fetch_vimeo(url, session):
         "duration_seconds": int(duration) if duration else None,
         "date_recorded": upload_date[:10] or None,
     }
+
+
+# --------------------------------------------------------------------------- #
+# Bulk intake (Slice 5): many URLs at once + YouTube playlist expansion
+# --------------------------------------------------------------------------- #
+
+YT_BATCH = 50
+_PLAYLIST_ID = re.compile(r"[?&]list=([^&]+)")
+
+
+def fetch_metadata_many(urls, session=None):
+    """Metadata for many URLs at once. YouTube ids are **batched**
+    (``videos.list``, 50/call — keeps a paste-many or playlist import to a
+    handful of API calls); Vimeo is per-URL oEmbed. One bad URL never sinks the
+    batch: returns ``{url: {"ok": True, "metadata": {...}}}`` or
+    ``{url: {"ok": False, "error": "..."}}`` per input URL."""
+    session = session or requests.Session()
+    results = {}
+    youtube = {}  # yid -> [original urls]
+
+    for raw in urls:
+        url = (raw or "").strip()
+        if not url:
+            continue
+        yid = durations.youtube_id(url)
+        if yid:
+            youtube.setdefault(yid, []).append(url)
+        elif "vimeo.com" in url:
+            try:
+                results[url] = {"ok": True, "metadata": _fetch_vimeo(url, session)}
+            except MetadataError as exc:
+                results[url] = {"ok": False, "error": str(exc)}
+        else:
+            results[url] = {"ok": False, "error": "Not a YouTube or Vimeo link."}
+
+    ids = list(youtube)
+    for start in range(0, len(ids), YT_BATCH):
+        _resolve_youtube_batch(ids[start : start + YT_BATCH], youtube, session, results)
+    return results
+
+
+def _resolve_youtube_batch(batch, youtube, session, results):
+    """Look up one batch of YouTube ids and record a result for every URL that
+    mapped to them (into ``results``, keyed by original URL)."""
+    try:
+        data = youtube_live.api_get(session, "videos", part="snippet,contentDetails", id=",".join(batch))
+        found = {item["id"]: item for item in data.get("items", [])}
+    except (youtube_live.YoutubeApiError, KeyError):
+        found = None
+    for yid in batch:
+        if found is None:
+            outcome = {"ok": False, "error": "Couldn't reach YouTube just now."}
+        elif yid not in found:
+            outcome = {"ok": False, "error": "Video not found (private or deleted)."}
+        else:
+            outcome = {"ok": True, "metadata": _youtube_doc(yid, found[yid])}
+        for url in youtube[yid]:
+            results[url] = outcome
+
+
+def youtube_playlist_video_urls(playlist_url, session=None, max_items=200):
+    """Expand a YouTube playlist URL to its video watch-URLs (``playlistItems``,
+    paginated 50/page, capped at ``max_items``). Raises ``MetadataError`` for a
+    non-playlist link or an empty/private playlist."""
+    match = _PLAYLIST_ID.search(playlist_url or "")
+    if not match:
+        raise MetadataError("That doesn't look like a YouTube playlist link.")
+    playlist_id = match.group(1)
+    session = session or requests.Session()
+
+    urls = []
+    page_token = None
+    while len(urls) < max_items:
+        params = {"part": "contentDetails", "maxResults": YT_BATCH, "playlistId": playlist_id}
+        if page_token:
+            params["pageToken"] = page_token
+        try:
+            data = youtube_live.api_get(session, "playlistItems", **params)
+        except (youtube_live.YoutubeApiError, KeyError) as exc:
+            raise MetadataError("Couldn't load that playlist (it may be private).") from exc
+        for item in data.get("items", []):
+            vid = item.get("contentDetails", {}).get("videoId")
+            if vid:
+                urls.append(f"https://www.youtube.com/watch?v={vid}")
+        page_token = data.get("nextPageToken")
+        if not page_token:
+            break
+
+    if not urls:
+        raise MetadataError("That playlist has no videos (or is private).")
+    return urls[:max_items]

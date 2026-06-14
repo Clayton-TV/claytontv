@@ -341,6 +341,49 @@ def create_video(request):
 
 
 # --------------------------------------------------------------------------- #
+# Bulk add (Slice 5): paste-many URLs + YouTube playlist import
+# --------------------------------------------------------------------------- #
+
+
+@studio_required
+@ensure_csrf_cookie
+def bulk_add(request):
+    """``/studio/bulk`` — paste many links (or a YouTube playlist) → drafts."""
+    return render(request, "Studio/BulkAdd", {})
+
+
+@studio_required
+@require_POST
+def bulk_create_api(request):
+    """``POST /studio/api/bulk-create`` → create drafts for many URLs at once.
+
+    Body is either ``{urls: [...] | "newline string"}`` or ``{playlist_url}``
+    (expanded server-side). Returns a JSON per-URL report (created / duplicate /
+    error) the page renders inline."""
+    try:
+        body = json.loads(request.body or "{}")
+    except (ValueError, TypeError):
+        body = {}
+
+    playlist = (body.get("playlist_url") or "").strip()
+    if playlist:
+        try:
+            urls = services.expand_playlist(playlist)
+        except MetadataError as exc:
+            return JsonResponse({"ok": False, "error": str(exc)}, status=200)
+    else:
+        urls = body.get("urls") or []
+        if isinstance(urls, str):
+            urls = urls.splitlines()
+
+    urls = [u for u in urls if (u or "").strip()]
+    if not urls:
+        return JsonResponse({"ok": False, "error": "Paste at least one video link."}, status=200)
+
+    return JsonResponse({"ok": True, **services.bulk_create_from_urls(urls)})
+
+
+# --------------------------------------------------------------------------- #
 # Edit a video (Slice 4a)
 # --------------------------------------------------------------------------- #
 
