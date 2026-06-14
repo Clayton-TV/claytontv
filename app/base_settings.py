@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "app",
+    "app.studio.apps.StudioConfig",
     "catalogue.apps.CatalogueConfig",
     "livestreams.apps.LivestreamsConfig",
 ]

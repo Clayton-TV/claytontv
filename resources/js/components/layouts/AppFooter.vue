@@ -3,11 +3,20 @@ import BrandVimeo from '@/atoms/BrandVimeo.vue';
 import LogoMark from '@/atoms/LogoMark.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { Github, Youtube } from 'lucide-vue-next';
+import { computed } from 'vue';
 import { useCookieConsent } from '~/composables/useCookieConsent';
+import type { SharedData } from '~/types';
 
 const year = new Date().getFullYear();
+
+// Discreet editor entry point. Reads as "Studio" once signed in, "Editor sign
+// in" otherwise — both go to /studio (the gate redirects anonymous users on to
+// the login page). Kept visually quiet: muted, in the bottom utility row.
+// auth.user is real-or-null (anonymous), so treat it as nullable here.
+const page = usePage<SharedData>();
+const studioLabel = computed(() => (page.props.auth.user ? 'Studio' : 'Editor sign in'));
 
 // Let visitors revisit their cookie choice at any time (a PECR expectation).
 // Only shown in builds that actually ship analytics.
@@ -68,13 +77,19 @@ const columns = [
         </div>
         <div class="border-border border-t">
             <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 lg:px-8">
-                <div class="flex items-center gap-3">
-                    <p class="text-muted-foreground text-xs">© {{ year }} Clayton TV</p>
+                <div class="text-muted-foreground flex items-center gap-3 text-xs">
+                    <p>© {{ year }} Clayton TV</p>
+                    <Link
+                        href="/studio"
+                        class="focus-visible:ring-ring hover:text-foreground rounded transition-colors duration-150 outline-none focus-visible:ring-2"
+                    >
+                        {{ studioLabel }}
+                    </Link>
                     <button
                         v-if="cookieConsentEnabled"
                         type="button"
                         @click="reopenCookieSettings"
-                        class="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-xs underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+                        class="focus-visible:ring-ring hover:text-foreground rounded underline-offset-4 outline-none hover:underline focus-visible:ring-2"
                     >
                         Cookie settings
                     </button>
