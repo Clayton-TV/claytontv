@@ -5,8 +5,13 @@ import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
 import { Link } from '@inertiajs/vue3';
 import { Github, Youtube } from 'lucide-vue-next';
+import { useCookieConsent } from '~/composables/useCookieConsent';
 
 const year = new Date().getFullYear();
+
+// Let visitors revisit their cookie choice at any time (a PECR expectation).
+// Only shown in builds that actually ship analytics.
+const { reopen: reopenCookieSettings, enabled: cookieConsentEnabled } = useCookieConsent();
 
 const socials = [
     { name: 'YouTube', href: 'https://www.youtube.com/channel/UCvME6kEF02MqliB5TNHFLZA', icon: Youtube },
@@ -63,7 +68,17 @@ const columns = [
         </div>
         <div class="border-border border-t">
             <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 lg:px-8">
-                <p class="text-muted-foreground text-xs">© {{ year }} Clayton TV</p>
+                <div class="flex items-center gap-3">
+                    <p class="text-muted-foreground text-xs">© {{ year }} Clayton TV</p>
+                    <button
+                        v-if="cookieConsentEnabled"
+                        type="button"
+                        @click="reopenCookieSettings"
+                        class="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-xs underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+                    >
+                        Cookie settings
+                    </button>
+                </div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <div class="flex items-center gap-2">
                         <span class="text-muted-foreground text-xs">Theme</span>
