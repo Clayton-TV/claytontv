@@ -4,22 +4,8 @@ import PaginationNav from '@/molecules/PaginationNav.vue';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
 import { Checkbox } from '@/ui/checkbox';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/ui/dialog';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/ui/dropdown-menu';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { Input } from '@/ui/input';
 import { Skeleton } from '@/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table';
@@ -192,13 +178,7 @@ const resultLabel = computed(() => {
             <div class="relative w-full sm:max-w-xs">
                 <Search class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" aria-hidden="true" />
                 <label class="sr-only" for="library-search">Search videos</label>
-                <Input
-                    id="library-search"
-                    v-model="search"
-                    type="search"
-                    placeholder="Search videos…"
-                    class="pl-9 text-base"
-                />
+                <Input id="library-search" v-model="search" type="search" placeholder="Search videos…" class="pl-9 text-base" />
             </div>
 
             <div class="inline-flex rounded-lg border p-0.5" role="group" aria-label="Filter by status">
@@ -219,10 +199,7 @@ const resultLabel = computed(() => {
         </div>
 
         <!-- Bulk action bar -->
-        <div
-            v-if="selectedIds.length"
-            class="border-border bg-card mt-4 flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3 shadow-sm"
-        >
+        <div v-if="selectedIds.length" class="border-border bg-card mt-4 flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3 shadow-sm">
             <span class="text-foreground text-sm font-medium tabular-nums">{{ selectedIds.length }} selected</span>
             <div class="ml-auto flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" @click="bulkStatus('published')">Publish</Button>
@@ -237,11 +214,7 @@ const resultLabel = computed(() => {
                 <TableHeader>
                     <TableRow class="bg-muted/40">
                         <TableHead class="w-10">
-                            <Checkbox
-                                :model-value="headerState"
-                                @update:model-value="toggleAll"
-                                aria-label="Select all videos on this page"
-                            />
+                            <Checkbox :model-value="headerState" @update:model-value="toggleAll" aria-label="Select all videos on this page" />
                         </TableHead>
                         <TableHead class="w-20">Thumbnail</TableHead>
                         <TableHead>Title</TableHead>
@@ -279,13 +252,7 @@ const resultLabel = computed(() => {
                         </TableCell>
                         <TableCell>
                             <div class="bg-muted aspect-video w-16 overflow-hidden rounded">
-                                <img
-                                    v-if="video.thumbnail"
-                                    :src="video.thumbnail"
-                                    alt=""
-                                    loading="lazy"
-                                    class="h-full w-full object-cover"
-                                />
+                                <img v-if="video.thumbnail" :src="video.thumbnail" alt="" loading="lazy" class="h-full w-full object-cover" />
                             </div>
                         </TableCell>
                         <TableCell class="max-w-xs">
