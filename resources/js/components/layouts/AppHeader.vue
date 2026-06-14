@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import LogoMark from '@/atoms/LogoMark.vue';
+import AccountMenu from '@/molecules/AccountMenu.vue';
 import ShortcutsHelp from '@/molecules/ShortcutsHelp.vue';
 import TextSizeControl from '@/molecules/TextSizeControl.vue';
 import ThemeToggle from '@/molecules/ThemeToggle.vue';
 import CommandPalette from '@/organisms/CommandPalette.vue';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
-import { Link, usePage } from '@inertiajs/vue3';
-import { ChevronDown, Menu, Search } from 'lucide-vue-next';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { ChevronDown, LayoutGrid, LogOut, Menu, Search } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePalette } from '~/composables/usePalette';
 import { EVENTS, track } from '~/lib/analytics';
@@ -32,6 +33,15 @@ const isCurrent = (href: string) => (href === '/' ? page.url === '/' : page.url.
 const isBrowseSection = () => BROWSE_PREFIXES.some((p) => page.url.startsWith(p));
 // Global "a service is on air" flag (shared from the Inertia middleware)
 const liveNow = computed(() => page.props.live_now === true);
+
+// The signed-in user (real-or-null), shared by the Inertia middleware. Drives
+// the account menu; null for anonymous visitors.
+const user = computed(() => (page.props.auth as { user: { name: string; email: string; can_edit?: boolean } | null } | undefined)?.user ?? null);
+
+const signOut = () => {
+    mobileNavOpen.value = false;
+    router.post('/studio/logout');
+};
 
 const { paletteOpen, helpOpen } = usePalette();
 
@@ -148,6 +158,11 @@ const navLink = (active: boolean) =>
                 <kbd class="border-border bg-muted ml-auto rounded border px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
             </button>
 
+            <!-- Signed-in account menu (Studio + Sign out) — desktop; mobile uses
+                 the slide-over below. ml-auto only kicks in on small screens,
+                 where the search bar is hidden, so the avatar still sits right. -->
+            <AccountMenu v-if="user" :user="user" class="ml-auto hidden lg:inline-flex" />
+
             <Sheet v-model:open="mobileNavOpen">
                 <SheetTrigger
                     class="focus-visible:ring-ring text-muted-foreground hover:text-foreground ml-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-md outline-none focus-visible:ring-2 sm:ml-0 lg:hidden"
@@ -231,6 +246,29 @@ const navLink = (active: boolean) =>
                     <div class="flex items-center justify-between px-4 pt-3">
                         <span class="text-muted-foreground text-sm">Text size</span>
                         <TextSizeControl />
+                    </div>
+
+                    <!-- Account (signed-in only) — the mobile counterpart of the
+                         desktop avatar menu -->
+                    <div v-if="user" class="border-border mt-4 border-t px-2 pt-4">
+                        <p class="text-foreground truncate px-2 text-sm font-medium">{{ user.name }}</p>
+                        <p v-if="user.email" class="text-muted-foreground truncate px-2 text-xs">{{ user.email }}</p>
+                        <Link
+                            v-if="user.can_edit"
+                            href="/studio"
+                            @click="mobileNavOpen = false"
+                            class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground mt-2 flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium outline-none focus-visible:ring-2"
+                        >
+                            <LayoutGrid class="size-4" aria-hidden="true" />
+                            Studio
+                        </Link>
+                        <button
+                            @click="signOut"
+                            class="focus-visible:ring-ring text-muted-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-3 text-base font-medium outline-none focus-visible:ring-2"
+                        >
+                            <LogOut class="size-4" aria-hidden="true" />
+                            Sign out
+                        </button>
                     </div>
                 </SheetContent>
             </Sheet>

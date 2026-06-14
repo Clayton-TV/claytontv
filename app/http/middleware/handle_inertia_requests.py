@@ -3,18 +3,22 @@ import os
 from django.contrib.messages import get_messages
 from inertia import share
 
+from app.auth import can_edit_content
 from catalogue.youtube_live import is_live_now
 
 
 def _auth_user(user):
     """Real signed-in user for Inertia, or None when anonymous. No placeholder —
-    the frontend treats a null user as logged-out (real auth lands in Epic 3)."""
+    the frontend treats a null user as logged-out."""
     if not user.is_authenticated:
         return None
     return {
         "id": user.id,
         "name": user.get_full_name() or user.get_username(),
         "email": user.email,
+        # Gates the account menu's "Studio" link to editors/staff (mirrors the
+        # studio_required server gate, so the link only shows when it'd work).
+        "can_edit": can_edit_content(user),
     }
 
 
