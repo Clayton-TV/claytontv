@@ -7,6 +7,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { Link, WhenVisible } from '@inertiajs/vue3';
 import { ArrowRight, Baby, Book, LayoutGrid, Mic, SlidersHorizontal, Tag } from 'lucide-vue-next';
 import { useEntrance } from '~/composables/useEntrance';
+import { EVENTS, isEntryView, track } from '~/lib/analytics';
 
 const findBy = [
     { label: 'Filter all', href: '/browse', icon: SlidersHorizontal },
@@ -31,6 +32,10 @@ const latestVideoUrl = props.latest_videos.length ? `/video/${props.latest_video
 // Shared staggered page entrance (see useEntrance) — information hierarchy,
 // reduced-motion safe.
 const { entrance } = useEntrance();
+
+// The hero is the P2 "explorer" entry point: capture which CTA they take and
+// whether it was their landing (entry) view of the session.
+const trackHeroCta = (cta) => track(EVENTS.heroCtaClicked, { cta, is_first_visit: isEntryView() });
 </script>
 
 <template>
@@ -49,12 +54,14 @@ const { entrance } = useEntrance();
                     <Link
                         :href="latestVideoUrl"
                         class="bg-primary text-primary-foreground focus-visible:ring-ring hover:bg-primary/90 focus-visible:ring-offset-background inline-flex min-h-12 items-center rounded-lg px-5 text-sm font-semibold transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        @click="trackHeroCta('watch_latest')"
                     >
                         Watch latest sermon
                     </Link>
                     <Link
                         href="/series"
                         class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground inline-flex min-h-12 items-center rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2"
+                        @click="trackHeroCta('browse_series')"
                     >
                         Browse series
                     </Link>
