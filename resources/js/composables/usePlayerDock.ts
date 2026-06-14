@@ -13,6 +13,16 @@ export interface DockVideo {
     id: string | number;
     name: string;
     url: string; // source url (YouTube/Vimeo), not the page url
+    is_live?: boolean;
+    // Catalogue metadata, carried so the player can tag video_* analytics events
+    // (breakdowns by speaker/series/topic/bible_book). Populated by the watch
+    // page; absent for next-episode/restore loads (events still carry video_id).
+    meta?: {
+        speaker?: string[];
+        series?: string[];
+        topic?: string[];
+        bible_book?: string[];
+    };
 }
 
 export interface DockControls {
