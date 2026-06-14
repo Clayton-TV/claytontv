@@ -137,7 +137,10 @@ const recordedLabel = computed(() => (preview.value?.date_recorded ? preview.val
         </Link>
 
         <h1 class="font-display text-foreground mt-3 text-2xl font-bold sm:text-3xl">Add a video</h1>
-        <p class="text-muted-foreground mt-1 text-sm">Paste a YouTube or Vimeo link and we'll fetch the details. Review, classify, then save.</p>
+        <p class="text-muted-foreground mt-1 text-sm">
+            Paste a YouTube or Vimeo link and we'll fetch the details. Review, classify, then save. Got several?
+            <Link href="/studio/bulk" class="text-primary hover:underline">Add a batch or a playlist</Link>.
+        </p>
 
         <!-- Step 1: the URL -->
         <div class="mt-8 space-y-1.5">

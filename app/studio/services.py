@@ -18,6 +18,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from app.cards import video_edit_props
+from catalogue import metadata
 from catalogue import search as search_index
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.demograpic import Demographic
@@ -228,7 +229,9 @@ def find_duplicate(url):
     classification. ``Video.url`` is unique, so this is the authoritative match;
     ``create_video`` re-checks at save time to close the race.
     """
-    existing = Video.objects.filter(url=(url or "").strip()).only("id", "name").first()
+    # all_objects: a soft-deleted row still holds the unique URL, so a create
+    # would collide with it — surface that as a duplicate too.
+    existing = Video.all_objects.filter(url=(url or "").strip()).only("id", "name").first()
     return {"id": existing.id, "name": existing.name} if existing else None
 
 
@@ -275,7 +278,9 @@ def create_video(
     exists. New content defaults to ``draft``; the post_save signal indexes it.
     """
     url = (url or "").strip()
-    existing = Video.objects.filter(url=url).first()
+    # all_objects so a trashed row's URL (which still holds the unique constraint)
+    # is treated as a duplicate rather than causing an IntegrityError.
+    existing = Video.all_objects.filter(url=url).first()
     if existing is not None:
         raise DuplicateVideoError(existing)
 
@@ -311,6 +316,62 @@ def create_video(
     return video
 
 
+# Cap a single bulk submission so one request stays fast and quota stays sane.
+BULK_MAX = 100
+
+
+def expand_playlist(playlist_url):
+    """A YouTube playlist URL → its video watch-URLs (raises MetadataError on a
+    bad/empty/private playlist). Thin pass-through to the metadata helper."""
+    return metadata.youtube_playlist_video_urls(playlist_url, max_items=BULK_MAX)
+
+
+def bulk_create_from_urls(urls):
+    """Create draft videos for many URLs at once. De-dupes the input, caps at
+    ``BULK_MAX``, fetches metadata in a batch, then creates a draft per fresh
+    URL. Returns a per-URL report plus tallies so the page can show what landed,
+    what was already in the library, and what couldn't be read."""
+    unique = []
+    for raw in urls:
+        url = (raw or "").strip()
+        if url and url not in unique:
+            unique.append(url)
+    unique = unique[:BULK_MAX]
+
+    fetched = metadata.fetch_metadata_many(unique)
+    results = []
+    for url in unique:
+        outcome = fetched.get(url) or {"ok": False, "error": "Could not read that link."}
+        if not outcome.get("ok"):
+            results.append({"url": url, "status": "error", "error": outcome.get("error", "Could not read.")})
+            continue
+        meta = outcome["metadata"]
+        try:
+            video = create_video(
+                url=meta["url"],
+                name=meta["name"],
+                description=meta.get("description", ""),
+                thumbnail=meta.get("thumbnail"),
+                duration_seconds=meta.get("duration_seconds"),
+                date_recorded=meta.get("date_recorded"),
+                status=DRAFT,
+            )
+        except DuplicateVideoError as exc:
+            results.append({"url": url, "status": "duplicate", "name": exc.video.name, "id": exc.video.id})
+            continue
+        results.append({"url": url, "status": "created", "name": video.name, "id": video.id})
+
+    tally = {"created": 0, "duplicate": 0, "error": 0}
+    for r in results:
+        tally[r["status"]] += 1
+    return {
+        "results": results,
+        "created": tally["created"],
+        "duplicates": tally["duplicate"],
+        "errors": tally["error"],
+    }
+
+
 def _mint_video_id():
     """A unique, non-colliding primary key for a Studio-created video.
 
@@ -318,10 +379,12 @@ def _mint_video_id():
     (``S0000001``) so they never clash with a legacy id — even one the dying
     live-admin feed imports later — and fit the 10-char ``id`` column.
     """
-    n = Video.objects.filter(id__startswith="S").count() + 1
+    # all_objects: trashed S-rows still occupy their primary key, so they must
+    # count toward uniqueness or we'd mint a colliding id.
+    n = Video.all_objects.filter(id__startswith="S").count() + 1
     while True:
         candidate = f"S{n:07d}"
-        if not Video.objects.filter(Q(id=candidate) | Q(id_number=candidate)).exists():
+        if not Video.all_objects.filter(Q(id=candidate) | Q(id_number=candidate)).exists():
             return candidate
         n += 1
 
@@ -394,7 +457,7 @@ def update_video(
         return False
 
     url = (url or "").strip()
-    clash = Video.objects.filter(url=url).exclude(id=video_id).first()
+    clash = Video.all_objects.filter(url=url).exclude(id=video_id).first()
     if clash is not None:
         raise DuplicateVideoError(clash)
 

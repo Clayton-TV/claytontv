@@ -65,6 +65,22 @@ def test_soft_deleted_video_drops_out_of_series_relation():
     assert not series.videos.filter(id=video.id).exists()
 
 
+def test_create_against_trashed_url_is_duplicate_not_crash():
+    """A trashed row still holds the unique URL, so a create must report a
+    duplicate (via all_objects) rather than hit an IntegrityError."""
+    gone = VideoFactory(url="https://youtu.be/trashed-url")
+    services.delete_videos([gone.id])
+    with pytest.raises(services.DuplicateVideoError):
+        services.create_video(url="https://youtu.be/trashed-url", name="Retry")
+
+
+def test_minted_id_skips_trashed_rows():
+    a = services.create_video(url="https://youtu.be/mint-a", name="A")
+    services.delete_videos([a.id])  # a is now trashed but still owns S0000001
+    b = services.create_video(url="https://youtu.be/mint-b", name="B")
+    assert b.id != a.id  # the minter counted the trashed row
+
+
 def test_restore_brings_video_back():
     video = VideoFactory()
     services.delete_videos([video.id])
