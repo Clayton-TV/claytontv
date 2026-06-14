@@ -29,7 +29,17 @@ export const EVENTS = {
     videoPlay: 'video_play',
     videoProgress: 'video_progress',
     videoComplete: 'video_complete',
+    browseViewed: 'browse_viewed',
+    navClicked: 'nav_clicked',
+    heroCtaClicked: 'hero_cta_clicked',
+    kidsPathViewed: 'kids_path_viewed',
 } as const;
+
+// Where the visitor first landed this session, and whether they've since moved
+// on. Lets hero_cta_clicked flag an entry-page click with no persistent storage
+// (we stay cookieless), so is_first_visit is privacy-safe by construction.
+let entryPath: string | null = null;
+let hasLeftEntry = false;
 
 export async function initializeAnalytics() {
     const key = import.meta.env.VITE_POSTHOG_KEY;
@@ -53,9 +63,29 @@ export async function initializeAnalytics() {
 
     posthog = ph;
 
-    // Inertia SPA visits don't reload the page; report them as pageviews.
+    // Remember the entry surface so isEntryView() can flag a landing-page click.
+    entryPath = normalizePath(window.location.pathname);
+
+    // Report the entry surface's browse_viewed here. posthog-js already captures
+    // the entry $pageview itself on init (capture_pageview: true), so the landing
+    // page gets browse_viewed only — not a duplicate $pageview.
+    trackBrowseFromUrl(window.location.pathname + window.location.search);
+
+    // Inertia v3 fires 'navigate' on the INITIAL visit too — not just later SPA
+    // visits — and that event races with this lazily-imported posthog chunk (it
+    // may arrive after we register, or before we ever subscribed). We've already
+    // reported the entry surface above, so ignore any navigate that's still on
+    // the entry path until the visitor actually leaves: that dedupes the initial
+    // visit either way the race resolves, without a fragile one-shot latch. Once
+    // they've left, a later return to the entry path is a real visit and fires.
     router.on('navigate', (event) => {
-        posthog?.capture('$pageview', { $current_url: event.detail.page.url });
+        const url = event.detail.page.url;
+        if (!hasLeftEntry && normalizePath(url) === entryPath) {
+            return;
+        }
+        hasLeftEntry = true;
+        posthog?.capture('$pageview', { $current_url: url });
+        trackBrowseFromUrl(url);
     });
 }
 
@@ -65,4 +95,66 @@ export async function initializeAnalytics() {
  */
 export function track(event: string, properties?: Record<string, unknown>) {
     posthog?.capture(event, properties);
+}
+
+/**
+ * True until the visitor navigates away from the page they entered on. Used as
+ * hero_cta_clicked's `is_first_visit`: an honest, storage-free proxy meaning
+ * "first/entry page of this session" — not a cross-visit identity (we keep none).
+ */
+export function isEntryView(): boolean {
+    return !hasLeftEntry;
+}
+
+// First path segment → the browse_type we report. Detail pages add the slug as
+// `value`; index pages report value: null.
+const BROWSE_TYPES: Record<string, string> = {
+    series: 'series',
+    speaker: 'speaker',
+    topic: 'topic',
+    book: 'bible_book',
+    audience: 'audience',
+    demographic: 'audience', // legacy alias that redirects to /audience
+    ministry: 'ministry',
+    channel: 'channel',
+    latest: 'latest',
+    browse: 'all',
+};
+
+// Audience "slugs" are the demographic's free-text name, URL-encoded (e.g.
+// /audience/Kids — see Demographic.get_absolute_url). The current set is
+// Kids / Youth / Adults; this heuristic flags the kids/family ones (plus the
+// audience index, which always fires) for the dedicated P4 "can they find the
+// kids path?" event. Adults and unrelated demographics (e.g. searchers) don't
+// match. It's a best-effort match over admin-editable names, so an unusually
+// named future kids demographic would under-report rather than misfire.
+const KIDS_PATTERN = /kid|child|infant|toddler|tot|baby|family|young|youth|teen|junior/i;
+
+function normalizePath(url: string): string {
+    const path = url.split('?')[0].split('#')[0];
+    return path.length > 1 ? path.replace(/\/+$/, '') : path;
+}
+
+/**
+ * Emit a typed browse_viewed (and kids_path_viewed where relevant) for any
+ * directory or entity surface, derived purely from the URL. URL-driven on
+ * purpose: it can't break on an unexpected page-prop shape, and it covers every
+ * browse page from one place — including the generic Browse.vue that backs the
+ * topic / audience / ministry / channel detail pages.
+ */
+function trackBrowseFromUrl(url: string) {
+    const segments = normalizePath(url)
+        .split('/')
+        .filter(Boolean)
+        .map((segment) => decodeURIComponent(segment));
+
+    const browseType = segments.length ? BROWSE_TYPES[segments[0]] : undefined;
+    if (!browseType) return;
+
+    const value = segments.length > 1 ? segments[1] : null;
+    track(EVENTS.browseViewed, { browse_type: browseType, value });
+
+    if (browseType === 'audience' && (value === null || KIDS_PATTERN.test(value))) {
+        track(EVENTS.kidsPathViewed, { source: value ?? 'index' });
+    }
 }

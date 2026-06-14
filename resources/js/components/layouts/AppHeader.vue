@@ -10,6 +10,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { ChevronDown, Menu, Search } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePalette } from '~/composables/usePalette';
+import { EVENTS, track } from '~/lib/analytics';
 
 // Calm primary bar for the elderly-first audience: Home · Browse · Latest ·
 // Live. Everything directory-shaped folds under "Browse" so the top stays
@@ -34,9 +35,14 @@ const liveNow = computed(() => page.props.live_now === true);
 
 const { paletteOpen, helpOpen } = usePalette();
 
+// Attribute which primary-nav affordance started a journey — the destination's
+// pageview/browse_viewed can't tell the header from the hero from the palette.
+const trackNav = (item: string) => track(EVENTS.navClicked, { item });
+
 const openPalette = () => {
     mobileNavOpen.value = false;
     paletteOpen.value = true;
+    trackNav('search');
 };
 
 // Global shortcuts — never while typing (the palette's own input included)
@@ -81,11 +87,17 @@ const navLink = (active: boolean) =>
             </Link>
 
             <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
-                <Link href="/" prefetch :class="navLink(isCurrent('/'))" :aria-current="isCurrent('/') ? 'page' : undefined">Home</Link>
+                <Link href="/" prefetch :class="navLink(isCurrent('/'))" :aria-current="isCurrent('/') ? 'page' : undefined" @click="trackNav('home')"
+                    >Home</Link
+                >
 
                 <!-- Browse: click-triggered panel of the directories (not a hover mega-menu) -->
                 <DropdownMenu>
-                    <DropdownMenuTrigger :class="navLink(isBrowseSection())" :aria-current="isBrowseSection() ? 'page' : undefined">
+                    <DropdownMenuTrigger
+                        :class="navLink(isBrowseSection())"
+                        :aria-current="isBrowseSection() ? 'page' : undefined"
+                        @click="trackNav('browse')"
+                    >
                         Browse
                         <ChevronDown class="h-4 w-4 opacity-70" aria-hidden="true" />
                     </DropdownMenuTrigger>
@@ -99,7 +111,12 @@ const navLink = (active: boolean) =>
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Link href="/latest" prefetch :class="navLink(isCurrent('/latest'))" :aria-current="isCurrent('/latest') ? 'page' : undefined"
+                <Link
+                    href="/latest"
+                    prefetch
+                    :class="navLink(isCurrent('/latest'))"
+                    :aria-current="isCurrent('/latest') ? 'page' : undefined"
+                    @click="trackNav('latest')"
                     >Latest</Link
                 >
 
@@ -108,6 +125,7 @@ const navLink = (active: boolean) =>
                     prefetch
                     :class="navLink(isCurrent('/livestreams'))"
                     :aria-current="isCurrent('/livestreams') ? 'page' : undefined"
+                    @click="trackNav('live')"
                 >
                     Live
                     <span v-if="liveNow" class="relative flex h-2 w-2" title="A service is live now">
@@ -153,7 +171,10 @@ const navLink = (active: boolean) =>
                     <nav class="flex flex-col gap-1 px-2" aria-label="Mobile">
                         <Link
                             href="/"
-                            @click="mobileNavOpen = false"
+                            @click="
+                                mobileNavOpen = false;
+                                trackNav('home');
+                            "
                             :class="isCurrent('/') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
                             class="focus-visible:ring-ring hover:bg-accent hover:text-foreground rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
@@ -175,7 +196,10 @@ const navLink = (active: boolean) =>
                         <p class="text-muted-foreground px-4 pt-3 pb-1 text-xs font-semibold tracking-wider uppercase">Watch</p>
                         <Link
                             href="/latest"
-                            @click="mobileNavOpen = false"
+                            @click="
+                                mobileNavOpen = false;
+                                trackNav('latest');
+                            "
                             :class="isCurrent('/latest') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
                             class="focus-visible:ring-ring hover:bg-accent hover:text-foreground rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
@@ -183,7 +207,10 @@ const navLink = (active: boolean) =>
                         </Link>
                         <Link
                             href="/livestreams"
-                            @click="mobileNavOpen = false"
+                            @click="
+                                mobileNavOpen = false;
+                                trackNav('live');
+                            "
                             :class="isCurrent('/livestreams') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'"
                             class="focus-visible:ring-ring hover:bg-accent hover:text-foreground inline-flex items-center gap-2 rounded-md px-4 py-3 text-base font-medium outline-none focus-visible:ring-2"
                         >
