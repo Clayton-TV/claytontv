@@ -23,7 +23,7 @@ import {
 import { Input } from '@/ui/input';
 import { Skeleton } from '@/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
 import { ExternalLink, Film, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
