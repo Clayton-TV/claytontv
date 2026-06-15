@@ -6,7 +6,7 @@ one optional live test is skipped unless the host is actually reachable.
 
 import json
 
-import httpx
+import requests
 import pytest
 
 from catalogue import enrichment
@@ -39,7 +39,7 @@ class FakeResponse:
 
 
 def fake_post_returning(payload, captured=None):
-    """A drop-in for ``httpx.post`` that records the call and returns ``payload``
+    """A drop-in for ``requests.post`` that records the call and returns ``payload``
     as the model's ``response`` text."""
 
     def _post(url, json=None, timeout=None):
@@ -174,7 +174,7 @@ def test_enrich_video_returns_full_suggestions(monkeypatch):
         }
     )
     captured = {}
-    monkeypatch.setattr(httpx, "post", fake_post_returning(payload, captured))
+    monkeypatch.setattr(requests, "post", fake_post_returning(payload, captured))
 
     result = enrich_video(video)
 
@@ -193,7 +193,7 @@ def test_enrich_video_returns_full_suggestions(monkeypatch):
 def test_enrich_video_uses_model_override(monkeypatch):
     video = VideoFactory()
     captured = {}
-    monkeypatch.setattr(httpx, "post", fake_post_returning("{}", captured))
+    monkeypatch.setattr(requests, "post", fake_post_returning("{}", captured))
     enrich_video(video, model="gemma4:26b-a4b-it-qat")
     assert captured["json"]["model"] == "gemma4:26b-a4b-it-qat"
 
@@ -207,9 +207,9 @@ def test_enrich_video_timeout_returns_empty(monkeypatch):
     video = VideoFactory()
 
     def _raise(*_args, **_kwargs):
-        raise httpx.ReadTimeout("timed out")
+        raise requests.exceptions.Timeout("timed out")
 
-    monkeypatch.setattr(httpx, "post", _raise)
+    monkeypatch.setattr(requests, "post", _raise)
     assert enrich_video(video) == empty_suggestions()
 
 
@@ -217,21 +217,21 @@ def test_enrich_video_connection_error_returns_empty(monkeypatch):
     video = VideoFactory()
 
     def _raise(*_args, **_kwargs):
-        raise httpx.ConnectError("connection refused")
+        raise requests.exceptions.ConnectionError("connection refused")
 
-    monkeypatch.setattr(httpx, "post", _raise)
+    monkeypatch.setattr(requests, "post", _raise)
     assert enrich_video(video) == empty_suggestions()
 
 
 def test_enrich_video_unparseable_output_returns_empty(monkeypatch):
     video = VideoFactory()
-    monkeypatch.setattr(httpx, "post", fake_post_returning("the model rambled with no json"))
+    monkeypatch.setattr(requests, "post", fake_post_returning("the model rambled with no json"))
     assert enrich_video(video) == empty_suggestions()
 
 
 def test_enrich_video_partial_output_fills_what_it_can(monkeypatch):
     video = VideoFactory()
-    monkeypatch.setattr(httpx, "post", fake_post_returning('{"summary": "only a summary"}'))
+    monkeypatch.setattr(requests, "post", fake_post_returning('{"summary": "only a summary"}'))
     result = enrich_video(video)
     assert result["summary"] == "only a summary"
     assert result["suggested_topics"] == []
@@ -241,7 +241,7 @@ def test_enrich_video_partial_output_fills_what_it_can(monkeypatch):
 def test_enrich_video_coerces_string_topics_to_list(monkeypatch):
     video = VideoFactory()
     payload = json.dumps({"suggested_topics": "Grace, Faith, Hope"})
-    monkeypatch.setattr(httpx, "post", fake_post_returning(payload))
+    monkeypatch.setattr(requests, "post", fake_post_returning(payload))
     result = enrich_video(video)
     assert result["suggested_topics"] == ["Grace", "Faith", "Hope"]
 
@@ -261,8 +261,8 @@ def test_empty_suggestions_has_all_keys():
 def _ollama_reachable():
     host, _model, _timeout = enrichment._ollama_config()
     try:
-        httpx.get(f"{host.rstrip('/')}/api/tags", timeout=2)
-    except httpx.HTTPError:
+        requests.get(f"{host.rstrip('/')}/api/tags", timeout=2)
+    except requests.RequestException:
         return False
     return True
 
