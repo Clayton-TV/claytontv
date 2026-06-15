@@ -1,6 +1,7 @@
 from .bible_book import Bible_Book
 from .channel import Channel
 from .demograpic import Demographic
+from .enrichment import VideoEnrichment
 from .label import Label
 from .live_stream import LiveStream
 from .ministry import Ministry
@@ -23,6 +24,7 @@ __all__ = [
     "Speaker",
     "Topic",
     "Video",
+    "VideoEnrichment",
 ]
 
 # NB will need to import models from the other tables
