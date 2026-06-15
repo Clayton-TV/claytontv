@@ -1,5 +1,10 @@
 # Creator / Editor UI — Design Research
 
+> **Status (2026-06-15): SHIPPED.** This research drove Epic 3 (the Studio),
+> now built and live on beta — Library, Add-a-video, full editor, Review queue +
+> soft-delete, and bulk add. Read as the design rationale, not pending work.
+> Directions B (contributors) and C (tenancy) remain deferred by design.
+
 *Drafted 2026-06-14 (Jamie + agent). Feeds the MVP2 implementation plan: "close
 the old site." Opinionated and concrete to our stack — not a survey.*
 

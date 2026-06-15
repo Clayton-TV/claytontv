@@ -5,6 +5,23 @@
 
 ## 0. Current status — update every session
 
+**As of 2026-06-15 — Epic 3 (the Studio) SHIPPED; interim tech-debt phase.**
+The "▶️ NEXT: Epic 3" lines further down are now superseded — Epic 3 is built
+and live on beta. Slices delivered: `Video.status` + draft-hiding on all public
+surfaces; auth (Editors group, custom `/studio/login`, logout, account menu in
+the header); the Studio Library (filter/search/bulk); Add-a-video (paste-a-URL
+intake); the full tabbed editor; the Review queue + **Laravel-style soft-delete**
+(recoverable, with an admin restore UI); and **bulk add** (paste-many + YouTube
+playlist import). A cross-cutting fix along the way: aligned Django's CSRF
+cookie/header names to Inertia's (every Studio POST was otherwise 403'd in the
+browser). Slice 6 (taxonomy merge) is an exploration doc only — `docs/STUDIO_TAXONOMY.md`.
+
+Now in an **interim tech-debt paydown** before new features — full register at
+GH #290 (Must/Should/Could/Won't). Remaining big rocks: **Epic 7
+(hardening + cutover)**, tracked as a live checklist at #287.
+
+---
+
 **As of 2026-06-13 (late) — Functionality Overhaul COMPLETE; Epic 5 (search) shipped.**
 Beta is feature-complete on the core product; remaining work is editorial auth
 (Epic 3) and the hardening/cutover runbook (Epic 7).

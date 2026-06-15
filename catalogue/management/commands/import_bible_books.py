@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
+from catalogue.management.commands._destructive import guard_destructive
 from catalogue.models.bible_book import BibleBook  # Updated to use the new class name
 
 
@@ -24,6 +25,7 @@ class Command(BaseCommand):
     def imp_bible(self, filepath, debug):
         if debug:
             self.stdout.write("The command ran and:")  # Debug Text using logger instead of print
+        guard_destructive()  # local-seed-only; refuse on non-SQLite
         BibleBook.objects.all().delete()  # Clears all existing data before reimporting
         # This is useful but potentially dangerous
         with Path(filepath).open(encoding="utf-8-sig") as file:  # Opens the file path using Path

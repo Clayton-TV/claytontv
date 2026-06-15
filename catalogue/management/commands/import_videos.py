@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
+from catalogue.management.commands._destructive import guard_destructive
 from catalogue.models.video import Video
 
 
@@ -61,6 +62,7 @@ class Command(BaseCommand):
         skipped_ids = []
         if debug:
             self.stdout.write("The command ran and:")  # Debug Text
+        guard_destructive()  # local-seed-only; refuse on non-SQLite
         Video.objects.all().delete()
         with Path(filepath).open(encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
