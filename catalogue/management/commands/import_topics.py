@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
+from catalogue.management.commands._destructive import guard_destructive
 from catalogue.models.topic import Topic
 
 
@@ -22,6 +23,7 @@ class Command(BaseCommand):
     def imp_topics(self, filepath, debug):
         if debug:
             self.stdout.write("The command ran and:")  # Debug Text
+        guard_destructive()  # local-seed-only; refuse on non-SQLite
         Topic.objects.all().delete()
         last_name = ""
         # id_num = 0
