@@ -122,6 +122,38 @@ URL carries its privacy hash (or the video is public). Hashless older Vimeo
 videos stay null until re-synced from the admin (mediaUpdate.asp exposes
 MediaDuration in ms) or a Vimeo API token is configured.
 
+## AI content enrichment (Epic #201)
+
+`enrich_catalogue` walks the catalogue and stores AI-proposed metadata
+(summary, topics, audience, Bible passages, keywords) in a `VideoEnrichment`
+row per video, via a self-hosted Ollama model. The values fold **invisibly**
+into the Typesense search `text` (recall boost) — nothing surfaces publicly
+unless `AI_ENRICHMENT_PUBLIC` is set (default off). It never touches
+human-authored `Video` fields and never touches the legacy admin.
+
+**Resumable + idempotent.** Only enriches videos with no enrichment (or one
+from an older `PROMPT_VERSION`), so a cron re-run continues where it left off;
+a finished catalogue is a near-instant no-op. `--refresh` re-does everything.
+Per-video failures are logged and skipped (retried next run), never fatal.
+
+**Prerequisite — not armed by default.** The model runs on `tgoml` and is
+reached over tailscale via `OLLAMA_HOST` (see the `OLLAMA` block in
+`app/base_settings.py`). **Verify app03 → tgoml reachability before installing
+the cron** (e.g. `curl -s $OLLAMA_HOST/api/tags`); without it every video logs
+"model returned nothing" and is left for retry. Throughput ~3–5 s/video on the
+5090 → the ~10k beta catalogue is ~14 h flat-out, or a few days under the
+off-peak throttle below (tgoml is shared infra — keep `--sleep` generous and
+run only off-peak).
+
+Recommended off-peak cron (not yet installed — add once reachability is
+confirmed); `--max-runtime` keeps it inside the small-hours window:
+
+    23 1 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py enrich_catalogue --sleep 3 --max-runtime 18000 >> /srv/beta-claytontv/shared/logs/enrich.log 2>&1
+
+Enrichment saves fire the search signal, so each enriched video is re-indexed
+as it's stored — no separate `reindex_search` needed for the fold-in to take
+effect.
+
 ## Typesense search (#213)
 
 Search (`/search`, the ⌘K palette `/api/palette`) is served by a **self-hosted
