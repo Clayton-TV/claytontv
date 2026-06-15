@@ -24,7 +24,7 @@ baseline), [docs/SERVER_AUDIT.md](docs/SERVER_AUDIT.md),
 ```bash
 uv run poe          # list all tasks
 uv run poe dev      # Django + Vite dev servers (or use .claude/launch.json)
-uv run poe test     # pytest (coverage gate: 60%)
+uv run poe test     # pytest (coverage gate: 80%, enforced locally + in CI)
 uv run poe fix      # ruff lint --fix + format
 uv run poe manage <cmd>
 npm run build-only  # production asset build
