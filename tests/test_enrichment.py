@@ -6,8 +6,8 @@ one optional live test is skipped unless the host is actually reachable.
 
 import json
 
-import requests
 import pytest
+import requests
 
 from catalogue import enrichment
 from catalogue.enrichment import (
