@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ClassificationFields from '@/molecules/ClassificationFields.vue';
+import SuggestionsPanel from '@/molecules/SuggestionsPanel.vue';
 import { Badge } from '@/ui/badge';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
@@ -44,6 +45,14 @@ const props = defineProps<{
         ministry_ids: string[];
         series_id: string | null;
         related_resources: Resource[];
+        enrichment: {
+            summary: string;
+            topics: string[];
+            audience: string;
+            bible_passages: { book: string; label?: string }[];
+            keywords: string[];
+            generated_at: string | null;
+        } | null;
     };
     taxonomy: {
         speakers: Option[];
@@ -109,6 +118,24 @@ function togglePublish() {
         status: isPublished.value ? 'draft' : 'published',
         next: editPath.value,
     });
+}
+
+// --- suggestions (Epic #201, E3) ----------------------------------------
+// Copy stored suggestions into the form. M2M ids are merged (deduped), never
+// replaced, so applying never drops an editor's existing choices. The editor
+// still reviews and Saves — nothing is persisted by applying.
+const mergeIds = (current: string[], incoming: string[]) => Array.from(new Set([...current, ...incoming]));
+
+function applySuggestions(payload: { description?: string; topic_ids?: string[]; demographic_ids?: string[]; bible_book_ids?: string[] }) {
+    if (payload.description != null) form.description = payload.description;
+    if (payload.topic_ids) form.topic_ids = mergeIds(form.topic_ids, payload.topic_ids);
+    if (payload.demographic_ids) form.demographic_ids = mergeIds(form.demographic_ids, payload.demographic_ids);
+    if (payload.bible_book_ids) form.bible_book_ids = mergeIds(form.bible_book_ids, payload.bible_book_ids);
+}
+
+function regenerate() {
+    allowNav = true;
+    router.post(`/studio/videos/${props.video.id}/suggest`, {}, { preserveScroll: true });
 }
 
 // --- unsaved-changes guard ----------------------------------------------
@@ -190,6 +217,15 @@ onBeforeUnmount(() => {
             ></iframe>
             <div v-else class="text-muted-foreground flex h-full items-center justify-center text-sm">No preview for this link</div>
         </div>
+
+        <!-- Suggestions (quiet editorial assist; never auto-applied) -->
+        <SuggestionsPanel
+            class="mt-6"
+            :enrichment="props.video.enrichment"
+            :taxonomy="props.taxonomy"
+            @apply="applySuggestions"
+            @regenerate="regenerate"
+        />
 
         <Tabs default-value="details" class="mt-6">
             <TabsList class="w-full sm:w-auto">

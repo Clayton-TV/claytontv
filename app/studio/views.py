@@ -20,7 +20,7 @@ from inertia import render, share
 
 from app.auth import can_edit_content
 from catalogue.metadata import MetadataError, fetch_metadata
-from catalogue.models.video import DRAFT, PUBLISHED
+from catalogue.models.video import DRAFT, PUBLISHED, Video
 
 from . import services
 from .auth import studio_required
@@ -433,3 +433,23 @@ def update_video(request, id):
         raise Http404
     messages.success(request, "Saved.")
     return redirect("/studio")
+
+
+@studio_required
+@require_POST
+def suggest_video(request, id):
+    """``POST /studio/videos/<id>/suggest`` — (re)generate AI suggestions for one
+    video and redirect back to the editor (Inertia reloads the props, so the
+    Suggestions panel refreshes). Best-effort: if the model is unreachable, flash
+    a friendly note rather than erroring."""
+    from catalogue.enrichment import store_enrichment
+
+    video = Video.all_objects.filter(id=id).first()
+    if video is None:
+        raise Http404
+    enrichment = store_enrichment(video)
+    if enrichment is None:
+        messages.warning(request, "Couldn't generate suggestions just now — please try again shortly.")
+    else:
+        messages.success(request, "Suggestions updated.")
+    return redirect("studio_edit_video", id=id)
