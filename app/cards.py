@@ -60,4 +60,22 @@ def video_edit_props(video):
         "ministry_ids": [str(m.pk) for m in video.ministry.all()],
         "series_id": str(series_id) if series_id is not None else None,
         "related_resources": [{"kind": r.kind, "url": r.url} for r in video.related_resources.order_by("kind")],
+        "enrichment": enrichment_props(video),
+    }
+
+
+def enrichment_props(video):
+    """The stored AI suggestions for a video as a plain dict, or ``None`` when
+    there's no enrichment. Drives the editor's Suggestions panel (Epic #201, E3)
+    — display + per-field apply; never auto-applied to human fields."""
+    enrichment = getattr(video, "enrichment", None)
+    if enrichment is None:
+        return None
+    return {
+        "summary": enrichment.summary or "",
+        "topics": enrichment.topics or [],
+        "audience": enrichment.audience or "",
+        "bible_passages": enrichment.bible_passages or [],
+        "keywords": enrichment.keywords or [],
+        "generated_at": enrichment.generated_at.isoformat() if enrichment.generated_at else None,
     }

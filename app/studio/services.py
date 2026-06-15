@@ -243,7 +243,7 @@ def taxonomy_options():
         "speakers": _options(Speaker),
         "series": _options(Series),
         "topics": _options(Topic),
-        "bible_books": _options(Bible_Book),
+        "bible_books": _bible_book_options(),
         "demographics": _options(Demographic),
         "ministries": _options(Ministry),
     }
@@ -251,6 +251,13 @@ def taxonomy_options():
 
 def _options(model):
     return [{"id": str(pk), "name": name} for pk, name in model.objects.order_by("name").values_list("pk", "name")]
+
+
+def _bible_book_options():
+    """Bible books, named by their human display ("Genesis", not the stored
+    "GEN" code) so the picker — and the suggestions matcher — use real names."""
+    books = Bible_Book.objects.order_by("name")
+    return sorted(({"id": str(b.pk), "name": b.get_name_display()} for b in books), key=lambda o: o["name"])
 
 
 def create_video(
@@ -419,6 +426,7 @@ def get_video_for_edit(video_id):
     """The full editable view of one video (plain dict), or None if missing."""
     video = (
         Video.objects.filter(id=video_id)
+        .select_related("enrichment")
         .prefetch_related("speaker", "topic", "bible_book", "demographic", "ministry", "related_resources")
         .first()
     )
