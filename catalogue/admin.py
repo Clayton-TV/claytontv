@@ -30,15 +30,43 @@ class RelatedResourceInline(admin.TabularInline):
 
 
 # Video Admin Configuration
+class TrashFilter(admin.SimpleListFilter):
+    """Filter the changelist by soft-delete state. Default (no selection) shows
+    BOTH live and trashed, so trashed rows are never silently hidden in admin."""
+
+    title = "trash status"
+    parameter_name = "trash"
+
+    def lookups(self, request, model_admin):
+        return (("live", "Live"), ("trashed", "Trashed"))
+
+    def queryset(self, request, queryset):
+        if self.value() == "live":
+            return queryset.filter(deleted_at__isnull=True)
+        if self.value() == "trashed":
+            return queryset.filter(deleted_at__isnull=False)
+        return queryset
+
+
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     """Admin configuration for Video model"""
 
-    list_display = ("name", "id_number", "channel", "series", "date_created", "is_livestream", "display_topic")
-    list_filter = ("is_livestream", "date_created", "channel", "series", "labels")
+    list_display = (
+        "name",
+        "id_number",
+        "channel",
+        "series",
+        "date_created",
+        "is_livestream",
+        "deleted_at",
+        "display_topic",
+    )
+    list_filter = (TrashFilter, "is_livestream", "date_created", "channel", "series", "labels")
     search_fields = ("name", "id_number", "description")
     ordering = ("-date_created",)
     date_hierarchy = "date_created"
+    actions = ("restore_selected", "trash_selected")
 
     inlines = (RelatedResourceInline,)
 
@@ -46,7 +74,7 @@ class VideoAdmin(admin.ModelAdmin):
     filter_horizontal = ("bible_book", "demographic", "ministry", "speaker", "topic")
 
     # Read-only fields
-    readonly_fields = ("date_modified",)
+    readonly_fields = ("date_modified", "deleted_at")
 
     # Custom fieldsets for better organization
     fieldsets = (
@@ -58,10 +86,32 @@ class VideoAdmin(admin.ModelAdmin):
         ),
         (
             "Dates & Status",
-            {"fields": ("is_livestream", "date_recorded", "date_created", "date_modified"), "classes": ("collapse",)},
+            {
+                "fields": ("is_livestream", "date_recorded", "date_created", "date_modified", "deleted_at"),
+                "classes": ("collapse",),
+            },
         ),
         ("Admin", {"fields": ("labels",), "classes": ("collapse",)}),
     )
+
+    def get_queryset(self, request):
+        # Use all_objects so soft-deleted (trashed) videos are visible/recoverable
+        # in admin — the default manager would hide them entirely.
+        return Video.all_objects.all()
+
+    @admin.action(description="Restore selected videos (clear trash)")
+    def restore_selected(self, request, queryset):
+        from app.studio import services
+
+        count = services.restore_videos([v.id for v in queryset])
+        self.message_user(request, f"Restored {count} video{'' if count == 1 else 's'}.")
+
+    @admin.action(description="Move selected videos to trash (soft delete)")
+    def trash_selected(self, request, queryset):
+        from app.studio import services
+
+        count = services.delete_videos([v.id for v in queryset.filter(deleted_at__isnull=True)])
+        self.message_user(request, f"Moved {count} video{'' if count == 1 else 's'} to trash.")
 
 
 # Series Admin Configuration
