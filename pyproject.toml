@@ -84,8 +84,8 @@ help = "Lint and format all Python files"
 sequence = ["lint", "format"]
 
 [tool.poe.tasks.test]
-help = "Run the test suite"
-cmd = "pytest"
+help = "Run the test suite (with the coverage gate, matching CI)"
+cmd = "pytest --cov --cov-report=term-missing --cov-fail-under=80"
 
 [tool.poe.tasks.typesense]
 help = "Run a local Typesense container for search development"
