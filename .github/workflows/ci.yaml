@@ -65,6 +65,9 @@ jobs:
       - name: Check formatting
         run: npm run format-check
 
+      - name: Unit tests (Vitest)
+        run: npm run test:unit
+
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
