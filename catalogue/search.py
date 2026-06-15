@@ -118,14 +118,26 @@ def _epoch(d):
     return int(datetime(d.year, d.month, d.day, tzinfo=UTC).timestamp())
 
 
+def _enrichment_text(video):
+    """Folded AI-enrichment text for the search ``text`` field, or ``""`` when a
+    video has no enrichment row. Invisible recall boost: keywords + topics +
+    summary become searchable without surfacing anywhere public (Epic #201)."""
+    enrichment = getattr(video, "enrichment", None)
+    if enrichment is None:
+        return ""
+    parts = [*(enrichment.keywords or []), *(enrichment.topics or []), enrichment.summary or ""]
+    return " ".join(p for p in parts if p)
+
+
 def build_video_doc(video):
     recorded = video.date_recorded or video.date_created
+    text = " ".join(p for p in [video.description or "", _enrichment_text(video)] if p)
     return {
         "id": f"{KIND_VIDEO}:{video.pk}",
         "kind": KIND_VIDEO,
         "pk": str(video.pk),
         "name": video.name or "",
-        "text": video.description or "",
+        "text": text,
         "url": f"/video/{video.pk}",
         "videos_count": 0,
         "date_epoch": _epoch(recorded),
@@ -181,7 +193,7 @@ def iter_content_docs():
     published videos so draft-only categories don't show publicly."""
     from catalogue.models.video import Video, published_count
 
-    for v in Video.objects.all().iterator():
+    for v in Video.objects.select_related("enrichment").iterator():
         yield build_video_doc(v)
 
     for model, (kind, relation, name_fn, text_fn) in _category_specs().items():

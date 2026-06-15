@@ -137,6 +137,22 @@ TYPESENSE = {
     "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
 }
 
+# Ollama (self-hosted LLM) for AI content enrichment (Epic #201,
+# catalogue/enrichment.py). The host is reachable over tailscale; defaults point
+# at the verified host/model. Mirrors the TYPESENSE block: host + model are
+# env-configurable, never hardcoded in logic. The enrichment client is
+# best-effort — an unreachable host degrades to no-op, never an error.
+OLLAMA = {
+    "host": os.getenv("OLLAMA_HOST", "http://100.81.40.52:11434"),
+    "model": os.getenv("OLLAMA_MODEL", "gemma4:31b-it-qat"),
+    "timeout_seconds": int(os.getenv("OLLAMA_TIMEOUT", "120")),
+}
+
+# When True, AI-derived enrichment may surface as unlabelled public metadata
+# (watch-page summary fallback + SEO meta). Default off: enrichment is invisible
+# infrastructure (search recall) until consciously flipped (Epic #201, E4).
+AI_ENRICHMENT_PUBLIC = os.getenv("AI_ENRICHMENT_PUBLIC", "false").lower() == "true"
+
 # Studio dev login — BETA ONLY, NEVER set on production. A secret magic link:
 # GET /studio/dev-login?key=<STUDIO_DEV_LOGIN_KEY> one-click-signs-in the single
 # configured editor (STUDIO_DEV_LOGIN_USER) with NO credentials. The endpoint
