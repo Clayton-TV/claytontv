@@ -118,6 +118,13 @@ def test_update_changes_scalar_fields():
     assert video.duration_seconds == 123
 
 
+def test_update_sets_number_in_series():
+    video = VideoFactory(number_in_series=None)
+    services.update_video(video.id, name=video.name, url=video.url, number_in_series=7)
+    video.refresh_from_db()
+    assert video.number_in_series == 7
+
+
 def test_update_adds_and_removes_m2m():
     keep = SpeakerFactory()
     drop = SpeakerFactory()

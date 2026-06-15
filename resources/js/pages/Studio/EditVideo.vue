@@ -225,6 +225,18 @@ onBeforeUnmount(() => {
                             {{ form.duration_seconds ? formatDuration(form.duration_seconds) : '—' }}
                         </p>
                     </div>
+                    <div class="space-y-1.5">
+                        <label for="edit-number" class="text-foreground block text-sm font-medium">Number in series</label>
+                        <Input
+                            id="edit-number"
+                            :model-value="form.number_in_series ?? undefined"
+                            @update:model-value="(val) => (form.number_in_series = val === '' || val == null ? null : Number(val))"
+                            type="number"
+                            min="1"
+                            class="text-base"
+                        />
+                        <p class="text-muted-foreground text-xs">Episode position, for ordering within a series.</p>
+                    </div>
                 </div>
                 <div class="space-y-1.5">
                     <label for="edit-thumbnail" class="text-foreground block text-sm font-medium">Thumbnail URL</label>
