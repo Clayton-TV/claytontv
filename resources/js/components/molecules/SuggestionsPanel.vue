@@ -94,7 +94,7 @@ const generatedLabel = computed(() => {
                     Drawn from the title &amp; description — review before applying. Nothing is published automatically.
                 </p>
             </div>
-            <Button variant="ghost" size="sm" class="shrink-0" @click="emit('regenerate')">Regenerate</Button>
+            <Button v-if="enrichment" variant="ghost" size="sm" class="shrink-0" @click="emit('regenerate')">Regenerate</Button>
         </div>
 
         <!-- No suggestions yet -->
