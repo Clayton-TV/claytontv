@@ -14,7 +14,8 @@ import logging
 from datetime import date
 
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Min, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from app.cards import video_edit_props
@@ -36,6 +37,13 @@ STATUS_ALL = "all"
 STATUS_CHOICES = (STATUS_ALL, PUBLISHED, DRAFT)
 
 DEFAULT_PER_PAGE = 24
+
+# Sortable Library columns. The value is the sort key the frontend sends; each
+# maps to an ORDER BY expression in `_sorted` below. Speaker/series are M2M so
+# they sort via an annotation; "date" mirrors the displayed coalesce of
+# recorded→created. Thumbnail/actions aren't sortable.
+SORT_CHOICES = ("title", "speaker", "series", "date", "status", "runtime")
+SORT_DIRECTIONS = ("asc", "desc")
 
 
 def _series_name_by_video_id(video_ids):
@@ -99,14 +107,19 @@ def _search_ids(query):
     return ids, False
 
 
-def list_videos(*, search="", status=STATUS_ALL, page=1, per_page=DEFAULT_PER_PAGE):
-    """The Studio video list: filtered, searched, paginated — as plain dicts.
+def list_videos(*, search="", status=STATUS_ALL, page=1, per_page=DEFAULT_PER_PAGE, sort="", direction="desc"):
+    """The Studio video list: filtered, searched, sorted, paginated — as plain
+    dicts.
 
-    Returns a dict ready to spread into the Inertia props: ``videos`` (the row
-    dicts), ``total`` (matching count), and the pagination flags.
+    ``sort`` is one of ``SORT_CHOICES`` (else ignored); ``direction`` is asc/desc.
+    An explicit column sort takes precedence over search relevance. With no sort:
+    relevance order when searching, newest-first otherwise. Returns a dict ready
+    to spread into the Inertia props: ``videos``, ``total`` and pagination flags.
     """
     search = (search or "").strip()
     status = status if status in STATUS_CHOICES else STATUS_ALL
+    sort = sort if sort in SORT_CHOICES else ""
+    direction = direction if direction in SORT_DIRECTIONS else "desc"
 
     qs = Video.objects.all()
     if status != STATUS_ALL:
@@ -115,18 +128,45 @@ def list_videos(*, search="", status=STATUS_ALL, page=1, per_page=DEFAULT_PER_PA
     if search:
         ids, ordered = _search_ids(search)
         qs = qs.filter(id__in=ids)
-        if ordered:
-            # Preserve Typesense's relevance order across the (status-filtered) ids.
+        if ordered and not sort:
+            # No explicit column sort → preserve Typesense's relevance order
+            # across the (status-filtered) ids.
             position = {pk: i for i, pk in enumerate(ids)}
             objects = sorted(
                 qs.prefetch_related("speaker"),
                 key=lambda v: position.get(v.id, len(ids)),
             )
             return _paginate(objects, page, per_page)
-    # Newest first for the unsearched / ORM-fallback list — the daily "what's
-    # new to flip live" view reads best most-recent-first.
-    qs = qs.prefetch_related("speaker").order_by("-date_created", "-id")
+
+    qs = qs.prefetch_related("speaker")
+    # A column sort overrides the default; otherwise newest-created first — the
+    # daily "what's new to flip live" view reads best most-recent-first.
+    qs = _sorted(qs, sort, direction) if sort else qs.order_by("-date_created", "-id")
     return _paginate(qs, page, per_page)
+
+
+def _sorted(qs, sort, direction):
+    """Apply a column ORDER BY for the Library. M2M columns (speaker/series) sort
+    via an annotation; "date" mirrors the displayed recorded→created coalesce.
+    NULLs sort last in both directions; ``-id`` is a stable tiebreak."""
+    if sort == "speaker":
+        qs = qs.annotate(_sort=Min("speaker__name"))
+        field = F("_sort")
+    elif sort == "series":
+        # Series membership is the Series.videos M2M (related_name="+", so no
+        # reverse accessor) — reach it with a correlated subquery.
+        qs = qs.annotate(
+            _sort=Subquery(Series.objects.filter(videos=OuterRef("pk")).order_by("name").values("name")[:1])
+        )
+        field = F("_sort")
+    elif sort == "date":
+        qs = qs.annotate(_sort=Coalesce("date_recorded", "date_created"))
+        field = F("_sort")
+    else:
+        field = F({"title": "name", "status": "status", "runtime": "duration_seconds"}[sort])
+
+    ordering = field.desc(nulls_last=True) if direction == "desc" else field.asc(nulls_last=True)
+    return qs.order_by(ordering, "-id")
 
 
 def _paginate(objects, page, per_page):
