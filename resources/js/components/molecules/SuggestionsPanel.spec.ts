@@ -30,6 +30,11 @@ describe('SuggestionsPanel', () => {
         expect(wrapper.findAll('button').some((b) => b.text().includes('Generate suggestions'))).toBe(true);
     });
 
+    it('hides the header Regenerate action until something has been generated', () => {
+        const wrapper = mount(SuggestionsPanel, { props: { enrichment: null, taxonomy } });
+        expect(wrapper.findAll('button').some((b) => b.text().includes('Regenerate'))).toBe(false);
+    });
+
     it('renders the stored suggestions', () => {
         const wrapper = mount(SuggestionsPanel, { props: { enrichment, taxonomy } });
         expect(wrapper.text()).toContain('A sermon on grace.');
