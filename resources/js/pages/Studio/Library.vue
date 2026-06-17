@@ -383,8 +383,14 @@ const resultLabel = computed(() => {
                     :key="`${props.sort}-${props.dir}-${props.page}`"
                     class="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
                 >
-                    <TableRow v-for="video in videos" :key="video.id" :data-state="selected.has(video.id) ? 'selected' : undefined">
-                        <TableCell>
+                    <TableRow
+                        v-for="video in videos"
+                        :key="video.id"
+                        :data-state="selected.has(video.id) ? 'selected' : undefined"
+                        class="cursor-pointer"
+                        @click="toggleRow(video.id, !selected.has(video.id))"
+                    >
+                        <TableCell @click.stop>
                             <Checkbox
                                 :model-value="selected.has(video.id)"
                                 @update:model-value="(v: boolean | 'indeterminate') => toggleRow(video.id, v)"
@@ -397,7 +403,13 @@ const resultLabel = computed(() => {
                             </div>
                         </TableCell>
                         <TableCell class="max-w-xs">
-                            <span class="text-foreground line-clamp-2 font-medium whitespace-normal">{{ video.name }}</span>
+                            <Link
+                                :href="`/studio/videos/${video.id}/edit`"
+                                class="text-foreground line-clamp-2 font-medium whitespace-normal hover:underline focus-visible:underline focus-visible:outline-none"
+                                @click.stop
+                            >
+                                {{ video.name }}
+                            </Link>
                         </TableCell>
                         <TableCell class="text-muted-foreground hidden md:table-cell">
                             {{ video.speakers.length ? video.speakers.join(', ') : '—' }}
@@ -419,7 +431,7 @@ const resultLabel = computed(() => {
                         <TableCell class="text-muted-foreground hidden tabular-nums sm:table-cell">
                             {{ formatDuration(video.duration_seconds) || '—' }}
                         </TableCell>
-                        <TableCell>
+                        <TableCell @click.stop>
                             <DropdownMenu>
                                 <DropdownMenuTrigger as-child>
                                     <Button variant="ghost" size="icon" :aria-label="`Actions for ${video.name}`">
