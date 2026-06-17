@@ -28,4 +28,33 @@ describe('ClassificationFields', () => {
             expect(wrapper.text()).toContain(label);
         }
     });
+
+    it('shows no suggestion chips when suggestions are omitted (e.g. Add-a-video)', () => {
+        const wrapper = mount(ClassificationFields, {
+            props: { taxonomy, topicIds: [], demographicIds: [], bibleBookIds: [], speakerIds: [], ministryIds: [], seriesId: null },
+        });
+        expect(wrapper.text()).not.toContain('Suggested');
+    });
+
+    it('adds a suggested topic to the selection when its chip is clicked', async () => {
+        const wrapper = mount(ClassificationFields, {
+            props: {
+                taxonomy: { ...taxonomy, topics: [{ id: 't1', name: 'Grace' }] },
+                topicIds: [],
+                demographicIds: [],
+                bibleBookIds: [],
+                speakerIds: [],
+                ministryIds: [],
+                seriesId: null,
+                suggestions: {
+                    topics: { matched: [{ id: 't1', name: 'Grace' }], unmatched: [] },
+                    audiences: { matched: [], unmatched: [] },
+                    books: { matched: [], unmatched: [] },
+                },
+            },
+        });
+        const chip = wrapper.findAll('button').find((b) => b.text().includes('Grace'));
+        await chip!.trigger('click');
+        expect(wrapper.emitted('update:topicIds')?.at(-1)).toEqual([['t1']]);
+    });
 });
