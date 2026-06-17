@@ -11,7 +11,7 @@ import { Skeleton } from '@/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
-import { ExternalLink, Film, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ChevronsUpDown, ExternalLink, Film, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { formatDuration } from '~/lib/duration';
 
@@ -31,6 +31,8 @@ const props = defineProps<{
     videos: VideoRow[];
     q: string;
     status: 'all' | 'draft' | 'published';
+    sort: string;
+    dir: 'asc' | 'desc';
     total: number;
     page: number;
     num_pages: number;
@@ -38,6 +40,9 @@ const props = defineProps<{
     has_next_page: boolean;
     draft_count: number;
 }>();
+
+// Columns the Library can sort by (key must match services.SORT_CHOICES).
+type SortKey = 'title' | 'speaker' | 'series' | 'date' | 'status' | 'runtime';
 
 // --- filters: search (debounced) + status -------------------------------
 const search = ref(props.q);
@@ -49,7 +54,7 @@ const loading = ref(false);
 function reload(params: Record<string, string>) {
     loading.value = true;
     router.get('/studio/', params, {
-        only: ['videos', 'q', 'status', 'total', 'page', 'num_pages', 'has_prev_page', 'has_next_page'],
+        only: ['videos', 'q', 'status', 'sort', 'dir', 'total', 'page', 'num_pages', 'has_prev_page', 'has_next_page'],
         preserveState: true,
         preserveScroll: true,
         replace: true,
@@ -59,14 +64,28 @@ function reload(params: Record<string, string>) {
 
 // The query string for a given (search, status) pair — the single place we
 // decide which params survive a reload (omit defaults to keep URLs clean).
-const buildParams = (status: 'all' | 'draft' | 'published') => {
+const buildParams = (status: 'all' | 'draft' | 'published', sort: string = props.sort, dir: 'asc' | 'desc' = props.dir) => {
     const params: Record<string, string> = {};
     if (search.value.trim()) params.q = search.value.trim();
     if (status !== 'all') params.status = status;
+    if (sort) {
+        params.sort = sort;
+        params.dir = dir;
+    }
     return params;
 };
 
 const runSearch = useDebounceFn(() => reload(buildParams(props.status)), 300);
+
+// Click a column header: toggle direction if it's the active column, else sort
+// by it ascending. Sorting is server-side (the list is paginated), so this is a
+// reload, not a client-side resort.
+function sortBy(col: SortKey) {
+    const dir: 'asc' | 'desc' = props.sort === col && props.dir === 'asc' ? 'desc' : 'asc';
+    reload(buildParams(props.status, col, dir));
+}
+
+const ariaSort = (col: SortKey) => (props.sort === col ? (props.dir === 'asc' ? 'ascending' : 'descending') : 'none');
 
 watch(search, () => runSearch());
 
@@ -231,12 +250,116 @@ const resultLabel = computed(() => {
                             <Checkbox :model-value="headerState" @update:model-value="toggleAll" aria-label="Select all videos on this page" />
                         </TableHead>
                         <TableHead class="w-20">Thumbnail</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead class="hidden md:table-cell">Speaker</TableHead>
-                        <TableHead class="hidden lg:table-cell">Series</TableHead>
-                        <TableHead class="hidden sm:table-cell">Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead class="hidden sm:table-cell">Runtime</TableHead>
+                        <TableHead :aria-sort="ariaSort('title')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('title')"
+                            >
+                                Title
+                                <component
+                                    :is="props.sort === 'title' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'title' ? 'text-foreground' : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
+                        <TableHead class="hidden md:table-cell" :aria-sort="ariaSort('speaker')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('speaker')"
+                            >
+                                Speaker
+                                <component
+                                    :is="props.sort === 'speaker' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'speaker'
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
+                        <TableHead class="hidden lg:table-cell" :aria-sort="ariaSort('series')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('series')"
+                            >
+                                Series
+                                <component
+                                    :is="props.sort === 'series' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'series'
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
+                        <TableHead class="hidden sm:table-cell" :aria-sort="ariaSort('date')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('date')"
+                            >
+                                Date
+                                <component
+                                    :is="props.sort === 'date' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'date' ? 'text-foreground' : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
+                        <TableHead :aria-sort="ariaSort('status')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('status')"
+                            >
+                                Status
+                                <component
+                                    :is="props.sort === 'status' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'status'
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
+                        <TableHead class="hidden sm:table-cell" :aria-sort="ariaSort('runtime')">
+                            <button
+                                type="button"
+                                class="group/sort hover:text-foreground focus-visible:ring-ring -mx-1 inline-flex cursor-pointer items-center gap-1 rounded px-1 transition-colors outline-none focus-visible:ring-2"
+                                @click="sortBy('runtime')"
+                            >
+                                Runtime
+                                <component
+                                    :is="props.sort === 'runtime' ? (props.dir === 'asc' ? ArrowUp : ArrowDown) : ChevronsUpDown"
+                                    class="size-3.5 shrink-0"
+                                    :class="
+                                        props.sort === 'runtime'
+                                            ? 'text-foreground'
+                                            : 'text-muted-foreground/40 group-hover/sort:text-muted-foreground'
+                                    "
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </TableHead>
                         <TableHead class="w-10"><span class="sr-only">Actions</span></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -255,7 +378,11 @@ const resultLabel = computed(() => {
                     </TableRow>
                 </TableBody>
 
-                <TableBody v-else-if="videos.length">
+                <TableBody
+                    v-else-if="videos.length"
+                    :key="`${props.sort}-${props.dir}-${props.page}`"
+                    class="motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
+                >
                     <TableRow v-for="video in videos" :key="video.id" :data-state="selected.has(video.id) ? 'selected' : undefined">
                         <TableCell>
                             <Checkbox
