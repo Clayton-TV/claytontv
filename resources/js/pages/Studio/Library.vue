@@ -11,14 +11,16 @@ import { Skeleton } from '@/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { useDebounceFn } from '@vueuse/core';
-import { ArrowDown, ArrowUp, ChevronsUpDown, ExternalLink, Film, MoreHorizontal, Pencil, Plus, Search } from 'lucide-vue-next';
+import { ArrowDown, ArrowUp, ChevronsUpDown, ExternalLink, Film, MoreHorizontal, Pencil, Play, Plus, Search } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
+import { usePlayerDock } from '~/composables/usePlayerDock';
 import { formatDuration } from '~/lib/duration';
 
 // The strict Inertia encoder hands us plain dicts only (app/studio/services.py).
 interface VideoRow {
     id: string;
     name: string;
+    url: string;
     thumbnail: string | null;
     speakers: string[];
     series: string | null;
@@ -86,6 +88,13 @@ function sortBy(col: SortKey) {
 }
 
 const ariaSort = (col: SortKey) => (props.sort === col ? (props.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+
+// Click a thumbnail to preview the video in the persistent mini-player dock
+// (the same dock the public site uses; enabled on the Library in AppLayout).
+const dock = usePlayerDock();
+function play(video: VideoRow) {
+    dock.load({ id: video.id, name: video.name, url: video.url });
+}
 
 watch(search, () => runSearch());
 
@@ -397,10 +406,20 @@ const resultLabel = computed(() => {
                                 :aria-label="`Select ${video.name}`"
                             />
                         </TableCell>
-                        <TableCell>
-                            <div class="bg-muted aspect-video w-16 overflow-hidden rounded">
+                        <TableCell @click.stop>
+                            <button
+                                type="button"
+                                class="group/play bg-muted focus-visible:ring-ring relative block aspect-video w-16 cursor-pointer overflow-hidden rounded outline-none focus-visible:ring-2"
+                                :aria-label="`Play ${video.name}`"
+                                @click="play(video)"
+                            >
                                 <img v-if="video.thumbnail" :src="video.thumbnail" alt="" loading="lazy" class="h-full w-full object-cover" />
-                            </div>
+                                <span
+                                    class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-150 group-hover/play:opacity-100 group-focus-visible/play:opacity-100 motion-reduce:transition-none"
+                                >
+                                    <Play class="size-5 fill-white text-white" aria-hidden="true" />
+                                </span>
+                            </button>
                         </TableCell>
                         <TableCell class="max-w-xs">
                             <Link
