@@ -8,10 +8,16 @@ import Toaster from '@/organisms/Toaster.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-// The Studio is an editor workspace, not a watch context — keep the floating
-// mini-player out of it so it never overlaps the content tables.
+// The mini-player shows on watch contexts. In the Studio it's allowed on the
+// browse-like surfaces (Library + Review, where clicking a thumbnail previews a
+// video) but kept off the form/editor surfaces so it never overlaps their UI.
 const page = usePage();
-const showPlayer = computed(() => !page.url.startsWith('/studio'));
+const STUDIO_PLAYER_PATHS = ['/studio', '/studio/', '/studio/review'];
+const showPlayer = computed(() => {
+    const path = page.url.split('?')[0];
+    if (!path.startsWith('/studio')) return true;
+    return STUDIO_PLAYER_PATHS.includes(path);
+});
 </script>
 
 <template>

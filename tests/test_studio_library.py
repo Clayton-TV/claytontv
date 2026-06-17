@@ -149,6 +149,15 @@ def test_library_row_carries_speakers_and_series(client):
     assert row["status"] == PUBLISHED
 
 
+def test_library_row_carries_source_url_for_the_player(client):
+    # The row's source URL feeds the thumbnail → mini-player dock (Epic #305).
+    login_editor(client)
+    VideoFactory(name="Playable", url="https://www.youtube.com/watch?v=abc123")
+
+    row = next(v for v in library_props(client)["videos"] if v["name"] == "Playable")
+    assert row["url"] == "https://www.youtube.com/watch?v=abc123"
+
+
 def test_status_filter_narrows(client):
     login_editor(client)
     VideoFactory(name="Live One", status=PUBLISHED)

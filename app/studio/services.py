@@ -76,6 +76,7 @@ def _serialize(videos):
             {
                 "id": v.id,
                 "name": v.name,
+                "url": v.url,  # source URL — lets the row load the video into the player dock
                 "thumbnail": v.thumbnail,
                 "speakers": [s.name for s in v.speaker.all()],
                 "series": series_names.get(v.id),
