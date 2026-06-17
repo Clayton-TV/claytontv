@@ -136,23 +136,46 @@ from an older `PROMPT_VERSION`), so a cron re-run continues where it left off;
 a finished catalogue is a near-instant no-op. `--refresh` re-does everything.
 Per-video failures are logged and skipped (retried next run), never fatal.
 
-**Prerequisite — not armed by default.** The model runs on `tgoml` and is
-reached over tailscale via `OLLAMA_HOST` (see the `OLLAMA` block in
-`app/base_settings.py`). **Verify app03 → tgoml reachability before installing
-the cron** (e.g. `curl -s $OLLAMA_HOST/api/tags`); without it every video logs
-"model returned nothing" and is left for retry. Throughput ~3–5 s/video on the
-5090 → the ~10k beta catalogue is ~14 h flat-out, or a few days under the
-off-peak throttle below (tgoml is shared infra — keep `--sleep` generous and
-run only off-peak).
+**Model host.** The model runs on `tgoml` (RTX 5090) and is reached over
+tailscale via `OLLAMA_HOST` (see the `OLLAMA` block in `app/base_settings.py`).
+Beta's `shared/.env` sets `OLLAMA_HOST=http://100.81.40.52:11434`,
+`OLLAMA_MODEL=gemma4:31b-it-qat` (31b only — the 26b MoE degenerates),
+`OLLAMA_TIMEOUT=120`. app03 is on the tailnet (peer `100.81.40.52`); sanity-check
+with `curl -s $OLLAMA_HOST/api/tags`. Measured throughput **~2.5 s/video** → the
+~10k catalogue is **~7 h flat-out**, or ~12–15 h under a polite throttle.
 
-Recommended off-peak cron (not yet installed — add once reachability is
-confirmed); `--max-runtime` keeps it inside the small-hours window:
+**Single flock-guarded entry point.** Both the off-peak cron and any manual /
+pre-fill run go through `/srv/beta-claytontv/shared/enrich_run.sh`, which wraps
+`enrich_catalogue` in `flock -n` so the two can **never overlap** (the GPU is
+single + serial). Because the command is DB-idempotent (only videos lacking a
+current-`PROMPT_VERSION` enrichment), a skipped or interrupted run loses nothing.
+The wrapper:
 
-    23 1 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py enrich_catalogue --sleep 3 --max-runtime 18000 >> /srv/beta-claytontv/shared/logs/enrich.log 2>&1
+```bash
+#!/usr/bin/env bash
+# /srv/beta-claytontv/shared/enrich_run.sh — flock-guarded enrichment runner.
+LOCK=/srv/beta-claytontv/shared/enrich.lock
+cd /srv/beta-claytontv/current || exit 1
+flock -n -E 99 "$LOCK" .venv/bin/python manage.py enrich_catalogue "$@"
+rc=$?
+[ "$rc" -eq 99 ] && echo "$(date -Is) enrich: skipped — a run is already in progress"
+exit "$rc"
+```
 
-Enrichment saves fire the search signal, so each enriched video is re-indexed
-as it's stored — no separate `reindex_search` needed for the fold-in to take
-effect.
+**Off-peak cron (installed, `dev` crontab):**
+
+    23 1 * * * /srv/beta-claytontv/shared/enrich_run.sh --sleep 2 --max-runtime 3600 >> /srv/beta-claytontv/shared/logs/enrich.log 2>&1
+
+**One-off / pre-fill** (detached, survives logout; flat-out shown):
+
+    setsid bash -c '/srv/beta-claytontv/shared/enrich_run.sh --sleep 0 --progress-every 100 >> /srv/beta-claytontv/shared/logs/enrich.log 2>&1' </dev/null &
+
+Enrichment saves fire the search signal, so each enriched video is re-indexed as
+it's stored — no separate `reindex_search` needed for the fold-in to take effect.
+
+**Future:** an async Redis job queue (replacing cron dispatch, enabling on-demand
++ import/export jobs) is deferred to its own epic — see #302. Not needed for this
+GPU-bound, serial fill.
 
 ## Typesense search (#213)
 
