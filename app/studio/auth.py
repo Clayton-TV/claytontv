@@ -1,6 +1,5 @@
 """Studio access gate. One decorator, applied to every Studio view, so the whole
-``/studio`` prefix shares a single authorisation rule (see
-docs/CREATOR_UI_RESEARCH.md §4)."""
+``/studio`` prefix shares a single authorisation rule."""
 
 from functools import wraps
 from urllib.parse import urlencode
