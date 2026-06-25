@@ -1,8 +1,12 @@
 # Clayton TV
 
-Clayton TV provides Christian media you can trust.
+A church media platform — Christian video you can trust, simple enough for an
+elderly congregant on a phone and deep enough for a minister researching a
+passage. Django + Inertia + Vue 3, currently being rebuilt on the `beta` branch.
 
-> The revamp roadmap lives in [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+New here? This README gets you running locally in a few minutes. To see what's
+being worked on and what's planned, browse the
+[issues and project board](https://github.com/Clayton-TV/claytontv/issues).
 
 ## Prerequisites
 

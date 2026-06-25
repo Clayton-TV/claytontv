@@ -7,7 +7,7 @@ comma-separated column; this restores them, keyed on legacy id. Local,
 idempotent, no network.
 
 Covers the CSV's content (pre-Oct-2024 bulk). Programmes added since the CSV
-have no demographic source yet — see docs/MASTER_PLAN.md."""
+have no demographic source yet."""
 
 import csv
 from pathlib import Path

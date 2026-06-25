@@ -50,3 +50,9 @@ bootstrap/ssr/
 
 # Claude workflow worktrees (local only)
 .claude/worktrees/
+
+# Internal planning notes — tracking lives in GitHub issues/Project, not in docs.
+# (CREATOR_UI_RESEARCH archived into epic #316.)
+docs/MASTER_PLAN.md
+docs/ROADMAP.md
+docs/CREATOR_UI_RESEARCH.md
