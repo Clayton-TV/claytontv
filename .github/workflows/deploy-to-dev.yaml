@@ -1,9 +1,9 @@
-name: Deploy to Beta
+name: Deploy to Dev
 
 on:
   push:
     branches:
-      - beta
+      - dev
   workflow_dispatch:
 
 concurrency:
@@ -14,9 +14,9 @@ jobs:
   deploy:
     uses: ./.github/workflows/deploy.yaml
     with:
-      environment: beta
-      base_path: /srv/beta-claytontv
-      gunicorn_service: gunicorn-claytontv-beta.service
-      url: https://beta.claytontv.co.uk/
+      environment: dev
+      base_path: /srv/dev-claytontv
+      gunicorn_service: gunicorn-claytontv-dev.service
+      url: https://dev.claytontv.co.uk/
       reindex: true
     secrets: inherit
