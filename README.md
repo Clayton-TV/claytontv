@@ -18,10 +18,11 @@ command differs on Windows, the PowerShell variant is shown alongside it.
 
 - **Python** — installed for you by uv (3.14, pinned in `.python-version`). No
   pyenv or system Python required.
-- **Node.js 22+ and npm** — for the Vue/Vite frontend. Install from
-  [nodejs.org](https://nodejs.org), or with a version manager such as
-  [nvm](https://github.com/nvm-sh/nvm) (`nvm install 22`) or
-  [fnm](https://github.com/Schniz/fnm). npm ships with Node.
+- **Node.js 22+ and npm** — for the Vue/Vite frontend. The version is pinned in
+  `.nvmrc`, so with a version manager such as [nvm](https://github.com/nvm-sh/nvm)
+  or [fnm](https://github.com/Schniz/fnm) just run `nvm use` / `fnm use` in the
+  repo to select it (`nvm install` first if you don't have it). Otherwise install
+  Node 22 from [nodejs.org](https://nodejs.org). npm ships with Node.
 - **Git**.
 - **Docker** — *optional*, only for running a local Typesense search container
   (step 7). The app runs fine without it; search falls back to the database.
