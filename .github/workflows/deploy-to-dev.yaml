@@ -1,9 +1,8 @@
 name: Deploy to Dev
 
 on:
-  push:
-    branches:
-      - dev
+  # Manual only — dev is the fast-moving integration branch, so we deploy it on
+  # demand rather than on every push. Beta/production still auto-deploy on push.
   workflow_dispatch:
 
 concurrency:
