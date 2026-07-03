@@ -49,6 +49,16 @@ export const EVENTS = {
 let entryPath: string | null = null;
 let hasLeftEntry = false;
 
+// Which deployment is sending events. Derived from the host (deploys are
+// per-domain), so a single PostHog project can distinguish environments without
+// the paid "Environments" feature — and prod tags itself once it gets a key.
+function detectEnvironment(): string {
+    const host = window.location.hostname;
+    if (host.startsWith('beta.')) return 'beta';
+    if (host === 'claytontv.co.uk' || host === 'www.claytontv.co.uk') return 'production';
+    return 'development';
+}
+
 export async function initializeAnalytics() {
     const key = import.meta.env.VITE_POSTHOG_KEY;
 
@@ -81,6 +91,11 @@ export async function initializeAnalytics() {
     });
 
     posthog = ph;
+
+    // Tag every event with the deployment that sent it (beta / production), so a
+    // single PostHog project can tell environments apart without the paid
+    // "Environments" feature.
+    ph.register({ environment: detectEnvironment() });
 
     // React to consent decisions made after boot (the banner on first visit, or
     // the footer "Cookie settings" later).
