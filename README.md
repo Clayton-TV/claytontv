@@ -165,6 +165,21 @@ uv run pre-commit run --all-files --show-diff-on-failure
 - only 4 set approvers (JG, FT, MB, JS)
   - Testing protocol
 
+### Issue Process
+### 1. Issue Creation
+- Plain English - make sure content and updates can be understood by all
+- Fill in issue type & tags
+- If you have a feature idea
+  - make an issue
+  - at each hackathon we’ll triage & check them with client (Ettie)
+  - if you want to work on a feature/issue before triage, run it by Caitlin/Ettie
+### 2. Issue Assigning
+- Only assign if actively working (not future work), to prevent blocking
+- If you're working on an issue
+  - Assign it to yourself
+  - Make a branch & name it to match
+
+
 
 
 
