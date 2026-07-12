@@ -11,6 +11,7 @@ const props = defineProps({
     page_start: { type: Number, default: 0 },
     has_prev_page: { type: Boolean },
     has_next_page: { type: Boolean },
+    page_range: { type: Array },
 });
 
 // Whole-series runtime as a rounded "Xh Ym" / "Ym" — a course-length cue.
@@ -73,7 +74,7 @@ const positionFor = (episode, index) => episode.number ?? props.page_start + ind
         </section>
 
         <div class="mt-10">
-            <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 </template>

@@ -659,6 +659,7 @@ def series_index(request):
             "total": paginator.count,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "page_range": [p for p in paginator.get_elided_page_range(page_num, on_each_side=2, on_ends=1)],
         },
     )
 
@@ -881,6 +882,7 @@ def browse_series(request, id):
             "page_start": (page_num - 1) * 50,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "page_range": [p for p in paginator.get_elided_page_range(page_num, on_each_side=2, on_ends=1)],
         },
     )
 
@@ -927,6 +929,7 @@ def browse_speaker(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "page_range": [p for p in paginator.get_elided_page_range(page_num, on_each_side=2, on_ends=1)],
         },
     )
 

@@ -11,6 +11,7 @@ const props = defineProps({
     total: { type: Number, default: 0 },
     has_prev_page: { type: Boolean },
     has_next_page: { type: Boolean },
+    page_range: { type: Array },
 });
 
 const filter = ref(props.query);
@@ -51,7 +52,7 @@ const submitFilter = () => {
         <p v-if="!series.length" class="text-muted-foreground mt-12 text-center text-sm">No series match “{{ query }}”.</p>
 
         <div class="mt-10">
-            <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 </template>

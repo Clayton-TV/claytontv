@@ -16,6 +16,7 @@ const props = defineProps({
     num_pages: { type: Number, required: true },
     has_prev_page: { type: Boolean, default: false },
     has_next_page: { type: Boolean, default: false },
+    page_range: { type: Array },
 });
 
 const lastVisit = useLastVisit('latest');
@@ -73,7 +74,7 @@ const dividerBeforeId = computed(() => {
 
         <p v-if="num_pages > 1" class="text-muted-foreground mt-10 text-center text-xs tabular-nums">Page {{ page }} of {{ num_pages }}</p>
         <div class="mt-4">
-            <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 </template>
