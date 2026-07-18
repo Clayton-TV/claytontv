@@ -185,6 +185,7 @@ def _paginate(objects, page, per_page):
         "num_pages": paginator.num_pages,
         "has_prev_page": paginated.has_previous(),
         "has_next_page": paginated.has_next(),
+        "page_range": [p for p in paginator.get_elided_page_range(page_num, on_each_side=2, on_ends=1)],
     }
 
 
