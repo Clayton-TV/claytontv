@@ -29,6 +29,7 @@ const props = defineProps<{
     num_pages: number;
     has_prev_page: boolean;
     has_next_page: boolean;
+    page_range: string[];
 }>();
 
 const nextTarget = computed(() => (props.page > 1 ? `/studio/review?page=${props.page}` : '/studio/review'));
@@ -170,7 +171,7 @@ const countLabel = computed(() => `${props.total} ${props.total === 1 ? 'draft a
         </div>
 
         <div class="mt-6">
-            <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
 
         <!-- Reject confirm -->
