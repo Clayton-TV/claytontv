@@ -12,7 +12,7 @@ defineProps({
     videos: { type: Array, default: () => [] },
     has_prev_page: { type: Boolean },
     has_next_page: { type: Boolean },
-    page_range: { type: Array },
+    num_pages: { type: Number },
 });
 
 // "Surname, First" → initials for the avatar tile
@@ -76,7 +76,7 @@ const initials = (name) =>
                 </li>
             </ul>
             <div class="mt-10">
-                <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+                <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
             </div>
         </section>
     </div>

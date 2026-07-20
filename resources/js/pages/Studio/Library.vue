@@ -40,7 +40,6 @@ const props = defineProps<{
     num_pages: number;
     has_prev_page: boolean;
     has_next_page: boolean;
-    page_range: string[];
     draft_count: number;
 }>();
 
@@ -500,7 +499,7 @@ const resultLabel = computed(() => {
         </div>
 
         <div class="mt-8">
-            <PaginationNav :page-range="page_range" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 
