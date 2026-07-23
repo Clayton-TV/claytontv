@@ -1,8 +1,12 @@
 name: Deploy to Dev
 
 on:
-  # Manual only — dev is the fast-moving integration branch, so we deploy it on
-  # demand rather than on every push. Beta/production still auto-deploy on push.
+  # Dev only moves via CI-green PRs (branch protection, #347), so auto-deploying
+  # on push keeps the environment in step with the branch and surfaces
+  # migration/deploy breakage early. Manual dispatch remains for redeploys.
+  push:
+    branches:
+      - dev
   workflow_dispatch:
 
 concurrency:
