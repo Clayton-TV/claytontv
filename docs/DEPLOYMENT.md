@@ -1,38 +1,64 @@
 # Deployment
 
-Two environments on one server (`app03.tgo.dev`, Contabo, Ubuntu 24.04 — also
-hosts unrelated PHP sites; mind the blast radius).
+Three environments on one server (`app03.tgo.dev`, Contabo, Ubuntu 24.04 — also
+hosts unrelated PHP sites; mind the blast radius). This doc is the
+server/ops-level source of truth; for the team-level overview see the
+[Environments and Deployments wiki page](https://github.com/Clayton-TV/claytontv/wiki/Environments-and-Deployments).
 
-| | Production | Beta |
-|---|---|---|
-| URL | https://claytontv.co.uk | https://beta.claytontv.co.uk |
-| Branch | `main` | `beta` |
-| Workflow | deploy-to-production.yaml | deploy-to-beta.yaml |
-| Root | /srv/claytontv | /srv/beta-claytontv |
-| Service | gunicorn-claytontv.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) |
-| Socket | shared/run/claytontv.sock | shared/run/claytontv-beta.sock |
-| Python | 3.12 via poetry (legacy) | 3.14 via uv |
-| Database | postgres `claytontv` | postgres `claytontv_beta` (own role) |
-| Redis | db 1 (implicit default) | db 2 (explicit REDIS_URL) |
-| TLS | certbot, auto-renew | certbot, auto-renew |
+| | Dev | Beta | Production |
+|---|---|---|---|
+| URL | https://dev.claytontv.co.uk | https://beta.claytontv.co.uk | https://claytontv.co.uk |
+| Branch | `dev` | `beta` | `main` (default) |
+| Deploy trigger | manual (`workflow_dispatch`) | push to `beta` (+ dispatch) | push to `main` (+ dispatch) |
+| Workflow | deploy-to-dev.yaml | deploy-to-beta.yaml | deploy-to-production.yaml |
+| Root | /srv/dev-claytontv | /srv/beta-claytontv | /srv/claytontv |
+| Service | gunicorn-claytontv-dev.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) | gunicorn-claytontv.service (+.socket) |
+| Socket | shared/run/claytontv-dev.sock | shared/run/claytontv-beta.sock | shared/run/claytontv.sock |
+| Python | 3.14 via uv | 3.14 via uv | 3.14 via uv |
+| Database | postgres `claytontv_dev` | postgres `claytontv_beta` | postgres `claytontv` |
+| Redis | own db (explicit REDIS_URL) | db 2 (explicit REDIS_URL) | db 1 (implicit default) |
+| TLS | certbot, auto-renew | certbot, auto-renew | certbot, auto-renew |
 
-Both use the same blue-green layout: `releases/<timestamp>` + `current`
-symlink + `shared/{.env,media,logs,run}`; beta adds `shared/backups/` and its
-deploy runs **pg_dump before migrate** (keeps last 7 dumps, last 5 releases).
-Deploys run as the `dev` user, whose sudo is limited to restarting the two
-gunicorn services (sudoers drop-ins `90-dev-gunicorn-restart`,
-`91-dev-gunicorn-beta`).
+All three use the same blue-green layout: `releases/<timestamp>` + `current`
+symlink + `shared/{.env,media,logs,run,backups}`. Every deploy runs
+**pg_dump before migrate** (keeps last 7 dumps, last 5 releases). Deploys run
+as the `dev` user, whose sudo is limited to restarting the gunicorn services
+(one restart drop-in per env under `/etc/sudoers.d/`).
 
-## Beta deploy flow
+## Deploy flow
 
-Push to `beta` → GitHub Actions (`environment: beta`; secrets `SSH_HOST`,
-`SSH_PORT`, `SSH_USER`, `SSH_PRIVATE_KEY`) → build assets on the runner →
-rsync release → `uv sync --locked --no-dev` (uv auto-provisions CPython 3.14)
-→ collectstatic → pg_dump backup → migrate → symlink swap → service restart →
-HTTP 200 smoke test.
+Promotion is one-directional: feature branch → PR into `dev` → promote to
+`beta` → promote to `main` (production). `main` is the default branch; CI
+(`ci.yaml`) gates every PR. Deploys are separate workflows, not part of CI.
 
-Manual deploy (emergency): mirror the workflow's remote script from a local
-checkout; see the workflow file — it is the single source of truth.
+Each environment has a thin caller (`deploy-to-{dev,beta,production}.yaml`).
+Beta triggers on push to `beta`, production on push to `main`; **dev is manual
+(`workflow_dispatch`) only** — it's the fast-moving integration branch, so it's
+deployed on demand rather than on every push. All three also support
+`workflow_dispatch` for a manual redeploy. Each caller passes its env-specific
+`base_path`, `gunicorn_service`, `url` and `reindex` into the reusable
+`deploy.yaml`, so the deploy procedure lives in exactly one place. Secrets
+(`SSH_HOST`, `SSH_PORT`, `SSH_USER`, `SSH_PRIVATE_KEY`) come from the matching
+GitHub `environment`.
+
+What a deploy does (`deploy.yaml` — runs on the GitHub runner, then over SSH):
+
+1. `npm ci` + `npm run build-only` — build Vite assets on the runner (PostHog
+   vars bake in here).
+2. rsync the tree to `releases/<timestamp>` (excludes `.env`, `.venv`,
+   `node_modules`, `.git`, etc.).
+3. `uv sync --locked --no-dev` — uv auto-provisions CPython 3.14 + deps.
+4. symlink `shared/.env` and `shared/media` into the release, then
+   `collectstatic`.
+5. `pg_dump` the DB into `shared/backups/`, then `migrate --noinput`.
+6. `reindex_search` against the env's Typesense (`reindex: true` for all three).
+7. atomic `current` symlink swap → `systemctl restart <gunicorn_service>` →
+   prune to the last 5 releases.
+8. smoke test: `curl` the env URL and require HTTP 200.
+
+Manual / emergency deploy: run the env's workflow via `workflow_dispatch`, or
+mirror the remote script from a local checkout — `deploy.yaml` is the single
+source of truth.
 
 ## Server security baseline (set 2026-06-12)
 
@@ -244,8 +270,10 @@ sudo -u dev bash -lc 'cd /srv/beta-claytontv/current && .venv/bin/python manage.
 > worker start via `load_dotenv`).
 
 Local dev: `docker compose up typesense` (repo-root `docker-compose.yml`) +
-`uv run poe manage reindex_search`. Prod is **not** wired yet — a later,
-legacy-team-coordinated step.
+`uv run poe manage reindex_search`. Each server environment now runs its own
+Typesense compose project under `shared/typesense/` (`claytontv-dev-search`,
+`claytontv-beta-search`, and prod), on the same loopback-only pattern shown
+above, and every deploy reindexes it (`reindex: true`).
 
 ## Error pages
 
