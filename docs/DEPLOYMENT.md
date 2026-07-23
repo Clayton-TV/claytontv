@@ -9,7 +9,7 @@ server/ops-level source of truth; for the team-level overview see the
 |---|---|---|---|
 | URL | https://dev.claytontv.co.uk | https://beta.claytontv.co.uk | https://claytontv.co.uk |
 | Branch | `dev` | `beta` | `main` (default) |
-| Deploy trigger | manual (`workflow_dispatch`) | push to `beta` (+ dispatch) | push to `main` (+ dispatch) |
+| Deploy trigger | push to `dev` (+ dispatch) | push to `beta` (+ dispatch) | push to `main` (+ dispatch) |
 | Workflow | deploy-to-dev.yaml | deploy-to-beta.yaml | deploy-to-production.yaml |
 | Root | /srv/dev-claytontv | /srv/beta-claytontv | /srv/claytontv |
 | Service | gunicorn-claytontv-dev.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) | gunicorn-claytontv.service (+.socket) |
@@ -32,9 +32,8 @@ Promotion is one-directional: feature branch → PR into `dev` → promote to
 (`ci.yaml`) gates every PR. Deploys are separate workflows, not part of CI.
 
 Each environment has a thin caller (`deploy-to-{dev,beta,production}.yaml`).
-Beta triggers on push to `beta`, production on push to `main`; **dev is manual
-(`workflow_dispatch`) only** — it's the fast-moving integration branch, so it's
-deployed on demand rather than on every push. All three also support
+All three auto-deploy on push to their branch — dev on push to `dev`, beta on
+push to `beta`, production on push to `main` — and all three also support
 `workflow_dispatch` for a manual redeploy. Each caller passes its env-specific
 `base_path`, `gunicorn_service`, `url` and `reindex` into the reusable
 `deploy.yaml`, so the deploy procedure lives in exactly one place. Secrets
