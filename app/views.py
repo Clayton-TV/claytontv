@@ -548,6 +548,7 @@ def browse_channel(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -584,6 +585,7 @@ def browse_demographic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -620,6 +622,7 @@ def browse_ministry(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -966,6 +969,7 @@ def browse_topic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
