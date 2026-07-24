@@ -18,12 +18,22 @@ defineProps({
     has_next_page: {
         type: Boolean,
     },
+    num_pages: {
+        type: Number,
+    },
 });
 </script>
 
 <template>
     <Head :title="title" />
     <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-        <VideoCardGrid :videos="videos" :title="title" :description="description ?? `Browsing videos under ` + title" :has_prev_page :has_next_page />
+        <VideoCardGrid
+            :videos="videos"
+            :title="title"
+            :description="description ?? `Browsing videos under ` + title"
+            :has_prev_page
+            :has_next_page
+            :num_pages
+        />
     </div>
 </template>
