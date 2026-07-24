@@ -140,3 +140,46 @@ uv run pre-commit run --all-files --show-diff-on-failure
 - **Frontend:** Vue 3 + TypeScript + Vite + Tailwind CSS 4, shadcn-vue (reka-ui)
 - **Quality:** ruff, pytest (+pytest-django), oxlint/eslint/prettier, pre-commit,
   gitleaks
+
+## Development Procedures
+
+### Branch Process
+### 1. Feature Branches
+- Set purpose
+- Single issue/single feature/single bug
+- Ideally attach to an issue and give a name that references the issue
+- Test features locally, once complete PR to dev/beta
+### 2. Dev
+- Manual deployment from your feature branch(es) for testing
+### 3. Beta
+- Beta site - autodeploy
+- Anyone can approve a PR
+- Test your changes live
+- PR template
+  - remind you to have tested locally
+  - check that there isn’t already a lag between beta & production
+- One new feature at a time
+  - PR to Production before the next feature PR is accepted to prevent backlog
+### 4. Production branch
+- live site  - auto deploy (treat with care!)
+- only 4 set approvers (JG, FT, MB, JS)
+  - Testing protocol
+
+### Issue Process
+### 1. Issue Creation
+- Plain English - make sure content and updates can be understood by all
+- Fill in issue type & tags
+- If you have a feature idea
+  - make an issue
+  - at each hackathon we’ll triage & check them with client (Ettie)
+  - if you want to work on a feature/issue before triage, run it by Caitlin/Ettie
+### 2. Issue Assigning
+- Only assign if actively working (not future work), to prevent blocking
+- If you're working on an issue
+  - Assign it to yourself
+  - Make a branch & name it to match
+
+
+
+
+
