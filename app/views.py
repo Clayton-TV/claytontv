@@ -298,16 +298,25 @@ def search(request):
     return render(request, "Search", props)
 
 
+def _typesense_total_pages(found):
+    """Pages we can actually serve: at least one, and never past Typesense's window."""
+    return min(max(1, math.ceil(found / pagination_per_page)), MAX_SEARCH_PAGE)
+
+
 def _search_typesense(searchquery, page_num):
-    # Typesense refuses to page beyond its first 10,000 results, so ask within
-    # that window; a page past the end is then clamped to the last real page,
-    # matching Paginator.get_page() on the ORM path.
+    # Never ask past Typesense's window — it errors there, and pages beyond it
+    # don't exist as far as search is concerned.
     page_num = min(page_num, MAX_SEARCH_PAGE)
     hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
-    total_pages = max(1, math.ceil(found / pagination_per_page))
+    total_pages = _typesense_total_pages(found)
     if page_num > total_pages:
+        # Past the end (a crawler guessing page numbers): serve the last real page,
+        # the same clamp Paginator.get_page() applies on the ORM path. With no
+        # results there is nothing to re-fetch — page 1 is just as empty.
         page_num = total_pages
-        hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
+        if found:
+            hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
+            total_pages = _typesense_total_pages(found)
 
     # Hydrate the ranked ids in one query, preserving Typesense's relevance order.
     by_id = {str(v.id): v for v in Video.objects.published().filter(id__in=[h.pk for h in hits])}
@@ -318,7 +327,7 @@ def _search_typesense(searchquery, page_num):
         "description": f"Found {found} {'video' if found == 1 else 'videos'} (page {page_num} of {total_pages})",
         "videos": video_card_props(ordered),
         "has_prev_page": page_num > 1,
-        "has_next_page": page_num * pagination_per_page < found,
+        "has_next_page": page_num < total_pages,
     }
     if page_num == 1:
         cat_hits = search_index.search_categories(
