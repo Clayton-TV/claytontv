@@ -260,7 +260,8 @@ def test_adapted_records_flow_through_the_standard_ingest():
 
 @pytest.fixture
 def instant_sleeps(monkeypatch):
-    """Record the waits the retry helper asks for, without serving them."""
+    """Record every `time.sleep` (retry backoff and sync's own pacing between
+    programmes) without actually serving it, so the tests stay instant."""
     waits = []
     monkeypatch.setattr("time.sleep", waits.append)
     return waits
@@ -315,6 +316,25 @@ def test_fetch_gives_up_when_the_old_site_is_genuinely_down(instant_sleeps):
         live_admin.fetch(session, "mediaProgramme.asp?offset=0")
 
     assert session.attempts == live_admin.MAX_ATTEMPTS
+
+
+def test_failures_that_are_not_wobbles_are_not_retried(instant_sleeps):
+    """Retries are for a flaky connection, not for a broken request — anything
+    a retry can't fix must fail on the first attempt, as it always did."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession(
+        [list_html("12404")],
+        failures=99,
+        on="mediaProgramme.asp",
+        error=requests.exceptions.TooManyRedirects("redirect loop"),
+    )
+
+    with pytest.raises(requests.exceptions.TooManyRedirects):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.attempts == 1
+    assert instant_sleeps == []
 
 
 def test_a_single_blip_mid_sync_does_not_abort_the_run(instant_sleeps):

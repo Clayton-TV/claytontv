@@ -33,7 +33,11 @@ MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
 # one more attempt than there are waits.
 RETRY_WAITS_SECONDS = (2, 5)
 MAX_ATTEMPTS = len(RETRY_WAITS_SECONDS) + 1
-TRANSIENT_ERRORS = (requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+TRANSIENT_ERRORS = (
+    requests.exceptions.ConnectionError,  # refused, aborted, hung up before replying
+    requests.exceptions.Timeout,  # too slow to connect, or to answer
+    requests.exceptions.ChunkedEncodingError,  # hung up part-way through the page
+)
 
 
 class AdminAuthError(Exception):
