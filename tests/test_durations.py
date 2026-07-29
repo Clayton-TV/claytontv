@@ -2,7 +2,10 @@
 (batched) and Vimeo oEmbed (per video). Gentle on both, never touches the
 legacy server; idempotent (only fills nulls unless --refresh)."""
 
+import logging
+
 import pytest
+import requests
 
 from catalogue.durations import format_duration, harvest_durations, parse_iso8601_duration
 from tests.factories import VideoFactory
@@ -39,14 +42,17 @@ def test_format_duration(seconds, label):
 class FakeHarvestSession:
     """Routes by host: YouTube videos.list vs Vimeo oEmbed."""
 
-    def __init__(self, yt=None, vimeo=None):
+    def __init__(self, yt=None, vimeo=None, time_out=()):
         self.yt = yt or {}  # video_id -> ISO duration
         self.vimeo = vimeo or {}  # url -> seconds
+        self.time_out = set(time_out)  # YouTube ids / Vimeo urls the platform is too slow to answer
         self.calls = []
 
     def get(self, url, params=None, timeout=None):
         self.calls.append(url)
         params = params or {}
+        if self.time_out & set(params.get("id", "").split(",")) or params.get("url") in self.time_out:
+            raise requests.ReadTimeout("read timed out")
 
         class Response:
             def __init__(self, code, payload):
@@ -113,6 +119,41 @@ def test_is_idempotent_skips_already_harvested(monkeypatch):
     harvest_durations(session=session)
 
     assert session.calls == []  # nothing missing → no API call
+
+
+def test_slow_vimeo_reply_is_skipped_not_fatal(monkeypatch, caplog):
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    slow = VideoFactory(url="https://vimeo.com/111111/aaaaaaaaaa", duration_seconds=None)
+    quick = VideoFactory(url="https://vimeo.com/222222/bbbbbbbbbb", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={quick.url: 3263}, time_out={slow.url})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session)
+
+    slow.refresh_from_db()
+    quick.refresh_from_db()
+    assert slow.duration_seconds is None  # left for the next run to backfill
+    assert quick.duration_seconds == 3263  # the rest of the queue still got harvested
+    assert len(session.calls) == 2
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
+    assert slow.url in caplog.text
+
+
+def test_failed_youtube_batch_is_skipped_not_fatal(monkeypatch, caplog):
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    yt = VideoFactory(url="https://youtu.be/eee", duration_seconds=None)
+    vimeo = VideoFactory(url="https://vimeo.com/333333/cccccccccc", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={vimeo.url: 1200}, time_out={"eee"})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session)
+
+    yt.refresh_from_db()
+    vimeo.refresh_from_db()
+    assert yt.duration_seconds is None
+    assert vimeo.duration_seconds == 1200  # Vimeo still ran after the YouTube batch failed
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
+    assert "YouTube" in caplog.text
 
 
 def test_refresh_reharvests_everything(monkeypatch):
