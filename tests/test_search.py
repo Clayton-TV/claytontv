@@ -33,15 +33,19 @@ def test_search_first_page_includes_matching_categories(client):
     assert ("Series", "Amazing Grace") in categories
 
 
-def test_search_without_a_term_renders_the_empty_page(client):
+def test_search_without_a_term_renders_the_empty_page(client, django_assert_max_num_queries):
     # #329: a bookmark of /search (or a crawler) sends no ?search= at all.
     VideoFactory(name="The Grace of God")
 
-    response = client.get("/search")
+    # No term means no search work — the only query left is the live-stream check
+    # every page runs, so neither Typesense nor the ORM fallback was consulted.
+    with django_assert_max_num_queries(1):
+        response = client.get("/search")
     page = inertia_page(response)
 
     assert response.status_code == 200
     assert page["component"] == "Search"
+    assert page["props"]["title"] == "Search"
     assert page["props"]["videos"] == []
     assert page["props"]["categories"] == []
 

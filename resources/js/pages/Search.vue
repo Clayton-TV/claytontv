@@ -30,7 +30,8 @@ const props = defineProps({
 // reactive, so this recomputes on every Inertia navigation — including a repeat
 // search from the global palette that REUSES this page component (no remount).
 const page = usePage();
-const query = computed(() => new URLSearchParams(page.url.split('?')[1] ?? '').get('search') ?? '');
+// Trimmed to match the server, which strips the term before searching.
+const query = computed(() => (new URLSearchParams(page.url.split('?')[1] ?? '').get('search') ?? '').trim());
 
 // Fire search_performed when the search TERM changes (initial load + each new
 // search) but not on pagination — paging changes ?page=, not ?search=. Search is
@@ -39,6 +40,10 @@ const query = computed(() => new URLSearchParams(page.url.split('?')[1] ?? '').g
 watch(
     query,
     (q) => {
+        // Landing on /search with no term isn't a search — don't log it as a
+        // zero-result one, or it drowns out the real content gaps.
+        if (!q) return;
+
         const videoCount = props.videos?.length ?? 0;
         const categoryCount = props.categories?.length ?? 0;
         track(EVENTS.searchPerformed, {
@@ -49,6 +54,15 @@ watch(
         });
     },
     { immediate: true },
+);
+
+// Arriving at /search with no term is a blank slate, not a failed search, so the
+// grid's empty state has to say something different.
+const emptyTitle = computed(() => (query.value ? 'No matching videos' : 'Nothing to show yet'));
+const emptyMessage = computed(() =>
+    query.value
+        ? "We couldn't find any videos for that search. Try a different word, a speaker's name, or a Bible book."
+        : "Use the search box at the top of the page to look for a word, a speaker's name, a series, or a Bible book.",
 );
 </script>
 
@@ -86,8 +100,8 @@ watch(
                 :has_next_page
                 track-context="search"
                 :track-query="query"
-                empty-title="No matching videos"
-                empty-message="We couldn't find any videos for that search. Try a different word, a speaker's name, or a Bible book."
+                :empty-title="emptyTitle"
+                :empty-message="emptyMessage"
             />
         </div>
     </div>

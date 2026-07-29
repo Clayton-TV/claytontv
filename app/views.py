@@ -265,14 +265,15 @@ def search(request):
         page_num = 1
 
     # No term at all (a bookmark of /search, a stripped link, a crawler): show the
-    # empty page rather than asking either engine for everything.
+    # empty page rather than asking either engine for everything. The page's own
+    # empty state carries the "how to search" nudge, so there's nothing to say here.
     if not searchquery:
         return render(
             request,
             "Search",
             {
                 "title": "Search",
-                "description": "Type a word, a speaker's name, or a Bible book to find videos.",
+                "description": "",
                 "videos": [],
                 "categories": [],
                 "has_prev_page": False,
