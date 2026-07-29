@@ -71,6 +71,31 @@ def test_search_with_a_blank_term_renders_the_empty_page(client, term):
     assert page["props"]["videos"] == []
 
 
+@pytest.mark.parametrize("page", ["999", "0", "-3", "not-a-page"])
+def test_search_clamps_impossible_pages(client, page):
+    # Crawlers walk made-up page numbers; the ORM fallback used to 500 on them.
+    VideoFactory(name="The Grace of God")
+
+    response = client.get("/search", {"search": "grace", "page": page})
+    props = inertia_page(response)["props"]
+
+    assert response.status_code == 200
+    assert [v["name"] for v in props["videos"]] == ["The Grace of God"]
+    assert "page 1 of 1" in props["description"]
+    assert props["has_prev_page"] is False
+    assert props["has_next_page"] is False
+
+
+def test_search_clamped_last_page_still_shows_categories(client):
+    # Clamping to page 1 means page 1's props, categories included.
+    video = VideoFactory(name="Grace")
+    video.topic.add(TopicFactory(name="Grace"))
+
+    props = inertia_page(client.get("/search", {"search": "grace", "page": 999}))["props"]
+
+    assert ("Topics", "Grace") in {(c["category"], c["name"]) for c in props["categories"]}
+
+
 def test_search_category_labels_are_cleaned(client):
     # Phase 6: depth-prefix mojibake leaked into search category chips.
     video = VideoFactory()

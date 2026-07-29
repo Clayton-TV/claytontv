@@ -29,6 +29,9 @@ from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_s
 
 pagination_per_page = 24
 
+# Typesense only serves the first 10,000 results of a query and errors past them.
+MAX_SEARCH_PAGE = 10_000 // pagination_per_page
+
 logger = logging.getLogger(__name__)
 
 # Newest first with undated entries at the END on both engines: Postgres
@@ -260,7 +263,8 @@ def search(request):
     Categories appear on page 1 only; both engines return the same prop shape."""
     searchquery = request.GET.get("search", "").strip()
     try:
-        page_num = int(request.GET.get("page", 1))
+        # Crawlers walk made-up page numbers; anything below 1 is page 1.
+        page_num = max(1, int(request.GET.get("page", 1)))
     except ValueError:
         page_num = 1
 
@@ -295,12 +299,20 @@ def search(request):
 
 
 def _search_typesense(searchquery, page_num):
+    # Typesense refuses to page beyond its first 10,000 results, so ask within
+    # that window; a page past the end is then clamped to the last real page,
+    # matching Paginator.get_page() on the ORM path.
+    page_num = min(page_num, MAX_SEARCH_PAGE)
     hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
+    total_pages = max(1, math.ceil(found / pagination_per_page))
+    if page_num > total_pages:
+        page_num = total_pages
+        hits, found = search_index.search_videos(searchquery, page=page_num, per_page=pagination_per_page)
+
     # Hydrate the ranked ids in one query, preserving Typesense's relevance order.
     by_id = {str(v.id): v for v in Video.objects.published().filter(id__in=[h.pk for h in hits])}
     ordered = [by_id[h.pk] for h in hits if h.pk in by_id]
 
-    total_pages = max(1, math.ceil(found / pagination_per_page))
     props = {
         "title": f"Search for '{searchquery}'",
         "description": f"Found {found} {'video' if found == 1 else 'videos'} (page {page_num} of {total_pages})",
@@ -327,7 +339,9 @@ def _search_orm(searchquery, page_num):
         v for v in Video.objects.published().filter(description__icontains=searchquery) if v not in video_results
     ]
     paginator = Paginator(video_results, pagination_per_page)
-    paginated = paginator.page(page_num)
+    # get_page() never raises: a page past the end becomes the last real page.
+    paginated = paginator.get_page(page_num)
+    page_num = paginated.number
     description = (
         f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} "
         f"(page {page_num} of {paginator.num_pages})"
