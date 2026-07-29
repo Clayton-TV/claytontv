@@ -11,6 +11,7 @@ app has no API or stable login endpoint. Expired sessions redirect to
 /accessdenied.html, which we detect and report clearly.
 """
 
+import logging
 import os
 import re
 import time
@@ -21,13 +22,42 @@ from bs4 import BeautifulSoup
 
 from .normalize import date_from_ref
 
+logger = logging.getLogger(__name__)
+
 BASE_URL = os.environ.get("LEGACY_ADMIN_BASE_URL", "https://clayton.tv/adminsection")
 PAGE_SIZE = 50
 MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
 
+# The legacy server drops and stalls requests routinely — retry those rather
+# than abandoning the run (and alerting) over a blip. Waits before each retry;
+# one more attempt than there are waits.
+RETRY_WAITS_SECONDS = (2, 5)
+MAX_ATTEMPTS = len(RETRY_WAITS_SECONDS) + 1
+TRANSIENT_ERRORS = (requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+
 
 class AdminAuthError(Exception):
     pass
+
+
+def _with_retries(description, request):
+    """Call `request()`, retrying transient network failures with a growing
+    wait. Once the attempts are spent the error is raised as before, so a
+    genuinely-down site still surfaces."""
+    for attempt, wait in enumerate(RETRY_WAITS_SECONDS, start=1):
+        try:
+            return request()
+        except TRANSIENT_ERRORS as exc:
+            logger.warning(
+                "Legacy admin %s failed (attempt %s/%s): %s — retrying in %ss",
+                description,
+                attempt,
+                MAX_ATTEMPTS,
+                exc,
+                wait,
+            )
+            time.sleep(wait)
+    return request()
 
 
 def login(session):
@@ -39,19 +69,23 @@ def login(session):
     if not (user and password):
         return False
 
-    page = session.get(f"{BASE_URL}/", timeout=30)  # sets the ASP session cookie, lands on login.asp?at=...
+    # Sets the ASP session cookie, lands on login.asp?at=...
+    page = _with_retries("login page", lambda: session.get(f"{BASE_URL}/", timeout=30))
     soup = BeautifulSoup(page.text, "html.parser")
     form = soup.find("form")
     action = (form.get("action") if form else None) or page.url
-    response = session.post(
-        action,
-        data={
-            "kt_login_user": user,
-            "kt_login_password": password,
-            "kt_login_rememberme": "1",
-            "kt_login1": "Login",
-        },
-        timeout=30,
+    response = _with_retries(
+        "login submission",
+        lambda: session.post(
+            action,
+            data={
+                "kt_login_user": user,
+                "kt_login_password": password,
+                "kt_login_rememberme": "1",
+                "kt_login1": "Login",
+            },
+            timeout=30,
+        ),
     )
     if "kt_login_password" in response.text:  # still on the login form
         raise AdminAuthError("Legacy admin login failed — check LEGACY_ADMIN_USERNAME/PASSWORD.")
@@ -75,7 +109,10 @@ def session_from_env():
 
 
 def fetch(session, path, _retried=False):
-    response = session.get(f"{BASE_URL}/{path}", timeout=30, allow_redirects=True)
+    response = _with_retries(
+        f"GET {path}",
+        lambda: session.get(f"{BASE_URL}/{path}", timeout=30, allow_redirects=True),
+    )
     if "accessdenied" in response.url or response.status_code in (401, 403):
         # Session lapsed mid-run: re-login once if we hold credentials
         if not _retried and not os.environ.get("LEGACY_ADMIN_COOKIE") and login(session):

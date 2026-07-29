@@ -2,7 +2,10 @@
 observed form structure (input/textarea/select names verified in the
 authenticated recon of 2026-06-12; see data/legacy_rescue/lookups/README.md)."""
 
+import logging
+
 import pytest
+import requests
 
 from catalogue.ingest.legacy import ingest_programmes
 from catalogue.ingest.live_admin import list_programme_ids, parse_meta_page, to_dump_record
@@ -253,6 +256,123 @@ def test_adapted_records_flow_through_the_standard_ingest():
     # And the cornerstone: re-sync is a no-op
     again = ingest_programmes([to_dump_record("12404", parse_meta_page(META_HTML))])
     assert again["created"] == 0 and again["updated"] == 1
+
+
+@pytest.fixture
+def instant_sleeps(monkeypatch):
+    """Record the waits the retry helper asks for, without serving them."""
+    waits = []
+    monkeypatch.setattr("time.sleep", waits.append)
+    return waits
+
+
+class FlakySession(PagedSession):
+    """Raises a transient network error on the first `failures` requests for
+    any URL containing `on`, then behaves normally."""
+
+    def __init__(self, *args, failures, on="", error=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.failures = failures
+        self.on = on
+        self.error = error or requests.exceptions.ReadTimeout("Read timed out.")
+        self.attempts = 0
+
+    def get(self, url, **kwargs):
+        if self.on in url:
+            self.attempts += 1
+            if self.attempts <= self.failures:
+                raise self.error
+        return super().get(url, **kwargs)
+
+
+def test_fetch_retries_a_wobbly_request_and_carries_on(instant_sleeps, caplog):
+    """Two dropped replies from the dying old site must not end the run: the
+    third attempt's response is returned, with a warning logged per retry."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=2, on="mediaProgramme.asp")
+
+    with caplog.at_level(logging.WARNING):
+        html = live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert "ID=12404" in html
+    assert session.attempts == 3
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 2
+    # Backoff escalates rather than hammering the server
+    assert instant_sleeps == sorted(instant_sleeps) and len(instant_sleeps) == 2
+    assert instant_sleeps[0] < instant_sleeps[-1]
+
+
+def test_fetch_gives_up_when_the_old_site_is_genuinely_down(instant_sleeps):
+    """Retries are bounded — a site that never answers still raises, so a real
+    outage surfaces instead of being swallowed."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=99, on="mediaProgramme.asp")
+
+    with pytest.raises(requests.exceptions.ReadTimeout):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.attempts == live_admin.MAX_ATTEMPTS
+
+
+def test_a_single_blip_mid_sync_does_not_abort_the_run(instant_sleeps):
+    """The whole point of #366: one wobble on a programme page costs a pause,
+    not the hour's import."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession(
+        [list_html("12404")],
+        metas={"mediaProgrammeMeta.asp": META_HTML},
+        failures=1,
+        on="mediaProgrammeMeta.asp",
+        error=requests.exceptions.ConnectionError("Remote end closed connection"),
+    )
+
+    stats, _records = live_admin.sync(pages=1, delay_seconds=0, session=session)
+
+    assert stats["created"] == 1
+    assert Video.objects.filter(id="12404").exists()
+
+
+def test_login_retries_transient_failures_too(instant_sleeps, monkeypatch):
+    from catalogue.ingest import live_admin
+
+    monkeypatch.setenv("LEGACY_ADMIN_USERNAME", "ettie")
+    monkeypatch.setenv("LEGACY_ADMIN_PASSWORD", "secret")
+
+    class S:
+        def __init__(self):
+            self.headers = {}
+            self.gets = 0
+            self.posts = 0
+
+        def get(self, url, **kw):
+            self.gets += 1
+            if self.gets == 1:
+                raise requests.exceptions.ConnectTimeout("connect timed out")
+
+            class R:
+                url = "https://clayton.tv/adminsection/login.asp"
+                text = '<form action="https://clayton.tv/adminsection/login.asp"></form>'
+
+            return R()
+
+        def post(self, url, data=None, **kw):
+            self.posts += 1
+            if self.posts == 1:
+                raise requests.exceptions.ReadTimeout("read timed out")
+
+            class R:
+                text = "<html>Channel Manager</html>"
+
+            return R()
+
+    session = S()
+
+    assert live_admin.login(session) is True
+    assert (session.gets, session.posts) == (2, 2)
 
 
 def test_login_submits_the_observed_form_fields(monkeypatch):
