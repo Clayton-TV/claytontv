@@ -117,6 +117,10 @@ installed — add when ready):
 
     37 4 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py harvest_durations >> /srv/beta-claytontv/shared/logs/durations.log 2>&1
 
+A platform that times out or errors is logged as a warning and skipped, not
+fatal: the run finishes, reports the count as `failed`, and those videos keep
+their null duration until the next run picks them up.
+
 Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
 URL carries its privacy hash (or the video is public). Hashless older Vimeo
 videos stay null until re-synced from the admin (mediaUpdate.asp exposes

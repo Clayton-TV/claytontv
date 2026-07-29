@@ -3,9 +3,11 @@
 legacy server; idempotent (only fills nulls unless --refresh)."""
 
 import logging
+from io import StringIO
 
 import pytest
 import requests
+from django.core.management import call_command
 
 from catalogue.durations import format_duration, harvest_durations, parse_iso8601_duration
 from tests.factories import VideoFactory
@@ -42,10 +44,11 @@ def test_format_duration(seconds, label):
 class FakeHarvestSession:
     """Routes by host: YouTube videos.list vs Vimeo oEmbed."""
 
-    def __init__(self, yt=None, vimeo=None, time_out=()):
+    def __init__(self, yt=None, vimeo=None, time_out=(), yt_status=200):
         self.yt = yt or {}  # video_id -> ISO duration
         self.vimeo = vimeo or {}  # url -> seconds
         self.time_out = set(time_out)  # YouTube ids / Vimeo urls the platform is too slow to answer
+        self.yt_status = yt_status  # e.g. 403 when the quota is spent
         self.calls = []
 
     def get(self, url, params=None, timeout=None):
@@ -63,6 +66,8 @@ class FakeHarvestSession:
                 return self._payload
 
         if "youtube" in url:
+            if self.yt_status != 200:
+                return Response(self.yt_status, {"error": {"message": "quota exceeded"}})
             ids = params["id"].split(",")
             items = [{"id": i, "contentDetails": {"duration": self.yt[i]}} for i in ids if i in self.yt]
             return Response(200, {"items": items})
@@ -142,6 +147,7 @@ def test_slow_vimeo_reply_is_skipped_not_fatal(monkeypatch, caplog):
 def test_failed_youtube_batch_is_skipped_not_fatal(monkeypatch, caplog):
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
     yt = VideoFactory(url="https://youtu.be/eee", duration_seconds=None)
+    also_yt = VideoFactory(url="https://youtu.be/fff", duration_seconds=None)
     vimeo = VideoFactory(url="https://vimeo.com/333333/cccccccccc", duration_seconds=None)
     session = FakeHarvestSession(vimeo={vimeo.url: 1200}, time_out={"eee"})
 
@@ -149,11 +155,58 @@ def test_failed_youtube_batch_is_skipped_not_fatal(monkeypatch, caplog):
         stats = harvest_durations(session=session)
 
     yt.refresh_from_db()
+    also_yt.refresh_from_db()
     vimeo.refresh_from_db()
     assert yt.duration_seconds is None
+    assert also_yt.duration_seconds is None
     assert vimeo.duration_seconds == 1200  # Vimeo still ran after the YouTube batch failed
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 2}  # videos, not batches
+    assert "eee" in caplog.text and "fff" in caplog.text
+
+
+def test_youtube_error_response_is_counted_not_silently_ignored(monkeypatch, caplog):
+    """A 403 (spent quota) is valid JSON with no items — it must not read as a clean run."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    v = VideoFactory(url="https://youtu.be/ggg", duration_seconds=None)
+    session = FakeHarvestSession(yt={"ggg": "PT7M2S"}, yt_status=403)
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session)
+
+    v.refresh_from_db()
+    assert v.duration_seconds is None
+    assert stats["failed"] == 1
+    assert "403" in caplog.text
+
+
+def test_missing_youtube_key_skips_youtube_without_killing_the_run(monkeypatch, caplog):
+    monkeypatch.delenv("YOUTUBE_API_KEY", raising=False)
+    yt = VideoFactory(url="https://youtu.be/hhh", duration_seconds=None)
+    vimeo = VideoFactory(url="https://vimeo.com/555555/eeeeeeeeee", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={vimeo.url: 900})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session)
+
+    yt.refresh_from_db()
+    vimeo.refresh_from_db()
+    assert yt.duration_seconds is None
+    assert vimeo.duration_seconds == 900  # Vimeo needs no key, so it still runs
     assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
-    assert "YouTube" in caplog.text
+    assert "YOUTUBE_API_KEY" in caplog.text
+
+
+def test_a_run_that_reaches_nothing_at_all_is_logged_as_an_error(monkeypatch, caplog):
+    """One slow video is routine; a run that resolves nothing is worth an alert."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    v = VideoFactory(url="https://vimeo.com/444444/dddddddddd", duration_seconds=None)
+    session = FakeHarvestSession(time_out={v.url})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session)
+
+    assert stats["failed"] == 1
+    assert [r.levelname for r in caplog.records if r.levelname == "ERROR"]
 
 
 def test_refresh_reharvests_everything(monkeypatch):
@@ -165,3 +218,14 @@ def test_refresh_reharvests_everything(monkeypatch):
 
     v.refresh_from_db()
     assert v.duration_seconds == 900
+
+
+def test_command_reports_every_stat(monkeypatch):
+    """Nothing to harvest, so no API calls — this pins the summary line's keys."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    out = StringIO()
+
+    call_command("harvest_durations", stdout=out, stderr=StringIO())
+
+    assert "YouTube: 0" in out.getvalue()
+    assert "failed" in out.getvalue()

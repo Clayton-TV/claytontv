@@ -69,19 +69,32 @@ def _harvest_youtube(session, videos_by_yid, stats):
     """videos.list, 50 ids a call. A batch we can't reach is logged and
     skipped — its videos keep their null duration for the next run."""
     yids = list(videos_by_yid)
+    key = os.environ.get("YOUTUBE_API_KEY")
+    if yids and not key:
+        logger.warning("YOUTUBE_API_KEY not set — %d YouTube videos skipped until the next run", len(yids))
+        stats["failed"] += len(yids)
+        return
+
     for start in range(0, len(yids), YT_BATCH):
         batch = yids[start : start + YT_BATCH]
         try:
             response = session.get(
                 YT_API,
-                params={"part": "contentDetails", "id": ",".join(batch), "key": os.environ["YOUTUBE_API_KEY"]},
+                params={"part": "contentDetails", "id": ",".join(batch), "key": key},
                 timeout=20,
             )
+            items = response.json().get("items", []) if response.status_code == 200 else None
         except requests.RequestException as exc:
-            logger.warning("YouTube batch of %d videos failed — skipped until the next run: %s", len(batch), exc)
+            logger.warning("YouTube batch failed (%s) — skipped until the next run: %s", ",".join(batch), exc)
             stats["failed"] += len(batch)
             continue
-        for item in response.json().get("items", []):
+        if items is None:
+            logger.warning(
+                "YouTube returned %s for batch (%s) — skipped until the next run", response.status_code, ",".join(batch)
+            )
+            stats["failed"] += len(batch)
+            continue
+        for item in items:
             seconds = parse_iso8601_duration(item.get("contentDetails", {}).get("duration"))
             if seconds is not None:
                 Video.objects.filter(id=videos_by_yid[item["id"]]).update(duration_seconds=seconds)
@@ -94,11 +107,11 @@ def _harvest_vimeo(session, videos, stats, delay):
     for video in videos:
         try:
             response = session.get(VIMEO_OEMBED, params={"url": video.url}, timeout=15)
+            seconds = response.json().get("duration") if response.status_code == 200 else None
         except requests.RequestException as exc:
             logger.warning("Vimeo request failed for %s — skipped until the next run: %s", video.url, exc)
             stats["failed"] += 1
         else:
-            seconds = response.json().get("duration") if response.status_code == 200 else None
             if seconds:
                 Video.objects.filter(id=video.id).update(duration_seconds=int(seconds))
                 stats["vimeo"] += 1
@@ -125,4 +138,8 @@ def harvest_durations(session=None, refresh=False, vimeo_delay=VIMEO_DELAY):
     stats = {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 0}
     _harvest_youtube(session, youtube, stats)
     _harvest_vimeo(session, vimeo, stats, vimeo_delay)
+
+    # One slow video is routine; a run that reached nothing is worth an alert.
+    if stats["failed"] and not (stats["youtube"] or stats["vimeo"] or stats["unresolved"]):
+        logger.error("Duration harvest reached no platform — all %d videos left for the next run", stats["failed"])
     return stats
