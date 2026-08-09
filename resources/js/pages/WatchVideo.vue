@@ -137,7 +137,7 @@ const entries = (key) => {
             <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <p class="text-muted-foreground text-sm tabular-nums">
                     {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
-                    <template v-if="formatDuration(video.duration_seconds)"> · Duration: {{ formatDuration(video.duration_seconds) }}</template>
+                    <template v-if="formatDuration(video.duration_seconds)"> · Duration {{ formatDuration(video.duration_seconds) }}</template>
                 </p>
                 <ShareButton :title="video.name" />
             </div>
