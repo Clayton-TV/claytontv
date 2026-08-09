@@ -2,8 +2,8 @@
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Head } from '@inertiajs/vue3';
-import { Mail } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Heart, Mail } from 'lucide-vue-next';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 const JSONP_URL = 'https://clayton.us2.list-manage.com/subscribe/post-json?u=d5c4aef36a582de40d5837112&id=8fc2472183&f_id=006179e0f0';
 const PRIVACY_URL = 'https://clayton.tv/Clayton_TV_Data_Privacy_Notice.pdf';
@@ -92,6 +92,30 @@ function clearErrorIfValid(event: Event) {
         error.value = '';
     }
 }
+
+// CAF Donate widget
+const CAF_SCRIPT_ID = 'CAFDonateWidgetLoader_script';
+const CAF_CAMPAIGN_ID = 150;
+
+onMounted(() => {
+    if (document.getElementById(CAF_SCRIPT_ID)) return;
+
+    (window as unknown as Record<string, unknown>)['caf_BeneficiaryCampaignId'] = CAF_CAMPAIGN_ID;
+    (window as unknown as Record<string, unknown>)['fixSize'] = false;
+
+    const script = document.createElement('script');
+    script.id = CAF_SCRIPT_ID;
+    script.type = 'text/javascript';
+    script.src = 'https://cafdonate.cafonline.org/js/CAF.DonateWidgetLoader_script.js';
+    document.head.appendChild(script);
+});
+
+onUnmounted(() => {
+    const script = document.getElementById(CAF_SCRIPT_ID);
+    if (script) script.remove();
+    delete (window as unknown as Record<string, unknown>)['caf_BeneficiaryCampaignId'];
+    delete (window as unknown as Record<string, unknown>)['fixSize'];
+});
 </script>
 
 <template>
@@ -202,6 +226,64 @@ function clearErrorIfValid(event: Event) {
                     </Button>
                 </form>
             </template>
+        </div>
+
+        <!-- Donation section -->
+        <div class="mx-auto max-w-2xl px-4 pb-14 lg:px-8">
+            <hr class="border-border mb-10" />
+
+            <div class="flex items-start gap-3">
+                <span class="bg-primary/10 text-primary flex h-10 w-10 flex-none items-center justify-center rounded-full" aria-hidden="true">
+                    <Heart class="h-5 w-5" />
+                </span>
+                <div class="min-w-0">
+                    <h2 class="font-display text-foreground text-2xl font-bold sm:text-3xl">Donation</h2>
+                </div>
+            </div>
+
+            <p class="text-muted-foreground mt-6 leading-relaxed">
+                All our content is free so your donations are vital to the continuing work of Clayton TV. We'd love it if you'd like to partner with
+                us financially - either as a one off or as a regular supporter
+            </p>
+
+            <div id="CAFDonateWidgetContainer" class="mt-8 h-[700px] w-full overflow-hidden rounded-lg"></div>
+
+            <!-- Bank transfer -->
+            <div class="border-border mt-10 rounded-lg border p-6">
+                <h3 class="text-foreground text-base font-semibold">TO MAKE PAYMENTS VIA YOUR BANK</h3>
+                <p class="text-muted-foreground mt-1 text-sm">Set up a one-off gift or a standing order directly with your bank.</p>
+
+                <dl class="mt-4 space-y-2 text-sm">
+                    <div class="grid grid-cols-2 gap-x-4">
+                        <dt class="text-muted-foreground font-medium">Account name</dt>
+                        <dd class="text-foreground">The Jesmond Trust</dd>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4">
+                        <dt class="text-muted-foreground font-medium">Sort code</dt>
+                        <dd class="text-foreground">30-93-71</dd>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4">
+                        <dt class="text-muted-foreground font-medium">Account number</dt>
+                        <dd class="text-foreground">00258445</dd>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4">
+                        <dt class="text-muted-foreground font-medium">Reference</dt>
+                        <dd class="text-foreground">Clayton TV</dd>
+                    </div>
+                </dl>
+
+                <p class="text-muted-foreground mt-4 text-sm">
+                    Please email
+                    <a href="mailto:enquiries@clayton.tv" class="text-primary underline-offset-4 hover:underline">enquiries@clayton.tv</a>
+                    to let us know.
+                </p>
+            </div>
+
+            <!-- Charity notice -->
+            <p class="text-muted-foreground mt-6 text-xs leading-relaxed">
+                Clayton TV is a ministry of the Jesmond Trust, registered charity 1193725. All donations are administered by the Jesmond Trust and
+                online donations are processed through CAF.
+            </p>
         </div>
     </div>
 </template>
