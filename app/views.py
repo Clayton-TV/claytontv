@@ -521,6 +521,7 @@ def browse_bible_book(request, id):
             "videos": paginated.object_list,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
