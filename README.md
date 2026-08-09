@@ -6,7 +6,7 @@ passage. Django + Inertia + Vue 3, currently being rebuilt on the `beta` branch.
 
 New here? This README gets you running locally in a few minutes. To see what's
 being worked on and what's planned, browse the
-[issues and project board](https://github.com/Clayton-TV/claytontv/issues).
+[issues](https://github.com/Clayton-TV/claytontv/issues) and [project board (only visible to Clayton TV developer team)](https://discord.gg/Gbh8fWthj).
 
 ## Prerequisites
 
