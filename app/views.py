@@ -499,6 +499,13 @@ def browse_bible_book(request, id):
         props["reference"] = passage_label(passage)
         return props
 
+    paginator = Paginator([card(v, p) for v, p in decorated], pagination_per_page)
+    page_num = 1
+    try:
+        page_num = int(request.GET.get("page", 1))
+    except ValueError:
+        page_num = 1
+    paginated = paginator.page(page_num)
     return render(
         request,
         "BookDetail",
@@ -511,7 +518,10 @@ def browse_bible_book(request, id):
             },
             "chapters": sorted(chapters),
             "selected_chapter": selected,
-            "videos": [card(v, p) for v, p in decorated],
+            "videos": paginated.object_list,
+            "has_prev_page": paginated.has_previous(),
+            "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -548,6 +558,7 @@ def browse_channel(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -584,6 +595,7 @@ def browse_demographic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -620,6 +632,7 @@ def browse_ministry(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -659,6 +672,7 @@ def series_index(request):
             "total": paginator.count,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -881,6 +895,7 @@ def browse_series(request, id):
             "page_start": (page_num - 1) * 50,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -927,6 +942,7 @@ def browse_speaker(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -963,6 +979,7 @@ def browse_topic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
