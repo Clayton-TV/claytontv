@@ -22,6 +22,7 @@ from django.views.generic import RedirectView
 from app.legacy_redirects import legacy_video_redirect
 
 from .views import (
+    about,
     audiences_index,
     books_index,
     browse_all_latest,
@@ -53,6 +54,7 @@ urlpatterns = [
     path("studio/", include("app.studio.urls")),
     path("livestreams/", browse_all_livestreams, name="browse_all_livestreams"),
     path("latest/", browse_all_latest, name="browse_all_latest"),
+    path("about/", about, name="about"),
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
     path("browse/", browse_faceted, name="browse_faceted"),

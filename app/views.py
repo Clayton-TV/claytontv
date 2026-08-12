@@ -59,6 +59,11 @@ SEARCH_KIND_LABELS = {
 SEARCH_CATEGORY_LIMIT = 20
 
 
+def about(request):
+    """About page"""
+    return render(request, "About")
+
+
 def index(request):
     """Curated homepage: a few of the latest videos, a handful of featured
     series and topics. Everything else is one click deeper — the previous

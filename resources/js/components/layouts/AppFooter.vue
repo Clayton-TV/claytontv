@@ -80,6 +80,12 @@ const columns = [
                 <div class="text-muted-foreground flex items-center gap-3 text-xs">
                     <p>© {{ year }} Clayton TV</p>
                     <Link
+                        href="/about"
+                        class="focus-visible:ring-ring hover:text-foreground rounded transition-colors duration-150 outline-none focus-visible:ring-2"
+                    >
+                        About
+                    </Link>
+                    <Link
                         href="/studio"
                         class="focus-visible:ring-ring hover:text-foreground rounded transition-colors duration-150 outline-none focus-visible:ring-2"
                     >
