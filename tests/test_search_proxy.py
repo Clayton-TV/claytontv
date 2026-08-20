@@ -8,6 +8,7 @@ typo/synonym tolerance end-to-end (skips without a container).
 
 import pytest
 
+from app.views import MAX_SEARCH_PAGE
 from catalogue import search
 from catalogue.search import Hit, SearchUnavailableError
 from tests.factories import VideoFactory
@@ -108,6 +109,93 @@ def test_search_page_two_has_no_categories(client, monkeypatch):
     assert props["has_prev_page"] is True
 
 
+def test_search_clamps_pages_past_the_end_to_the_last_page(client, monkeypatch):
+    # Typesense errors past its 10k result window, which used to mean a crawler
+    # asking for page 999 tripped the "unexpected error" path into Sentry.
+    video = VideoFactory(name="Romans 8")
+    hit = Hit(kind="video", pk=str(video.id), name=video.name, url=f"/video/{video.id}", videos_count=0)
+    requested_pages = []
+
+    def fake_search(query, *, page=1, **kw):
+        requested_pages.append(page)
+        return ([hit], 30) if page == 2 else ([], 30)  # 30 results = 2 pages of 24
+
+    monkeypatch.setattr(search, "search_videos", fake_search)
+
+    props = inertia_page(client.get("/search", {"search": "romans", "page": "999"}))["props"]
+
+    # Capped into Typesense's window first, then clamped to the last real page.
+    assert requested_pages == [MAX_SEARCH_PAGE, 2]
+    assert [v["name"] for v in props["videos"]] == ["Romans 8"]
+    assert props["description"] == "Found 30 videos (page 2 of 2)"
+    assert props["has_next_page"] is False
+
+
+def test_search_never_advertises_pages_past_typesenses_window(client, monkeypatch):
+    # More results than Typesense will page through: the last page it can serve
+    # is the last page we may offer, or we invent an endless run of URLs.
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 20_000))
+
+    props = inertia_page(client.get("/search", {"search": "god", "page": "999"}))["props"]
+
+    assert props["description"] == f"Found 20000 videos (page {MAX_SEARCH_PAGE} of {MAX_SEARCH_PAGE})"
+    assert props["has_next_page"] is False
+
+
+def test_search_clamped_to_page_one_still_fetches_categories(client, monkeypatch):
+    requested_pages = []
+
+    def fake_search(query, *, page=1, **kw):
+        requested_pages.append(page)
+        return ([], 5)  # one page of results
+
+    monkeypatch.setattr(search, "search_videos", fake_search)
+    monkeypatch.setattr(
+        search,
+        "search_categories",
+        lambda q, **kw: [Hit(kind="series", pk="9", name="A Series", url="/series/9", videos_count=4)],
+    )
+
+    props = inertia_page(client.get("/search", {"search": "x", "page": "999"}))["props"]
+
+    assert requested_pages == [MAX_SEARCH_PAGE, 1]
+    assert props["categories"][0]["name"] == "A Series"
+
+
+def test_search_does_not_re_ask_typesense_when_there_are_no_results(client, monkeypatch):
+    requested_pages = []
+
+    def fake_search(query, *, page=1, **kw):
+        requested_pages.append(page)
+        return ([], 0)
+
+    monkeypatch.setattr(search, "search_videos", fake_search)
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "asdfgh", "page": "5"}))["props"]
+
+    assert requested_pages == [5]  # nothing to clamp to; page 5 was empty already
+    assert props["videos"] == []
+    assert props["description"] == "Found 0 videos (page 1 of 1)"
+
+
+@pytest.mark.parametrize("page", ["0", "-3", "not-a-page"])
+def test_search_never_asks_typesense_for_an_impossible_page(client, monkeypatch, page):
+    requested_pages = []
+
+    def fake_search(query, *, page=1, **kw):
+        requested_pages.append(page)
+        return ([], 30)
+
+    monkeypatch.setattr(search, "search_videos", fake_search)
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "romans", "page": page}))["props"]
+
+    assert requested_pages == [1]
+    assert props["has_prev_page"] is False
+
+
 def test_search_falls_back_to_orm_when_typesense_unavailable(client, monkeypatch):
     def boom(*a, **k):
         raise SearchUnavailableError("down")
@@ -118,6 +206,27 @@ def test_search_falls_back_to_orm_when_typesense_unavailable(client, monkeypatch
     props = inertia_page(client.get("/search", {"search": "Unique Sermon"}))["props"]
 
     assert [v["name"] for v in props["videos"]] == ["Unique Sermon Title"]
+
+
+def test_search_sends_pagination_props_on_the_typesense_path(client, monkeypatch):
+    # Prop-shape parity with the ORM path — the nav is the same component.
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 50))
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "x", "page": "2"}))["props"]
+
+    assert props["num_pages"] == 3  # 50 results at 24 per page
+    assert props["page"] == 2
+
+
+def test_search_reports_the_clamped_page_on_the_typesense_path(client, monkeypatch):
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 30))  # 2 pages of 24
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "romans", "page": "999"}))["props"]
+
+    assert props["page"] == 2
+    assert props["num_pages"] == 2
 
 
 # --------------------------------------------------------------------------- #
