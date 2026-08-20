@@ -12,8 +12,9 @@ own site and deploy workflow. Branch off `dev`, PR back into `dev`; see
 New here? This README gets you running locally in a few minutes. To see what's
 being worked on and what's planned, browse the
 [issues](https://github.com/Clayton-TV/claytontv/issues) and the
-[project board](https://github.com/orgs/Clayton-TV/projects/6). Day-to-day chat
-is on [Discord](https://discord.gg/Gbh8fWthj) (Clayton TV developer team only).
+[project board](https://github.com/orgs/Clayton-TV/projects/6) (org project —
+only visible to the Clayton TV developer team). Day-to-day chat is on
+[Discord](https://discord.gg/Gbh8fWthj), also team-only.
 
 Works the same on **macOS, Windows, and Linux**: uv pins the Python version and
 locks every dependency, so you get an identical environment without Docker. The
@@ -41,13 +42,20 @@ Windows, the variant is shown alongside it.
 
 ## 1. Clone the repository
 
+Pick **one** of these. SSH needs a key on your GitHub account; HTTPS doesn't
+(Git will prompt for your credentials).
+
 ```bash
-# SSH (needs a key on your GitHub account)
-git clone git@github.com:clayton-tv/claytontv.git
+git clone git@github.com:clayton-tv/claytontv.git      # SSH
+```
 
-# HTTPS (no key needed; Git will prompt for your GitHub credentials)
-git clone https://github.com/Clayton-TV/claytontv.git
+```bash
+git clone https://github.com/Clayton-TV/claytontv.git  # HTTPS
+```
 
+Then:
+
+```bash
 cd claytontv
 ```
 
@@ -83,19 +91,34 @@ npm install              # Vue / Vite / Tailwind frontend deps
 
 Copy the example file, then generate a secret key into it:
 
+On macOS, Linux, WSL **or PowerShell** (where `cp` is a built-in alias for
+`Copy-Item`):
+
 ```bash
-cp .env.example .env          # macOS / Linux / WSL — and PowerShell, where
-                              # `cp` is an alias for Copy-Item
-copy .env.example .env        # Windows cmd.exe
+cp .env.example .env
+```
+
+On Windows **cmd.exe**, where `cp` doesn't exist:
+
+```
+copy .env.example .env
+```
+
+Then, in any shell:
+
+```bash
 uv run poe generate-key       # writes a SECRET_KEY into .env
 ```
 
 That's all you need to run the app. `SECRET_KEY` is the only value you must
-fill in, and `generate-key` does it for you; every other setting has a working
-default. `.env.example` is grouped and commented by purpose — read it there
-rather than here, so the two can't drift. The optional groups (Typesense search,
-Sentry/PostHog observability, legacy admin sync) can all be left empty for
-normal local dev.
+fill in, and `generate-key` does it for you; `DJANGO_SETTINGS_MODULE` must stay
+set (nothing supplies a default), and everything else already has a working
+local default. `.env.example` is grouped and commented for local dev — read it
+there rather than here, so the two can't drift. The optional groups (Typesense
+search, Sentry/PostHog observability, legacy admin sync) can all be left empty.
+Server-only settings (`DATABASE_URL`, `REDIS_URL`, `YOUTUBE_API_KEY`, the
+`OLLAMA_*` block and friends) aren't in the example file at all — see
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for those.
 
 ## 5. Set up the database
 
@@ -232,7 +255,7 @@ uv run pre-commit run --all-files --show-diff-on-failure
 ## 10. Stack at a glance
 
 - **Backend:** Python 3.14, Django 6, Inertia (inertia-django), SQLite locally /
-  PostgreSQL in production
+  PostgreSQL on every server environment
 - **Search:** Typesense (optional locally), with a database fallback
 - **Frontend:** Vue 3 + TypeScript + Vite + Tailwind CSS 4, shadcn-vue (reka-ui)
 - **Quality:** ruff, pytest (+pytest-django), oxlint/eslint/prettier, pre-commit,
@@ -263,15 +286,19 @@ Nothing skips a tier, and nothing reaches a shared environment except by PR.
   autodeploys on push to `beta`
 - Anyone can approve a PR
 - Test your changes live
-- PR template
-  - remind you to have tested locally
-  - check that there isn’t already a lag between beta & production
+- Before opening the PR (there is no PR template in the repo yet — do these by
+  hand)
+  - confirm you've tested locally
+  - check there isn't already a lag between beta & production
 - One new feature at a time
   - PR to Production before the next feature PR is accepted to prevent backlog
 ### 4. Production branch (`main`)
 - live site (https://claytontv.co.uk) — promoted by PR from `beta`; auto-deploys
   on push to `main` (treat with care!)
-- only 4 set approvers (JG, FT, MB, JS)
+- by convention only 4 approvers (JG, FT, MB, JS) — a convention, not a
+  configured rule: branch protection on `main` requires one approving review,
+  but there is no `CODEOWNERS` file, so any reviewer with write access can
+  approve. Don't rely on GitHub to enforce this.
   - Testing protocol
 
 ### Issue Process
