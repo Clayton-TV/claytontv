@@ -1,38 +1,124 @@
 # Deployment
 
-Two environments on one server (`app03.tgo.dev`, Contabo, Ubuntu 24.04 — also
-hosts unrelated PHP sites; mind the blast radius).
+Three environments on one server (`app03.tgo.dev`, Contabo, Ubuntu 24.04 — also
+hosts unrelated PHP sites; mind the blast radius). This doc is the
+server/ops-level source of truth; for the team-level overview see the
+[Environments and Deployments wiki page](https://github.com/Clayton-TV/claytontv/wiki/Environments-and-Deployments).
 
-| | Production | Beta |
-|---|---|---|
-| URL | https://claytontv.co.uk | https://beta.claytontv.co.uk |
-| Branch | `main` | `beta` |
-| Workflow | deploy-to-production.yaml | deploy-to-beta.yaml |
-| Root | /srv/claytontv | /srv/beta-claytontv |
-| Service | gunicorn-claytontv.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) |
-| Socket | shared/run/claytontv.sock | shared/run/claytontv-beta.sock |
-| Python | 3.12 via poetry (legacy) | 3.14 via uv |
-| Database | postgres `claytontv` | postgres `claytontv_beta` (own role) |
-| Redis | db 1 (implicit default) | db 2 (explicit REDIS_URL) |
-| TLS | certbot, auto-renew | certbot, auto-renew |
+| | Dev | Beta | Production |
+|---|---|---|---|
+| URL | https://dev.claytontv.co.uk | https://beta.claytontv.co.uk | https://claytontv.co.uk |
+| Branch | `dev` | `beta` | `main` (default) |
+| Deploy trigger | push to `dev` (+ dispatch) [†] | push to `beta` (+ dispatch) | push to `main` (+ dispatch) |
+| Workflow | deploy-to-dev.yaml | deploy-to-beta.yaml | deploy-to-production.yaml |
+| Root | /srv/dev-claytontv | /srv/beta-claytontv | /srv/claytontv |
+| Service | gunicorn-claytontv-dev.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) | gunicorn-claytontv.service (+.socket) |
+| Socket | shared/run/claytontv-dev.sock | shared/run/claytontv-beta.sock | shared/run/claytontv.sock |
+| Python | 3.14 via uv | 3.14 via uv | 3.14 via uv (what `deploy.yaml` requires) |
+| Database | postgres `claytontv_dev` | postgres `claytontv_beta` | postgres `claytontv` |
+| Redis | own db, set explicitly via `REDIS_URL` in dev's `shared/.env` | db 2 (explicit `REDIS_URL`) | db 1 (implicit default) |
+| Typesense | own container, **must** be `127.0.0.1:8109` (see the warning below) | own container on `127.0.0.1:8108` | not provisioned yet |
+| TLS | certbot, auto-renew | certbot, auto-renew | certbot, auto-renew |
 
-Both use the same blue-green layout: `releases/<timestamp>` + `current`
-symlink + `shared/{.env,media,logs,run}`; beta adds `shared/backups/` and its
-deploy runs **pg_dump before migrate** (keeps last 7 dumps, last 5 releases).
-Deploys run as the `dev` user, whose sudo is limited to restarting the two
-gunicorn services (sudoers drop-ins `90-dev-gunicorn-restart`,
-`91-dev-gunicorn-beta`).
+All three use the same atomic symlinked-release layout (Capistrano-style, not
+true blue-green — there is one live release, swapped by symlink):
+`releases/<timestamp>` + `current` symlink + `shared/{.env,media,logs,run,backups}`.
+Every deploy runs **pg_dump before migrate** (keeps last 7 dumps, last 5
+releases). `shared/backups/` must exist in an environment before its first
+deploy — the dump redirect aborts the deploy otherwise, and only beta's was
+created originally; `sudo ls /srv/<env>/shared/` on the box is authoritative.
 
-## Beta deploy flow
+Deploys run as the Linux **`dev` user** — a server account that predates the dev
+environment and is unrelated to it; it owns and deploys all three envs. Its sudo
+is limited to restarting the gunicorn services, via one restart drop-in per env
+under `/etc/sudoers.d/`: `90-dev-gunicorn-restart` (production),
+`91-dev-gunicorn-beta` (beta), and an equivalent drop-in added with the dev
+environment for `gunicorn-claytontv-dev.service` (its filename isn't recorded
+here — `sudo ls /etc/sudoers.d/` on the box is authoritative).
 
-Push to `beta` → GitHub Actions (`environment: beta`; secrets `SSH_HOST`,
-`SSH_PORT`, `SSH_USER`, `SSH_PRIVATE_KEY`) → build assets on the runner →
-rsync release → `uv sync --locked --no-dev` (uv auto-provisions CPython 3.14)
-→ collectstatic → pg_dump backup → migrate → symlink swap → service restart →
-HTTP 200 smoke test.
+## Deploy flow
 
-Manual deploy (emergency): mirror the workflow's remote script from a local
-checkout; see the workflow file — it is the single source of truth.
+> **Scope of the ops sections below.** The deploy flow itself is
+> environment-agnostic, but every ops section after it (legacy admin sync,
+> livestream sync, duration harvest, AI enrichment, Typesense, error pages) is
+> written against **beta** — its paths (`/srv/beta-claytontv`), its service
+> (`gunicorn-claytontv-beta.service`) and its log locations. The procedures
+> apply to dev and production too: substitute the Root and Service from the
+> table above.
+
+Promotion is one-directional: feature branch → PR into `dev` → promote to
+`beta` → promote to `main` (production). `main` is the default branch.
+
+`ci.yaml` runs on `pull_request` **opened/reopened only**, plus a blanket
+`push:` trigger — so later commits on a PR branch are covered by the push
+trigger rather than by the PR one. Its three checks (Quality Assurance, Unit
+Tests, Frontend Checks) are required by branch protection on all three
+branches. Deploys are separate workflows that run **alongside** CI, not after
+it: a red build still deploys to its environment.
+
+Two knock-on effects of the three-tier flow worth knowing:
+
+- **Issue auto-closing is on the beta hop, not the PR you write.**
+  `close-issues-on-beta-merge.yaml` scrapes `Closes #N` from PRs merging into
+  `beta`. Feature PRs now merge into `dev`, and the `dev` → `beta` promotion PR
+  carries no keywords — so a feature PR's `Closes #N` fires neither natively
+  (PRs no longer target the default branch) nor via that workflow. Put the
+  closing keywords on the promotion PR, or close by hand.
+- **`SENTRY_ENVIRONMENT` defaults to `"beta"`** (`app/production_settings.py`).
+  Dev and production must each set it in their `shared/.env`, or all three
+  environments report into Sentry as "beta".
+
+Each environment has a thin caller (`deploy-to-{dev,beta,production}.yaml`).
+All three auto-deploy on push to their branch — dev on push to `dev`, beta on
+push to `beta`, production on push to `main` — and all three also support
+`workflow_dispatch` for a manual redeploy. Each caller passes its env-specific
+`base_path`, `gunicorn_service`, `url` and `reindex` into the reusable
+`deploy.yaml`. Secrets (`SSH_HOST`, `SSH_PORT`, `SSH_USER`, `SSH_PRIVATE_KEY`)
+come from the matching GitHub `environment`.
+
+> **[†] Dev's push trigger arrives with #354.** Beta and production have
+> auto-deployed on push all along; dev was reverted to `workflow_dispatch`-only
+> under #325 and gets its `push:` trigger back in PR #354. Until that merges,
+> dev deploys are manual-dispatch only. If you are reading this on a branch
+> where `.github/workflows/deploy-to-dev.yaml` has no `push:` block, #354 has
+> not landed yet.
+
+What a deploy does (`deploy.yaml` — runs on the GitHub runner, then over SSH):
+
+1. `npm ci` + `npm run build-only` — build Vite assets on the runner (PostHog
+   vars bake in here).
+2. rsync the tree to `releases/<timestamp>` (excludes `.env`, `.venv`,
+   `node_modules`, `.git`, etc.).
+3. `uv sync --locked --no-dev` — uv auto-provisions CPython 3.14 + deps.
+4. symlink `shared/.env` and `shared/media` into the release, then
+   `collectstatic`.
+5. `pg_dump` the DB into `shared/backups/`, then `migrate --noinput`. Two
+   caveats: the deploy assumes `shared/backups/` already exists in the env (the
+   redirect fails and aborts the deploy if not — create it before an env's
+   first deploy), and the script has no `set -o pipefail`, so `pg_dump | gzip`
+   reports only `gzip`'s status. A failed dump therefore leaves a valid-looking
+   but empty `.gz` and lets `migrate` proceed — don't treat the presence of a
+   dump file as proof it's restorable.
+6. `reindex_search` against the env's Typesense. All three callers pass
+   `reindex: true`; the step runs under `set -e`, and `reindex_search` exits
+   non-zero when Typesense is unconfigured (a `CommandError`) *or* unreachable
+   (an unhandled `httpx` transport error — the command only catches
+   `SearchUnavailableError`, which covers the missing-API-key case). Either way
+   it **fails the deploy**. It runs *before* the symlink swap, so a failure
+   leaves the previous release serving.
+   > ⚠️ **Production is exposed by this today.** Production has no Typesense
+   > (see below) but `deploy-to-production.yaml` still passes `reindex: true`,
+   > so **any** push to `main` starts a deploy that aborts at this step. The
+   > live release is untouched (the abort happens before the symlink swap), but
+   > the deploy goes red. Before the prod cutover, either provision the
+   > container or set `reindex: false` in `deploy-to-production.yaml` — see #287.
+7. atomic `current` symlink swap → `systemctl restart <gunicorn_service>` →
+   prune to the last 5 releases.
+8. smoke test: `curl` the env URL and require HTTP 200.
+
+Manual / emergency deploy: run the env's workflow via `workflow_dispatch`, or
+mirror the remote script from a local checkout — `deploy.yaml` is the single
+source of truth.
 
 ## Server security baseline (set 2026-06-12)
 
@@ -244,8 +330,37 @@ sudo -u dev bash -lc 'cd /srv/beta-claytontv/current && .venv/bin/python manage.
 > worker start via `load_dotenv`).
 
 Local dev: `docker compose up typesense` (repo-root `docker-compose.yml`) +
-`uv run poe manage reindex_search`. Prod is **not** wired yet — a later,
-legacy-team-coordinated step.
+`uv run poe manage reindex_search`.
+
+**One instance per server environment — and the ports are load-bearing.**
+
+| Env | Compose project (`shared/typesense/`) | Bound to |
+|---|---|---|
+| Dev | one of its own, following beta's naming | `127.0.0.1:8109` (**required** — see below) |
+| Beta | `claytontv-beta-search` | `127.0.0.1:8108` |
+| Production | **not provisioned yet** — no compose project exists | — |
+
+Beta's project name is the one written into the compose file above. Dev's exact
+project name and its actual bound port are server state this doc can't prove —
+`sudo docker ps --format '{{.Names}} {{.Ports}}'` on app03 is authoritative.
+What is *not* negotiable is that dev must not share beta's port:
+
+> ⚠️ **Never point dev at 8108.** `catalogue/search.py` hardcodes
+> `COLLECTION = "content"` with **no per-environment suffix**, and
+> `recreate_collection()` *deletes* that collection before rebuilding it. Dev and
+> beta are therefore kept apart only by talking to different Typesense
+> instances. Point dev's `TYPESENSE_PORT` at 8108 — including by *removing* it,
+> because `app/base_settings.py` defaults `TYPESENSE_PORT` to `"8108"` — and the
+> next dev deploy's `reindex_search` aims at beta's container. If dev's
+> `TYPESENSE_API_KEY` also matches beta's, it will drop and rewrite **beta's live
+> index**; if it doesn't, Typesense rejects the call and the dev deploy fails
+> instead. Neither is acceptable. Dev's `shared/.env` must set
+> `TYPESENSE_PORT=8109` explicitly, and each env's
+> `shared/typesense/docker-compose.yml` must publish its own port.
+
+Production search is still ORM-fallback only until its container is provisioned
+(follow the provisioning steps above with `/srv/claytontv`, a project name of
+its own, and a third port) — see #287.
 
 ## Error pages
 

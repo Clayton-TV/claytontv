@@ -1,5 +1,13 @@
 # Typesense Hybrid Search — Handover
 
+> **Historical brief — the search epic (#213) has shipped.** This is the
+> original kickoff document, kept for background and rationale. Its environment
+> notes predate the three-tier `dev` → `beta` → `main` restructure (in
+> particular "prod/`main` belongs to the legacy team — do not touch" and
+> "deploy = push to `beta`" are no longer the whole picture). For current
+> environments, per-env Typesense instances and the deploy flow, read
+> [DEPLOYMENT.md](DEPLOYMENT.md) — it wins where the two disagree.
+
 **Kick this off in a fresh session.** Self-contained brief for adding Typesense
 as the search backend behind the existing instant client tier. Tracking issue:
 [#213](https://github.com/Clayton-TV/claytontv/issues/213).
