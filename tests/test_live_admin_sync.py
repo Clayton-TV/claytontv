@@ -413,10 +413,14 @@ def test_a_server_that_only_ever_503s_still_gives_up(instant_sleeps):
 
 
 def test_the_shipped_retry_policy_is_three_attempts_two_then_five_seconds():
+    import os
+
     from django.conf import settings
 
     from catalogue.ingest import live_admin
 
+    if os.environ.get("LEGACY_ADMIN_RETRY_WAITS"):
+        pytest.skip("this shell overrides the shipped default")
     assert tuple(settings.LEGACY_ADMIN_RETRY_WAITS_SECONDS) == (2, 5)
     assert live_admin.retry_waits() == (2, 5)
     assert live_admin.max_attempts() == 3
@@ -462,6 +466,89 @@ def test_retries_can_be_turned_off_entirely(instant_sleeps):
 
     assert session.attempts == 1
     assert instant_sleeps == []
+
+
+@override_settings(LEGACY_ADMIN_RETRY_WAITS_SECONDS=(0,) * 500)
+def test_zero_waits_cannot_turn_the_retry_into_a_hammer(instant_sleeps):
+    """The budget only bounds time, so unpaced waits would loop 500 times at
+    full speed against a box that is already struggling — bound the count and
+    floor the pause as well."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=999, on="mediaProgramme.asp")
+
+    with pytest.raises(requests.exceptions.ReadTimeout):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.attempts <= live_admin.MAX_RETRIES + 1
+    assert min(instant_sleeps) >= live_admin.MIN_RETRY_WAIT_SECONDS
+
+
+@override_settings(LEGACY_ADMIN_RETRY_WAITS_SECONDS=(-1,) * 500)
+def test_negative_waits_cannot_turn_the_retry_into_a_hammer(instant_sleeps):
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=999, on="mediaProgramme.asp")
+
+    with pytest.raises(requests.exceptions.ReadTimeout):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.attempts <= live_admin.MAX_RETRIES + 1
+    assert min(instant_sleeps) >= live_admin.MIN_RETRY_WAIT_SECONDS
+
+
+@pytest.mark.parametrize("overloaded_leg", ["form", "submission"])
+def test_a_login_against_an_overloaded_server_says_so_rather_than_blaming_the_password(
+    overloaded_leg, instant_sleeps, credentials
+):
+    """An IIS error page contains no login form, so a login() that ignored the
+    status would read it as success, get denied on the next request, and raise
+    the very "check your credentials" lie this change exists to remove — on
+    either leg, and on the last attempt as much as the first."""
+    from catalogue.ingest import live_admin
+
+    class OverloadedLogin:
+        def __init__(self):
+            self.headers = {}
+            self.posts = 0
+
+        def get(self, url, **kwargs):
+            if overloaded_leg == "form":
+                return Resp("<html>Service Unavailable</html>", url, 503)
+            action = "https://clayton.tv/adminsection/login.asp?at=1"
+            return Resp(f'<form action="{action}"></form>', action)
+
+        def post(self, url, data=None, **kwargs):
+            self.posts += 1
+            if overloaded_leg == "form":
+                raise AssertionError("credentials posted despite an unreadable login form")
+            return Resp("<html>Service Unavailable</html>", url, 503)
+
+    session = OverloadedLogin()
+
+    with pytest.raises(live_admin.OverloadedError):
+        live_admin.login(session)
+
+    assert session.posts <= live_admin.max_attempts()
+
+
+def test_credentials_are_never_posted_off_site(instant_sleeps, credentials):
+    """The form action comes from HTML we do not control — if it ever points
+    somewhere else, that is a credential leak, not a login."""
+    from catalogue.ingest import live_admin
+
+    class HijackedLogin:
+        def __init__(self):
+            self.headers = {}
+
+        def get(self, url, **kwargs):
+            return Resp('<form action="https://evil.example/collect"></form>', url)
+
+        def post(self, url, data=None, **kwargs):
+            raise AssertionError("credentials posted off-site")
+
+    with pytest.raises(live_admin.AdminAuthError, match="off-site"):
+        live_admin.login(HijackedLogin())
 
 
 class LapsedSession:

@@ -11,7 +11,7 @@ hosts unrelated PHP sites; mind the blast radius).
 | Root | /srv/claytontv | /srv/beta-claytontv |
 | Service | gunicorn-claytontv.service (+.socket) | gunicorn-claytontv-beta.service (+.socket) |
 | Socket | shared/run/claytontv.sock | shared/run/claytontv-beta.sock |
-| Python | 3.12 via poetry (legacy) | 3.14 via uv |
+| Python | 3.14 via uv (was 3.12/poetry before both moved to deploy.yaml) | 3.14 via uv |
 | Database | postgres `claytontv` | postgres `claytontv_beta` (own role) |
 | Redis | db 1 (implicit default) | db 2 (explicit REDIS_URL) |
 | TLS | certbot, auto-renew | certbot, auto-renew |
@@ -65,12 +65,15 @@ checkout; see the workflow file — it is the single source of truth.
 
 ## Legacy admin incremental sync (Epic 2.3)
 
-While clayton.tv survives, beta stays current via `sync_live_admin` (cron,
-hourly): it pulls the newest-modified programmes from the legacy admin and
-feeds them through the same idempotent upsert core as the dump ingest.
+While clayton.tv survives, beta and prod stay current via `sync_live_admin`
+(cron, hourly): it pulls the newest-modified programmes from the legacy admin
+and feeds them through the same idempotent upsert core as the dump ingest.
 
 Auth (preferred, self-healing): set `LEGACY_ADMIN_USERNAME` and
-`LEGACY_ADMIN_PASSWORD` in `/srv/beta-claytontv/shared/.env` (operator-set;
+`LEGACY_ADMIN_PASSWORD` in the environment's own `shared/.env`
+(`/srv/beta-claytontv/shared/.env`, `/srv/claytontv/shared/.env` — each host
+needs its own copy, or that environment's cron aborts with "No legacy admin
+auth configured"; operator-set,
 inject from 1Password via `op run` if preferred) — the sync mints its own
 sessions and re-logins automatically when they lapse. Fallback: paste a
 logged-in browser's Cookie header as `LEGACY_ADMIN_COOKIE` (expires; fails
@@ -97,9 +100,17 @@ image-picker media id to mediaUpdate.asp for it (layout observed
 Transient failures (dropped connections, timeouts, 5xx/429 from the
 overloaded box) are retried inside the sync — waits before each attempt come
 from `LEGACY_ADMIN_RETRY_WAITS` (default `2,5`, i.e. 3 attempts). Raise it
-for a long catch-up run (`LEGACY_ADMIN_RETRY_WAITS=5,15,60`); total waiting
-per request is capped at 5 minutes whatever is set, so the lock is never
-held indefinitely.
+for a long catch-up run (`LEGACY_ADMIN_RETRY_WAITS=5,15,60`). Whatever is
+set, each *network request* is bounded to 10 retries and 5 minutes of total
+waiting, and a malformed value falls back to the default rather than
+breaking the site's boot.
+
+That bounds a request, not a run: a wobbling server plus a big catch-up can
+still grind for hours, and `flock -n` then turns that into silence — every
+following hourly run exits at once, with nothing in `sync.log` but the lock
+message. If beta or prod stops keeping up, check for a long-running
+`sync_live_admin` before assuming the cron is broken; wrap the command in
+`timeout 55m` if it needs a hard ceiling.
 
 ## YouTube live-stream sync (Epic 4)
 

@@ -152,10 +152,21 @@ OLLAMA = {
 # dying classic-ASP box drops, stalls and 5xx's requests routinely; each value
 # is the pause before one more attempt, so "2,5" means 3 attempts. Give the
 # long #287 catch-up run more patience with LEGACY_ADMIN_RETRY_WAITS="5,15,60";
-# "" turns retries off. Total waiting per request is capped in live_admin.
-LEGACY_ADMIN_RETRY_WAITS_SECONDS = tuple(
-    float(wait) for wait in os.getenv("LEGACY_ADMIN_RETRY_WAITS", "2,5").split(",") if wait.strip()
-)
+# "" turns retries off. live_admin bounds both the count and the total wait.
+DEFAULT_RETRY_WAITS = (2.0, 5.0)
+
+
+def parse_retry_waits(raw):
+    """This dial lives in shared/.env, which wsgi.py loads BEFORE settings, so
+    parsing it eagerly makes a typo a site-wide 502. A malformed value falls
+    back to the default instead: it may only cost the sync some patience."""
+    try:
+        return tuple(float(wait) for wait in raw.split(",") if wait.strip())
+    except ValueError:
+        return DEFAULT_RETRY_WAITS
+
+
+LEGACY_ADMIN_RETRY_WAITS_SECONDS = parse_retry_waits(os.getenv("LEGACY_ADMIN_RETRY_WAITS", "2,5"))
 
 # When True, AI-derived enrichment may surface as unlabelled public metadata
 # (watch-page summary fallback + SEO meta). Default off: enrichment is invisible
