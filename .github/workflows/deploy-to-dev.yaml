@@ -1,16 +1,21 @@
 name: Deploy to Dev
 
 on:
-  # Dev only moves via CI-green PRs (branch protection, #347), so auto-deploying
-  # on push keeps the environment in step with the branch and surfaces
-  # migration/deploy breakage early. Manual dispatch remains for redeploys.
+  # Auto-deploying on push keeps the environment in step with the branch and
+  # surfaces migration/deploy breakage early. Note this runs alongside CI rather
+  # than after it, so a red build still deploys — dev is where we want to find
+  # that out. Manual dispatch remains for redeploys.
   push:
     branches:
       - dev
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Keyed on the workflow alone, deliberately: this workflow always deploys to
+  # the same server tree, so a push-triggered run and a dispatch from another
+  # branch must queue behind each other. Including github.ref would put them in
+  # separate groups and let them race on migrate, reindex and the symlink swap.
+  group: ${{ github.workflow }}
   cancel-in-progress: false # Don't cancel an in-flight deploy
 
 jobs:
