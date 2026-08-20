@@ -42,14 +42,33 @@ def test_format_duration(seconds, label):
 
 
 class FakeHarvestSession:
-    """Routes by host: YouTube videos.list vs Vimeo oEmbed."""
+    """Routes by host: YouTube videos.list vs Vimeo oEmbed.
 
-    def __init__(self, yt=None, vimeo=None, time_out=(), yt_status=200):
+    `vimeo` maps url -> seconds; a value of None models the documented
+    hashless case, which really answers 200 with `"duration": null` (probed
+    against vimeo.com/177746828). An url the fake doesn't know 404s, which is
+    what Vimeo returns for a deleted or mistyped id.
+    """
+
+    def __init__(
+        self,
+        yt=None,
+        vimeo=None,
+        time_out=(),
+        yt_status=200,
+        yt_items=None,
+        yt_fail_calls=(),
+        vimeo_status=None,
+    ):
         self.yt = yt or {}  # video_id -> ISO duration
-        self.vimeo = vimeo or {}  # url -> seconds
+        self.vimeo = vimeo or {}  # url -> seconds (None = answered, no duration)
         self.time_out = set(time_out)  # YouTube ids / Vimeo urls the platform is too slow to answer
         self.yt_status = yt_status  # e.g. 403 when the quota is spent
+        self.yt_items = yt_items  # raw items list, for malformed-payload cases
+        self.yt_fail_calls = set(yt_fail_calls)  # 0-based YouTube call indices that time out
+        self.vimeo_status = vimeo_status or {}  # url -> status code, for 429/5xx
         self.calls = []
+        self.yt_calls = 0
 
     def get(self, url, params=None, timeout=None):
         self.calls.append(url)
@@ -66,13 +85,21 @@ class FakeHarvestSession:
                 return self._payload
 
         if "youtube" in url:
+            call_index = self.yt_calls
+            self.yt_calls += 1
+            if call_index in self.yt_fail_calls:
+                raise requests.ReadTimeout("read timed out")
             if self.yt_status != 200:
                 return Response(self.yt_status, {"error": {"message": "quota exceeded"}})
             ids = params["id"].split(",")
+            if self.yt_items is not None:
+                return Response(200, {"items": self.yt_items})
             items = [{"id": i, "contentDetails": {"duration": self.yt[i]}} for i in ids if i in self.yt]
             return Response(200, {"items": items})
         # vimeo oembed
         target = params.get("url")
+        if target in self.vimeo_status:
+            return Response(self.vimeo_status[target], {"error": "unavailable"})
         if target in self.vimeo:
             return Response(200, {"duration": self.vimeo[target]})
         return Response(404, {})
@@ -84,7 +111,7 @@ def test_harvests_youtube_in_batches(monkeypatch):
     b = VideoFactory(url="https://youtu.be/bbb", duration_seconds=None)
     session = FakeHarvestSession(yt={"aaa": "PT7M2S", "bbb": "PT28M50S"})
 
-    stats = harvest_durations(session=session)
+    stats = harvest_durations(session=session, vimeo_delay=0)
 
     a.refresh_from_db()
     b.refresh_from_db()
@@ -98,22 +125,24 @@ def test_harvests_vimeo_via_oembed(monkeypatch):
     v = VideoFactory(url="https://vimeo.com/99643001/d440c6994e", duration_seconds=None)
     session = FakeHarvestSession(vimeo={"https://vimeo.com/99643001/d440c6994e": 3263})
 
-    harvest_durations(session=session)
+    harvest_durations(session=session, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds == 3263
 
 
 def test_unresolvable_vimeo_is_left_null_not_zero(monkeypatch):
+    """Hashless older videos answer 200 with a null duration (probed live) —
+    the platform was reachable, so this is `unresolved`, never `failed`."""
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    v = VideoFactory(url="https://vimeo.com/177746828", duration_seconds=None)  # no hash → 404
-    session = FakeHarvestSession()
+    v = VideoFactory(url="https://vimeo.com/177746828", duration_seconds=None)  # no hash → 200, duration null
+    session = FakeHarvestSession(vimeo={"https://vimeo.com/177746828": None})
 
-    stats = harvest_durations(session=session)
+    stats = harvest_durations(session=session, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds is None
-    assert stats["unresolved"] == 1
+    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 1, "failed": 0}
 
 
 def test_is_idempotent_skips_already_harvested(monkeypatch):
@@ -121,7 +150,7 @@ def test_is_idempotent_skips_already_harvested(monkeypatch):
     VideoFactory(url="https://youtu.be/ccc", duration_seconds=600)
     session = FakeHarvestSession(yt={"ccc": "PT99M"})
 
-    harvest_durations(session=session)
+    harvest_durations(session=session, vimeo_delay=0)
 
     assert session.calls == []  # nothing missing → no API call
 
@@ -133,7 +162,7 @@ def test_slow_vimeo_reply_is_skipped_not_fatal(monkeypatch, caplog):
     session = FakeHarvestSession(vimeo={quick.url: 3263}, time_out={slow.url})
 
     with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session)
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     slow.refresh_from_db()
     quick.refresh_from_db()
@@ -152,7 +181,7 @@ def test_failed_youtube_batch_is_skipped_not_fatal(monkeypatch, caplog):
     session = FakeHarvestSession(vimeo={vimeo.url: 1200}, time_out={"eee"})
 
     with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session)
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     yt.refresh_from_db()
     also_yt.refresh_from_db()
@@ -171,7 +200,7 @@ def test_youtube_error_response_is_counted_not_silently_ignored(monkeypatch, cap
     session = FakeHarvestSession(yt={"ggg": "PT7M2S"}, yt_status=403)
 
     with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session)
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds is None
@@ -186,7 +215,7 @@ def test_missing_youtube_key_skips_youtube_without_killing_the_run(monkeypatch, 
     session = FakeHarvestSession(vimeo={vimeo.url: 900})
 
     with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session)
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     yt.refresh_from_db()
     vimeo.refresh_from_db()
@@ -203,10 +232,137 @@ def test_a_run_that_reaches_nothing_at_all_is_logged_as_an_error(monkeypatch, ca
     session = FakeHarvestSession(time_out={v.url})
 
     with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session)
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     assert stats["failed"] == 1
     assert [r.levelname for r in caplog.records if r.levelname == "ERROR"]
+
+
+def test_total_outage_alerts_even_though_vimeo_leaves_something_unresolved(monkeypatch, caplog):
+    """The hashless Vimeo back-catalogue lands in `unresolved` on every run, so
+    an alert that waits for `unresolved == 0` can never fire in production."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    for n in range(60):
+        VideoFactory(url=f"https://youtu.be/out{n}", duration_seconds=None)
+    hashless = VideoFactory(url="https://vimeo.com/177746828", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={hashless.url: None}, yt_fail_calls={0, 1})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 1, "failed": 60}
+    assert [r for r in caplog.records if r.levelname == "ERROR"]
+
+
+def test_half_an_outage_still_alerts(monkeypatch, caplog):
+    """Quota exhaustion is partial by nature: the batches before the quota died
+    succeed. An alert that demands zero successes would sleep through it."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    for n in range(51):
+        VideoFactory(url=f"https://youtu.be/half{n}", duration_seconds=None)
+    session = FakeHarvestSession(yt={f"half{n}": "PT5M" for n in range(51)}, yt_fail_calls={0})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    assert stats["failed"] == 50  # the first batch of 50
+    assert stats["youtube"] == 1  # the remainder still resolved
+    assert [r for r in caplog.records if r.levelname == "ERROR"]
+
+
+def test_a_routine_single_failure_stays_a_warning(monkeypatch, caplog):
+    """The other edge of the threshold: one slow video among successes must not
+    page anyone, or the ERROR becomes noise and gets ignored."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    slow = VideoFactory(url="https://vimeo.com/111111/aaaaaaaaaa", duration_seconds=None)
+    for n in range(5):
+        VideoFactory(url=f"https://youtu.be/ok{n}", duration_seconds=None)
+    session = FakeHarvestSession(yt={f"ok{n}": "PT5M" for n in range(5)}, time_out={slow.url})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    assert stats["failed"] == 1
+    assert stats["youtube"] == 5
+    assert not [r for r in caplog.records if r.levelname == "ERROR"]
+
+
+def test_vimeo_server_error_is_counted_failed_not_unresolved(monkeypatch, caplog):
+    """A 429/503 means we couldn't reach Vimeo — recording it as `unresolved`
+    made it indistinguishable from a video that genuinely has no duration."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    v = VideoFactory(url="https://vimeo.com/666666/ffffffffff", duration_seconds=None)
+    session = FakeHarvestSession(vimeo_status={v.url: 503})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    v.refresh_from_db()
+    assert v.duration_seconds is None
+    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 1}
+    assert "503" in caplog.text
+
+
+def test_non_numeric_vimeo_duration_does_not_kill_the_run(monkeypatch, caplog):
+    """int('about an hour') would abort the whole harvest mid-queue."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    bad = VideoFactory(url="https://vimeo.com/777777/gggggggggg", duration_seconds=None)
+    good = VideoFactory(url="https://vimeo.com/888888/hhhhhhhhhh", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={bad.url: "about an hour", good.url: 1200})
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    bad.refresh_from_db()
+    good.refresh_from_db()
+    assert bad.duration_seconds is None
+    assert good.duration_seconds == 1200  # the queue carried on past the bad payload
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
+
+
+def test_youtube_item_without_an_id_does_not_kill_the_run(monkeypatch, caplog):
+    """item['id'] on a malformed 200 body would abort the whole harvest."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    v = VideoFactory(url="https://youtu.be/jjj", duration_seconds=None)
+    session = FakeHarvestSession(yt_items=[{"contentDetails": {"duration": "PT7M2S"}}])
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    v.refresh_from_db()
+    assert v.duration_seconds is None
+    assert stats["failed"] == 1
+
+
+def test_youtube_ids_absent_from_the_reply_are_counted_unresolved(monkeypatch, caplog):
+    """videos.list silently drops deleted/private/region-blocked ids from a 200.
+    Those must land in a bucket, or the stats quietly stop summing."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    kept = VideoFactory(url="https://youtu.be/kept", duration_seconds=None)
+    dropped = VideoFactory(url="https://youtu.be/gone", duration_seconds=None)
+    session = FakeHarvestSession(yt={"kept": "PT7M2S"})  # 'gone' is simply not returned
+
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
+
+    kept.refresh_from_db()
+    dropped.refresh_from_db()
+    assert kept.duration_seconds == 422
+    assert dropped.duration_seconds is None
+    assert stats == {"youtube": 1, "vimeo": 0, "unresolved": 1, "failed": 0}
+    assert sum(stats.values()) == 2  # every target accounted for
+    assert "gone" in caplog.text
+
+
+def test_youtube_item_with_an_unparseable_duration_is_counted_unresolved(monkeypatch):
+    """Returned but undurationed still has to land in a bucket."""
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    VideoFactory(url="https://youtu.be/odd", duration_seconds=None)
+    session = FakeHarvestSession(yt={"odd": "not-an-iso-duration"})
+
+    stats = harvest_durations(session=session, vimeo_delay=0)
+
+    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 1, "failed": 0}
 
 
 def test_refresh_reharvests_everything(monkeypatch):
@@ -214,18 +370,23 @@ def test_refresh_reharvests_everything(monkeypatch):
     v = VideoFactory(url="https://youtu.be/ddd", duration_seconds=600)
     session = FakeHarvestSession(yt={"ddd": "PT15M"})
 
-    harvest_durations(session=session, refresh=True)
+    harvest_durations(session=session, refresh=True, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds == 900
 
 
 def test_command_reports_every_stat(monkeypatch):
-    """Nothing to harvest, so no API calls — this pins the summary line's keys."""
+    """Pins the summary line's keys. The session is mocked, so this can never
+    reach the real APIs however much the test DB happens to hold."""
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    VideoFactory(url="https://youtu.be/iii", duration_seconds=None)
+    session = FakeHarvestSession(yt={"iii": "PT10M"})
+    monkeypatch.setattr("catalogue.durations.requests.Session", lambda: session)
     out = StringIO()
 
     call_command("harvest_durations", stdout=out, stderr=StringIO())
 
-    assert "YouTube: 0" in out.getvalue()
+    assert "YouTube: 1" in out.getvalue()
+    assert "unresolved: 0" in out.getvalue()
     assert "failed" in out.getvalue()

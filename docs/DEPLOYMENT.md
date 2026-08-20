@@ -117,14 +117,25 @@ installed — add when ready):
 
     37 4 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py harvest_durations >> /srv/beta-claytontv/shared/logs/durations.log 2>&1
 
-A platform that times out or errors is logged as a warning and skipped, not
-fatal: the run finishes, reports the count as `failed`, and those videos keep
-their null duration until the next run picks them up.
+A platform that times out, errors, or answers non-200 is logged as a warning
+and skipped, not fatal: the run finishes, reports the count as `failed`, and
+those videos keep their null duration until the next run picks them up. The
+two buckets differ — `failed` means we could not get an answer out of the
+platform (timeout, 429, 5xx, a malformed body); `unresolved` means it answered
+and simply had no duration for us. Both are retried next run, but only
+`failed` is a symptom of an outage.
+
+The run logs an ERROR (which is what raises a Sentry event — a warning is only
+a breadcrumb) when `failed` exceeds the number of videos it actually resolved.
+That ratio is deliberate: `unresolved` is never counted as health, because the
+hashless Vimeo videos below land there on every run, and a spent YouTube quota
+takes out only the batches after it ran out.
 
 Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
 URL carries its privacy hash (or the video is public). Hashless older Vimeo
-videos stay null until re-synced from the admin (mediaUpdate.asp exposes
-MediaDuration in ms) or a Vimeo API token is configured.
+videos answer 200 with a null duration, so they count as `unresolved` and stay
+null until re-synced from the admin (mediaUpdate.asp exposes MediaDuration in
+ms) or a Vimeo API token is configured.
 
 ## AI content enrichment (Epic #201)
 
