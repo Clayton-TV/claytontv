@@ -38,8 +38,8 @@ npm run build-only  # production asset build
 npm run type-check  # vue-tsc against tsconfig.app.json (runs in CI)
 ```
 
-Local HTTPS: `herd proxy claytontv http://127.0.0.1:8000 --secure` →
-https://claytontv.test. Local DB is SQLite; seed it with
+Local HTTPS (macOS only, needs Laravel Herd):
+`herd proxy claytontv http://127.0.0.1:8000 --secure` → https://claytontv.test. Local DB is SQLite; seed it with
 `uv run poe manage link_and_import_all` (imports CSV/ — takes a few minutes).
 
 ## Architecture notes & traps
