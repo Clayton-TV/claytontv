@@ -24,14 +24,21 @@ const props = defineProps({
     has_next_page: {
         type: Boolean,
     },
+    num_pages: {
+        type: Number,
+    },
+    page: {
+        type: Number,
+    },
 });
 
 // The query lives in the ?search= param (set by CommandPalette). usePage().url is
 // reactive, so this recomputes on every Inertia navigation — including a repeat
 // search from the global palette that REUSES this page component (no remount).
-const page = usePage();
+// (Named for Inertia's page object — `page` itself is the pagination prop.)
+const inertiaPage = usePage();
 // Trimmed to match the server, which strips the term before searching.
-const query = computed(() => (new URLSearchParams(page.url.split('?')[1] ?? '').get('search') ?? '').trim());
+const query = computed(() => (new URLSearchParams(inertiaPage.url.split('?')[1] ?? '').get('search') ?? '').trim());
 
 // Fire search_performed when the search TERM changes (initial load + each new
 // search) but not on pagination — paging changes ?page=, not ?search=. Search is
@@ -98,6 +105,8 @@ const emptyMessage = computed(() =>
                 :videos
                 :has_prev_page
                 :has_next_page
+                :num_pages
+                :page
                 track-context="search"
                 :track-query="query"
                 :empty-title="emptyTitle"

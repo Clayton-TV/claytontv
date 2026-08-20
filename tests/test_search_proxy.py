@@ -208,6 +208,27 @@ def test_search_falls_back_to_orm_when_typesense_unavailable(client, monkeypatch
     assert [v["name"] for v in props["videos"]] == ["Unique Sermon Title"]
 
 
+def test_search_sends_pagination_props_on_the_typesense_path(client, monkeypatch):
+    # Prop-shape parity with the ORM path — the nav is the same component.
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 50))
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "x", "page": "2"}))["props"]
+
+    assert props["num_pages"] == 3  # 50 results at 24 per page
+    assert props["page"] == 2
+
+
+def test_search_reports_the_clamped_page_on_the_typesense_path(client, monkeypatch):
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 30))  # 2 pages of 24
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "romans", "page": "999"}))["props"]
+
+    assert props["page"] == 2
+    assert props["num_pages"] == 2
+
+
 # --------------------------------------------------------------------------- #
 # Guarded live round-trip over HTTP — skipped without a reachable Typesense.
 # --------------------------------------------------------------------------- #

@@ -29,7 +29,10 @@ from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_s
 
 pagination_per_page = 24
 
-# Typesense only serves the first 10,000 results of a query and errors past them.
+# A defensive ceiling on how deep search will page, not a vendor limit: Typesense's
+# `limit_hits` defaults to no limit, so nothing stops a crawler walking page numbers
+# forever. 10,000 results is far past anything a person scrolls to, and the whole
+# catalogue is a fraction of it, so this can only ever bite a bot.
 MAX_SEARCH_PAGE = 10_000 // pagination_per_page
 
 logger = logging.getLogger(__name__)
@@ -285,6 +288,8 @@ def search(request):
                 "description": "",
                 "videos": [],
                 "categories": [],
+                "page": 1,
+                "num_pages": 1,
                 "has_prev_page": False,
                 "has_next_page": False,
             },
@@ -331,6 +336,11 @@ def _search_typesense(searchquery, page_num):
         "title": f"Search for '{searchquery}'",
         "description": f"Found {found} {'video' if found == 1 else 'videos'} (page {page_num} of {total_pages})",
         "videos": video_card_props(ordered),
+        # `page` is the page actually served (post-clamp), not the one asked for:
+        # the nav renders from it, so a clamped request must not leave Prev/Next
+        # pointing at the page the URL still names.
+        "page": page_num,
+        "num_pages": total_pages,
         "has_prev_page": page_num > 1,
         "has_next_page": page_num < total_pages,
     }
@@ -364,6 +374,8 @@ def _search_orm(searchquery, page_num):
         "title": f"Search for '{searchquery}'",
         "description": description,
         "videos": video_card_props(paginated.object_list),
+        "page": page_num,  # the clamped page, matching the Typesense path
+        "num_pages": paginator.num_pages,
         "has_prev_page": paginated.has_previous(),
         "has_next_page": paginated.has_next(),
     }

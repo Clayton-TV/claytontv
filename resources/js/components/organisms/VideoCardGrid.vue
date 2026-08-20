@@ -39,6 +39,11 @@ const props = defineProps({
     num_pages: {
         type: Number,
     },
+    // The page the server served (post-clamp). Optional: without it the nav
+    // reads the page out of the URL, as it always has.
+    page: {
+        type: Number,
+    },
     emptyTitle: {
         type: String,
         default: 'Nothing here yet',
@@ -53,7 +58,8 @@ const props = defineProps({
 // is 1-based rank within the current page so we can see which ranks get clicked.
 const onResultClick = (video, index) => {
     if (props.trackContext !== 'search') return;
-    const currentPage = parseInt(window.location.search.match(/[?&]page=([0-9]+)/)?.[1]) || 1;
+    // The served page where the server tells us (a clamped page isn't the one in the URL).
+    const currentPage = props.page || parseInt(window.location.search.match(/[?&]page=([0-9]+)/)?.[1]) || 1;
     track(EVENTS.searchResultClicked, {
         query: props.trackQuery,
         result_position: index + 1, // 1-based rank within this page…
@@ -91,7 +97,7 @@ const onResultClick = (video, index) => {
         </ul>
 
         <div class="mt-10">
-            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :num-pages="num_pages" :current-page="page" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </section>
 </template>

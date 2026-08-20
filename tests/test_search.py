@@ -105,3 +105,34 @@ def test_search_category_labels_are_cleaned(client):
 
     topic_names = [c["name"] for c in page["props"]["categories"] if c["category"] == "Topics"]
     assert "Grace abounds" in topic_names
+
+
+def test_search_sends_the_props_the_pagination_nav_needs(client):
+    # #329: the nav needs num_pages to draw page numbers at all, and the
+    # effective page so Prev/Next agree with the results actually shown.
+    for n in range(30):
+        VideoFactory(name=f"Grace {n}")
+
+    props = inertia_page(client.get("/search", {"search": "grace", "page": 2}))["props"]
+
+    assert props["num_pages"] == 2
+    assert props["page"] == 2
+
+
+def test_search_without_a_term_still_sends_the_pagination_props(client):
+    props = inertia_page(client.get("/search"))["props"]
+
+    assert props["num_pages"] == 1
+    assert props["page"] == 1
+
+
+@pytest.mark.parametrize("requested", ["999", "0", "-3", "not-a-page"])
+def test_search_reports_the_effective_page_after_clamping(client, requested):
+    # Prev used to render enabled on a clamped page because the nav read the
+    # requested page out of the URL: clicking it re-clamped to the same page.
+    VideoFactory(name="The Grace of God")
+
+    props = inertia_page(client.get("/search", {"search": "grace", "page": requested}))["props"]
+
+    assert props["page"] == 1
+    assert props["num_pages"] == 1

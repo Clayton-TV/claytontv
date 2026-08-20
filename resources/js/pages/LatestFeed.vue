@@ -73,7 +73,8 @@ const dividerBeforeId = computed(() => {
 
         <p v-if="num_pages > 1" class="text-muted-foreground mt-10 text-center text-xs tabular-nums">Page {{ page }} of {{ num_pages }}</p>
         <div class="mt-4">
-            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <!-- /latest clamps out-of-range pages too, so use the page it served. -->
+            <PaginationNav :num-pages="num_pages" :current-page="page" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 </template>
