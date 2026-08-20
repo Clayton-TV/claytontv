@@ -19,6 +19,7 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+from django.conf import settings
 
 from .normalize import date_from_ref
 
@@ -28,40 +29,82 @@ BASE_URL = os.environ.get("LEGACY_ADMIN_BASE_URL", "https://clayton.tv/adminsect
 PAGE_SIZE = 50
 MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
 
-# The legacy server drops and stalls requests routinely — retry those rather
-# than abandoning the run (and alerting) over a blip. Waits before each retry;
-# one more attempt than there are waits.
-RETRY_WAITS_SECONDS = (2, 5)
-MAX_ATTEMPTS = len(RETRY_WAITS_SECONDS) + 1
-TRANSIENT_ERRORS = (
-    requests.exceptions.ConnectionError,  # refused, aborted, hung up before replying
-    requests.exceptions.Timeout,  # too slow to connect, or to answer
-    requests.exceptions.ChunkedEncodingError,  # hung up part-way through the page
-)
+# The legacy server drops, stalls and (when overloaded) refuses requests
+# routinely — retry those rather than abandoning the run (and alerting) over a
+# blip. One attempt more than there are waits; the waits themselves come from
+# settings so a long catch-up run can be told to be more patient.
+RETRY_BUDGET_SECONDS = 300  # never nap more than this over one request
+
+# "Come back later" statuses. 429 is the one 4xx worth retrying (a fronting
+# proxy rate-limiting us); every other 4xx — a 404, a rejected login — is a
+# real answer that no amount of retrying improves, and must still fail fast.
+TOO_MANY_REQUESTS = 429
 
 
 class AdminAuthError(Exception):
     pass
 
 
+class OverloadedError(requests.exceptions.HTTPError):
+    """The admin answered, but only to say it is over capacity (5xx) or
+    rate-limiting us (429). That is "slow", not "gone", so it gets retried."""
+
+
+TRANSIENT_ERRORS = (
+    requests.exceptions.ConnectionError,  # refused, aborted, hung up before replying
+    requests.exceptions.Timeout,  # too slow to connect, or to answer
+    requests.exceptions.ChunkedEncodingError,  # hung up part-way through the page
+    OverloadedError,  # answered 5xx/429: overloaded, not unreachable
+)
+
+
+def retry_waits():
+    """The pause before each retry (setting LEGACY_ADMIN_RETRY_WAITS_SECONDS),
+    trimmed to a total budget: the hourly cron holds a flock, so an ops typo
+    like LEGACY_ADMIN_RETRY_WAITS="3000" must not park a run on it for hours."""
+    waits = []
+    remaining = RETRY_BUDGET_SECONDS
+    for wait in getattr(settings, "LEGACY_ADMIN_RETRY_WAITS_SECONDS", ()):
+        if remaining <= 0:
+            break
+        waits.append(max(0.0, min(float(wait), remaining)))
+        remaining -= waits[-1]
+    return tuple(waits)
+
+
+def max_attempts():
+    return len(retry_waits()) + 1
+
+
+def _raise_if_overloaded(response):
+    """Turn a "come back later" status into a retryable error, so it is ridden
+    out like a dropped connection instead of ending the hour's import."""
+    status = getattr(response, "status_code", None)
+    if status is not None and (status == TOO_MANY_REQUESTS or status >= 500):
+        raise OverloadedError(f"Legacy admin answered {status}", response=response)
+    return response
+
+
 def _with_retries(description, request):
-    """Call `request()`, retrying transient network failures with a growing
-    wait. Once the attempts are spent the error is raised as before, so a
-    genuinely-down site still surfaces."""
-    for attempt, wait in enumerate(RETRY_WAITS_SECONDS, start=1):
+    """Call `request()`, retrying transient failures with a growing wait. Once
+    the attempts are spent the error is raised as before, so a genuinely-down
+    site still surfaces."""
+    waits = retry_waits()
+    attempts = len(waits) + 1
+    for attempt, wait in enumerate(waits, start=1):
         try:
-            return request()
+            return _raise_if_overloaded(request())
         except TRANSIENT_ERRORS as exc:
             logger.warning(
                 "Legacy admin %s failed (attempt %s/%s): %s — retrying in %ss",
                 description,
                 attempt,
-                MAX_ATTEMPTS,
+                attempts,
                 exc,
                 wait,
             )
             time.sleep(wait)
-    return request()
+    return _raise_if_overloaded(request())
 
 
 def login(session):
@@ -73,14 +116,15 @@ def login(session):
     if not (user and password):
         return False
 
-    # Sets the ASP session cookie, lands on login.asp?at=...
-    page = _with_retries("login page", lambda: session.get(f"{BASE_URL}/", timeout=30))
-    soup = BeautifulSoup(page.text, "html.parser")
-    form = soup.find("form")
-    action = (form.get("action") if form else None) or page.url
-    response = _with_retries(
-        "login submission",
-        lambda: session.post(
+    def submit():
+        # Fetch the form on every attempt rather than re-posting a spent one:
+        # the login URL carries an `at=` token, and if that is single-use a
+        # replayed POST lands back on the form and reads as bad credentials.
+        # Also sets the ASP session cookie, lands on login.asp?at=...
+        page = _raise_if_overloaded(session.get(f"{BASE_URL}/", timeout=30))
+        form = BeautifulSoup(page.text, "html.parser").find("form")
+        action = (form.get("action") if form else None) or page.url
+        return session.post(
             action,
             data={
                 "kt_login_user": user,
@@ -89,8 +133,9 @@ def login(session):
                 "kt_login1": "Login",
             },
             timeout=30,
-        ),
-    )
+        )
+
+    response = _with_retries("login", submit)
     if "kt_login_password" in response.text:  # still on the login form
         raise AdminAuthError("Legacy admin login failed — check LEGACY_ADMIN_USERNAME/PASSWORD.")
     return True
@@ -118,7 +163,10 @@ def fetch(session, path, _retried=False):
         lambda: session.get(f"{BASE_URL}/{path}", timeout=30, allow_redirects=True),
     )
     if "accessdenied" in response.url or response.status_code in (401, 403):
-        # Session lapsed mid-run: re-login once if we hold credentials
+        # Session lapsed mid-run: re-login, but only ever ONCE per fetch
+        # (`_retried`). If the fresh session is refused too, fail loudly — a
+        # legacy admin locks accounts out, so a login storm is the worse
+        # outcome. Retries below it multiply requests, never login attempts.
         if not _retried and not os.environ.get("LEGACY_ADMIN_COOKIE") and login(session):
             return fetch(session, path, _retried=True)
         raise AdminAuthError(

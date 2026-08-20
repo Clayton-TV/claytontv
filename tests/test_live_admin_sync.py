@@ -6,6 +6,7 @@ import logging
 
 import pytest
 import requests
+from django.test import override_settings
 
 from catalogue.ingest.legacy import ingest_programmes
 from catalogue.ingest.live_admin import list_programme_ids, parse_meta_page, to_dump_record
@@ -300,9 +301,9 @@ def test_fetch_retries_a_wobbly_request_and_carries_on(instant_sleeps, caplog):
     assert session.attempts == 3
     warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
     assert len(warnings) == 2
-    # Backoff escalates rather than hammering the server
-    assert instant_sleeps == sorted(instant_sleeps) and len(instant_sleeps) == 2
-    assert instant_sleeps[0] < instant_sleeps[-1]
+    # The shipped policy: a short pause, then a longer one. Pinned exactly —
+    # "escalating" alone would let a nonsense (600, 1200) through.
+    assert instant_sleeps == [2, 5]
 
 
 def test_fetch_gives_up_when_the_old_site_is_genuinely_down(instant_sleeps):
@@ -315,7 +316,7 @@ def test_fetch_gives_up_when_the_old_site_is_genuinely_down(instant_sleeps):
     with pytest.raises(requests.exceptions.ReadTimeout):
         live_admin.fetch(session, "mediaProgramme.asp?offset=0")
 
-    assert session.attempts == live_admin.MAX_ATTEMPTS
+    assert session.attempts == live_admin.max_attempts() == 3
 
 
 def test_failures_that_are_not_wobbles_are_not_retried(instant_sleeps):
@@ -335,6 +336,241 @@ def test_failures_that_are_not_wobbles_are_not_retried(instant_sleeps):
 
     assert session.attempts == 1
     assert instant_sleeps == []
+
+
+class Resp:
+    """A response fake that answers like requests' does — including raising
+    from raise_for_status(), which the older fakes stub out."""
+
+    def __init__(self, text="", url="", status_code=200):
+        self.text = text
+        self.url = url
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise requests.exceptions.HTTPError(f"{self.status_code} for {self.url}", response=self)
+
+
+class StatusSession:
+    """Answers each GET with the next scripted status code (200 once the script
+    runs out), so the retry boundary can be pinned status by status."""
+
+    def __init__(self, statuses, body=None):
+        self.statuses = list(statuses)
+        self.body = list_html("12404") if body is None else body
+        self.requests_made = 0
+
+    def get(self, url, **kwargs):
+        scripted = self.requests_made < len(self.statuses)
+        status = self.statuses[self.requests_made] if scripted else 200
+        self.requests_made += 1
+        return Resp(self.body, url, status)
+
+
+@pytest.mark.parametrize("status", [500, 502, 503, 504, 429])
+def test_an_overloaded_or_rate_limited_answer_is_retried(status, instant_sleeps):
+    """#366's acceptance line is "only give up if the site is genuinely
+    unreachable rather than just slow" — a classic-ASP box answering 503, or a
+    proxy answering 429, IS just slow. Previously these did 1 GET and died."""
+    from catalogue.ingest import live_admin
+
+    session = StatusSession([status, status])
+
+    html = live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert "ID=12404" in html
+    assert session.requests_made == 3
+    assert instant_sleeps == [2, 5]
+
+
+@pytest.mark.parametrize("status", [400, 404, 410, 418])
+def test_a_broken_request_still_fails_fast(status, instant_sleeps):
+    """The other side of the boundary: a 404 (or any non-429 4xx) is a real
+    answer that a retry cannot improve. One request, no sleeps."""
+    from catalogue.ingest import live_admin
+
+    session = StatusSession([status])
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.requests_made == 1
+    assert instant_sleeps == []
+
+
+def test_a_server_that_only_ever_503s_still_gives_up(instant_sleeps):
+    """Retrying 5xx must not become an infinite hammer on a downed server."""
+    from catalogue.ingest import live_admin
+
+    session = StatusSession([503] * 99)
+
+    with pytest.raises(requests.exceptions.HTTPError):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.requests_made == live_admin.max_attempts() == 3
+    assert instant_sleeps == [2, 5]
+
+
+def test_the_shipped_retry_policy_is_three_attempts_two_then_five_seconds():
+    from django.conf import settings
+
+    from catalogue.ingest import live_admin
+
+    assert tuple(settings.LEGACY_ADMIN_RETRY_WAITS_SECONDS) == (2, 5)
+    assert live_admin.retry_waits() == (2, 5)
+    assert live_admin.max_attempts() == 3
+
+
+@override_settings(LEGACY_ADMIN_RETRY_WAITS_SECONDS=(0.5, 1, 2, 3))
+def test_retry_patience_is_configurable_for_the_long_catch_up_run(instant_sleeps):
+    """#287's catch-up run wants more patience than the hourly cron — the knob
+    is a setting (env LEGACY_ADMIN_RETRY_WAITS), not a code edit."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=4, on="mediaProgramme.asp")
+
+    html = live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert "ID=12404" in html
+    assert session.attempts == live_admin.max_attempts() == 5
+    assert instant_sleeps == [0.5, 1, 2, 3]
+
+
+@override_settings(LEGACY_ADMIN_RETRY_WAITS_SECONDS=(1000, 1000, 1000))
+def test_an_over_generous_setting_cannot_park_the_hourly_run(instant_sleeps):
+    """The cron holds a flock; a typo'd wait must not sit on it for hours, so
+    the waits are trimmed to a total budget per request."""
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=99, on="mediaProgramme.asp")
+
+    with pytest.raises(requests.exceptions.ReadTimeout):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert sum(instant_sleeps) <= live_admin.RETRY_BUDGET_SECONDS
+
+
+@override_settings(LEGACY_ADMIN_RETRY_WAITS_SECONDS=())
+def test_retries_can_be_turned_off_entirely(instant_sleeps):
+    from catalogue.ingest import live_admin
+
+    session = FlakySession([list_html("12404")], failures=99, on="mediaProgramme.asp")
+
+    with pytest.raises(requests.exceptions.ReadTimeout):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.attempts == 1
+    assert instant_sleeps == []
+
+
+class LapsedSession:
+    """A session whose cookie has expired mid-run: content GETs land on
+    /accessdenied.html until a login POST mints a working one."""
+
+    LOGIN_BODY = '<form action="https://clayton.tv/adminsection/login.asp?at=1"></form>'
+
+    def __init__(self, login_works=True, wobbles=0):
+        self.headers = {}
+        self.login_works = login_works
+        self.wobbles = wobbles
+        self.gets = 0
+        self.posts = 0
+        self.logged_in = False
+
+    def _wobble(self):
+        if self.wobbles:
+            self.wobbles -= 1
+            raise requests.exceptions.ConnectionError("Remote end closed connection")
+
+    def get(self, url, **kwargs):
+        self.gets += 1
+        self._wobble()
+        if url.endswith("/adminsection/"):  # the login form itself
+            return Resp(self.LOGIN_BODY, url)
+        if not self.logged_in:
+            return Resp("denied", "https://clayton.tv/adminsection/accessdenied.html")
+        return Resp(list_html("12404"), url)
+
+    def post(self, url, data=None, **kwargs):
+        self.posts += 1
+        self._wobble()
+        self.logged_in = self.login_works
+        return Resp("<html>Channel Manager</html>", url)
+
+
+@pytest.fixture
+def credentials(monkeypatch):
+    monkeypatch.setenv("LEGACY_ADMIN_USERNAME", "ettie")
+    monkeypatch.setenv("LEGACY_ADMIN_PASSWORD", "secret")
+    monkeypatch.delenv("LEGACY_ADMIN_COOKIE", raising=False)
+
+
+def test_a_session_that_lapses_mid_run_is_re_minted_and_the_page_refetched(instant_sleeps, credentials):
+    from catalogue.ingest import live_admin
+
+    session = LapsedSession()
+
+    html = live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert "ID=12404" in html
+    # denied page + login form + the retried page; exactly one credential POST
+    assert (session.gets, session.posts) == (3, 1)
+
+
+def test_a_lapse_plus_wobbles_still_lands_but_only_logs_in_once(instant_sleeps, credentials):
+    """Retry-plus-re-login is the amplification case: wobbles inside a re-login
+    must not multiply into repeated credential submissions."""
+    from catalogue.ingest import live_admin
+
+    session = LapsedSession(wobbles=2)
+
+    html = live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert "ID=12404" in html
+    # 2 dropped GETs, the denied page, the login form, the retried page
+    assert (session.gets, session.posts) == (5, 1)
+
+
+def test_only_one_re_login_is_attempted_per_fetch(instant_sleeps, credentials):
+    """If the fresh session is refused too, give up loudly — a legacy admin
+    locks accounts out, so a login storm is worse than a failed hour."""
+    from catalogue.ingest import live_admin
+
+    session = LapsedSession(login_works=False)
+
+    with pytest.raises(live_admin.AdminAuthError):
+        live_admin.fetch(session, "mediaProgramme.asp?offset=0")
+
+    assert session.posts == 1
+
+
+def test_a_retried_login_refetches_the_form_instead_of_replaying_the_token(instant_sleeps, credentials):
+    """The login action carries an `at=` token. If it is single-use, replaying
+    the same POST bounces back to the form and raises a misleading "check your
+    credentials" for what was only a network blip — so re-fetch the form."""
+    from catalogue.ingest import live_admin
+
+    posted_to = []
+
+    class TokenSession:
+        def __init__(self):
+            self.headers = {}
+            self.forms_served = 0
+
+        def get(self, url, **kwargs):
+            self.forms_served += 1
+            action = f"https://clayton.tv/adminsection/login.asp?at=token{self.forms_served}"
+            return Resp(f'<form action="{action}"></form>', action)
+
+        def post(self, url, data=None, **kwargs):
+            posted_to.append(url)
+            if len(posted_to) == 1:
+                raise requests.exceptions.ReadTimeout("read timed out")
+            return Resp("<html>Channel Manager</html>", url)
+
+    assert live_admin.login(TokenSession()) is True
+    assert [url.rsplit("=", 1)[-1] for url in posted_to] == ["token1", "token2"]
 
 
 def test_a_single_blip_mid_sync_does_not_abort_the_run(instant_sleeps):
@@ -392,7 +628,9 @@ def test_login_retries_transient_failures_too(instant_sleeps, monkeypatch):
     session = S()
 
     assert live_admin.login(session) is True
-    assert (session.gets, session.posts) == (2, 2)
+    # Each attempt re-fetches the form before posting, so the dropped POST
+    # costs one extra GET rather than replaying a spent login URL.
+    assert (session.gets, session.posts) == (3, 2)
 
 
 def test_login_submits_the_observed_form_fields(monkeypatch):

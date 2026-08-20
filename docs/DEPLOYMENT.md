@@ -74,9 +74,16 @@ Auth (preferred, self-healing): set `LEGACY_ADMIN_USERNAME` and
 inject from 1Password via `op run` if preferred) — the sync mints its own
 sessions and re-logins automatically when they lapse. Fallback: paste a
 logged-in browser's Cookie header as `LEGACY_ADMIN_COOKIE` (expires; fails
-loudly when it does). Cron (dev user):
+loudly when it does). Cron (dev user), beta at :17 and prod at :47:
 
-    17 * * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py sync_live_admin >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+    17 * * * * cd /srv/beta-claytontv/current && flock -n /srv/beta-claytontv/shared/sync.lock .venv/bin/python manage.py sync_live_admin >> /srv/beta-claytontv/shared/logs/sync.log 2>&1
+    47 * * * * cd /srv/claytontv/current && flock -n /srv/claytontv/shared/sync.lock .venv/bin/python manage.py sync_live_admin >> /srv/claytontv/shared/logs/sync.log 2>&1
+
+The `flock -n` guard (#370) is load-bearing, not decoration: a run can now
+last well beyond an hour (a self-sizing catch-up, or requests riding out
+retries), and without the lock the next hour's cron would start a second
+concurrent sync against the same fragile admin. `-n` means the overlapping
+run exits immediately rather than queueing.
 
 With no --pages flag the sync sizes itself: it pages the newest-modified
 list until a whole page is programmes we already hold, so backlogs of any
@@ -86,6 +93,13 @@ completes, so an interrupted run keeps its progress. Note the meta form
 no longer carries the video link; the sync follows the programme's
 image-picker media id to mediaUpdate.asp for it (layout observed
 2026-06-12).
+
+Transient failures (dropped connections, timeouts, 5xx/429 from the
+overloaded box) are retried inside the sync — waits before each attempt come
+from `LEGACY_ADMIN_RETRY_WAITS` (default `2,5`, i.e. 3 attempts). Raise it
+for a long catch-up run (`LEGACY_ADMIN_RETRY_WAITS=5,15,60`); total waiting
+per request is capped at 5 minutes whatever is set, so the lock is never
+held indefinitely.
 
 ## YouTube live-stream sync (Epic 4)
 
