@@ -2,17 +2,24 @@
 
 A church media platform — Christian video you can trust, simple enough for an
 elderly congregant on a phone and deep enough for a minister researching a
-passage. Django + Inertia + Vue 3, currently being rebuilt on the `beta` branch.
+passage. Django + Inertia + Vue 3.
+
+Work ships through three environments — `dev` → `beta` → `main` — each with its
+own site and deploy workflow. Branch off `dev`, PR back into `dev`; see
+[Development Procedures](#development-procedures) below and
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the server-side detail.
 
 New here? This README gets you running locally in a few minutes. To see what's
 being worked on and what's planned, browse the
-[issues](https://github.com/Clayton-TV/claytontv/issues) and [project board (only visible to Clayton TV developer team)](https://discord.gg/Gbh8fWthj).
+[issues](https://github.com/Clayton-TV/claytontv/issues) and the
+[project board](https://github.com/orgs/Clayton-TV/projects/6). Day-to-day chat
+is on [Discord](https://discord.gg/Gbh8fWthj) (Clayton TV developer team only).
 
 Works the same on **macOS, Windows, and Linux**: uv pins the Python version and
 locks every dependency, so you get an identical environment without Docker. The
-app itself runs natively (the same way the beta/production servers run it) —
-Docker is only ever needed for the optional local search engine (step 7). Where a
-command differs on Windows, the PowerShell variant is shown alongside it.
+app itself runs natively (the same way the servers run it) — Docker is only ever
+needed for the optional local search engine (step 7). Where a command differs on
+Windows, the variant is shown alongside it.
 
 ## Prerequisites
 
@@ -26,11 +33,21 @@ command differs on Windows, the PowerShell variant is shown alongside it.
 - **Git**.
 - **Docker** — *optional*, only for running a local Typesense search container
   (step 7). The app runs fine without it; search falls back to the database.
+  Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on
+  macOS or Windows (on Windows, enable the **WSL2 backend** — Docker Desktop
+  offers it during setup and it needs WSL2 installed:
+  `wsl --install` in an elevated PowerShell), or Docker Engine from your
+  distribution's packages on Linux.
 
 ## 1. Clone the repository
 
 ```bash
+# SSH (needs a key on your GitHub account)
 git clone git@github.com:clayton-tv/claytontv.git
+
+# HTTPS (no key needed; Git will prompt for your GitHub credentials)
+git clone https://github.com/Clayton-TV/claytontv.git
+
 cd claytontv
 ```
 
@@ -67,24 +84,18 @@ npm install              # Vue / Vite / Tailwind frontend deps
 Copy the example file, then generate a secret key into it:
 
 ```bash
-cp .env.example .env          # macOS / Linux / WSL
-copy .env.example .env        # Windows PowerShell
+cp .env.example .env          # macOS / Linux / WSL — and PowerShell, where
+                              # `cp` is an alias for Copy-Item
+copy .env.example .env        # Windows cmd.exe
 uv run poe generate-key       # writes a SECRET_KEY into .env
 ```
 
-That's all you need to run the app. The defaults work out of the box; everything
-else in `.env.example` is optional and grouped by purpose:
-
-- **Required** — `SECRET_KEY` (filled by `generate-key`), `DEBUG`,
-  `DJANGO_SETTINGS_MODULE` (local dev settings).
-- **Vite** — `VITE_HOST` / `VITE_PORT`; leave as-is unless the port clashes.
-- **Typesense search** *(optional)* — `TYPESENSE_*`. Leave empty to use the
-  database-backed search; fill them in only if you run the search container
-  (step 7).
-- **Observability** *(optional)* — `SENTRY_*` / `VITE_POSTHOG_*`. Leave empty
-  locally; these are set on servers / CI.
-- **Legacy admin sync** *(optional)* — `LEGACY_ADMIN_*`, used only by the
-  catalogue sync cron. Leave empty for normal local dev.
+That's all you need to run the app. `SECRET_KEY` is the only value you must
+fill in, and `generate-key` does it for you; every other setting has a working
+default. `.env.example` is grouped and commented by purpose — read it there
+rather than here, so the two can't drift. The optional groups (Typesense search,
+Sentry/PostHog observability, legacy admin sync) can all be left empty for
+normal local dev.
 
 ## 5. Set up the database
 
@@ -132,15 +143,32 @@ Search works without any extra setup — it falls back to the database. To devel
 against the same engine the servers use, run a local [Typesense](https://typesense.org)
 container. This is the only part of local dev that needs Docker.
 
+First set `TYPESENSE_API_KEY` in `.env` (any value; the compose default is
+`dev-typesense-key`). Then start the container and build the index:
+
 ```bash
-# 1. Set TYPESENSE_API_KEY in .env (any value; the compose default is dev-typesense-key)
 uv run poe typesense              # = docker compose up typesense (bound to loopback)
+```
+
+`uv run poe typesense` runs in the **foreground** and holds the terminal —
+leave it running and open a second terminal for the next command. If you'd
+rather have it in the background, run the detached form instead of the poe task:
+
+```bash
+docker compose up -d typesense    # detached; stop later with `docker compose down`
+```
+
+Either way, build the index once the container is up:
+
+```bash
 uv run poe manage reindex_search  # build the index from the local database
 ```
 
-The container is for local development only — beta/production run their own
-persistent Typesense provisioned on the server (see
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). Background and operational detail live in
+This container is for local development only. On the servers, **dev and beta
+each run their own persistent Typesense** provisioned under the environment's
+`shared/typesense/`; **production is not provisioned yet** and falls back to
+database search (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)). Background and
+operational detail live in
 [docs/TYPESENSE_HANDOVER.md](docs/TYPESENSE_HANDOVER.md).
 
 ## 8. Everyday commands
@@ -156,8 +184,14 @@ uv run poe manage reindex_search   # rebuild the search index
 npm run build-only        # production frontend build
 ```
 
-Pre-commit hooks (ruff + gitleaks) run automatically on commit; run them
-manually with:
+Pre-commit hooks run automatically on commit: ruff (lint + format) and gitleaks,
+plus **local `prettier` and `eslint` hooks** that shell out to `npm run format`
+and `npm run lint`. Those two are `language: system`, so they need
+`node_modules` — in a fresh clone or a fresh worktree where you haven't run
+`npm install` yet, they fail with **exit code 127** ("command not found") and
+block the commit. Run `npm install` (step 3) before your first commit.
+
+Run the hooks manually with:
 
 ```bash
 uv run pre-commit run --all-files --show-diff-on-failure
@@ -180,8 +214,16 @@ uv run pre-commit run --all-files --show-diff-on-failure
   or `TYPESENSE_API_KEY` in `.env` doesn't match it. With no working Typesense,
   search silently falls back to the database (no error). Start it with
   `uv run poe typesense`, then `uv run poe manage reindex_search` (step 7).
-- **Windows: `cp` / `source` "not recognized"** — those are macOS/Linux commands.
-  Use `copy .env.example .env` and `.venv\Scripts\Activate.ps1` instead.
+- **Windows: `source` "not recognized"** — `source` is a Unix shell builtin with
+  no PowerShell equivalent by that name; PowerShell dot-sources with
+  `. .\path\to\script.ps1`. For the virtualenv specifically you don't need it at
+  all — just run `.venv\Scripts\Activate.ps1`.
+- **Windows: `cp` "not recognized"** — this happens in **cmd.exe**, not
+  PowerShell. In PowerShell `cp` is a built-in alias for `Copy-Item` and works
+  fine (as does `copy`). In cmd.exe use `copy .env.example .env`.
+- **Pre-commit fails with exit code 127** — the local `prettier` / `eslint`
+  hooks can't find `npm`'s binaries. Run `npm install` (step 3) in this
+  checkout, then commit again.
 - **Frontend deps fail to install on Linux/CI** — platform-specific binaries are
   declared as `optionalDependencies`; a clean `npm install` resolves them.
 
@@ -197,15 +239,26 @@ uv run pre-commit run --all-files --show-diff-on-failure
 ## Development Procedures
 
 ### Branch Process
+
+Promotion is one-directional: **feature branch → `dev` → `beta` → `main`**.
+Nothing skips a tier, and nothing reaches a shared environment except by PR.
+
 ### 1. Feature Branches
 - Set purpose
 - Single issue/single feature/single bug
 - Ideally attach to an issue and give a name that references the issue
-- Test features locally, once complete PR to dev/beta
+  (`claytontv/<issue>/<slug>`)
+- Branch off `dev`
+- Test features locally, then PR into `dev`
 ### 2. Dev
-- Manual deployment from your feature branch(es) for testing
+- Integration environment (https://dev.claytontv.co.uk) — shared, so work
+  reaches it **by merging your PR into `dev`**, never by deploying a feature
+  branch to it
+- Deploys on push to `dev`; the workflow can also be re-run by hand
+  (`workflow_dispatch`) from the Actions tab
 ### 3. Beta
-- Beta site - autodeploy
+- Beta site (https://beta.claytontv.co.uk) — promoted by PR from `dev`;
+  autodeploys on push to `beta`
 - Anyone can approve a PR
 - Test your changes live
 - PR template
@@ -213,8 +266,9 @@ uv run pre-commit run --all-files --show-diff-on-failure
   - check that there isn’t already a lag between beta & production
 - One new feature at a time
   - PR to Production before the next feature PR is accepted to prevent backlog
-### 4. Production branch
-- live site  - auto deploy (treat with care!)
+### 4. Production branch (`main`)
+- live site (https://claytontv.co.uk) — promoted by PR from `beta`; auto-deploys
+  on push to `main` (treat with care!)
 - only 4 set approvers (JG, FT, MB, JS)
   - Testing protocol
 
