@@ -11,8 +11,10 @@ Swappable by design: the source is keyed off the URL platform and the
 YouTube key comes from the environment. Idempotent — only fills nulls
 unless refresh=True.
 
-A platform that times out or errors is logged and skipped, never fatal:
-those videos keep their null duration and the next run picks them up.
+Nothing a platform sends is fatal: a timeout, a non-200, a malformed body or
+an unstorable duration is logged, counted and skipped, and those videos keep
+their null duration for the next run. A platform failing a serious share of
+its own queue logs an ERROR, which is what raises a Sentry event.
 """
 
 import logging
@@ -30,6 +32,16 @@ YT_API = "https://youtube.googleapis.com/youtube/v3/videos"
 VIMEO_OEMBED = "https://vimeo.com/api/oembed.json"
 YT_BATCH = 50
 VIMEO_DELAY = 0.2  # polite pacing for the per-video oEmbed calls
+
+# duration_seconds is a PositiveIntegerField: anything outside this range is a
+# CHECK-constraint or integer-overflow error on Postgres, which SQLite hides.
+MAX_DURATION = 2**31 - 1
+
+# A platform is in trouble when it fails a quarter of its own queue, but never
+# on fewer than this many videos — on a quiet night the queue is a handful of
+# leftovers and one timeout is not an outage.
+ALERT_FAILURE_RATE = 0.25
+ALERT_MIN_FAILURES = 10
 
 _YT_ID = re.compile(r"(?:youtu\.be/|v/|embed/|watch\?v=|&v=)([^#&?/]+)")
 _ISO = re.compile(r"^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$")
@@ -63,6 +75,19 @@ def format_duration(seconds):
 def youtube_id(url):
     match = _YT_ID.search(url or "")
     return match.group(1) if match else None
+
+
+def storable_duration(value):
+    """Whole seconds we're willing to write, or None if the platform sent
+    something the column can't hold. `bool` is excluded deliberately: it is a
+    subclass of int, so True would otherwise store a 1-second runtime."""
+    if isinstance(value, bool):
+        return None
+    try:
+        seconds = int(value)
+    except (TypeError, ValueError):
+        return None
+    return seconds if 0 <= seconds <= MAX_DURATION else None
 
 
 def _harvest_youtube(session, videos_by_yid, stats):
@@ -100,14 +125,14 @@ def _harvest_youtube(session, videos_by_yid, stats):
             yid = item.get("id") if isinstance(item, dict) else None
             if not isinstance(yid, str) or yid not in videos_by_yid:
                 # A 200 whose item has no usable id tells us nothing about which
-                # video it belongs to. Count it and carry on; indexing it would
-                # have killed the whole run.
+                # video it belongs to — indexing it would have killed the run.
+                # Not counted here: the id it was meant to answer is still in
+                # `batch`, so the sweep below books it once, as unresolved.
                 logger.warning("YouTube returned an unusable item, skipped: %r", item)
-                stats["failed"] += 1
                 continue
             answered.add(yid)
             try:
-                seconds = parse_iso8601_duration(item.get("contentDetails", {}).get("duration"))
+                seconds = storable_duration(parse_iso8601_duration(item.get("contentDetails", {}).get("duration")))
             except (AttributeError, TypeError):
                 logger.warning("YouTube sent an unreadable contentDetails for %s, skipped: %r", yid, item)
                 stats["failed"] += 1
@@ -133,25 +158,24 @@ def _harvest_youtube(session, videos_by_yid, stats):
 
 
 def _record_vimeo_payload(video, payload, stats):
-    """Sort one oEmbed 200 body into a bucket. Never raises — a malformed
-    duration is a failure to count, not a reason to abandon the queue."""
+    """Sort one oEmbed 200 body into a bucket. A duration we can't store is a
+    failure to count, not a reason to abandon the rest of the queue."""
     if not isinstance(payload, dict):
         logger.warning("Vimeo sent an unreadable body for %s — skipped until the next run: %r", video.url, payload)
         stats["failed"] += 1
         return
-    seconds = payload.get("duration")
-    if not seconds:
-        # The documented hashless case: 200, but "duration": null. The platform
+    raw = payload.get("duration")
+    if not raw:
+        # The hashless case: a 200 that simply carries no duration. The platform
         # answered us, so this is unresolved rather than a failure.
         stats["unresolved"] += 1
         return
-    try:
-        resolved = int(seconds)
-    except (TypeError, ValueError):
-        logger.warning("Vimeo sent a non-numeric duration %r for %s — skipped until the next run", seconds, video.url)
+    seconds = storable_duration(raw)
+    if seconds is None:
+        logger.warning("Vimeo sent an unusable duration %r for %s — skipped until the next run", raw, video.url)
         stats["failed"] += 1
         return
-    Video.objects.filter(id=video.id).update(duration_seconds=resolved)
+    Video.objects.filter(id=video.id).update(duration_seconds=seconds)
     stats["vimeo"] += 1
 
 
@@ -166,15 +190,42 @@ def _harvest_vimeo(session, videos, stats, delay):
             logger.warning("Vimeo request failed for %s — skipped until the next run: %s", video.url, exc)
             stats["failed"] += 1
         else:
-            if response.status_code != 200:
-                # Matches the YouTube path: a non-200 is Vimeo rate-limiting us
-                # or falling over, not a video that genuinely has no duration.
+            if response.status_code in (404, 410):
+                # Gone for good — deleted or private. Probing 40 random hashless
+                # catalogue URLs found 8 of them in this state, so treating it
+                # as a platform failure would have kept ~a fifth of the Vimeo
+                # back-catalogue permanently in `failed` and fired the outage
+                # alert every night, on every healthy run, until someone muted it.
+                stats["unresolved"] += 1
+            elif response.status_code != 200:
+                # 429/5xx: Vimeo rate-limiting us or falling over. Worth
+                # retrying, and worth counting towards the outage alert.
                 logger.warning("Vimeo returned %s for %s — skipped until the next run", response.status_code, video.url)
                 stats["failed"] += 1
             else:
                 _record_vimeo_payload(video, payload, stats)
         if delay:
             time.sleep(delay)
+
+
+def _new_stats():
+    return {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 0}
+
+
+def _alert_if_a_platform_is_failing(platform, queued, failed):
+    """Sentry only raises an event at ERROR; a warning is just a breadcrumb, so
+    this is the line between "someone finds out" and "nobody does".
+
+    Judged per platform against that platform's own queue. Pooling the two let
+    a healthy YouTube — by far the bigger half — mask Vimeo being flat on its
+    back. Judged on a share of the queue rather than "resolved nothing",
+    because the realistic outage is a spent YouTube quota, which only kills the
+    batches after it ran out. And never counting `unresolved`, which is not
+    evidence of health: the deleted and hashless Vimeo videos land there on
+    every single run.
+    """
+    if queued and failed >= max(ALERT_MIN_FAILURES, ALERT_FAILURE_RATE * queued):
+        logger.error("%s duration harvest failed on %d of %d videos — left for the next run", platform, failed, queued)
 
 
 def harvest_durations(session=None, refresh=False, vimeo_delay=VIMEO_DELAY):
@@ -191,22 +242,10 @@ def harvest_durations(session=None, refresh=False, vimeo_delay=VIMEO_DELAY):
 
     # unresolved: the platform answered but had no duration for us.
     # failed: we couldn't reach the platform — the next run retries those.
-    stats = {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 0}
-    _harvest_youtube(session, youtube, stats)
-    _harvest_vimeo(session, vimeo, stats, vimeo_delay)
+    youtube_stats, vimeo_stats = _new_stats(), _new_stats()
+    _harvest_youtube(session, youtube, youtube_stats)
+    _harvest_vimeo(session, vimeo, vimeo_stats, vimeo_delay)
 
-    # Alert when failures outweigh real successes. Two traps this avoids:
-    # `unresolved` is not evidence of a healthy run — the hashless Vimeo
-    # back-catalogue lands there on every single run (docs/DEPLOYMENT.md), so
-    # counting it here suppressed the alert permanently; and demanding that we
-    # resolved *nothing* never catches the realistic failure, quota exhaustion,
-    # which is partial by nature. One slow video among successes stays a
-    # warning. Sentry only raises an event at ERROR — WARNING is a breadcrumb.
-    resolved = stats["youtube"] + stats["vimeo"]
-    if stats["failed"] > resolved:
-        logger.error(
-            "Duration harvest failed on %d of the %d videos it could have resolved — left for the next run",
-            stats["failed"],
-            stats["failed"] + resolved,
-        )
-    return stats
+    _alert_if_a_platform_is_failing("YouTube", len(youtube), youtube_stats["failed"])
+    _alert_if_a_platform_is_failing("Vimeo", len(vimeo), vimeo_stats["failed"])
+    return {key: youtube_stats[key] + vimeo_stats[key] for key in youtube_stats}
