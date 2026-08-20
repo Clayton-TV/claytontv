@@ -62,6 +62,11 @@ SEARCH_KIND_LABELS = {
 SEARCH_CATEGORY_LIMIT = 20
 
 
+def subscribe(request):
+    """Static subscribe page — renders the Mailchimp sign-up form."""
+    return render(request, "Subscribe")
+
+
 def index(request):
     """Curated homepage: a few of the latest videos, a handful of featured
     series and topics. Everything else is one click deeper — the previous
