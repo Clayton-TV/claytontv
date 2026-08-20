@@ -58,8 +58,12 @@ https://claytontv.test. Local DB is SQLite; seed it with
   the old admin live in data/legacy_rescue/lookups/ for the Epic 2 importer.
 - **Never pass full Video models as Inertia props** — the serializer pulls all
   five M2M relations per video. Use `video_card_props()` (app/cards.py).
-- **Importers are destructive** (delete-all-then-reload) until Epic 2 replaces
-  them with upserts. Never point them at a database you care about.
+- **The legacy CSV importers are destructive** (delete-all-then-reload) and are
+  local-seed-only. Epic 2 replaced ingestion on real databases with idempotent
+  upserts (`catalogue/ingest/`, `ingest_legacy_dump`, `sync_live_admin`), and
+  `guard_destructive()` (catalogue/management/commands/_destructive.py) now
+  refuses to run the destructive ones against a non-SQLite database unless
+  `ALLOW_DESTRUCTIVE_IMPORT=1`. Don't defeat that guard.
 - Query counts are a guarded regression:
   tests/test_homepage.py::test_homepage_query_count_does_not_grow_with_catalogue_size.
 - SQLite locally vs PostgreSQL on every server environment masks performance

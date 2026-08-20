@@ -74,8 +74,9 @@ What a deploy does (`deploy.yaml` — runs on the GitHub runner, then over SSH):
 6. `reindex_search` against the env's Typesense. All three callers pass
    `reindex: true`; the step runs under `set -e`, and `reindex_search` raises a
    `CommandError` when Typesense is unconfigured or unreachable — so it **fails
-   the deploy**. Production has no Typesense yet (see below), so its first
-   deploy needs either a provisioned container or `reindex: false` in
+   the deploy**. It runs *before* the symlink swap, so a failure leaves the
+   previous release serving. Production has no Typesense yet (see below), so its
+   first deploy needs either a provisioned container or `reindex: false` in
    `deploy-to-production.yaml`.
 7. atomic `current` symlink swap → `systemctl restart <gunicorn_service>` →
    prune to the last 5 releases.
@@ -311,8 +312,11 @@ Local dev: `docker compose up typesense` (repo-root `docker-compose.yml`) +
 > beta are therefore kept apart only by talking to different Typesense
 > instances. Point dev's `TYPESENSE_PORT` at 8108 — including by *removing* it,
 > because `app/base_settings.py` defaults `TYPESENSE_PORT` to `"8108"` — and the
-> next dev deploy's `reindex_search` will drop and rewrite **beta's live index**.
-> Dev's `shared/.env` must set `TYPESENSE_PORT=8109` explicitly, and each env's
+> next dev deploy's `reindex_search` aims at beta's container. If dev's
+> `TYPESENSE_API_KEY` also matches beta's, it will drop and rewrite **beta's live
+> index**; if it doesn't, Typesense rejects the call and the dev deploy fails
+> instead. Neither is acceptable. Dev's `shared/.env` must set
+> `TYPESENSE_PORT=8109` explicitly, and each env's
 > `shared/typesense/docker-compose.yml` must publish its own port.
 
 Production search is still ORM-fallback only until its container is provisioned

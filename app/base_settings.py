@@ -127,8 +127,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Typesense search backend (catalogue/search.py). Optional everywhere: when
 # unconfigured (no API key) or unreachable, the search views fall back to ORM
-# icontains, so search never hard-fails. Beta/prod run a loopback-only container
-# (docs/DEPLOYMENT.md); local dev uses docker-compose.yml.
+# icontains, so search never hard-fails. Dev and beta each run their own
+# loopback-only container on their own port (prod is not provisioned yet — see
+# docs/DEPLOYMENT.md); local dev uses docker-compose.yml. NOTE: the port default
+# below is 8108, which is BETA's — every non-beta environment must set
+# TYPESENSE_PORT explicitly, or its reindex will target beta's index.
 TYPESENSE = {
     "api_key": os.getenv("TYPESENSE_API_KEY", ""),
     "host": os.getenv("TYPESENSE_HOST", "127.0.0.1"),
