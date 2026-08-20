@@ -153,7 +153,9 @@ def browse_all_livestreams(request):
 
 def browse_all_latest(request):
     try:
-        page_num = int(request.GET.get("page", 1))
+        # Below 1 is page 1: the feed's get_page() would otherwise read page 0 as
+        # "past the end" and serve the LAST page, like browse used to (#329).
+        page_num = max(1, int(request.GET.get("page", 1)))
     except ValueError:
         page_num = 1
     return render(request, "LatestFeed", {"title": "Latest", **latest_feed(page_num)})

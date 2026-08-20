@@ -11,7 +11,7 @@ const props = defineProps({
     // URL, because an out-of-range page is clamped to the last real one — and
     // then a URL-derived Prev walks back through pages that all clamp to the
     // same content. Pages that don't send it fall back to the URL.
-    currentPage: { type: Number, default: 0 },
+    currentPage: { type: Number, default: undefined },
 });
 
 const pageFromUrl = () => {
@@ -20,7 +20,7 @@ const pageFromUrl = () => {
     return isNaN(page) ? 1 : page;
 };
 
-const activePage = () => props.currentPage || pageFromUrl();
+const activePage = () => props.currentPage ?? pageFromUrl();
 
 const goTo = (page: number) => {
     const params = new URLSearchParams(window.location.search);
