@@ -17,6 +17,7 @@ const props = defineProps({
     total: { type: Number, default: 0 },
     has_prev_page: { type: Boolean, default: false },
     has_next_page: { type: Boolean, default: false },
+    num_pages: { type: Number },
 });
 
 const { toggleMulti, setSingle, remove, clearAll, isActive, activeCount } = useBrowseFilters(() => props.active);
@@ -74,7 +75,7 @@ const filtersOpen = ref(false);
                 />
                 <!-- Own pagination so the filter query is preserved across pages -->
                 <div v-if="videos.length" class="mt-6">
-                    <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+                    <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
                 </div>
             </div>
         </div>
