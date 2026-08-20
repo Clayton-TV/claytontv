@@ -207,6 +207,7 @@ uv run poe format-check   # format check (CI parity)
 uv run poe typesense      # start the local Typesense container (optional, step 7)
 uv run poe manage reindex_search   # rebuild the search index
 npm run build-only        # production frontend build
+npm run type-check        # vue-tsc — CI runs this, so run it before pushing
 ```
 
 Pre-commit hooks run automatically on commit: ruff (lint + format) and gitleaks,
@@ -243,6 +244,12 @@ uv run pre-commit run --all-files --show-diff-on-failure
   no PowerShell equivalent by that name; PowerShell dot-sources with
   `. .\path\to\script.ps1`. For the virtualenv specifically you don't need it at
   all — just run `.venv\Scripts\Activate.ps1`.
+- **Windows: `Activate.ps1` "cannot be loaded because running scripts is
+  disabled"** — Windows client editions default to a `Restricted` execution
+  policy. Either allow scripts for the current session with
+  `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` and re-run it, or
+  use `.venv\Scripts\activate.bat` from cmd.exe. (Or skip activation entirely —
+  `uv run` needs none of this.)
 - **Windows: `cp` "not recognized"** — this happens in **cmd.exe**, not
   PowerShell. In PowerShell `cp` is a built-in alias for `Copy-Item` and works
   fine (as does `copy`). In cmd.exe use `copy .env.example .env`.
