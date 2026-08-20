@@ -148,6 +148,26 @@ OLLAMA = {
     "timeout_seconds": int(os.getenv("OLLAMA_TIMEOUT", "120")),
 }
 
+# Legacy admin sync retry policy (catalogue/ingest/live_admin.py, #366). The
+# dying classic-ASP box drops, stalls and 5xx's requests routinely; each value
+# is the pause before one more attempt, so "2,5" means 3 attempts. Give the
+# long #287 catch-up run more patience with LEGACY_ADMIN_RETRY_WAITS="5,15,60";
+# "" turns retries off. live_admin bounds both the count and the total wait.
+DEFAULT_RETRY_WAITS = (2.0, 5.0)
+
+
+def parse_retry_waits(raw):
+    """This dial lives in shared/.env, which wsgi.py loads BEFORE settings, so
+    parsing it eagerly makes a typo a site-wide 502. A malformed value falls
+    back to the default instead: it may only cost the sync some patience."""
+    try:
+        return tuple(float(wait) for wait in raw.split(",") if wait.strip())
+    except ValueError:
+        return DEFAULT_RETRY_WAITS
+
+
+LEGACY_ADMIN_RETRY_WAITS_SECONDS = parse_retry_waits(os.getenv("LEGACY_ADMIN_RETRY_WAITS", "2,5"))
+
 # When True, AI-derived enrichment may surface as unlabelled public metadata
 # (watch-page summary fallback + SEO meta). Default off: enrichment is invisible
 # infrastructure (search recall) until consciously flipped (Epic #201, E4).
