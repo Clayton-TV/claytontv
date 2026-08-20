@@ -117,10 +117,41 @@ installed — add when ready):
 
     37 4 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py harvest_durations >> /srv/beta-claytontv/shared/logs/durations.log 2>&1
 
+Nothing a platform sends is fatal: a timeout, a non-200, a malformed body or a
+duration the column can't hold is logged, counted and skipped, the run
+finishes, and those videos keep their null duration until the next run picks
+them up. The two buckets differ, and the difference is what the alert is built
+on:
+
+- `failed` — we could not get an answer out of the platform: a timeout, a 429
+  or 5xx, a body we couldn't read. Transient, and a symptom of an outage.
+- `unresolved` — the platform answered plainly and had no duration for us: a
+  200 carrying none, or a 404/410 for a video that is deleted or private.
+  Permanent, and *not* a symptom of anything. Both buckets are retried next
+  run, since retrying is free and a video can come back.
+
+The run logs an ERROR — which is what raises a Sentry event, a warning being
+only a breadcrumb — when a platform fails at least a quarter of its own queue,
+and never on fewer than 10 videos. Each part of that earns its place:
+
+- **Per platform**, because YouTube is much the bigger half of the catalogue,
+  and a pooled ratio let thousands of healthy YouTube videos hide Vimeo being
+  completely down.
+- **A share of the queue**, not "resolved nothing", because the realistic
+  failure is a spent YouTube quota, which only kills the batches after it ran
+  out and so is partial by nature.
+- **A floor of 10**, because in the steady state the nightly queue is just the
+  permanently unresolvable leftovers, where one transient timeout is normal
+  and an alert on it would be muted within a week.
+- **`unresolved` never counts as health**, because the videos below land there
+  on every single run.
+
 Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
-URL carries its privacy hash (or the video is public). Hashless older Vimeo
-videos stay null until re-synced from the admin (mediaUpdate.asp exposes
-MediaDuration in ms) or a Vimeo API token is configured.
+URL carries its privacy hash (or the video is public). Of the hashless older
+Vimeo URLs, a random sample of 40 answered 200 with no duration in 32 cases
+and 404 (deleted or private) in 8 — both count as `unresolved`, and both stay
+null until re-synced from the admin (mediaUpdate.asp exposes MediaDuration in
+ms) or a Vimeo API token is configured.
 
 ## AI content enrichment (Epic #201)
 
