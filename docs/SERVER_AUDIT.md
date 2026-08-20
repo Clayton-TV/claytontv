@@ -1,5 +1,13 @@
 # Server audit — app03.tgo.dev (2026-06-12)
 
+> **Historical snapshot — do not read as current state.** This is a
+> point-in-time survey taken on **2026-06-12**, before the beta and dev
+> environments were built out. Much of it has since been actioned (swap,
+> fail2ban, SSH hardening, uv/CPython 3.14). Where it disagrees with
+> [DEPLOYMENT.md](DEPLOYMENT.md), **DEPLOYMENT.md wins** — notably the Python
+> row below ("no 3.14, no uv"), which describes the pre-migration production
+> box, not today's. Kept for the findings/rationale trail.
+
 Read-only survey ahead of Epic 1 (beta environment). Shared box: also serves
 liley.co and tgo.dev (php8.4-fpm) — every change below must consider blast
 radius beyond claytontv.
