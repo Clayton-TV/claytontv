@@ -107,7 +107,9 @@ uv run poe manage migrate
 
 Optionally seed it with the legacy catalogue (imports the CSVs under `CSV/` —
 takes a few minutes). This is **destructive** (delete-all-then-reload), so only
-ever run it against a local database you don't mind wiping:
+ever run it against a local database you don't mind wiping. A guard
+(`guard_destructive()`) refuses to run it against anything other than SQLite
+unless `ALLOW_DESTRUCTIVE_IMPORT=1` is set — don't set that locally:
 
 ```bash
 uv run poe manage link_and_import_all
