@@ -19,6 +19,7 @@ from django.views.decorators.http import require_POST
 from inertia import render, share
 
 from app.auth import can_edit_content
+from catalogue import thumbnails
 from catalogue.metadata import MetadataError, fetch_metadata
 from catalogue.models.video import DRAFT, PUBLISHED, Video
 
@@ -441,6 +442,19 @@ def update_video(request, id):
         raise Http404
     messages.success(request, "Saved.")
     return redirect("/studio")
+
+
+@studio_required
+@require_POST
+def fetch_thumbnail(request, id):
+    """``POST /studio/videos/<id>/fetch_thumbnail`` - fetch and store thumbnail URL for a video"""
+    video = Video.objects.filter(id=id).first()
+    thumbnail_url = thumbnails.fetch_and_store_thumbnail_url(video)
+    if thumbnail_url:
+        messages.success(request, f"Thumbnail updated to {thumbnail_url}")
+    else:
+        messages.warning(request, "Thumbnail unchanged.")
+    return redirect("studio_edit_video", id=id)
 
 
 @studio_required

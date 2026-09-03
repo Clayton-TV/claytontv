@@ -20,6 +20,7 @@ urlpatterns = [
     # Editor (Slice 4a).
     path("videos/<str:id>/edit", views.edit_video, name="studio_edit_video"),
     path("videos/<str:id>/update", views.update_video, name="studio_update_video"),
+    path("videos/<str:id>/fetch_thumbnail", views.fetch_thumbnail, name="studio_fetch_thumbnail"),
     path("videos/<str:id>/suggest", views.suggest_video, name="studio_suggest_video"),
     # Library mutations (all @studio_required + POST + CSRF).
     path("videos/create", views.create_video, name="studio_create_video"),
