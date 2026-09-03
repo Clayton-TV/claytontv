@@ -134,6 +134,11 @@ function togglePublish() {
     });
 }
 
+function fetchThumbnail() {
+    allowNav = true;
+    router.post(`/studio/videos/${props.video.id}/fetch_thumbnail`, {}, { preserveScroll: true });
+}
+
 function regenerate() {
     allowNav = true;
     router.post(`/studio/videos/${props.video.id}/suggest`, {}, { preserveScroll: true });
@@ -324,6 +329,7 @@ onBeforeUnmount(() => {
             <div class="space-y-1.5">
                 <label for="edit-thumbnail" class="text-foreground block text-sm font-medium">Thumbnail URL</label>
                 <Input id="edit-thumbnail" v-model="form.thumbnail" type="url" class="text-base" />
+                <Button @click="fetchThumbnail">Fetch thumbnail URL</Button>
                 <img v-if="form.thumbnail" :src="form.thumbnail" alt="" class="mt-2 aspect-video w-40 rounded-lg object-cover" />
             </div>
             <label class="flex items-center gap-3">
