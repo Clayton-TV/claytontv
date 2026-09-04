@@ -33,7 +33,8 @@ pagination_per_page = 24
 # `limit_hits` defaults to no limit, so nothing stops a crawler walking page numbers
 # forever. 10,000 results is far past anything a person scrolls to, and the whole
 # catalogue is a fraction of it, so this can only ever bite a bot.
-MAX_SEARCH_PAGE = 10_000 // pagination_per_page
+MAX_SEARCH_RESULTS = 10_000
+MAX_SEARCH_PAGE = math.ceil(MAX_SEARCH_RESULTS / pagination_per_page)
 
 logger = logging.getLogger(__name__)
 

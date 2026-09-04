@@ -142,6 +142,25 @@ def test_search_never_advertises_pages_past_typesenses_window(client, monkeypatc
     assert props["has_next_page"] is False
 
 
+def test_search_serves_the_last_partial_page_inside_the_result_cap(client, monkeypatch):
+    # 10,000 results need 417 pages at 24/page. The final 16 results are still
+    # inside the defensive result cap and must remain reachable.
+    requested_pages = []
+
+    def fake_search(query, *, page=1, **kw):
+        requested_pages.append(page)
+        return ([], 10_000)
+
+    monkeypatch.setattr(search, "search_videos", fake_search)
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    props = inertia_page(client.get("/search", {"search": "god", "page": "417"}))["props"]
+
+    assert requested_pages == [417]
+    assert props["page"] == 417
+    assert props["num_pages"] == 417
+
+
 def test_search_clamped_to_page_one_still_fetches_categories(client, monkeypatch):
     requested_pages = []
 
