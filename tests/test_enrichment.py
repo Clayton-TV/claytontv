@@ -244,6 +244,19 @@ def test_transport_failure_is_an_error_but_unparseable_output_is_a_warning(monke
     assert caplog.records[-1].levelno == logging.WARNING
 
 
+def test_malformed_ollama_http_json_is_a_warning(monkeypatch, caplog):
+    class MalformedJsonResponse(FakeResponse):
+        def json(self):
+            raise requests.exceptions.JSONDecodeError("bad JSON", "", 0)
+
+    monkeypatch.setattr(requests, "post", lambda *_args, **_kwargs: MalformedJsonResponse(""))
+
+    with caplog.at_level(logging.WARNING, logger="catalogue.enrichment"):
+        assert enrichment.call_ollama("prompt") is None
+
+    assert caplog.records[-1].levelno == logging.WARNING
+
+
 def test_enrich_video_unparseable_output_returns_empty(monkeypatch):
     video = VideoFactory()
     monkeypatch.setattr(requests, "post", fake_post_returning("the model rambled with no json"))
