@@ -551,6 +551,47 @@ def test_credentials_are_never_posted_off_site(instant_sleeps, credentials):
         live_admin.login(HijackedLogin())
 
 
+def test_credentials_are_never_posted_over_http(instant_sleeps, credentials):
+    from catalogue.ingest import live_admin
+
+    class DowngradedLogin:
+        def __init__(self):
+            self.headers = {}
+
+        def get(self, url, **kwargs):
+            return Resp('<form action="http://clayton.tv/adminsection/login.asp"></form>', url)
+
+        def post(self, url, data=None, **kwargs):
+            raise AssertionError("credentials posted over HTTP")
+
+    with pytest.raises(live_admin.AdminAuthError, match="off-site"):
+        live_admin.login(DowngradedLogin())
+
+
+def test_login_retry_logs_do_not_include_the_form_token(instant_sleeps, credentials, caplog):
+    from catalogue.ingest import live_admin
+
+    token = "one-time-login-token"
+
+    class OverloadedLogin:
+        def __init__(self):
+            self.headers = {}
+            self.posts = 0
+
+        def get(self, url, **kwargs):
+            action = f"https://clayton.tv/adminsection/login.asp?at={token}"
+            return Resp(f'<form action="{action}"></form>', action)
+
+        def post(self, url, data=None, **kwargs):
+            self.posts += 1
+            return Resp("ok", url, 503 if self.posts == 1 else 200)
+
+    with caplog.at_level(logging.WARNING, logger="catalogue.ingest.live_admin"):
+        assert live_admin.login(OverloadedLogin()) is True
+
+    assert token not in caplog.text
+
+
 class LapsedSession:
     """A session whose cookie has expired mid-run: content GETs land on
     /accessdenied.html until a login POST mints a working one."""
@@ -768,8 +809,8 @@ def test_login_failure_is_loud(monkeypatch):
 
         def get(self, url, **kw):
             class R:
-                url = "x"
-                text = '<form action="a"></form>'
+                url = "https://clayton.tv/adminsection/login.asp"
+                text = '<form action="https://clayton.tv/adminsection/login.asp"></form>'
 
             return R()
 

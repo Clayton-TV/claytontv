@@ -90,8 +90,7 @@ def _raise_if_overloaded(response):
     out like a dropped connection instead of ending the hour's import."""
     status = getattr(response, "status_code", None)
     if status is not None and (status == TOO_MANY_REQUESTS or status >= 500):
-        url = getattr(response, "url", "")
-        raise OverloadedError(f"Legacy admin answered {status} for {url}", response=response)
+        raise OverloadedError(f"Legacy admin answered {status}", response=response)
     return response
 
 
@@ -124,7 +123,9 @@ def _login_action(page):
     anywhere but the admin's own host."""
     form = BeautifulSoup(page.text, "html.parser").find("form")
     action = urljoin(page.url, (form.get("action") if form else None) or page.url)
-    if urlparse(action).netloc not in ("", urlparse(BASE_URL).netloc):
+    target = urlparse(action)
+    admin = urlparse(BASE_URL)
+    if target.scheme != admin.scheme or target.netloc != admin.netloc:
         raise AdminAuthError(f"Legacy admin login form points off-site ({action}) — refusing to post credentials.")
     return action
 
