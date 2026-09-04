@@ -16,8 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path, re_path
 from django.views.generic import RedirectView
+
+from app.legacy_redirects import legacy_video_redirect
 
 from .views import (
     audiences_index,
@@ -39,6 +41,7 @@ from .views import (
     search,
     series_index,
     speakers_index,
+    subscribe,
     topics_index,
     video,
     video_next,
@@ -46,14 +49,24 @@ from .views import (
 
 urlpatterns = [
     path("", index, name="home"),
+    # Studio (Epic 3): gated editorial area. Mounted before the public catalogue
+    # routes so the /studio prefix is never shadowed by a public page.
+    path("studio/", include("app.studio.urls")),
     path("livestreams/", browse_all_livestreams, name="browse_all_livestreams"),
     path("latest/", browse_all_latest, name="browse_all_latest"),
     path("admin/", admin.site.urls),
     path("search", search, name="search"),
+    path("subscribe/", subscribe, name="subscribe"),
     path("browse/", browse_faceted, name="browse_faceted"),
     path("api/palette", palette, name="palette"),
     path("api/video/<int:id>/next", video_next, name="video_next"),
     path("video/<int:id>", video, name="video"),
+    # Legacy clayton.tv watch URLs (…/0i0/<id>/) → 301 to /video/<id>, for cutover.
+    re_path(
+        r"^(?:new|find|schedule)/.*?0i0/(?P<pid>\d+)/?$",
+        legacy_video_redirect,
+        name="legacy_video_redirect",
+    ),
     path("book/<str:id>", browse_bible_book, name="browse_bible_book"),
     path("channel/<str:id>", browse_channel, name="browse_channel"),
     path("audience/", audiences_index, name="audiences_index"),

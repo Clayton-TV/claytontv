@@ -24,11 +24,15 @@ FLOOD_THRESHOLD = 3
 
 def latest_feed(page_num, today=None):
     today = today or datetime.date.today()
-    talks = Video.objects.filter(is_livestream=False).order_by(
-        # Explicit nulls_last: Postgres defaults DESC to nulls FIRST, SQLite
-        # to nulls last — without this the two environments disagree.
-        F("date_recorded").desc(nulls_last=True),
-        "-id",
+    talks = (
+        Video.objects.published()
+        .filter(is_livestream=False)
+        .order_by(
+            # Explicit nulls_last: Postgres defaults DESC to nulls FIRST, SQLite
+            # to nulls last — without this the two environments disagree.
+            F("date_recorded").desc(nulls_last=True),
+            "-id",
+        )
     )
     paginator = Paginator(talks, PER_PAGE)
     page = paginator.get_page(page_num)

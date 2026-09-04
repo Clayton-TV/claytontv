@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "app",
+    "app.studio.apps.StudioConfig",
     "catalogue.apps.CatalogueConfig",
     "livestreams.apps.LivestreamsConfig",
 ]
@@ -88,6 +89,16 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles_collected"
 
 INERTIA_LAYOUT = "app.html"
+
+# CSRF ↔ Inertia. Inertia's request client reads the ``XSRF-TOKEN`` cookie and
+# echoes it as the ``X-XSRF-TOKEN`` header on every POST/PUT/PATCH/DELETE. Point
+# Django's CSRF machinery at those names so Inertia submissions (the Studio
+# login + mutations, Add-a-video) carry a valid token out of the box — otherwise
+# Django looks for ``csrftoken``/``X-CSRFToken`` and rejects every Inertia POST
+# with a 403. The cookie must stay JS-readable (HTTPONLY False, the default) so
+# Inertia can read it; pair with ``@ensure_csrf_cookie`` on the pages that POST.
+CSRF_COOKIE_NAME = "XSRF-TOKEN"
+CSRF_HEADER_NAME = "HTTP_X_XSRF_TOKEN"
 # Fail loud if a view passes a raw model/queryset as a prop (see the encoder
 # docstring): the default encoder would recurse on our cyclic relations.
 from app.inertia_encoder import StrictInertiaJsonEncoder  # noqa: E402
@@ -125,6 +136,30 @@ TYPESENSE = {
     "protocol": os.getenv("TYPESENSE_PROTOCOL", "http"),
     "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
 }
+
+# Ollama (self-hosted LLM) for AI content enrichment (Epic #201,
+# catalogue/enrichment.py). The host is reachable over tailscale; defaults point
+# at the verified host/model. Mirrors the TYPESENSE block: host + model are
+# env-configurable, never hardcoded in logic. The enrichment client is
+# best-effort — an unreachable host degrades to no-op, never an error.
+OLLAMA = {
+    "host": os.getenv("OLLAMA_HOST", "http://100.81.40.52:11434"),
+    "model": os.getenv("OLLAMA_MODEL", "gemma4:31b-it-qat"),
+    "timeout_seconds": int(os.getenv("OLLAMA_TIMEOUT", "120")),
+}
+
+# When True, AI-derived enrichment may surface as unlabelled public metadata
+# (watch-page summary fallback + SEO meta). Default off: enrichment is invisible
+# infrastructure (search recall) until consciously flipped (Epic #201, E4).
+AI_ENRICHMENT_PUBLIC = os.getenv("AI_ENRICHMENT_PUBLIC", "false").lower() == "true"
+
+# Studio dev login — BETA ONLY, NEVER set on production. A secret magic link:
+# GET /studio/dev-login?key=<STUDIO_DEV_LOGIN_KEY> one-click-signs-in the single
+# configured editor (STUDIO_DEV_LOGIN_USER) with NO credentials. The endpoint
+# 404s unless the key is set AND matches (so it's invisible without the secret).
+# Empty key (the default everywhere) = feature off. Remove at the prod cutover.
+STUDIO_DEV_LOGIN_KEY = os.getenv("STUDIO_DEV_LOGIN_KEY", "")
+STUDIO_DEV_LOGIN_USER = os.getenv("STUDIO_DEV_LOGIN_USER", "")
 
 # Logging
 LOGGING = {

@@ -28,11 +28,31 @@ const { resumePoint } = useWatchHistory();
 const placeholderEl = ref(null);
 const resumedFrom = ref(0);
 
+// Pull display names out of a video_metadata group so the player can tag video_*
+// analytics with speaker/series/topic/bible_book. A group can be an array OR a
+// single object (mirrors entries() below), so coerce before mapping.
+const metaNames = (key) => {
+    const value = props.video_metadata?.[key];
+    if (!value) return [];
+    return (Array.isArray(value) ? value : [value]).map((entry) => entry?.name ?? entry).filter(Boolean);
+};
+
 vueWatch(
     () => props.video.id,
     (id) => {
         const loaded = dock.load(
-            { id, name: props.video.name, url: props.video.url },
+            {
+                id,
+                name: props.video.name,
+                url: props.video.url,
+                is_live: !!props.video.is_livestream,
+                meta: {
+                    speaker: metaNames('speaker'),
+                    series: metaNames('series'),
+                    topic: metaNames('topic'),
+                    bible_book: metaNames('bible_book'),
+                },
+            },
             // Resume where the viewer left off, baked into the embed URL
             { autoplay: false, startAt: resumePoint(id) },
         );
@@ -117,7 +137,7 @@ const entries = (key) => {
             <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <p class="text-muted-foreground text-sm tabular-nums">
                     {{ video.date_recorded ? `Recorded ${video.date_recorded}` : `Added ${video.date_created}` }}
-                    <template v-if="formatDuration(video.duration_seconds)"> · {{ formatDuration(video.duration_seconds) }}</template>
+                    <template v-if="formatDuration(video.duration_seconds)"> · Duration: {{ formatDuration(video.duration_seconds) }}</template>
                 </p>
                 <ShareButton :title="video.name" />
             </div>

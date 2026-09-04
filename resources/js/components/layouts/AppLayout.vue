@@ -2,8 +2,22 @@
 import ErrorBoundary from '@/ErrorBoundary.vue';
 import AppFooter from '@/layouts/AppFooter.vue';
 import AppHeader from '@/layouts/AppHeader.vue';
+import CookieConsent from '@/organisms/CookieConsent.vue';
 import PersistentPlayer from '@/organisms/PersistentPlayer.vue';
 import Toaster from '@/organisms/Toaster.vue';
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+// The mini-player shows on watch contexts. In the Studio it's allowed on the
+// browse-like surfaces (Library + Review, where clicking a thumbnail previews a
+// video) but kept off the form/editor surfaces so it never overlaps their UI.
+const page = usePage();
+const STUDIO_PLAYER_PATHS = ['/studio', '/studio/', '/studio/review'];
+const showPlayer = computed(() => {
+    const path = page.url.split('?')[0];
+    if (!path.startsWith('/studio')) return true;
+    return STUDIO_PLAYER_PATHS.includes(path);
+});
 </script>
 
 <template>
@@ -27,7 +41,8 @@ import Toaster from '@/organisms/Toaster.vue';
         </main>
         <AppFooter />
         <!-- The shared player + toasts outlive page navigations (persistent layout) -->
-        <PersistentPlayer />
+        <PersistentPlayer v-if="showPlayer" />
         <Toaster />
+        <CookieConsent />
     </div>
 </template>

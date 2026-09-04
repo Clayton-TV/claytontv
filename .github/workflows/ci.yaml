@@ -65,6 +65,9 @@ jobs:
       - name: Check formatting
         run: npm run format-check
 
+      - name: Unit tests (Vitest)
+        run: npm run test:unit
+
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -82,4 +85,4 @@ jobs:
         run: uv sync --locked
 
       - name: Run tests
-        run: uv run pytest --tb=short -p no:warnings -q --cov --cov-fail-under=60
+        run: uv run pytest --tb=short -p no:warnings -q --cov --cov-fail-under=80

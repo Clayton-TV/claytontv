@@ -1,0 +1,21 @@
+name: Deploy to Dev
+
+on:
+  # Manual only — dev is the fast-moving integration branch, so we deploy it on
+  # demand rather than on every push. Beta/production still auto-deploy on push.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel an in-flight deploy
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      environment: dev
+      base_path: /srv/dev-claytontv
+      gunicorn_service: gunicorn-claytontv-dev.service
+      url: https://dev.claytontv.co.uk/
+      reindex: true
+    secrets: inherit
