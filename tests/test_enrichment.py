@@ -5,6 +5,7 @@ one optional live test is skipped unless the host is actually reachable.
 """
 
 import json
+import logging
 
 import pytest
 import requests
@@ -221,6 +222,26 @@ def test_enrich_video_connection_error_returns_empty(monkeypatch):
 
     monkeypatch.setattr(requests, "post", _raise)
     assert enrich_video(video) == empty_suggestions()
+
+
+def test_transport_failure_is_an_error_but_unparseable_output_is_a_warning(monkeypatch, caplog):
+    def _raise(*_args, **_kwargs):
+        raise requests.exceptions.Timeout("timed out")
+
+    monkeypatch.setattr(requests, "post", _raise)
+
+    with caplog.at_level(logging.WARNING, logger="catalogue.enrichment"):
+        assert enrichment.call_ollama("prompt") is None
+
+    transport = caplog.records[-1]
+    assert transport.levelno == logging.ERROR
+    assert transport.exc_info is not None
+
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="catalogue.enrichment"):
+        assert parse_json_response("not JSON") == {}
+
+    assert caplog.records[-1].levelno == logging.WARNING
 
 
 def test_enrich_video_unparseable_output_returns_empty(monkeypatch):

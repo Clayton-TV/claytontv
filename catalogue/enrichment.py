@@ -161,8 +161,11 @@ def call_ollama(prompt, *, system=_SYSTEM_PROMPT, model=None, timeout=None):
         resp = requests.post(url, json=payload, timeout=timeout or default_timeout)
         resp.raise_for_status()
         return resp.json().get("response", "")
-    except (requests.RequestException, ValueError) as exc:
-        logger.warning("Ollama call failed (%s): %s", url, exc)
+    except requests.RequestException:
+        logger.exception("Ollama transport failed (%s)", url)
+        return None
+    except ValueError as exc:
+        logger.warning("Could not parse Ollama response (%s): %s", url, exc)
         return None
 
 
