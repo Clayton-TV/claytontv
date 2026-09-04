@@ -2,7 +2,7 @@
 
 Church media platform (Django + Inertia + Vue 3), shipping through a three-tier
 `dev` → `beta` → `main` flow. **Current status, roadmap, epics, and priorities
-live in GitHub, not in a doc** — see the [Clayton TV — Delivery board](https://github.com/orgs/Clayton-TV/projects/6)
+live in GitHub, not in a doc** — see the [Clayton TV — Delivery board](https://github.com/orgs/Clayton-TV/projects/8)
 (Phase = MVP1/MVP2/Backlog/Shipped; Priority = MoSCoW) and the issues/epics it
 tracks. To reconstruct current state at any point, read the open issues and the
 epic sub-issue rollups. Reference docs for specifics: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)

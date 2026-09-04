@@ -17,7 +17,7 @@ server/ops-level source of truth; for the team-level overview see the
 | Python | 3.14 via uv | 3.14 via uv | 3.14 via uv (what `deploy.yaml` requires) |
 | Database | postgres `claytontv_dev` | postgres `claytontv_beta` | postgres `claytontv` |
 | Redis | own db, set explicitly via `REDIS_URL` in dev's `shared/.env` | db 2 (explicit `REDIS_URL`) | db 1 (implicit default) |
-| Typesense | own container, **must** be `127.0.0.1:8109` (see the warning below) | own container on `127.0.0.1:8108` | not provisioned yet |
+| Typesense | own container, **must** be `127.0.0.1:8109` (see the warning below) | own container on `127.0.0.1:8108` | own container on an environment-specific loopback port |
 | TLS | certbot, auto-renew | certbot, auto-renew | certbot, auto-renew |
 
 All three use the same atomic symlinked-release layout (Capistrano-style, not
@@ -76,13 +76,6 @@ push to `beta`, production on push to `main` — and all three also support
 `deploy.yaml`. Secrets (`SSH_HOST`, `SSH_PORT`, `SSH_USER`, `SSH_PRIVATE_KEY`)
 come from the matching GitHub `environment`.
 
-> **[†] Dev's push trigger arrives with #354.** Beta and production have
-> auto-deployed on push all along; dev was reverted to `workflow_dispatch`-only
-> under #325 and gets its `push:` trigger back in PR #354. Until that merges,
-> dev deploys are manual-dispatch only. If you are reading this on a branch
-> where `.github/workflows/deploy-to-dev.yaml` has no `push:` block, #354 has
-> not landed yet.
-
 What a deploy does (`deploy.yaml` — runs on the GitHub runner, then over SSH):
 
 1. `npm ci` + `npm run build-only` — build Vite assets on the runner (PostHog
@@ -106,12 +99,10 @@ What a deploy does (`deploy.yaml` — runs on the GitHub runner, then over SSH):
    `SearchUnavailableError`, which covers the missing-API-key case). Either way
    it **fails the deploy**. It runs *before* the symlink swap, so a failure
    leaves the previous release serving.
-   > ⚠️ **Production is exposed by this today.** Production has no Typesense
-   > (see below) but `deploy-to-production.yaml` still passes `reindex: true`,
-   > so **any** push to `main` starts a deploy that aborts at this step. The
-   > live release is untouched (the abort happens before the symlink swap), but
-   > the deploy goes red. Before the prod cutover, either provision the
-   > container or set `reindex: false` in `deploy-to-production.yaml` — see #287.
+   > Production's caller passes `reindex: true`, so production requires a
+   > reachable, separately configured Typesense instance before deployment.
+   > Provisioning and port/API-key values are server configuration; verify them
+   > on the target environment before enabling production deploys.
 7. atomic `current` symlink swap → `systemctl restart <gunicorn_service>` →
    prune to the last 5 releases.
 8. smoke test: `curl` the env URL and require HTTP 200.
@@ -338,7 +329,7 @@ Local dev: `docker compose up typesense` (repo-root `docker-compose.yml`) +
 |---|---|---|
 | Dev | one of its own, following beta's naming | `127.0.0.1:8109` (**required** — see below) |
 | Beta | `claytontv-beta-search` | `127.0.0.1:8108` |
-| Production | **not provisioned yet** — no compose project exists | — |
+| Production | own instance required by `reindex: true`; project name, port and runtime state are server configuration | verify on the target host |
 
 Beta's project name is the one written into the compose file above. Dev's exact
 project name and its actual bound port are server state this doc can't prove —
@@ -358,9 +349,10 @@ What is *not* negotiable is that dev must not share beta's port:
 > `TYPESENSE_PORT=8109` explicitly, and each env's
 > `shared/typesense/docker-compose.yml` must publish its own port.
 
-Production search is still ORM-fallback only until its container is provisioned
-(follow the provisioning steps above with `/srv/claytontv`, a project name of
-its own, and a third port) — see #287.
+Production requires its own Typesense instance because the production caller
+passes `reindex: true`. Follow the provisioning steps above with
+`/srv/claytontv`, a project name of its own, and a third port. Verify the
+container, API key and application settings on the target host before deploying.
 
 ## Error pages
 
