@@ -85,7 +85,7 @@ def storable_duration(value):
         return None
     try:
         seconds = int(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
     return seconds if 0 <= seconds <= MAX_DURATION else None
 
@@ -110,7 +110,7 @@ def _harvest_youtube(session, videos_by_yid, stats):
             )
             payload = response.json() if response.status_code == 200 else None
         except (requests.RequestException, ValueError) as exc:
-            logger.warning("YouTube batch failed (%s) — skipped until the next run: %s", ",".join(batch), exc)
+            logger.warning("YouTube batch failed (%s): %s", ",".join(batch), type(exc).__name__)
             stats["failed"] += len(batch)
             continue
         items = payload.get("items", []) if isinstance(payload, dict) else None
@@ -161,7 +161,7 @@ def _record_vimeo_payload(video, payload, stats):
     """Sort one oEmbed 200 body into a bucket. A duration we can't store is a
     failure to count, not a reason to abandon the rest of the queue."""
     if not isinstance(payload, dict):
-        logger.warning("Vimeo sent an unreadable body for %s — skipped until the next run: %r", video.url, payload)
+        logger.warning("Vimeo sent an unreadable body for video %s", video.id)
         stats["failed"] += 1
         return
     raw = payload.get("duration")
@@ -172,7 +172,7 @@ def _record_vimeo_payload(video, payload, stats):
         return
     seconds = storable_duration(raw)
     if seconds is None:
-        logger.warning("Vimeo sent an unusable duration %r for %s — skipped until the next run", raw, video.url)
+        logger.warning("Vimeo sent an unusable duration for video %s", video.id)
         stats["failed"] += 1
         return
     Video.objects.filter(id=video.id).update(duration_seconds=seconds)
@@ -187,7 +187,7 @@ def _harvest_vimeo(session, videos, stats, delay):
             response = session.get(VIMEO_OEMBED, params={"url": video.url}, timeout=15)
             payload = response.json() if response.status_code == 200 else None
         except (requests.RequestException, ValueError) as exc:
-            logger.warning("Vimeo request failed for %s — skipped until the next run: %s", video.url, exc)
+            logger.warning("Vimeo request failed for video %s: %s", video.id, type(exc).__name__)
             stats["failed"] += 1
         else:
             if response.status_code in (404, 410):
@@ -200,7 +200,7 @@ def _harvest_vimeo(session, videos, stats, delay):
             elif response.status_code != 200:
                 # 429/5xx: Vimeo rate-limiting us or falling over. Worth
                 # retrying, and worth counting towards the outage alert.
-                logger.warning("Vimeo returned %s for %s — skipped until the next run", response.status_code, video.url)
+                logger.warning("Vimeo returned %s for video %s", response.status_code, video.id)
                 stats["failed"] += 1
             else:
                 _record_vimeo_payload(video, payload, stats)

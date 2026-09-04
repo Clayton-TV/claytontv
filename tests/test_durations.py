@@ -170,7 +170,8 @@ def test_slow_vimeo_reply_is_skipped_not_fatal(monkeypatch, caplog):
     assert quick.duration_seconds == 3263  # the rest of the queue still got harvested
     assert len(session.calls) == 2
     assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
-    assert slow.url in caplog.text
+    assert f"video {slow.id}" in caplog.text
+    assert slow.url not in caplog.text
 
 
 def test_failed_youtube_batch_is_skipped_not_fatal(monkeypatch, caplog):
@@ -506,3 +507,38 @@ def test_command_reports_every_stat(monkeypatch):
     assert "YouTube: 1" in out.getvalue()
     assert "unresolved: 0" in out.getvalue()
     assert "failed" in out.getvalue()
+
+
+def test_transport_failures_do_not_log_api_keys_or_private_video_urls(monkeypatch, caplog):
+    api_key = "test-api-key-do-not-log"
+    private_hash = "test-private-hash-do-not-log"
+    monkeypatch.setenv("YOUTUBE_API_KEY", api_key)
+    VideoFactory(url="https://youtu.be/aaa", duration_seconds=None)
+    VideoFactory(url=f"https://vimeo.com/123/{private_hash}", duration_seconds=None)
+
+    class FailedSession:
+        def get(self, url, params=None, timeout=None):
+            request = requests.Request("GET", url, params=params).prepare()
+            raise requests.ConnectionError(f"Request failed: {request.url}")
+
+    with caplog.at_level(logging.WARNING, logger="catalogue.durations"):
+        stats = harvest_durations(session=FailedSession(), vimeo_delay=0)
+
+    assert stats["failed"] == 2
+    assert api_key not in caplog.text
+    assert private_hash not in caplog.text
+
+
+def test_nonfinite_vimeo_duration_does_not_abort_remaining_videos():
+    bad = VideoFactory(url="https://vimeo.com/123", duration_seconds=None)
+    good = VideoFactory(url="https://vimeo.com/456", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={bad.url: float("inf"), good.url: 90})
+
+    stats = harvest_durations(session=session, vimeo_delay=0)
+
+    bad.refresh_from_db()
+    good.refresh_from_db()
+    assert bad.duration_seconds is None
+    assert good.duration_seconds == 90
+    assert stats["failed"] == 1
+    assert stats["vimeo"] == 1
