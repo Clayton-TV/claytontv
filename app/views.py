@@ -59,6 +59,11 @@ SEARCH_KIND_LABELS = {
 SEARCH_CATEGORY_LIMIT = 20
 
 
+def subscribe(request):
+    """Static subscribe page — renders the Mailchimp sign-up form."""
+    return render(request, "Subscribe")
+
+
 def index(request):
     """Curated homepage: a few of the latest videos, a handful of featured
     series and topics. Everything else is one click deeper — the previous
@@ -548,6 +553,7 @@ def browse_channel(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -584,6 +590,7 @@ def browse_demographic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -620,6 +627,7 @@ def browse_ministry(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -659,6 +667,7 @@ def series_index(request):
             "total": paginator.count,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -881,6 +890,7 @@ def browse_series(request, id):
             "page_start": (page_num - 1) * 50,
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -927,6 +937,7 @@ def browse_speaker(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 
@@ -963,6 +974,7 @@ def browse_topic(request, id):
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
+            "num_pages": paginator.num_pages,
         },
     )
 

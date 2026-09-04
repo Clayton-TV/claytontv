@@ -1,6 +1,6 @@
 """Create a Studio editor: a user in the "Editors" group. No self-signup —
 Direction A keeps the gate closed, so Jamie provisions editors with this
-(docs/CREATOR_UI_RESEARCH.md §4). Idempotent: safe to re-run."""
+command. Idempotent: safe to re-run."""
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group

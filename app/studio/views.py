@@ -20,7 +20,7 @@ from inertia import render, share
 
 from app.auth import can_edit_content
 from catalogue.metadata import MetadataError, fetch_metadata
-from catalogue.models.video import DRAFT, PUBLISHED
+from catalogue.models.video import DRAFT, PUBLISHED, Video
 
 from . import services
 from .auth import studio_required
@@ -152,7 +152,7 @@ def logout_view(request):
 
 
 def _library_filters(request):
-    """The current ``(q, status, page)`` filters from a GET request."""
+    """The current ``(q, status, page, sort, direction)`` filters from a GET."""
     q = request.GET.get("q", "").strip()
     status = request.GET.get("status", services.STATUS_ALL)
     if status not in services.STATUS_CHOICES:
@@ -161,7 +161,13 @@ def _library_filters(request):
         page = int(request.GET.get("page", 1))
     except (TypeError, ValueError):
         page = 1
-    return q, status, page
+    sort = request.GET.get("sort", "")
+    if sort not in services.SORT_CHOICES:
+        sort = ""
+    direction = request.GET.get("dir", "desc")
+    if direction not in services.SORT_DIRECTIONS:
+        direction = "desc"
+    return q, status, page, sort, direction
 
 
 @studio_required
@@ -173,14 +179,16 @@ def library(request):
     ``ensure_csrf_cookie`` guarantees the XSRF cookie is present so the row/bulk
     mutations (Inertia POSTs) carry a valid CSRF token — including for a session
     that landed here straight from the magic link."""
-    q, status, page = _library_filters(request)
-    result = services.list_videos(search=q, status=status, page=page)
+    q, status, page, sort, direction = _library_filters(request)
+    result = services.list_videos(search=q, status=status, page=page, sort=sort, direction=direction)
     return render(
         request,
         "Studio/Library",
         {
             "q": q,
             "status": status,
+            "sort": sort,
+            "dir": direction,
             "draft_count": services.draft_count(),
             **result,
         },
@@ -433,3 +441,23 @@ def update_video(request, id):
         raise Http404
     messages.success(request, "Saved.")
     return redirect("/studio")
+
+
+@studio_required
+@require_POST
+def suggest_video(request, id):
+    """``POST /studio/videos/<id>/suggest`` — (re)generate AI suggestions for one
+    video and redirect back to the editor (Inertia reloads the props, so the
+    Suggestions panel refreshes). Best-effort: if the model is unreachable, flash
+    a friendly note rather than erroring."""
+    from catalogue.enrichment import store_enrichment
+
+    video = Video.all_objects.filter(id=id).first()
+    if video is None:
+        raise Http404
+    enrichment = store_enrichment(video)
+    if enrichment is None:
+        messages.warning(request, "Couldn't generate suggestions just now — please try again shortly.")
+    else:
+        messages.success(request, "Suggestions updated.")
+    return redirect("studio_edit_video", id=id)

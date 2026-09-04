@@ -1,10 +1,12 @@
 # Clayton TV
 
-Church media platform (Django + Inertia + Vue 3). A major revamp is underway —
-**read [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) first**: it holds the epics,
-current status, decision log, and working agreement. Other key docs:
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (environments, server, security
-baseline), [docs/SERVER_AUDIT.md](docs/SERVER_AUDIT.md),
+Church media platform (Django + Inertia + Vue 3), mid-revamp on the `beta`
+branch. **Current status, roadmap, epics, and priorities live in GitHub, not in
+a doc** — see the [Clayton TV — Delivery board](https://github.com/orgs/Clayton-TV/projects/6)
+(Phase = MVP1/MVP2/Backlog/Shipped; Priority = MoSCoW) and the issues/epics it
+tracks. To reconstruct current state at any point, read the open issues and the
+epic sub-issue rollups. Reference docs for specifics: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+(environments, server, security baseline), [docs/SERVER_AUDIT.md](docs/SERVER_AUDIT.md),
 [docs/TESTING_NOTES.md](docs/TESTING_NOTES.md) (known data quirks).
 
 ## Workflow
@@ -24,7 +26,7 @@ baseline), [docs/SERVER_AUDIT.md](docs/SERVER_AUDIT.md),
 ```bash
 uv run poe          # list all tasks
 uv run poe dev      # Django + Vite dev servers (or use .claude/launch.json)
-uv run poe test     # pytest (coverage gate: 60%)
+uv run poe test     # pytest (coverage gate: 80%, enforced locally + in CI)
 uv run poe fix      # ruff lint --fix + format
 uv run poe manage <cmd>
 npm run build-only  # production asset build
