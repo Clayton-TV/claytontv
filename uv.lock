@@ -2,6 +2,9 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+constraints = [{ name = "sqlparse", specifier = ">=0.6.0" }]
+
 [[package]]
 name = "anyio"
 version = "4.13.0"
@@ -129,7 +132,7 @@ dev = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.15.0" },
     { name = "dj-database-url", specifier = ">=2.3" },
-    { name = "django", specifier = ">=6.0,<7.0" },
+    { name = "django", specifier = ">=6.0.7,<7.0" },
     { name = "django-vite", specifier = ">=3.1" },
     { name = "gunicorn", specifier = ">=23.0" },
     { name = "inertia-django", specifier = ">=1.2" },
