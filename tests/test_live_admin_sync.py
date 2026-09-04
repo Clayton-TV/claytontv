@@ -592,6 +592,108 @@ def test_login_retry_logs_do_not_include_the_form_token(instant_sleeps, credenti
     assert token not in caplog.text
 
 
+def test_login_transport_retry_logs_do_not_include_the_request_url(instant_sleeps, caplog):
+    from urllib3.exceptions import MaxRetryError
+
+    from catalogue.ingest import live_admin
+
+    token = "one-time-login-token"
+    password = "not-in-logs"
+
+    class FailingAdapter(requests.adapters.HTTPAdapter):
+        def send(self, request, **kwargs):
+            error = MaxRetryError(None, request.url, reason=OSError("offline"))
+            raise requests.exceptions.ConnectionError(error, request=request)
+
+    session = requests.Session()
+    session.mount("https://", FailingAdapter())
+
+    with (
+        caplog.at_level(logging.WARNING, logger="catalogue.ingest.live_admin"),
+        pytest.raises(requests.exceptions.ConnectionError),
+    ):
+        live_admin._with_retries(
+            "login",
+            lambda: session.post(
+                f"https://clayton.tv/adminsection/login.asp?at={token}",
+                data={"kt_login_password": password},
+            ),
+        )
+
+    assert token not in caplog.text
+    assert password not in caplog.text
+
+
+def test_login_does_not_replay_credentials_across_an_off_site_307(credentials):
+    from catalogue.ingest import live_admin
+
+    class RedirectingAdapter(requests.adapters.HTTPAdapter):
+        def __init__(self):
+            super().__init__()
+            self.requests = []
+
+        def send(self, request, **kwargs):
+            self.requests.append(request)
+            response = requests.Response()
+            response.request = request
+            response.url = request.url
+            if request.method == "GET":
+                response.status_code = 200
+                response._content = b'<form action="https://clayton.tv/adminsection/login.asp"></form>'
+            else:
+                response.status_code = 307
+                response.headers["Location"] = "https://evil.example/collect"
+            return response
+
+    adapter = RedirectingAdapter()
+    session = requests.Session()
+    session.mount("https://", adapter)
+
+    with pytest.raises(live_admin.AdminAuthError, match="redirect"):
+        live_admin.login(session)
+
+    assert [request.url for request in adapter.requests] == [
+        "https://clayton.tv/adminsection/",
+        "https://clayton.tv/adminsection/login.asp",
+    ]
+
+
+def test_login_follows_a_same_origin_302_with_get(credentials):
+    from catalogue.ingest import live_admin
+
+    class RedirectingAdapter(requests.adapters.HTTPAdapter):
+        def __init__(self):
+            super().__init__()
+            self.requests = []
+
+        def send(self, request, **kwargs):
+            self.requests.append(request)
+            response = requests.Response()
+            response.request = request
+            response.url = request.url
+            if request.method == "POST":
+                response.status_code = 302
+                response.headers["Location"] = "/adminsection/dashboard.asp"
+            elif request.url.endswith("dashboard.asp"):
+                response.status_code = 200
+                response._content = b"<html>Channel Manager</html>"
+            else:
+                response.status_code = 200
+                response._content = b'<form action="https://clayton.tv/adminsection/login.asp"></form>'
+            return response
+
+    adapter = RedirectingAdapter()
+    session = requests.Session()
+    session.mount("https://", adapter)
+
+    assert live_admin.login(session) is True
+    assert [(request.method, request.url) for request in adapter.requests] == [
+        ("GET", "https://clayton.tv/adminsection/"),
+        ("POST", "https://clayton.tv/adminsection/login.asp"),
+        ("GET", "https://clayton.tv/adminsection/dashboard.asp"),
+    ]
+
+
 class LapsedSession:
     """A session whose cookie has expired mid-run: content GETs land on
     /accessdenied.html until a login POST mints a working one."""

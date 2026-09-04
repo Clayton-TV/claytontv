@@ -104,12 +104,13 @@ def _with_retries(description, request):
         try:
             return _raise_if_overloaded(request())
         except TRANSIENT_ERRORS as exc:
+            failure = str(exc) if isinstance(exc, OverloadedError) else type(exc).__name__
             logger.warning(
                 "Legacy admin %s failed (attempt %s/%s): %s — retrying in %ss",
                 description,
                 attempt,
                 attempts,
-                exc,
+                failure,
                 wait,
             )
             time.sleep(wait)
@@ -123,11 +124,34 @@ def _login_action(page):
     anywhere but the admin's own host."""
     form = BeautifulSoup(page.text, "html.parser").find("form")
     action = urljoin(page.url, (form.get("action") if form else None) or page.url)
-    target = urlparse(action)
-    admin = urlparse(BASE_URL)
-    if target.scheme != admin.scheme or target.netloc != admin.netloc:
+    if not _is_admin_origin(action):
         raise AdminAuthError(f"Legacy admin login form points off-site ({action}) — refusing to post credentials.")
     return action
+
+
+def _is_admin_origin(url):
+    target = urlparse(url)
+    admin = urlparse(BASE_URL)
+    return target.scheme == admin.scheme and target.netloc == admin.netloc
+
+
+def _follow_login_redirect(session, response):
+    status = getattr(response, "status_code", None)
+    if status not in (301, 302, 303, 307, 308):
+        return response
+
+    location = getattr(response, "headers", {}).get("Location")
+    target = urljoin(getattr(response, "url", ""), location or "")
+    if status not in (302, 303) or not location or not _is_admin_origin(target):
+        raise AdminAuthError("Legacy admin login redirect refused.")
+
+    followed = _with_retries(
+        "login redirect",
+        lambda: session.get(target, timeout=30, allow_redirects=False),
+    )
+    if 300 <= getattr(followed, "status_code", 200) < 400:
+        raise AdminAuthError("Legacy admin login redirect refused.")
+    return followed
 
 
 def login(session):
@@ -154,9 +178,10 @@ def login(session):
                 "kt_login1": "Login",
             },
             timeout=30,
+            allow_redirects=False,
         )
 
-    response = _with_retries("login", submit)
+    response = _follow_login_redirect(session, _with_retries("login", submit))
     if "kt_login_password" in response.text:  # still on the login form
         raise AdminAuthError("Legacy admin login failed — check LEGACY_ADMIN_USERNAME/PASSWORD.")
     return True
