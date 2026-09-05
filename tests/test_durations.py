@@ -301,6 +301,24 @@ def test_an_absurd_youtube_duration_is_not_stored(monkeypatch):
     assert stats["unresolved"] == 1
 
 
+def test_an_unparseably_large_youtube_duration_does_not_skip_vimeo(monkeypatch):
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    youtube = VideoFactory(url="https://youtu.be/too-big", duration_seconds=None)
+    vimeo = VideoFactory(url="https://vimeo.com/171717/kkkkkkkkkk", duration_seconds=None)
+    session = FakeHarvestSession(
+        yt={"too-big": f"PT{'9' * 5000}H"},
+        vimeo={vimeo.url: 1200},
+    )
+
+    stats = harvest_durations(session=session, vimeo_delay=0)
+
+    youtube.refresh_from_db()
+    vimeo.refresh_from_db()
+    assert youtube.duration_seconds is None
+    assert vimeo.duration_seconds == 1200
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
+
+
 def test_vimeo_server_error_is_counted_failed_not_unresolved(monkeypatch, caplog):
     """A 429/503 means we couldn't reach Vimeo — recording it as `unresolved`
     made it indistinguishable from a video that genuinely has no duration."""

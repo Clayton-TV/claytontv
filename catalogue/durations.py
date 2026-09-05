@@ -114,7 +114,7 @@ def _harvest_youtube(session, youtube, stats):
             answered.add(yid)
             try:
                 seconds = storable_duration(parse_iso8601_duration(item.get("contentDetails", {}).get("duration")))
-            except (AttributeError, TypeError):
+            except (AttributeError, TypeError, ValueError):
                 logger.warning("YouTube sent unreadable content details for %s", yid)
                 stats["failed"] += 1
             else:
