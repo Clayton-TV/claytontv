@@ -54,10 +54,10 @@ def has_expected_signature(path: Path, expected_suffix: str) -> bool:
 def reject_partial(partial: Path, partial_marker: Path) -> str:
     rejected = partial.with_name(f"{partial.name}.rejected")
     if rejected.exists():
-        return f"downloaded bytes have an invalid {partial.suffix} signature; move {partial} before retrying"
+        return f"downloaded content has an unexpected file format; move {partial} before retrying"
     partial.replace(rejected)
     partial_marker.unlink(missing_ok=True)
-    return f"downloaded bytes have an invalid {partial.suffix} signature; retained as {rejected}"
+    return f"downloaded content has an unexpected file format; retained as {rejected}"
 
 
 def download_entry(
