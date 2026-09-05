@@ -1,185 +1,156 @@
 # Clayton TV
 
-A church media platform — Christian video you can trust, simple enough for an
-elderly congregant on a phone and deep enough for a minister researching a
-passage. Django + Inertia + Vue 3, currently being rebuilt on the `beta` branch.
+Christian media platform built with Django, Inertia and Vue 3.
 
-New here? This README gets you running locally in a few minutes. To see what's
-being worked on and what's planned, browse the
-[issues](https://github.com/Clayton-TV/claytontv/issues) and [project board (only visible to Clayton TV developer team)](https://discord.gg/Gbh8fWthj).
+Feature branches target `dev`. Releases promote through `dev` → `beta` → `main`.
+Track work in [GitHub issues](https://github.com/Clayton-TV/claytontv/issues) and the
+[project board](https://github.com/orgs/Clayton-TV/projects/8). Team chat:
+[Discord](https://discord.gg/Gbh8fWthj).
 
 ## Prerequisites
 
-- **Python** — installed for you by uv (3.14, pinned in `.python-version`). No
-  pyenv or system Python required.
-- **Node.js 22+ and npm** — for the Vue/Vite frontend. Install from
-  [nodejs.org](https://nodejs.org), or with a version manager such as
-  [nvm](https://github.com/nvm-sh/nvm) (`nvm install 22`) or
-  [fnm](https://github.com/Schniz/fnm). npm ships with Node.
-- **Git**.
+- Git.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/). It installs Python
+  3.14 from `.python-version` and manages the project environment.
+- Node.js 22 and npm. `.nvmrc` selects the supported major version; run
+  `nvm install` and `nvm use` if using nvm.
+- Docker only for optional local Typesense. Django runs natively with SQLite.
 
-## 1. Clone the repository
+## Local setup
+
+These commands work on macOS, Linux and Windows PowerShell unless indicated.
+
+### 1. Clone and install
 
 ```bash
-git clone git@github.com:clayton-tv/claytontv.git
+git clone --branch dev https://github.com/Clayton-TV/claytontv.git
 cd claytontv
-```
-
-## 2. Install uv
-
-The project uses [uv](https://docs.astral.sh/uv/) for Python and dependency
-management. uv installs the right Python automatically.
-
-```bash
-# macOS / Linux / WSL
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-## 3. Install dependencies
-
-Python (and the dev tools), then the frontend packages:
-
-```bash
-uv sync                  # creates .venv/ and installs locked Python deps
+uv sync --locked
+npm ci
 uv run pre-commit install
-npm install              # Vue / Vite / Tailwind frontend deps
 ```
 
-> `uv run` always uses the project venv — there is nothing to "activate". If you
-> prefer shorter commands, `source .venv/bin/activate` once per shell and drop
-> the `uv run` prefix.
+For SSH authentication, use
+`git clone --branch dev git@github.com:Clayton-TV/claytontv.git` instead.
+`uv run` uses the project environment; shell activation is unnecessary.
 
-## 4. Set up the environment
+### 2. Configure
 
 ```bash
 cp .env.example .env
-uv run poe generate-key   # writes a SECRET_KEY into .env
+uv run poe generate-key
 ```
 
-## 5. Set up the database
+In Windows cmd.exe, use `copy .env.example .env` instead of `cp`.
+The key command fills `SECRET_KEY`; retain
+`DJANGO_SETTINGS_MODULE=app.local_settings`. Other values have local defaults
+or are optional. Server configuration belongs in each environment's
+`shared/.env`; see [Deployment](docs/DEPLOYMENT.md).
 
-The local database is SQLite — no server to install. Apply the migrations:
+### 3. Create the database
 
 ```bash
 uv run poe manage migrate
 ```
 
-Optionally seed it with the legacy catalogue (imports the CSVs under `CSV/` —
-takes a few minutes). This is **destructive** (delete-all-then-reload), so only
-ever run it against a local database you don't mind wiping:
+Optional catalogue seed:
 
 ```bash
 uv run poe manage link_and_import_all
 ```
 
-## 6. Run the application
+The seed imports `CSV/` and **replaces existing catalogue data**. Run it only
+against a disposable local database. Do not bypass the non-SQLite guard with
+`ALLOW_DESTRUCTIVE_IMPORT`.
 
-We use [Poe the Poet](https://poethepoet.natn.io/) as a task runner; it
-self-documents the useful commands:
+### 4. Start development servers
 
 ```bash
-uv run poe          # list all tasks
-uv run poe dev      # run Django + Vite together (the usual dev loop)
+uv run poe dev
 ```
 
-`uv run poe dev` starts the Django server and the Vite dev server side by side.
-Open the app at the Django URL (http://localhost:8000) — Vite (port 5173) only
-serves frontend assets.
+Open http://127.0.0.1:8000. This starts Django and Vite together.
 
-### Local HTTPS (optional, macOS)
-
-With [Laravel Herd](https://herd.laravel.com) installed you can proxy the dev
-server behind trusted local HTTPS:
+For optional local HTTPS with Laravel Herd on macOS:
 
 ```bash
 herd proxy claytontv http://127.0.0.1:8000 --secure
-# → https://claytontv.test
 ```
 
-## 7. Everyday commands
+Then open https://claytontv.test.
+
+### 5. Enable Typesense (optional)
+
+Search falls back to the database without Typesense. To test Typesense locally,
+set `TYPESENSE_API_KEY=dev-typesense-key` in `.env`, then run:
 
 ```bash
-uv run poe manage <cmd>   # any Django management command
-uv run poe test           # pytest suite
-uv run poe fix            # ruff lint --fix + format
-uv run poe lint-check     # lint without fixing (CI parity)
-uv run poe format-check   # format check (CI parity)
-npm run build-only        # production frontend build
+docker compose up -d typesense
+uv run poe manage reindex_search
 ```
 
-Pre-commit hooks (ruff + gitleaks) run automatically on commit; run them
-manually with:
+Wait for the container to start before indexing. Stop it with
+`docker compose down`. Alternatively, `uv run poe typesense` runs the container
+in the foreground; use a second terminal for indexing.
+
+The compose file is local-only. Server environments need separate instances
+and configuration; see [Deployment](docs/DEPLOYMENT.md).
+
+## Development commands
+
+```bash
+uv run poe manage <cmd>   # Django management command
+uv run poe test           # Python tests and 80% coverage gate
+uv run poe lint-check
+uv run poe format-check
+uv run poe fix            # apply Ruff fixes and formatting
+npm run type-check
+npm run lint-check
+npm run format-check
+npm run test:unit
+npm run build-only
+```
+
+Pre-commit runs Ruff, Gitleaks and frontend hooks. Install frontend dependencies
+with `npm ci` before committing. Run all hooks with:
 
 ```bash
 uv run pre-commit run --all-files --show-diff-on-failure
 ```
 
-## 8. Troubleshooting
+## Troubleshooting
 
-- **`uv: command not found`** — uv isn't on your `PATH` yet. Restart the shell
-  after installing, or `source $HOME/.local/bin/env` (macOS/Linux).
-- **`npm: command not found` or Vite errors** — Node isn't installed or is too
-  old. Check with `node --version` (need 22+) and re-run `npm install`.
-- **Blank page / missing styles in the browser** — make sure both servers are
-  running via `uv run poe dev`, and open the Django URL (port 8000), not Vite's
-  port 5173.
-- **`SECRET_KEY` / settings errors on startup** — you skipped step 4. Confirm
-  `.env` exists and that `uv run poe generate-key` populated `SECRET_KEY`.
-- **No videos / empty catalogue** — the database hasn't been seeded. Run
-  `uv run poe manage link_and_import_all` (step 5).
-- **Frontend deps fail to install on Linux/CI** — platform-specific binaries are
-  declared as `optionalDependencies`; a clean `npm install` resolves them.
+- **uv not found:** restart the shell after installation and check `PATH`.
+- **Frontend tests fail:** check `node --version` is 22, then run `npm ci`.
+- **Missing settings or secret key:** check `.env` exists, retains
+  `DJANGO_SETTINGS_MODULE`, and contains a generated `SECRET_KEY`.
+- **Empty catalogue:** seed the disposable local database as described above.
+- **Typesense unavailable:** check the container, matching API key and index.
+  Database search remains available when Typesense is unconfigured or unreachable.
+- **Pre-commit cannot find frontend tools:** run `npm ci` in this checkout.
 
-## 9. Stack at a glance
+## Stack
 
-- **Backend:** Python 3.14, Django 6, Inertia (inertia-django), SQLite locally /
-  PostgreSQL in production
-- **Frontend:** Vue 3 + TypeScript + Vite + Tailwind CSS 4, shadcn-vue (reka-ui)
-- **Quality:** ruff, pytest (+pytest-django), oxlint/eslint/prettier, pre-commit,
-  gitleaks
+- Python 3.14, Django 6 and inertia-django.
+- SQLite locally; PostgreSQL for server deployments.
+- Vue 3, TypeScript, Vite, Tailwind CSS 4 and shadcn-vue.
+- Optional Typesense search with a database fallback.
 
-## Development Procedures
+## Contribution workflow
 
-### Branch Process
-### 1. Feature Branches
-- Set purpose
-- Single issue/single feature/single bug
-- Ideally attach to an issue and give a name that references the issue
-- Test features locally, once complete PR to dev/beta
-### 2. Dev
-- Manual deployment from your feature branch(es) for testing
-### 3. Beta
-- Beta site - autodeploy
-- Anyone can approve a PR
-- Test your changes live
-- PR template
-  - remind you to have tested locally
-  - check that there isn’t already a lag between beta & production
-- One new feature at a time
-  - PR to Production before the next feature PR is accepted to prevent backlog
-### 4. Production branch
-- live site  - auto deploy (treat with care!)
-- only 4 set approvers (JG, FT, MB, JS)
-  - Testing protocol
+1. Assign yourself an issue when actively working on it. Branch from `dev`
+   using `claytontv/<issue>/<slug>` and keep each PR to one change.
+2. Run local checks and open a PR into `dev`. Merges deploy to
+   https://dev.claytontv.co.uk.
+3. Promote `dev` to `beta` by PR; verify at https://beta.claytontv.co.uk.
+   Anyone may review beta changes. Check for pending production promotion before
+   adding another feature.
+4. Promote `beta` to `main` by PR. Merges deploy to https://claytontv.co.uk.
+   Production approval follows the team's JG/FT/MB/JS convention; this is not an
+   exclusive reviewer restriction enforced by GitHub.
 
-### Issue Process
-### 1. Issue Creation
-- Plain English - make sure content and updates can be understood by all
-- Fill in issue type & tags
-- If you have a feature idea
-  - make an issue
-  - at each hackathon we’ll triage & check them with client (Ettie)
-  - if you want to work on a feature/issue before triage, run it by Caitlin/Ettie
-### 2. Issue Assigning
-- Only assign if actively working (not future work), to prevent blocking
-- If you're working on an issue
-  - Assign it to yourself
-  - Make a branch & name it to match
+Deployment procedures: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-
-
-
-
+Write issues in plain English and set their type and labels. Feature ideas are
+triaged with Ettie at hackathons; consult Caitlin or Ettie before starting
+untriaged work.
