@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from catalogue import search_signals
 from catalogue.management.commands.import_all import Command as Import
 from catalogue.management.commands.link_all import Command as Link
-from catalogue.search import SearchUnavailableError, reindex
+from catalogue.search import TYPESENSE_ERRORS, SearchUnavailableError, reindex
 
 
 class Command(BaseCommand):
@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         try:
             total = reindex(log=self.stdout.write)
-        except SearchUnavailableError:
+        except (SearchUnavailableError, *TYPESENSE_ERRORS):
             self.stdout.write("Typesense unavailable; skipped search reindex.")
         else:
             self.stdout.write(self.style.SUCCESS(f"Indexed {total} Typesense documents."))

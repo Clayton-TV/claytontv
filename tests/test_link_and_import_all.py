@@ -2,6 +2,7 @@
 
 from io import StringIO
 
+import httpx
 import pytest
 from django.core.management import call_command
 
@@ -12,7 +13,8 @@ from tests.factories import VideoFactory
 pytestmark = pytest.mark.django_db
 
 
-def test_bulk_import_skips_per_object_indexing_and_reports_one_unavailable_reindex(monkeypatch):
+@pytest.mark.parametrize("failure", [search.SearchUnavailableError("not configured"), httpx.ConnectError("refused")])
+def test_bulk_import_skips_per_object_indexing_and_reports_one_unavailable_reindex(monkeypatch, failure):
     def create_imported_video(_command, _debug):
         VideoFactory(name="Imported video")
 
@@ -29,7 +31,7 @@ def test_bulk_import_skips_per_object_indexing_and_reports_one_unavailable_reind
 
     def unavailable_reindex(**_kwargs):
         reindex_attempts.append(True)
-        raise search.SearchUnavailableError("connection refused")
+        raise failure
 
     monkeypatch.setattr(link_and_import_all.Import, "myimport", create_imported_video)
     monkeypatch.setattr(link_and_import_all.Link, "mylink", create_linked_video)
