@@ -11,6 +11,7 @@ linked) are not updated here — those self-heal on the nightly reconcile
 """
 
 import logging
+from contextlib import contextmanager
 
 from django.db.models.signals import post_delete, post_save
 
@@ -78,3 +79,28 @@ def connect():
     # Enrichment isn't indexed as its own doc — it re-indexes its parent video.
     post_save.connect(_on_enrichment_change, sender=VideoEnrichment, dispatch_uid="typesense_enrichment_save")
     post_delete.connect(_on_enrichment_change, sender=VideoEnrichment, dispatch_uid="typesense_enrichment_delete")
+
+
+@contextmanager
+def suspended():
+    """Temporarily stop live indexing during a destructive bulk import."""
+    from catalogue.models.bible_book import Bible_Book
+    from catalogue.models.channel import Channel
+    from catalogue.models.demograpic import Demographic
+    from catalogue.models.enrichment import VideoEnrichment
+    from catalogue.models.ministry import Ministry
+    from catalogue.models.series import Series
+    from catalogue.models.speaker import Speaker
+    from catalogue.models.topic import Topic
+    from catalogue.models.video import Video
+
+    models = [Video, Series, Speaker, Topic, Bible_Book, Channel, Ministry, Demographic]
+    for model in models:
+        post_save.disconnect(sender=model, dispatch_uid=f"typesense_index_{model.__name__}")
+        post_delete.disconnect(sender=model, dispatch_uid=f"typesense_deindex_{model.__name__}")
+    post_save.disconnect(sender=VideoEnrichment, dispatch_uid="typesense_enrichment_save")
+    post_delete.disconnect(sender=VideoEnrichment, dispatch_uid="typesense_enrichment_delete")
+    try:
+        yield
+    finally:
+        connect()
