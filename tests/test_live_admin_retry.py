@@ -73,6 +73,24 @@ def test_fetch_stops_after_three_attempts(monkeypatch):
     assert len(session.get_urls) == 3
 
 
+def test_fetch_reauthenticates_after_retried_overload_ends_in_a_401(monkeypatch):
+    monkeypatch.setattr(live_admin.time, "sleep", lambda _wait: None)
+    logins = []
+    monkeypatch.setattr(live_admin, "login", lambda _session: logins.append(True) or True)
+    session = Session(
+        [
+            Response(status_code=503),
+            Response(status_code=503),
+            Response(url="https://clayton.tv/adminsection/accessdenied.html", status_code=401),
+            Response("recovered"),
+        ]
+    )
+
+    assert live_admin.fetch(session, "mediaProgramme.asp") == "recovered"
+    assert logins == [True]
+    assert len(session.get_urls) == 4
+
+
 def test_login_retries_the_form_get_but_not_the_credential_post(monkeypatch):
     sleeps = []
     monkeypatch.setattr(live_admin.time, "sleep", sleeps.append)

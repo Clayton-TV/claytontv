@@ -68,7 +68,9 @@ def _get_with_retries(session, url, description, *, allow_redirects=True):
             )
             time.sleep(wait)
     response = session.get(url, timeout=30, allow_redirects=allow_redirects)
-    response.raise_for_status()
+    status = getattr(response, "status_code", 200)
+    if status == 429 or status >= 500:
+        response.raise_for_status()
     return response
 
 
@@ -118,6 +120,8 @@ def login(session):
         return False
 
     page = _get_with_retries(session, f"{BASE_URL}/", "login form")
+    if getattr(page, "status_code", 200) >= 400:
+        raise AdminAuthError("Legacy admin login form failed.")
     try:
         response = session.post(
             _login_action(page),
