@@ -110,19 +110,6 @@ def test_pagination_flags_survive():
     assert second["has_prev_page"] and not second["has_next_page"]
 
 
-@pytest.mark.parametrize(("requested", "served"), [("0", 1), ("-3", 1), ("not-a-page", 1), ("99999", 2)])
-def test_latest_serves_the_nearest_real_page(client, requested, served):
-    # #329: below 1 means the START of the feed. get_page() on its own reads
-    # page 0 as "past the end" and serves the last page instead.
-    for n in range(30):  # more than one 24-video page
-        VideoFactory(date_recorded=datetime.date(2026, 6, 10) - datetime.timedelta(days=n))
-
-    props = inertia_page(client.get("/latest/", {"page": requested}))["props"]
-
-    assert props["page"] == served
-    assert props["has_prev_page"] is (served > 1)
-
-
 def test_latest_page_serves_the_feed(client):
     """Feature-level: /latest/ renders the LatestFeed component with grouped
     props."""

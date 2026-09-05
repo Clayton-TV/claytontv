@@ -499,7 +499,7 @@ const resultLabel = computed(() => {
         </div>
 
         <div class="mt-8">
-            <PaginationNav :num-pages="num_pages" :current-page="page" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
     </div>
 

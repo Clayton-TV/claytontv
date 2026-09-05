@@ -100,23 +100,18 @@ def _is_nt(book):
 def browse_props(request, ordering, per_page, paginator_cls):
     active = parse_filters(request)
     try:
-        # Anything below 1 is page 1. get_page() would otherwise read page 0 as
-        # "past the end" and serve the LAST page, which search doesn't do.
-        page_num = max(1, int(request.GET.get("page", 1)))
+        page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
     paginator = paginator_cls(filtered_videos(active, ordering), per_page)
-    # get_page() never raises: page 0, a negative page, or a page past the end all
-    # become a real page. Browse's facets make its URL space combinatorial, so
-    # crawlers reach page numbers no visitor ever would (#329).
-    page = paginator.get_page(page_num)
+    page = paginator.page(page_num)
     return {
         "title": "Browse",
         "videos": video_card_props(page.object_list),
         "facets": facet_options(active),
         "active": active,
         "total": paginator.count,
-        "page": page.number,  # the page actually served, so the nav can't desync
+        "page": page_num,
         "num_pages": paginator.num_pages,
         "has_prev_page": page.has_previous(),
         "has_next_page": page.has_next(),

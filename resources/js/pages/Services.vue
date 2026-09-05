@@ -15,10 +15,6 @@ defineProps({
     past: { type: Array, default: () => [] },
     has_prev_page: { type: Boolean, default: false },
     has_next_page: { type: Boolean, default: false },
-    // The view has always sent these; the grid needs them or the nav draws a
-    // lone "1" between the chevrons instead of the page numbers.
-    num_pages: { type: Number },
-    page: { type: Number },
 });
 
 const { entrance } = useEntrance();
@@ -111,8 +107,6 @@ const formatSchedule = (iso) => {
                     :videos="past"
                     :has_prev_page
                     :has_next_page
-                    :num_pages
-                    :page
                     empty-title="No past services yet"
                     empty-message="Recorded services will appear here after they've been streamed."
                 />
