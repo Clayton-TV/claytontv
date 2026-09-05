@@ -7,17 +7,17 @@ Run from a clone of this repository. Choose a local folder with adequate free sp
 Windows PowerShell:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\download-course-media.ps1 -OutputDirectory "D:\Clayton-TV-downloads"
+uv run python scripts/download_course_media.py "D:\Clayton-TV-downloads"
 ```
 
-macOS, Linux, or Git Bash on Windows:
+macOS or Linux:
 
 ```bash
-bash scripts/download-course-media.sh "/path/to/Clayton-TV-downloads"
+uv run python scripts/download_course_media.py "/path/to/Clayton-TV-downloads"
 ```
 
-Both scripts require `curl` 7.71 or newer. They retry transient failures, retain `<file>.part` files to resume later, and write `download-report.tsv`. Re-run the same command after a failure. A completed file is skipped only when its matching completion record exists; an existing unrecorded file is never overwritten.
+The utility requires `curl` 7.71 or newer. It retries transient failures, retains `<file>.part` files to resume later, and writes `download-report.tsv`. Re-run the same command after a failure. A completed file is skipped only when its matching completion record exists; an existing unrecorded file is never overwritten. A partial file is resumed only when it has a matching source URL record.
 
 `scripts/course-downloads.tsv` is the source manifest. It has 49 distinct Issue #97 URLs: the first Children's Ministry entry is one worksheet PDF, not a duplicate fake video. The 13 Children's Ministry video URLs use the verified `Video` filename correction. Eight God’s Big Picture filenames that returned 404 remain as listed in the issue because their proposed replacements returned 403; they will be reported as failures until corrected at the source.
 
-For a small local test manifest, pass `--manifest path/to/manifest.tsv` to either script.
+For a small local test manifest, pass `--manifest path/to/manifest.tsv`.

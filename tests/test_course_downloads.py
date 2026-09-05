@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import threading
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -9,7 +10,7 @@ from pathlib import Path
 from typing import ClassVar
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "scripts" / "download-course-media.sh"
+SCRIPT = ROOT / "scripts" / "download_course_media.py"
 MANIFEST = ROOT / "scripts" / "course-downloads.tsv"
 BODY = b"the local fixture checks interrupted transfers"
 
@@ -63,7 +64,7 @@ def fixture_server():
 def run_downloader(output: Path, manifest: Path, *, retries: str = "0"):
     env = os.environ | {"CURL_RETRIES": retries}
     return subprocess.run(
-        ["bash", str(SCRIPT), str(output), "--manifest", str(manifest)],
+        [sys.executable, str(SCRIPT), str(output), "--manifest", str(manifest)],
         capture_output=True,
         text=True,
         env=env,
@@ -95,6 +96,12 @@ def test_downloader_resumes_failure_skips_completed_and_reports_failure(tmp_path
         assert (output / "media/file.bin.part").read_bytes() == BODY[:12]
         assert "failed\tmedia/missing.bin" in (output / "download-report.tsv").read_text()
 
+        manifest.write_text(f"course\tpath\turl\nFixture\tmedia/file.bin\t{base_url}/changed\n")
+        changed_url = run_downloader(output, manifest)
+        assert changed_url.returncode == 1
+        assert handler.starts == [0]
+        assert "different or unknown URL" in (output / "download-report.tsv").read_text()
+
         manifest.write_text(f"course\tpath\turl\nFixture\tmedia/file.bin\t{base_url}/file\n")
         second = run_downloader(output, manifest)
         assert second.returncode == 0
@@ -105,3 +112,14 @@ def test_downloader_resumes_failure_skips_completed_and_reports_failure(tmp_path
         assert third.returncode == 0
         assert handler.starts == [0, 12]
         assert "skipped\tmedia/file.bin" in (output / "download-report.tsv").read_text()
+
+
+def test_downloader_rejects_manifest_path_outside_output_directory(tmp_path):
+    manifest = tmp_path / "fixture.tsv"
+    manifest.write_text("course\tpath\turl\nFixture\t../outside.bin\thttp://127.0.0.1/file\n")
+
+    result = run_downloader(tmp_path / "downloads", manifest)
+
+    assert result.returncode == 1
+    assert not (tmp_path / "outside.bin").exists()
+    assert "must stay inside the output directory" in result.stderr
