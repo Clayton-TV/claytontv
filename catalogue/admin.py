@@ -79,20 +79,35 @@ class VideoAdmin(admin.ModelAdmin):
 
     # Custom fieldsets for better organization
     fieldsets = (
-        ("Basic Information", {"fields": ("id_number", "name", "description", "url")}),
-        ("Series Information", {"fields": ("channel", "series", "number_in_series"), "classes": ("collapse",)}),
+        (
+            "Basic Information",
+            {
+                "fields": ("id_number", "name", "description", "url"),
+                "description": "Add the title, description, source link and existing reference.",
+            },
+        ),
+        (
+            "Series Information",
+            {
+                "fields": ("channel", "series", "number_in_series"),
+                "description": "Use when this video belongs to a channel or series.",
+            },
+        ),
         (
             "Content Classification",
-            {"fields": ("bible_book", "topic", "demographic", "ministry", "speaker"), "classes": ("collapse",)},
+            {
+                "fields": ("bible_book", "topic", "demographic", "ministry", "speaker"),
+                "description": "Choose all relevant Bible books and categories to help visitors browse.",
+            },
         ),
         (
             "Dates & Status",
             {
                 "fields": ("is_livestream", "date_recorded", "date_created", "date_modified", "deleted_at"),
-                "classes": ("collapse",),
+                "description": "Record when the video was made and whether it was livestreamed.",
             },
         ),
-        ("Admin", {"fields": ("labels",), "classes": ("collapse",)}),
+        ("Admin", {"fields": ("labels",), "description": "Internal labels only."}),
     )
 
     def get_queryset(self, request):
