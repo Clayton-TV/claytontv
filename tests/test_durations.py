@@ -57,7 +57,6 @@ class FakeHarvestSession:
         time_out=(),
         yt_status=200,
         yt_items=None,
-        yt_fail_calls=(),
         vimeo_status=None,
     ):
         self.yt = yt or {}  # video_id -> ISO duration
@@ -65,10 +64,8 @@ class FakeHarvestSession:
         self.time_out = set(time_out)  # YouTube ids / Vimeo urls the platform is too slow to answer
         self.yt_status = yt_status  # e.g. 403 when the quota is spent
         self.yt_items = yt_items  # raw items list, for malformed-payload cases
-        self.yt_fail_calls = set(yt_fail_calls)  # 0-based YouTube call indices that time out
         self.vimeo_status = vimeo_status or {}  # url -> status code, for 429/5xx
         self.calls = []
-        self.yt_calls = 0
 
     def get(self, url, params=None, timeout=None):
         self.calls.append(url)
@@ -85,10 +82,6 @@ class FakeHarvestSession:
                 return self._payload
 
         if "youtube" in url:
-            call_index = self.yt_calls
-            self.yt_calls += 1
-            if call_index in self.yt_fail_calls:
-                raise requests.ReadTimeout("read timed out")
             if self.yt_status != 200:
                 return Response(self.yt_status, {"error": {"message": "quota exceeded"}})
             ids = params["id"].split(",")
@@ -255,36 +248,22 @@ def test_a_gone_vimeo_video_is_unresolved_not_an_outage(monkeypatch, caplog):
     assert not [record for record in caplog.records if record.levelname == "ERROR"]
 
 
-def test_a_boolean_vimeo_duration_is_rejected_not_stored_as_one_second(monkeypatch):
-    """int(True) is 1 — that would quietly write a 1-second runtime and render
-    it on the site as '0:01'."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    v = VideoFactory(url="https://vimeo.com/151515/iiiiiiiiii", duration_seconds=None)
-    session = FakeHarvestSession(vimeo={v.url: True})
+@pytest.mark.parametrize(
+    "invalid_duration",
+    [True, -5, 3599999999996400, "about an hour", float("inf")],
+    ids=["boolean", "negative", "overflow", "text", "infinite"],
+)
+def test_invalid_vimeo_duration_does_not_abort_remaining_videos(invalid_duration):
+    bad = VideoFactory(url="https://vimeo.com/123", duration_seconds=None)
+    good = VideoFactory(url="https://vimeo.com/456", duration_seconds=None)
+    session = FakeHarvestSession(vimeo={bad.url: invalid_duration, good.url: 90})
 
     stats = harvest_durations(session=session, vimeo_delay=0)
 
-    v.refresh_from_db()
-    assert v.duration_seconds is None
-    assert stats["failed"] == 1
-
-
-@pytest.mark.parametrize("bad", [-5, 3599999999996400])
-def test_an_out_of_range_vimeo_duration_does_not_kill_the_run(monkeypatch, bad):
-    """duration_seconds is a PositiveIntegerField: a negative trips its CHECK
-    constraint and an absurd one overflows Postgres' integer, both of which
-    aborted the run mid-queue (SQLite hides the overflow locally)."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    rotten = VideoFactory(url="https://vimeo.com/161616/jjjjjjjjjj", duration_seconds=None)
-    good = VideoFactory(url="https://vimeo.com/171717/kkkkkkkkkk", duration_seconds=None)
-    session = FakeHarvestSession(vimeo={rotten.url: bad, good.url: 1200})
-
-    stats = harvest_durations(session=session, vimeo_delay=0)
-
-    rotten.refresh_from_db()
+    bad.refresh_from_db()
     good.refresh_from_db()
-    assert rotten.duration_seconds is None
-    assert good.duration_seconds == 1200  # the queue carried on
+    assert bad.duration_seconds is None
+    assert good.duration_seconds == 90
     assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
 
 
@@ -332,23 +311,6 @@ def test_vimeo_server_error_is_counted_failed_not_unresolved(monkeypatch, caplog
     assert v.duration_seconds is None
     assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 1}
     assert "503" in caplog.text
-
-
-def test_non_numeric_vimeo_duration_does_not_kill_the_run(monkeypatch, caplog):
-    """int('about an hour') would abort the whole harvest mid-queue."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    bad = VideoFactory(url="https://vimeo.com/777777/gggggggggg", duration_seconds=None)
-    good = VideoFactory(url="https://vimeo.com/888888/hhhhhhhhhh", duration_seconds=None)
-    session = FakeHarvestSession(vimeo={bad.url: "about an hour", good.url: 1200})
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    bad.refresh_from_db()
-    good.refresh_from_db()
-    assert bad.duration_seconds is None
-    assert good.duration_seconds == 1200  # the queue carried on past the bad payload
-    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
 
 
 def test_youtube_item_without_an_id_does_not_kill_the_run(monkeypatch, caplog):
@@ -441,18 +403,3 @@ def test_transport_failures_do_not_log_api_keys_or_private_video_urls(monkeypatc
     assert stats["failed"] == 2
     assert api_key not in caplog.text
     assert private_hash not in caplog.text
-
-
-def test_nonfinite_vimeo_duration_does_not_abort_remaining_videos():
-    bad = VideoFactory(url="https://vimeo.com/123", duration_seconds=None)
-    good = VideoFactory(url="https://vimeo.com/456", duration_seconds=None)
-    session = FakeHarvestSession(vimeo={bad.url: float("inf"), good.url: 90})
-
-    stats = harvest_durations(session=session, vimeo_delay=0)
-
-    bad.refresh_from_db()
-    good.refresh_from_db()
-    assert bad.duration_seconds is None
-    assert good.duration_seconds == 90
-    assert stats["failed"] == 1
-    assert stats["vimeo"] == 1
