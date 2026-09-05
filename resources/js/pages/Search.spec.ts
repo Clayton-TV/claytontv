@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { enableAutoUnmount, mount } from '@vue/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 
 const { track } = vi.hoisted(() => ({ track: vi.fn() }));
@@ -17,6 +17,8 @@ vi.mock('~/lib/analytics', () => ({
 }));
 
 import Search from './Search.vue';
+
+enableAutoUnmount(afterEach);
 
 function mountSearch(url: string) {
     inertiaPage.url = url;
@@ -50,6 +52,7 @@ describe('Search', () => {
         const wrapper = mountSearch('/search?search=%20%20%20&search=grace');
 
         expect(wrapper.text()).toContain('No matching videos');
+        expect(track).toHaveBeenCalledTimes(1);
         expect(track).toHaveBeenCalledWith('search_performed', {
             query: 'grace',
             results_count: 0,
