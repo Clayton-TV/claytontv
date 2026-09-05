@@ -1,26 +1,17 @@
 # Clayton TV
 
-Church media platform (Django + Inertia + Vue 3), shipping through a three-tier
-`dev` → `beta` → `main` flow. **Current status, roadmap, epics, and priorities
-live in GitHub, not in a doc** — see the [Clayton TV — Delivery board](https://github.com/orgs/Clayton-TV/projects/8)
-(Phase = MVP1/MVP2/Backlog/Shipped; Priority = MoSCoW) and the issues/epics it
-tracks. To reconstruct current state at any point, read the open issues and the
-epic sub-issue rollups. Reference docs for specifics: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-(environments, server, security baseline), [docs/SERVER_AUDIT.md](docs/SERVER_AUDIT.md)
-(a dated 2026-06-12 survey, not current state),
-[docs/TESTING_NOTES.md](docs/TESTING_NOTES.md) (known data quirks).
+Django + Inertia + Vue 3. Track status, priorities and roadmap in
+[GitHub](https://github.com/orgs/Clayton-TV/projects/8).
+
+Reference: [Deployment](docs/DEPLOYMENT.md),
+[historical server audit](docs/SERVER_AUDIT.md),
+[testing notes](docs/TESTING_NOTES.md).
 
 ## Workflow
 
-- **Three environments, one-directional promotion:** `dev` → `beta` → `main`.
-  Each branch has its own environment (https://dev.claytontv.co.uk,
-  https://beta.claytontv.co.uk, https://claytontv.co.uk) and its own deploy
-  workflow. `main` is the repo default branch and is protected; production
-  deploys fire on push to it. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-- **Integration trunk is `dev`.** Feature branches off `dev`
-  (`claytontv/<issue>/<slug>`), PR back into `dev` when CI is green. Promote
-  `dev` → `beta` → `main`; never branch off or PR straight into `beta`/`main`.
-- Don't push directly to `dev`, `beta` or `main` — everything lands by PR.
+- Branch from `dev` using `claytontv/<issue>/<slug>`; PR into `dev`.
+- Promote by PR through `dev` → `beta` → `main`. Pushes deploy the corresponding
+  environment. Do not push directly to shared branches.
 - **TDD.** Feature-level tests against realistic data. The legacy data is full
   of quirks — never assume column names or content; verify empirically.
 - Style: clean code, minimal abstraction, thin views → plain service functions
@@ -71,8 +62,7 @@ Local HTTPS (macOS only, needs Laravel Herd):
 
 ## Environments
 
-Server `app03.tgo.dev` (SSH port 2202, key-only) hosts all three environments.
-Layouts, services, per-env Typesense and the deploy flow: docs/DEPLOYMENT.md.
-Observability is wired: Sentry (`SENTRY_DSN`, `app/production_settings.py`) →
-sentry.tgo.dev, PostHog (`resources/js/lib/analytics.ts`, `VITE_POSTHOG_*` baked
-in at build time) → posthog.tgo.dev.
+Server: `app03.tgo.dev`, SSH port 2202, key authentication.
+Paths, services and environment isolation: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Sentry uses `SENTRY_DSN` and `SENTRY_ENVIRONMENT`; PostHog uses build-time
+`VITE_POSTHOG_*` values. Verify configuration on the target environment.
