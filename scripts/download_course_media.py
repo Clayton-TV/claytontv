@@ -38,6 +38,28 @@ def error(message: str) -> None:
     sys.stderr.write(f"{message}\n")
 
 
+def has_expected_signature(path: Path, expected_suffix: str) -> bool:
+    signatures = {
+        ".pdf": lambda header: header.startswith(b"%PDF-"),
+        ".zip": lambda header: header.startswith((b"PK\x03\x04", b"PK\x05\x06")),
+        ".mp4": lambda header: header[4:8] == b"ftyp",
+    }
+    check = signatures.get(expected_suffix.lower())
+    if check is None:
+        return True
+    with path.open("rb") as downloaded_file:
+        return check(downloaded_file.read(12))
+
+
+def reject_partial(partial: Path, partial_marker: Path) -> str:
+    rejected = partial.with_name(f"{partial.name}.rejected")
+    if rejected.exists():
+        return f"downloaded bytes have an invalid {partial.suffix} signature; move {partial} before retrying"
+    partial.replace(rejected)
+    partial_marker.unlink(missing_ok=True)
+    return f"downloaded bytes have an invalid {partial.suffix} signature; retained as {rejected}"
+
+
 def download_entry(
     output_directory: Path, state_directory: Path, retries: str, report: csv.writer, path: str, url: str
 ) -> bool:
@@ -91,9 +113,21 @@ def download_entry(
         str(partial),
         url,
     ]
-    if subprocess.run(command, check=False).returncode != 0:
+    curl_result = subprocess.run(command, check=False)
+    if curl_result.returncode == 33:
+        message = f"curl could not resume (exit 33); move {partial} before retrying"
+        write_report(report, "failed", path, url, message)
+        error(message)
+        return False
+    if curl_result.returncode != 0:
         write_report(report, "failed", path, url, "curl failed; retained .part file for resume")
         error(f"Failed: {url}")
+        return False
+
+    if not has_expected_signature(partial, target.suffix):
+        message = reject_partial(partial, partial_marker)
+        write_report(report, "failed", path, url, message)
+        error(message)
         return False
 
     partial.replace(target)
