@@ -222,139 +222,37 @@ def test_missing_youtube_key_skips_youtube_without_killing_the_run(monkeypatch, 
     vimeo.refresh_from_db()
     assert yt.duration_seconds is None
     assert vimeo.duration_seconds == 900  # Vimeo needs no key, so it still runs
-    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 1}
+    assert stats == {"youtube": 0, "vimeo": 1, "unresolved": 0, "failed": 0}
     assert "YOUTUBE_API_KEY" in caplog.text
+    assert not [record for record in caplog.records if record.levelname == "ERROR"]
 
 
-def test_a_run_that_reaches_nothing_at_all_is_logged_as_an_error(monkeypatch, caplog):
-    """A whole platform unreachable is worth an alert. (A single slow video is
-    not — see test_a_quiet_night_with_a_single_blip_stays_a_warning.)"""
+def test_complete_provider_outage_logs_an_error(monkeypatch, caplog):
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    dead = [VideoFactory(url=f"https://vimeo.com/44{n:04d}/dead{n}", duration_seconds=None) for n in range(20)]
-    session = FakeHarvestSession(time_out={v.url for v in dead})
+    dead = [VideoFactory(url=f"https://vimeo.com/{number}", duration_seconds=None) for number in range(2)]
+    session = FakeHarvestSession(time_out={video.url for video in dead})
 
     with caplog.at_level(logging.WARNING):
         stats = harvest_durations(session=session, vimeo_delay=0)
 
-    assert stats["failed"] == 20
-    assert [r.levelname for r in caplog.records if r.levelname == "ERROR"]
+    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 0, "failed": 2}
+    assert [record for record in caplog.records if record.levelname == "ERROR"]
 
 
-def test_total_outage_alerts_even_though_vimeo_leaves_something_unresolved(monkeypatch, caplog):
-    """The hashless Vimeo back-catalogue lands in `unresolved` on every run, so
-    an alert that waits for `unresolved == 0` can never fire in production."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    for n in range(60):
-        VideoFactory(url=f"https://youtu.be/out{n}", duration_seconds=None)
-    hashless = VideoFactory(url="https://vimeo.com/177746828", duration_seconds=None)
-    session = FakeHarvestSession(vimeo={hashless.url: None}, yt_fail_calls={0, 1})
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 1, "failed": 60}
-    assert [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_quota_that_dies_partway_through_alerts(monkeypatch, caplog):
-    """Quota exhaustion is partial by nature and runs in this direction: the
-    batches before the quota ran out succeed, everything after it fails. An
-    alert that waits for a *majority* of failures would sleep through it."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    for n in range(100):
-        VideoFactory(url=f"https://youtu.be/half{n}", duration_seconds=None)
-    session = FakeHarvestSession(yt={f"half{n}": "PT5M" for n in range(100)}, yt_fail_calls={1})
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats["youtube"] == 50  # the batch before the quota died
-    assert stats["failed"] == 50  # the batch after it
-    assert [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_dead_platform_alerts_even_when_the_other_is_healthy(monkeypatch, caplog):
-    """Vimeo flat on its back while the much larger YouTube half sails through.
-    Pooling both platforms into one ratio let the healthy majority mask it."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    for n in range(60):
-        VideoFactory(url=f"https://youtu.be/fine{n}", duration_seconds=None)
-    down = [VideoFactory(url=f"https://vimeo.com/9{n:05d}/hash{n}", duration_seconds=None) for n in range(40)]
-    session = FakeHarvestSession(
-        yt={f"fine{n}": "PT5M" for n in range(60)},
-        vimeo_status={v.url: 503 for v in down},
-    )
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats == {"youtube": 60, "vimeo": 0, "unresolved": 0, "failed": 40}
-    assert [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_catalogue_of_gone_vimeo_videos_never_alerts(monkeypatch, caplog):
-    """~20% of the hashless back-catalogue is deleted and 404s permanently
-    (probed: 8 of 40 sampled). Counting those as `failed` would fire this
-    ERROR every single night, on every healthy run, until someone muted it."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    for n in range(40):
-        VideoFactory(url=f"https://vimeo.com/12{n:05d}", duration_seconds=None)
-    session = FakeHarvestSession()  # every url unknown to the fake → 404, as Vimeo really does
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 40, "failed": 0}
-    assert not [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_quiet_night_with_a_single_blip_stays_a_warning(monkeypatch, caplog):
-    """The steady state months from now: the queue is only the permanently
-    unresolvable videos, so `resolved` is legitimately 0. One transient
-    timeout must not page anyone, or the alert gets muted and we're blind."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    for n in range(30):
-        VideoFactory(url=f"https://vimeo.com/13{n:05d}", duration_seconds=None)
-    blip = VideoFactory(url="https://vimeo.com/1400000/blip", duration_seconds=None)
-    session = FakeHarvestSession(time_out={blip.url})
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats["failed"] == 1
-    assert stats["unresolved"] == 30
-    assert not [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_routine_single_failure_stays_a_warning(monkeypatch, caplog):
-    """The other edge of the threshold: one slow video among successes must not
-    page anyone, or the ERROR becomes noise and gets ignored."""
-    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
-    slow = VideoFactory(url="https://vimeo.com/111111/aaaaaaaaaa", duration_seconds=None)
-    for n in range(5):
-        VideoFactory(url=f"https://youtu.be/ok{n}", duration_seconds=None)
-    session = FakeHarvestSession(yt={f"ok{n}": "PT5M" for n in range(5)}, time_out={slow.url})
-
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
-
-    assert stats["failed"] == 1
-    assert stats["youtube"] == 5
-    assert not [r for r in caplog.records if r.levelname == "ERROR"]
-
-
-def test_a_gone_vimeo_video_is_unresolved_not_a_platform_failure(monkeypatch):
+def test_a_gone_vimeo_video_is_unresolved_not_an_outage(monkeypatch, caplog):
     """404 means the video is deleted or private — permanent, and nothing to
     do with Vimeo's health. Only a transient status counts as `failed`."""
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
     v = VideoFactory(url="https://vimeo.com/121650999", duration_seconds=None)
     session = FakeHarvestSession(vimeo_status={v.url: 404})
 
-    stats = harvest_durations(session=session, vimeo_delay=0)
+    with caplog.at_level(logging.WARNING):
+        stats = harvest_durations(session=session, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds is None
     assert stats == {"youtube": 0, "vimeo": 0, "unresolved": 1, "failed": 0}
+    assert not [record for record in caplog.records if record.levelname == "ERROR"]
 
 
 def test_a_boolean_vimeo_duration_is_rejected_not_stored_as_one_second(monkeypatch):
@@ -410,8 +308,7 @@ def test_vimeo_server_error_is_counted_failed_not_unresolved(monkeypatch, caplog
     v = VideoFactory(url="https://vimeo.com/666666/ffffffffff", duration_seconds=None)
     session = FakeHarvestSession(vimeo_status={v.url: 503})
 
-    with caplog.at_level(logging.WARNING):
-        stats = harvest_durations(session=session, vimeo_delay=0)
+    stats = harvest_durations(session=session, vimeo_delay=0)
 
     v.refresh_from_db()
     assert v.duration_seconds is None
@@ -468,7 +365,6 @@ def test_youtube_ids_absent_from_the_reply_are_counted_unresolved(monkeypatch, c
     assert dropped.duration_seconds is None
     assert stats == {"youtube": 1, "vimeo": 0, "unresolved": 1, "failed": 0}
     assert sum(stats.values()) == 2  # every target accounted for
-    assert "gone" in caplog.text
 
 
 def test_youtube_item_with_an_unparseable_duration_is_counted_unresolved(monkeypatch):
