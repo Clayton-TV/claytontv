@@ -136,6 +136,11 @@ TYPESENSE = {
     "connection_timeout_seconds": int(os.getenv("TYPESENSE_TIMEOUT", "2")),
 }
 
+# Search engine provenance is operational detail.  Local development enables
+# it in local_settings; deployed dev opts in through SENTRY_ENVIRONMENT.  It
+# must remain absent from Beta and Production Inertia payloads.
+SEARCH_PROVENANCE_ENABLED = False
+
 # Ollama (self-hosted LLM) for AI content enrichment (Epic #201,
 # catalogue/enrichment.py). The host is reachable over tailscale; defaults point
 # at the verified host/model. Mirrors the TYPESENSE block: host + model are

@@ -33,6 +33,10 @@ const isCurrent = (href: string) => (href === '/' ? page.url === '/' : page.url.
 const isBrowseSection = () => BROWSE_PREFIXES.some((p) => page.url.startsWith(p));
 // Global "a service is on air" flag (shared from the Inertia middleware)
 const liveNow = computed(() => page.props.live_now === true);
+const searchProvenance = computed(() => {
+    const provenance = page.props.search_provenance;
+    return provenance === 'Typesense' || provenance === 'ORM fallback' ? provenance : null;
+});
 
 // The signed-in user (real-or-null), shared by the Inertia middleware. Drives
 // the account menu; null for anonymous visitors.
@@ -149,14 +153,17 @@ const navLink = (active: boolean) =>
             </nav>
 
             <!-- Looks like the old search field; opens the command palette -->
-            <button
-                @click="openPalette"
-                class="focus-visible:ring-ring border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground ml-auto hidden h-10 w-full max-w-xs cursor-pointer items-center gap-2 rounded-lg border px-3 transition-colors duration-150 outline-none focus-visible:ring-2 sm:flex"
-            >
-                <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span class="text-base">Search teaching…</span>
-                <kbd class="border-border bg-muted ml-auto rounded border px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
-            </button>
+            <div class="ml-auto hidden w-full max-w-xs sm:block">
+                <button
+                    @click="openPalette"
+                    class="focus-visible:ring-ring border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 transition-colors duration-150 outline-none focus-visible:ring-2"
+                >
+                    <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span class="text-base">Search teaching…</span>
+                    <kbd class="border-border bg-muted ml-auto rounded border px-1.5 py-0.5 font-sans text-xs">{{ isMac ? '⌘K' : 'Ctrl K' }}</kbd>
+                </button>
+                <p v-if="searchProvenance" class="text-muted-foreground mt-1 text-right text-xs">Results: {{ searchProvenance }}</p>
+            </div>
 
             <!-- Signed-in account menu (Studio + Sign out) — desktop; mobile uses
                  the slide-over below. ml-auto only kicks in on small screens,
@@ -182,6 +189,7 @@ const navLink = (active: boolean) =>
                             <Search class="h-4 w-4 shrink-0" aria-hidden="true" />
                             Search teaching…
                         </button>
+                        <p v-if="searchProvenance" class="text-muted-foreground mt-1 text-xs">Results: {{ searchProvenance }}</p>
                     </div>
                     <nav class="flex flex-col gap-1 px-2" aria-label="Mobile">
                         <Link
