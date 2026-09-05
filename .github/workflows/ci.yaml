@@ -37,8 +37,6 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          cache-suffix: py3.14
-          cache-python: true
 
       - name: Install dependencies
         run: uv sync --locked
@@ -116,8 +114,6 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          cache-suffix: py3.14
-          cache-python: true
           save-cache: false
 
       - name: Install dependencies
