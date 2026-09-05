@@ -1,7 +1,5 @@
-# Local Typesense for search development only. The dev and beta servers run
-# their own persistent containers provisioned under the environment's
-# shared/typesense/ (production is not provisioned yet — see docs/DEPLOYMENT.md);
-# this file is not used there. Bound to loopback, never exposed off-machine.
+# Local Typesense only, bound to loopback. Server environments use separately
+# provisioned instances; see docs/DEPLOYMENT.md.
 #
 #   docker compose up typesense      # or: uv run poe typesense
 #   uv run poe manage reindex_search
