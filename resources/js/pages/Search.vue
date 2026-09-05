@@ -30,7 +30,10 @@ const props = defineProps({
 // reactive, so this recomputes on every Inertia navigation — including a repeat
 // search from the global palette that REUSES this page component (no remount).
 const inertiaPage = usePage();
-const query = computed(() => (new URLSearchParams(inertiaPage.url.split('?')[1] ?? '').get('search') ?? '').trim());
+const query = computed(() => {
+    const searchValues = new URLSearchParams(inertiaPage.url.split('?')[1] ?? '').getAll('search');
+    return (searchValues.at(-1) ?? '').trim();
+});
 
 // Fire search_performed when the search TERM changes (initial load + each new
 // search) but not on pagination — paging changes ?page=, not ?search=. Search is
