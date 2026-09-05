@@ -33,6 +33,22 @@ def test_search_first_page_includes_matching_categories(client):
     assert ("Series", "Amazing Grace") in categories
 
 
+@pytest.mark.parametrize("params", [{}, {"page": 2}, {"search": ""}, {"search": "   "}])
+def test_search_without_a_term_renders_the_empty_page(client, params, django_assert_max_num_queries):
+    VideoFactory(name="The Grace of God")
+
+    with django_assert_max_num_queries(1):
+        response = client.get("/search", params)
+
+    page = inertia_page(response)
+
+    assert response.status_code == 200
+    assert page["component"] == "Search"
+    assert page["props"]["title"] == "Search"
+    assert page["props"]["videos"] == []
+    assert page["props"]["categories"] == []
+
+
 def test_search_category_labels_are_cleaned(client):
     # Phase 6: depth-prefix mojibake leaked into search category chips.
     video = VideoFactory()
