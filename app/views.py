@@ -7,6 +7,7 @@ import sentry_sdk
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q, Sum
 from django.http import Http404, JsonResponse
+from django.shortcuts import redirect
 from inertia import defer, optional, render
 
 from app.auth import can_edit_content
@@ -25,6 +26,7 @@ from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
 from catalogue.models.video import PUBLISHED, Video, published_count
 from catalogue.passages import parse_passage, passage_label
+from catalogue.topic_reconciliation import canonical_name_for_alias
 from catalogue.youtube_live import homepage_live_props, live_streams, upcoming_streams
 
 pagination_per_page = 24
@@ -948,6 +950,9 @@ def browse_topic(request, id):
     try:
         topic = Topic.objects.get(name=decoded_id)
     except Topic.DoesNotExist as e:
+        canonical_name = canonical_name_for_alias(decoded_id)
+        if canonical_name and Topic.objects.filter(name=canonical_name).exists():
+            return redirect(Topic.objects.get(name=canonical_name), permanent=True)
         return render(
             request,
             "Browse",
