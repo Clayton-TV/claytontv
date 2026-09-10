@@ -5,6 +5,7 @@ from pathlib import Path
 import django.core.exceptions
 from django.core.management.base import BaseCommand
 
+from catalogue.legacy_csv import TopicResolutionError, resolve_topic_names
 from catalogue.models.demograpic import Demographic
 from catalogue.models.series import Series
 from catalogue.models.topic import Topic
@@ -41,6 +42,7 @@ class Command(BaseCommand):
 
         with Path(filepath).open(encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
+            topics_by_name = {topic.name: topic for topic in Topic.objects.all()}
             skipped_videos = []
             linked_videos = 0
             skipped_series = []
@@ -52,7 +54,11 @@ class Command(BaseCommand):
                     self.stdout.write(str(row))  # Debug Text
                     self.stdout.write(f"Linked {row['Name']}")  # Debug Text
 
-                topics = self.clean_id(row["Topics"]).replace(";", ",").split(",")
+                try:
+                    topic_names = resolve_topic_names(self.clean_id(row["Topics"]), set(topics_by_name))
+                except TopicResolutionError as error:
+                    self.stdout.write(f"The topics for demographic {row['Name']} were not linked: {error}")
+                    topic_names = None
                 series = self.clean_id(row["Series"]).split(";")
                 videos = self.clean_id(row["Videos"]).split(",")
 
@@ -67,27 +73,18 @@ class Command(BaseCommand):
                     self.stdout.write(f"The entry {row['Name']} returned duplicate elements")
 
                 else:
-                    dem.topics.clear()
+                    if topic_names is not None:
+                        dem.topics.set([topics_by_name[name] for name in topic_names])
                     dem.series.clear()
                     dem.videos.clear()
 
                     if debug:
                         self.stdout.write("Linking Topics")
 
-                    for i in topics:
-                        try:
-                            dem.topics.add(Topic.objects.get(name=i))
-                            linked_topics += 1
-
-                        except django.core.exceptions.ObjectDoesNotExist:
-                            skipped_topics.append(i)
-
-                        except django.core.exceptions.MultipleObjectsReturned:
-                            self.stdout.write(f"The topic {i} returned duplicate elements")
-
-                        else:
-                            if debug:
-                                self.stdout.write(f"Entry {i} linked")
+                    linked_topics += len(topic_names or [])
+                    if debug and topic_names is not None:
+                        for name in topic_names:
+                            self.stdout.write(f"Entry {name} linked")
 
                     if debug:
                         self.stdout.write("Linking Series")

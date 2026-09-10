@@ -5,6 +5,7 @@ from pathlib import Path
 import django.core.exceptions
 from django.core.management.base import BaseCommand
 
+from catalogue.legacy_csv import TopicResolutionError, resolve_topic_names
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.speaker import Speaker
 from catalogue.models.topic import Topic
@@ -35,6 +36,7 @@ class Command(BaseCommand):
 
         with Path(filepath).open(encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
+            topics_by_name = {topic.name: topic for topic in Topic.objects.all()}
             skipped_videos = []
             skipped_speakers = []
             skipped_bible_books = []
@@ -43,7 +45,11 @@ class Command(BaseCommand):
                     self.stdout.write(str(row))  # Debug Text
                     self.stdout.write(f"Linked {row['Name']}")  # Debug Text
 
-                topics = self.clean_id(row["Topic"]).replace(";", ",").split(",")
+                try:
+                    topic_names = resolve_topic_names(self.clean_id(row["Topic"]), set(topics_by_name))
+                except TopicResolutionError as error:
+                    self.stdout.write(f"The topics for video {row['ID']} were not linked: {error}")
+                    topic_names = None
                 speaker = self.clean_id(row["Speaker/Artist"]).split(";")
                 bbook = self.clean_id(row["Bible Book"]).replace(";", ",").split(",")
 
@@ -57,19 +63,10 @@ class Command(BaseCommand):
                     self.stdout.write(f"The entry {row['ID']} returned duplicate elements")
 
                 else:
-                    vid.topic.clear()
+                    if topic_names is not None:
+                        vid.topic.set([topics_by_name[name] for name in topic_names])
                     vid.speaker.clear()
                     vid.bible_book.clear()
-
-                    for i in topics:
-                        try:
-                            vid.topic.add(Topic.objects.get(name=i))
-
-                        except django.core.exceptions.ObjectDoesNotExist:
-                            self.stdout.write(f"The Topic {i} does not exist")
-
-                        except django.core.exceptions.MultipleObjectsReturned:
-                            self.stdout.write(f"The Topic {i} returned duplicate elements")
 
                     for i in bbook:
                         try:
