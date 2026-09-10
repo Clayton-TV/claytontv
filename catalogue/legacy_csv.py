@@ -1,7 +1,5 @@
 """Parsing helpers for the pre-Epic-2 CSV exports."""
 
-from functools import cache
-
 
 class TopicResolutionError(ValueError):
     """A legacy topic field cannot be mapped to a unique list of names."""
@@ -19,28 +17,51 @@ def resolve_topic_names(value: str, known_names: set[str]) -> list[str]:  # noqa
     if not value:
         return []
 
-    @cache
-    def parses_from(start: int) -> tuple[tuple[str, ...], ...]:
-        if start == len(value):
-            return ((),)
+    names_by_initial: dict[str, list[str]] = {}
+    for name in known_names:
+        if name:
+            names_by_initial.setdefault(name[0], []).append(name)
 
-        parses: list[tuple[str, ...]] = []
-        for name in known_names:
+    starts = {0}
+    for index, character in enumerate(value):
+        if character in ",;":
+            next_start = index + 1
+            while next_start < len(value) and value[next_start].isspace():
+                next_start += 1
+            starts.add(next_start)
+
+    parse_counts = {len(value): 1}
+    choices: dict[int, tuple[str, int]] = {}
+    for start in sorted(starts, reverse=True):
+        if start == len(value):
+            continue
+        count = 0
+        for name in names_by_initial.get(value[start], []):
             end = start + len(name)
             if not value.startswith(name, start):
                 continue
             if end == len(value):
-                parses.append((name,))
+                next_start = end
+                child_count = 1
             elif value[end] in ",;":
                 next_start = end + 1
                 while next_start < len(value) and value[next_start].isspace():
                     next_start += 1
-                parses.extend((name, *rest) for rest in parses_from(next_start))
-            if len(parses) > 1:
-                return tuple(parses[:2])
-        return tuple(parses)
+                child_count = parse_counts.get(next_start, 0)
+            else:
+                continue
 
-    parses = parses_from(0)
-    if len(parses) != 1:
+            if child_count and not count:
+                choices[start] = (name, next_start)
+            count = min(2, count + child_count)
+        parse_counts[start] = count
+
+    if parse_counts.get(0) != 1:
         raise TopicResolutionError(f"Could not uniquely resolve legacy topic value: {value!r}")
-    return list(parses[0])
+
+    names = []
+    start = 0
+    while start < len(value):
+        name, start = choices[start]
+        names.append(name)
+    return names

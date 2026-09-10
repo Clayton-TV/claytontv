@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 import pytest
 
@@ -117,6 +118,18 @@ def test_ambiguous_topic_value_does_not_clear_existing_links(tmp_path):
 
 def test_topic_resolver_accepts_a_known_name_containing_a_semicolon():
     assert resolve_topic_names("Theory; Practice", {"Theory; Practice"}) == ["Theory; Practice"]
+
+
+def test_topic_resolver_handles_the_real_adults_legacy_field_without_recursion():
+    root = Path(__file__).resolve().parents[1]
+    with (root / "CSV/Demographics.csv").open(encoding="utf-8-sig", newline="") as file:
+        adults = next(row for row in csv.DictReader(file) if row["Name"] == "Adults")
+    with (root / "CSV/Topics.csv").open(encoding="utf-8-sig", newline="") as file:
+        known_names = {row["name"] for row in csv.DictReader(file)}
+
+    topic_names = resolve_topic_names(adults["Topics"].strip(" '\"[]()"), known_names)
+
+    assert len(topic_names) > 1_000
 
 
 def test_legacy_csv_imports_utf8_bom_and_special_characters(tmp_path):
