@@ -5,6 +5,7 @@ from pathlib import Path
 import django.core.exceptions
 from django.core.management.base import BaseCommand
 
+from catalogue.legacy_csv import TopicResolutionError, resolve_topic_names
 from catalogue.models.bible_book import Bible_Book
 from catalogue.models.series import Series
 from catalogue.models.speaker import Speaker
@@ -36,6 +37,7 @@ class Command(BaseCommand):
 
         with Path(filepath).open(encoding="utf-8-sig") as file:
             reader = csv.DictReader(file)
+            topics_by_name = {topic.name: topic for topic in Topic.objects.all()}
             skipped_videos = []
             skipped_speakers = []
             skipped_topics = []
@@ -45,7 +47,11 @@ class Command(BaseCommand):
                     self.stdout.write(str(row))  # Debug Text
                     self.stdout.write(f"Linked {row['Name']}")  # Debug Text
 
-                topics = self.clean_id(row["topic_name"]).replace(";", ",").split(",")
+                try:
+                    topic_names = resolve_topic_names(self.clean_id(row["topic_name"]), set(topics_by_name))
+                except TopicResolutionError as error:
+                    self.stdout.write(f"The topics for series {row['ID']} were not linked: {error}")
+                    topic_names = None
                 speaker = self.clean_id(row["speaker_id"]).replace(" ", ",").split(",")
                 videos = self.clean_id(row["video_id"]).split(",")
                 bbook = self.clean_id(row["bbook_names"]).replace(";", ",").split(",")
@@ -60,7 +66,8 @@ class Command(BaseCommand):
                     self.stdout.write(f"The entry {row['ID']} returned duplicate elements")
 
                 else:
-                    ser.topic.clear()
+                    if topic_names is not None:
+                        ser.topic.set([topics_by_name[name] for name in topic_names])
                     ser.speaker.clear()
                     ser.videos.clear()
                     ser.bible_book.clear()
@@ -78,16 +85,6 @@ class Command(BaseCommand):
 
                         except django.core.exceptions.MultipleObjectsReturned:
                             self.stdout.write(f"The Bible Book {i} returned duplicate elements")
-
-                    for i in topics:
-                        try:
-                            ser.topic.add(Topic.objects.get(name=i))
-
-                        except django.core.exceptions.ObjectDoesNotExist:
-                            skipped_topics.append(i)
-
-                        except django.core.exceptions.MultipleObjectsReturned:
-                            self.stdout.write(f"The Topic {i} returned duplicate elements")
 
                     for i in speaker:
                         try:
