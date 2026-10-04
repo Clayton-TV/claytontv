@@ -263,11 +263,25 @@ def search(request):
     """Full-page search. Served by Typesense (relevance-ranked, typo- and
     synonym-tolerant) with a graceful ORM fallback so search never hard-fails.
     Categories appear on page 1 only; both engines return the same prop shape."""
-    searchquery = request.GET["search"]
+    searchquery = request.GET.get("search", "").strip()
     try:
         page_num = int(request.GET.get("page", 1))
     except ValueError:
         page_num = 1
+
+    if not searchquery:
+        return render(
+            request,
+            "Search",
+            {
+                "title": "Search",
+                "description": "",
+                "videos": [],
+                "categories": [],
+                "has_prev_page": False,
+                "has_next_page": False,
+            },
+        )
 
     try:
         props = _search_typesense(searchquery, page_num)
