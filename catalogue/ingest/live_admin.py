@@ -11,23 +11,103 @@ app has no API or stable login endpoint. Expired sessions redirect to
 /accessdenied.html, which we detect and report clearly.
 """
 
+import logging
 import os
 import re
 import time
 from datetime import datetime
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
 
 from .normalize import date_from_ref
 
+logger = logging.getLogger(__name__)
+
 BASE_URL = os.environ.get("LEGACY_ADMIN_BASE_URL", "https://clayton.tv/adminsection")
 PAGE_SIZE = 50
 MAX_AUTO_PAGES = 200  # auto-depth runaway stop: 10,000 programmes
 
+RETRY_WAITS_SECONDS = (2, 5)
+
 
 class AdminAuthError(Exception):
     pass
+
+
+class RetryableStatusError(requests.exceptions.HTTPError):
+    pass
+
+
+TRANSIENT_ERRORS = (
+    requests.exceptions.ConnectionError,
+    requests.exceptions.Timeout,
+    requests.exceptions.ChunkedEncodingError,
+    RetryableStatusError,
+)
+
+
+def _get_with_retries(session, url, description, *, allow_redirects=True):
+    """Retry safe GETs only; login POSTs carry credentials and remain one-shot."""
+    for attempt, wait in enumerate(RETRY_WAITS_SECONDS, start=1):
+        try:
+            response = session.get(url, timeout=30, allow_redirects=allow_redirects)
+            status = getattr(response, "status_code", 200)
+            if status == 429 or status >= 500:
+                raise RetryableStatusError(response=response)
+            return response
+        except TRANSIENT_ERRORS as exc:
+            logger.warning(
+                "Legacy admin %s failed (attempt %s/%s): %s; retrying in %ss",
+                description,
+                attempt,
+                len(RETRY_WAITS_SECONDS) + 1,
+                type(exc).__name__,
+                wait,
+            )
+            time.sleep(wait)
+    response = session.get(url, timeout=30, allow_redirects=allow_redirects)
+    status = getattr(response, "status_code", 200)
+    if status == 429 or status >= 500:
+        response.raise_for_status()
+    return response
+
+
+def _login_action(page):
+    """Where the login form posts, resolved against the page it came from (the
+    observed form gives an absolute URL, but a relative one must work too).
+    The action is HTML we do not control, so refuse to send credentials
+    anywhere but the admin's own host."""
+    form = BeautifulSoup(page.text, "html.parser").find("form")
+    action = urljoin(page.url, (form.get("action") if form else None) or page.url)
+    if not _is_admin_origin(action):
+        raise AdminAuthError("Legacy admin login form points off-site; refusing to post credentials.")
+    return action
+
+
+def _is_admin_origin(url):
+    target = urlparse(url)
+    admin = urlparse(BASE_URL)
+    return target.scheme == admin.scheme and target.netloc == admin.netloc
+
+
+def _follow_login_redirect(session, response):
+    status = getattr(response, "status_code", None)
+    if status not in (301, 302, 303, 307, 308):
+        return response
+
+    location = getattr(response, "headers", {}).get("Location")
+    target = urljoin(getattr(response, "url", ""), location or "")
+    if status not in (301, 302, 303) or not location or not _is_admin_origin(target):
+        raise AdminAuthError("Legacy admin login redirect refused.")
+
+    followed = _get_with_retries(session, target, "login redirect", allow_redirects=False)
+    if 300 <= getattr(followed, "status_code", 200) < 400:
+        raise AdminAuthError("Legacy admin login redirect refused.")
+    if getattr(followed, "status_code", 200) >= 400:
+        raise AdminAuthError("Legacy admin login redirect failed.")
+    return followed
 
 
 def login(session):
@@ -39,20 +119,26 @@ def login(session):
     if not (user and password):
         return False
 
-    page = session.get(f"{BASE_URL}/", timeout=30)  # sets the ASP session cookie, lands on login.asp?at=...
-    soup = BeautifulSoup(page.text, "html.parser")
-    form = soup.find("form")
-    action = (form.get("action") if form else None) or page.url
-    response = session.post(
-        action,
-        data={
-            "kt_login_user": user,
-            "kt_login_password": password,
-            "kt_login_rememberme": "1",
-            "kt_login1": "Login",
-        },
-        timeout=30,
-    )
+    page = _get_with_retries(session, f"{BASE_URL}/", "login form")
+    if getattr(page, "status_code", 200) >= 400:
+        raise AdminAuthError("Legacy admin login form failed.")
+    try:
+        response = session.post(
+            _login_action(page),
+            data={
+                "kt_login_user": user,
+                "kt_login_password": password,
+                "kt_login_rememberme": "1",
+                "kt_login1": "Login",
+            },
+            timeout=30,
+            allow_redirects=False,
+        )
+    except TRANSIENT_ERRORS:
+        raise AdminAuthError("Legacy admin login submission failed; credentials were not retried.") from None
+    if getattr(response, "status_code", 200) >= 400:
+        raise AdminAuthError("Legacy admin login submission failed.")
+    response = _follow_login_redirect(session, response)
     if "kt_login_password" in response.text:  # still on the login form
         raise AdminAuthError("Legacy admin login failed — check LEGACY_ADMIN_USERNAME/PASSWORD.")
     return True
@@ -75,9 +161,12 @@ def session_from_env():
 
 
 def fetch(session, path, _retried=False):
-    response = session.get(f"{BASE_URL}/{path}", timeout=30, allow_redirects=True)
+    response = _get_with_retries(session, f"{BASE_URL}/{path}", f"GET {path}")
     if "accessdenied" in response.url or response.status_code in (401, 403):
-        # Session lapsed mid-run: re-login once if we hold credentials
+        # Session lapsed mid-run: re-login, but at most ONE login() per fetch
+        # (`_retried`). If the fresh session is refused too, fail loudly — a
+        # legacy admin locks accounts out, so a login storm is the worse
+        # outcome.
         if not _retried and not os.environ.get("LEGACY_ADMIN_COOKIE") and login(session):
             return fetch(session, path, _retried=True)
         raise AdminAuthError(
