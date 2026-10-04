@@ -30,5 +30,13 @@ If you have ticked any of the above, ask for a review.
 
 Please provide any specific areas of feedback you're looking for from reviewers.
 
+## Process Reminder
+
+Work flows one way, dev → beta → production (main):
+
+Open a pull request into dev. Self-approval is allowed for this. Once it's merged, dev redeploys.
+When the work on dev is solid, it's promoted to beta for the team and testers to try.
+Self approval for dev -> beta is dependent on the 'Do I need a review?' check list above.
+Once checked on beta, pull request to main (production) with mandatory review from a core team member.
 
 <!-- adapted from a template used by the Data Safe Haven team at The Alan Turing Institute -->
