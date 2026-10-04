@@ -108,7 +108,7 @@ class Bible_Book(models.Model):  # noqa N801
 
     def __str__(self):
         """String for representing the book"""
-        return self.name
+        return self.get_name_display()
 
     def get_absolute_url(self):
         """Returns the URL to access a detailed record for the book"""
