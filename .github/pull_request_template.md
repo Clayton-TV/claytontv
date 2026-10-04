@@ -9,12 +9,13 @@ Fixes # (issue)
 
 - [ ] I have performed a self-review of my own code
 - [ ] I have tested my changes locally
+- [ ] I have tested my changes in dev
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works where relevant
 - [ ] New and existing unit tests pass locally with my changes
-- [ ] I have checked there is no lag between beta and production
+- [ ] I have checked there is no lag between beta and production (main)
 
 ### Do I need a review?
 
