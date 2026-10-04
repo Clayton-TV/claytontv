@@ -1,7 +1,8 @@
 <script setup>
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
 import EmptyState from '@/molecules/EmptyState.vue';
-import { Link, router } from '@inertiajs/vue3';
+import PaginationNav from '@/molecules/PaginationNav.vue';
+import { Link } from '@inertiajs/vue3';
 import { useEntrance } from '~/composables/useEntrance';
 import { EVENTS, track } from '~/lib/analytics';
 
@@ -35,6 +36,9 @@ const props = defineProps({
     has_next_page: {
         type: Boolean,
     },
+    num_pages: {
+        type: Number,
+    },
     emptyTitle: {
         type: String,
         default: 'Nothing here yet',
@@ -44,18 +48,6 @@ const props = defineProps({
         default: 'There are no videos to show. Try browsing the latest teaching or another part of the library.',
     },
 });
-
-const prevPage = () => {
-    const pageRegex = /[?&]page=([0-9]+).*/;
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1]);
-    router.get('#', { page: isNaN(curPage) || curPage <= 1 ? 1 : curPage - 1 });
-};
-
-const nextPage = () => {
-    const pageRegex = /[?&]page=([0-9]+).*/;
-    const curPage = parseInt(window.location.search.match(pageRegex)?.[1]);
-    router.get('#', { page: isNaN(curPage) ? 2 : curPage + 1 }); // If no page parameter then next page is second not first
-};
 
 // Only emits when rendered as search results (track-context="search"); position
 // is 1-based rank within the current page so we can see which ranks get clicked.
@@ -98,22 +90,9 @@ const onResultClick = (video, index) => {
             </li>
         </ul>
 
-        <nav v-if="has_prev_page || has_next_page" class="flex justify-center gap-x-3" aria-label="Pagination">
-            <button
-                class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
-                @click="prevPage()"
-                :disabled="!has_prev_page"
-            >
-                Previous
-            </button>
-            <button
-                class="focus-visible:ring-ring border-input text-foreground hover:border-ring hover:text-foreground disabled:hover:border-input min-h-11 cursor-pointer rounded-lg border px-5 text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 disabled:cursor-default disabled:opacity-35"
-                @click="nextPage()"
-                :disabled="!has_next_page"
-            >
-                Next
-            </button>
-        </nav>
+        <div class="mt-10">
+            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+        </div>
     </section>
 </template>
 

@@ -170,7 +170,7 @@ const countLabel = computed(() => `${props.total} ${props.total === 1 ? 'draft a
         </div>
 
         <div class="mt-6">
-            <PaginationNav :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
         </div>
 
         <!-- Reject confirm -->
