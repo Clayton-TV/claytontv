@@ -120,6 +120,29 @@ def test_search_falls_back_to_orm_when_typesense_unavailable(client, monkeypatch
     assert [v["name"] for v in props["videos"]] == ["Unique Sermon Title"]
 
 
+def test_search_provenance_is_exposed_only_when_enabled(client, monkeypatch, settings):
+    settings.SEARCH_PROVENANCE_ENABLED = True
+    monkeypatch.setattr(search, "search_videos", lambda q, **kw: ([], 0))
+    monkeypatch.setattr(search, "search_categories", lambda q, **kw: [])
+
+    typesense_props = inertia_page(client.get("/search", {"search": "x"}))["props"]
+
+    assert typesense_props["search_provenance"] == "Typesense"
+
+    def unavailable(*args, **kwargs):
+        raise SearchUnavailableError("down")
+
+    monkeypatch.setattr(search, "search_videos", unavailable)
+    fallback_props = inertia_page(client.get("/search", {"search": "x"}))["props"]
+
+    assert fallback_props["search_provenance"] == "ORM fallback"
+
+    settings.SEARCH_PROVENANCE_ENABLED = False
+    hidden_props = inertia_page(client.get("/search", {"search": "x"}))["props"]
+
+    assert "search_provenance" not in hidden_props
+
+
 # --------------------------------------------------------------------------- #
 # Guarded live round-trip over HTTP — skipped without a reachable Typesense.
 # --------------------------------------------------------------------------- #

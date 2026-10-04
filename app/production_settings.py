@@ -8,6 +8,10 @@ from .base_settings import *  # noqa: F403
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
+# Dev is the only deployed tier allowed to expose search engine internals.
+# Keep this independent from DEBUG: Beta/Main may need DEBUG during diagnosis.
+SEARCH_PROVENANCE_ENABLED = os.getenv("SENTRY_ENVIRONMENT", "beta") == "dev"
+
 # Error tracking (self-hosted, sentry.tgo.dev). Activates only when a DSN is
 # present in the environment, so local/CI runs are unaffected.
 if os.getenv("SENTRY_DSN"):

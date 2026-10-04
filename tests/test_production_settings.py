@@ -36,3 +36,9 @@ def test_sentry_initializes_only_when_dsn_is_set(monkeypatch):
     assert len(calls) == 1
     assert calls[0]["dsn"] == "https://key@sentry.tgo.dev/1"
     assert calls[0]["send_default_pii"] is False
+
+
+def test_search_provenance_is_enabled_on_dev_only(monkeypatch):
+    assert reload_production_settings(monkeypatch, SENTRY_ENVIRONMENT="dev").SEARCH_PROVENANCE_ENABLED is True
+    assert reload_production_settings(monkeypatch, SENTRY_ENVIRONMENT="beta").SEARCH_PROVENANCE_ENABLED is False
+    assert reload_production_settings(monkeypatch, SENTRY_ENVIRONMENT="production").SEARCH_PROVENANCE_ENABLED is False

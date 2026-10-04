@@ -10,6 +10,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
+# Local search debugging: show whether a result came from Typesense or the
+# database fallback. Deployed environments select this explicitly below.
+SEARCH_PROVENANCE_ENABLED = True
+
 ALLOWED_HOSTS = ["*"]
 
 # Server-side rendering: opt in by running the SSR server (npm run build-ssr && npm run ssr)

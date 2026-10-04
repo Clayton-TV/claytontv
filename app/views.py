@@ -4,6 +4,7 @@ from collections import Counter
 from urllib.parse import unquote  # Import for URL decoding
 
 import sentry_sdk
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q, Sum
 from django.http import Http404, JsonResponse
@@ -271,13 +272,19 @@ def search(request):
 
     try:
         props = _search_typesense(searchquery, page_num)
+        provenance = "Typesense"
     except search_index.SearchUnavailableError as exc:
         logger.info("search: Typesense unavailable, using ORM fallback (%s)", exc)
         props = _search_orm(searchquery, page_num)
+        provenance = "ORM fallback"
     except Exception:
         logger.warning("search: Typesense proxy error, using ORM fallback", exc_info=True)
         sentry_sdk.capture_exception()
         props = _search_orm(searchquery, page_num)
+        provenance = "ORM fallback"
+
+    if settings.SEARCH_PROVENANCE_ENABLED:
+        props["search_provenance"] = provenance
 
     return render(request, "Search", props)
 
