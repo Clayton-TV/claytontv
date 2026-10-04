@@ -5,22 +5,33 @@ on:
     types:
       - opened
       - reopened
+      - synchronize
+      - edited
   push:
+    branches:
+      - dev
+      - beta
+      - main
+
+permissions:
+  contents: read
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   qa:
     name: Quality Assurance
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          # Gitleaks scans the checked-out files below; it does not scan Git history.
+          fetch-depth: 1
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -30,8 +41,28 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked
 
-      - name: gitleaks check
-        run: docker run -v .:/src zricethezav/gitleaks:latest dir /src
+      - name: Restore gitleaks
+        id: gitleaks-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/gitleaks-8.30.1
+          key: gitleaks-${{ runner.os }}-${{ runner.arch }}-8.30.1
+
+      - name: Install gitleaks
+        if: steps.gitleaks-cache.outputs.cache-hit != 'true'
+        env:
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          GITLEAKS_URL: https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+        run: |
+          curl --fail --location --silent --show-error "$GITLEAKS_URL" --output "$RUNNER_TEMP/gitleaks.tar.gz"
+          echo "$GITLEAKS_SHA256  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check --status
+          mkdir -p "$RUNNER_TEMP/gitleaks-8.30.1"
+          tar --extract --gzip --file "$RUNNER_TEMP/gitleaks.tar.gz" --directory "$RUNNER_TEMP/gitleaks-8.30.1" gitleaks
+          chmod +x "$RUNNER_TEMP/gitleaks-8.30.1/gitleaks"
+
+      - name: Gitleaks check
+        run: |
+          "$RUNNER_TEMP/gitleaks-8.30.1/gitleaks" dir "$GITHUB_WORKSPACE"
 
       - name: Lint code
         run: uv run poe lint-check
@@ -42,6 +73,7 @@ jobs:
   frontend:
     name: Frontend Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -52,6 +84,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -71,6 +104,7 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -80,9 +114,10 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+          save-cache: false
 
       - name: Install dependencies
         run: uv sync --locked
 
       - name: Run tests
-        run: uv run pytest --tb=short -p no:warnings -q --cov --cov-fail-under=80
+        run: uv run poe test
