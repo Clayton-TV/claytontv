@@ -51,7 +51,7 @@ const columns = [
 
 <template>
     <footer class="border-border mt-16 border-t">
-        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-[1.2fr_1fr_1fr] lg:px-8">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-[1.2fr_1fr_1fr_1fr] lg:px-8">
             <div>
                 <div class="flex items-center gap-2.5">
                     <LogoMark class="fill-primary h-6 w-auto" />
@@ -74,6 +74,22 @@ const columns = [
                     </li>
                 </ul>
             </nav>
+            <div>
+                <p class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Contact</p>
+                <address class="text-muted-foreground mt-3 text-sm leading-relaxed not-italic">
+                    Clayton TV<br />
+                    3 Osborne Road<br />
+                    Newcastle upon Tyne<br />
+                    NE2 2AU<br />
+                    United Kingdom
+                </address>
+                <a
+                    href="mailto:enquiries@clayton.tv"
+                    class="focus-visible:ring-ring text-primary mt-3 inline-block rounded text-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+                >
+                    enquiries@clayton.tv
+                </a>
+            </div>
         </div>
         <div class="border-border border-t">
             <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 lg:px-8">

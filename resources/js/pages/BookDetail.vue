@@ -1,5 +1,6 @@
 <script setup>
 import VideoCardItem from '@/atoms/VideoCardItem.vue';
+import PaginationNav from '@/molecules/PaginationNav.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Book, X } from 'lucide-vue-next';
 
@@ -8,6 +9,9 @@ const props = defineProps({
     chapters: { type: Array, default: () => [] },
     selected_chapter: { type: Number, default: null },
     videos: { type: Array, default: () => [] },
+    has_prev_page: { type: Boolean },
+    has_next_page: { type: Boolean },
+    num_pages: { type: Number },
 });
 
 const selectChapter = (chapter) => {
@@ -90,6 +94,9 @@ const bookCode = () => decodeURIComponent(window.location.pathname.split('/').po
             <p v-if="!videos.length" class="text-muted-foreground mt-12 text-center text-sm">
                 No teaching on {{ book.name }} {{ selected_chapter }} yet.
             </p>
+            <div class="mt-10">
+                <PaginationNav :num-pages="num_pages" :has-prev-page="has_prev_page" :has-next-page="has_next_page" />
+            </div>
         </section>
     </div>
 </template>
