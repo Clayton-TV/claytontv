@@ -12,7 +12,8 @@ from datetime import datetime
 
 from django.db.models import Q
 
-from catalogue.models import Bible_Book, RelatedResource, Speaker, Topic, Video
+from catalogue.models import Bible_Book, RelatedResource, Speaker, Video
+from catalogue.topic_reconciliation import resolve_ingest_topic
 
 from .normalize import clean_name, clean_text, clean_topic_name, detect_platform
 
@@ -90,11 +91,7 @@ def link_labels(video, programme):
 
     topics = []
     for label in programme.get("label_b") or []:
-        name = clean_topic_name(label.get("name"))
-        topic = Topic.objects.filter(id=str(label["id"])).first()
-        if topic is None:
-            topic, _ = Topic.objects.get_or_create(name=name, defaults={"id": str(label["id"]), "category": ""})
-        topics.append(topic)
+        topics.append(resolve_ingest_topic(label["id"], clean_topic_name(label.get("name"))))
     video.topic.set(topics)
 
     books = []
