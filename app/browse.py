@@ -63,7 +63,10 @@ def facet_options(active):
     reflect the whole catalogue, not the current other-facet selections, so
     the choices don't reshuffle as an elderly user clicks). Three cheap
     aggregate queries for the populated facets; type/length are fixed."""
-    books = list(Bible_Book.objects.annotate(n=published_count("video")).filter(n__gt=0).order_by("order"))
+    books = sorted(
+        list(Bible_Book.objects.annotate(n=published_count("video")).filter(n__gt=0)),
+        key=lambda b: _try_book_order_int(b),
+    )
     book_opts = [
         {"value": b.name, "label": b.get_name_display(), "count": b.n, "testament": "nt" if _is_nt(b) else "ot"}
         for b in books
@@ -95,6 +98,13 @@ def _is_nt(book):
         return int(book.order) >= 40
     except (TypeError, ValueError):
         return False
+
+
+def _try_book_order_int(book):
+    try:
+        return int(book.order)
+    except (TypeError, ValueError):
+        return book.order
 
 
 def browse_props(request, ordering, per_page, paginator_cls):
