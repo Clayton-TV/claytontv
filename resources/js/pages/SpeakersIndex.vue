@@ -127,7 +127,7 @@ const initials = (name) =>
                     </Link>
                 </div>
             </section>
-            <nav class="border-border bg-card/95 sticky top-4 z-10 mt-8 rounded-xl border p-3 shadow-sm backdrop-blur" aria-label="Jump to speaker">
+            <nav class="border-border bg-card/95 sticky top-20 z-10 mt-8 rounded-xl border p-3 shadow-sm backdrop-blur" aria-label="Jump to speaker">
                 <div class="flex flex-wrap justify-center gap-1">
                     <a
                         v-for="letter in alphabet"
@@ -159,7 +159,7 @@ const initials = (name) =>
                 </template>
                 <section class="mt-14" aria-label="All speakers">
                     <SectionHeading title="All speakers A–Z" />
-                    <div v-for="group in all_speakers || []" :key="group.letter" :id="`${group.letter}`" class="mt-6 scroll-mt-24">
+                    <div v-for="group in all_speakers || []" :key="group.letter" :id="`${group.letter}`" class="mt-6 scroll-mt-36">
                         <h3 class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                             {{ group.letter }}
                         </h3>
