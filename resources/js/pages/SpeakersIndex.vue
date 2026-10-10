@@ -24,6 +24,12 @@ const clear = () => {
     router.get('/speaker/');
 };
 
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+const isLetterAvailable = (letter) => {
+    return (props.all_speakers || []).some((group) => group.letter === letter);
+};
+
 // "Surname, First" → initials for the avatar tile
 const initials = (name) =>
     name
@@ -121,7 +127,26 @@ const initials = (name) =>
                     </Link>
                 </div>
             </section>
-
+            <nav class="border-border bg-card/95 sticky top-20 z-10 mt-8 rounded-xl border p-3 shadow-sm backdrop-blur" aria-label="Jump to speaker">
+                <div class="flex flex-wrap justify-center gap-1">
+                    <a
+                        v-for="letter in alphabet"
+                        :key="letter"
+                        :href="isLetterAvailable(letter) ? `#${letter}` : undefined"
+                        :aria-disabled="!isLetterAvailable(letter)"
+                        :tabindex="isLetterAvailable(letter) ? 0 : -1"
+                        :class="[
+                            'flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors',
+                            isLetterAvailable(letter)
+                                ? 'text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none'
+                                : 'text-muted-foreground/30 cursor-not-allowed',
+                        ]"
+                        @click="!isLetterAvailable(letter) ? $event.preventDefault() : undefined"
+                    >
+                        {{ letter }}
+                    </a>
+                </div>
+            </nav>
             <!-- The long tail: present, honest, compact — and only loaded on scroll -->
             <WhenVisible data="all_speakers" :buffer="300">
                 <template #fallback>
@@ -134,8 +159,10 @@ const initials = (name) =>
                 </template>
                 <section class="mt-14" aria-label="All speakers">
                     <SectionHeading title="All speakers A–Z" />
-                    <div v-for="group in all_speakers || []" :key="group.letter" class="mt-6">
-                        <h3 class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">{{ group.letter }}</h3>
+                    <div v-for="group in all_speakers || []" :key="group.letter" :id="`${group.letter}`" class="mt-6 scroll-mt-36">
+                        <h3 class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                            {{ group.letter }}
+                        </h3>
                         <ul class="mt-2 grid grid-cols-1 gap-x-6 gap-y-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             <li v-for="speaker in group.speakers" :key="speaker.url" class="min-w-0">
                                 <Link
