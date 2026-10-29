@@ -65,7 +65,7 @@ def facet_options(active):
     aggregate queries for the populated facets; type/length are fixed."""
     books = sorted(
         list(Bible_Book.objects.annotate(n=published_count("video")).filter(n__gt=0)),
-        key=lambda b: _try_book_order_int(b),
+        key=_try_book_order_int,
     )
     book_opts = [
         {"value": b.name, "label": b.get_name_display(), "count": b.n, "testament": "nt" if _is_nt(b) else "ot"}
@@ -104,7 +104,7 @@ def _try_book_order_int(book):
     try:
         return int(book.order)
     except (TypeError, ValueError):
-        return book.order
+        return 999
 
 
 def browse_props(request, ordering, per_page, paginator_cls):
