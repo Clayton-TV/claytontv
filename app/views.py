@@ -10,7 +10,7 @@ from django.http import Http404, JsonResponse
 from inertia import defer, optional, render
 
 from app.auth import can_edit_content
-from app.browse import browse_props
+from app.browse import _try_book_order_int, browse_props
 from app.cards import video_card_props
 from app.feed import latest_feed
 from app.sanitize import sanitize_description
@@ -794,7 +794,7 @@ def books_index(request):
     """All 66 Bible books in canonical order, grouped by section."""
     groups = {}
     books = Bible_Book.objects.annotate(videos_count=published_count("video"))
-    for book in sorted(books, key=lambda b: int(b.order) if str(b.order).isdigit() else 999):
+    for book in sorted(books, key=_try_book_order_int):
         groups.setdefault(book.get_type_display(), []).append(
             {
                 "name": book.get_name_display(),
