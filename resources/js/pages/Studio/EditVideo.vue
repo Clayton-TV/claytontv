@@ -268,6 +268,12 @@ onBeforeUnmount(() => {
         <section class="mt-8 space-y-5">
             <h2 class="text-muted-foreground text-sm font-medium">Details</h2>
             <div class="space-y-1.5">
+                <label class="text-foreground block text-sm font-medium">URL</label>
+                <p class="text-muted-foreground text-base tabular-nums">
+                    {{ form.url }}
+                </p>
+            </div>
+            <div class="space-y-1.5">
                 <label for="edit-name" class="text-foreground block text-sm font-medium">Title</label>
                 <Input id="edit-name" v-model="form.name" type="text" class="text-base" maxlength="200" />
             </div>
