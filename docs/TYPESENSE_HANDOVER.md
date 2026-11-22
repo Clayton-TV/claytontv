@@ -1,5 +1,8 @@
 # Typesense Hybrid Search — Handover
 
+> Historical implementation brief. Use [DEPLOYMENT.md](DEPLOYMENT.md) for
+> current deployment procedures and environment isolation.
+
 **Kick this off in a fresh session.** Self-contained brief for adding Typesense
 as the search backend behind the existing instant client tier. Tracking issue:
 [#213](https://github.com/Clayton-TV/claytontv/issues/213).

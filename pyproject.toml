@@ -6,7 +6,7 @@ authors = [{ name = "Jamie Gardner", email = "jamie@tgo.dev" }]
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "django>=6.0,<7.0",
+    "django>=6.0.7,<7.0",
     "python-dotenv>=1.1",
     "psycopg[binary]>=3.3",
     "redis>=5.2",
@@ -30,6 +30,9 @@ dev = [
     "pytest-cov>=6.0",
     "factory-boy>=3.3",
 ]
+
+[tool.uv]
+constraint-dependencies = ["sqlparse>=0.6.0"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "app.test_settings"

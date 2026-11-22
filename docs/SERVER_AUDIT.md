@@ -1,5 +1,8 @@
 # Server audit — app03.tgo.dev (2026-06-12)
 
+> Historical snapshot from 2026-06-12. Use [DEPLOYMENT.md](DEPLOYMENT.md) for
+> deployment procedures and verify current server state before acting.
+
 Read-only survey ahead of Epic 1 (beta environment). Shared box: also serves
 liley.co and tgo.dev (php8.4-fpm) — every change below must consider blast
 radius beyond claytontv.
