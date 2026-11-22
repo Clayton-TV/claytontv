@@ -2,10 +2,9 @@
 
 Christian media platform built with Django, Inertia and Vue 3.
 
-Feature branches target `dev`. Releases promote through `dev` → `beta` → `main`.
-Track work in [GitHub issues](https://github.com/Clayton-TV/claytontv/issues) and the
-[project board](https://github.com/orgs/Clayton-TV/projects/8). Team chat:
-[Discord](https://discord.gg/Gbh8fWthj).
+New here? This README gets you running locally in a few minutes. To see what's
+being worked on and what's planned, browse the
+[issues](https://github.com/Clayton-TV/claytontv/issues) and [project board (only visible to Clayton TV developer team)](https://discord.gg/Gbh8fWthj).
 
 ## Prerequisites
 
