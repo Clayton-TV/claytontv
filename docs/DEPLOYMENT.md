@@ -150,10 +150,14 @@ installed — add when ready):
 
     37 4 * * * cd /srv/beta-claytontv/current && .venv/bin/python manage.py harvest_durations >> /srv/beta-claytontv/shared/logs/durations.log 2>&1
 
-Coverage note: YouTube resolves fully; Vimeo resolves only where the stored
-URL carries its privacy hash (or the video is public). Hashless older Vimeo
-videos stay null until re-synced from the admin (mediaUpdate.asp exposes
-MediaDuration in ms) or a Vimeo API token is configured.
+Timeouts, failed responses and invalid durations are logged as `failed`; a
+valid response without a duration is `unresolved`. Both remain null and retry
+on the next run. An ERROR is logged only if every attempted lookup fails.
+
+Coverage note: Vimeo resolves only where the stored URL carries its privacy
+hash (or the video is public). Other videos stay null until re-synced from the
+admin (mediaUpdate.asp exposes MediaDuration in ms) or a Vimeo API token is
+configured.
 
 ## AI content enrichment (Epic #201)
 

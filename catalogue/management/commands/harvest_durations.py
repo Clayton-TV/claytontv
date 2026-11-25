@@ -26,6 +26,6 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"Durations harvested — YouTube: {stats['youtube']}, Vimeo: {stats['vimeo']}, "
-                f"unresolved: {stats['unresolved']}."
+                f"unresolved: {stats['unresolved']}, failed (retried next run): {stats['failed']}."
             )
         )
