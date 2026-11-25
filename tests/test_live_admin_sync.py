@@ -248,7 +248,7 @@ def test_adapted_records_flow_through_the_standard_ingest():
     video = Video.objects.get(id="12404")
     assert video.name.startswith("Luke 14:1,15-24 - Excuses")  # double space normalized
     assert [s.name for s in video.speaker.all()] == ["McBride, Dan"]
-    assert "Preaching & Teaching" in [t.name for t in video.topic.all()]
+    assert "Preaching and Teaching" in [t.name for t in video.topic.all()]
 
     # And the cornerstone: re-sync is a no-op
     again = ingest_programmes([to_dump_record("12404", parse_meta_page(META_HTML))])
