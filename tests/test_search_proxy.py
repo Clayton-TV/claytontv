@@ -92,7 +92,7 @@ def test_search_uses_typesense_and_hydrates_in_relevance_order(client, monkeypat
     props = inertia_page(client.get("/search", {"search": "x"}))["props"]
 
     assert [v["id"] for v in props["videos"]] == [str(v3.id), str(v1.id), str(v2.id)]
-    assert props["description"] == "Found 50 videos (page 1 of 3)"
+    assert props["description"] == "Found 50 videos"
     assert props["has_prev_page"] is False
     assert props["has_next_page"] is True  # 24 < 50
     assert props["categories"][0] == {"category": "Series", "name": "A Series", "videosCount": 4, "url": "/series/9"}
