@@ -1,5 +1,4 @@
 import logging
-import math
 from collections import Counter
 from urllib.parse import unquote  # Import for URL decoding
 
@@ -288,10 +287,9 @@ def _search_typesense(searchquery, page_num):
     by_id = {str(v.id): v for v in Video.objects.published().filter(id__in=[h.pk for h in hits])}
     ordered = [by_id[h.pk] for h in hits if h.pk in by_id]
 
-    total_pages = max(1, math.ceil(found / pagination_per_page))
     props = {
         "title": f"Search for '{searchquery}'",
-        "description": f"Found {found} {'video' if found == 1 else 'videos'} (page {page_num} of {total_pages})",
+        "description": f"Found {found} {'video' if found == 1 else 'videos'}",
         "videos": video_card_props(ordered),
         "has_prev_page": page_num > 1,
         "has_next_page": page_num * pagination_per_page < found,
@@ -316,10 +314,7 @@ def _search_orm(searchquery, page_num):
     ]
     paginator = Paginator(video_results, pagination_per_page)
     paginated = paginator.page(page_num)
-    description = (
-        f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} "
-        f"(page {page_num} of {paginator.num_pages})"
-    )
+    description = f"Found {len(video_results)} {'video' if len(video_results) == 1 else 'videos'} "
     props = {
         "title": f"Search for '{searchquery}'",
         "description": description,
@@ -559,7 +554,7 @@ def browse_channel(request, id):
         "Browse",
         {
             "title": f"Channel: {decoded_id}",
-            "description": f"{channel.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{channel.summary}",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
@@ -596,7 +591,7 @@ def browse_demographic(request, id):
         "Browse",
         {
             "title": f"Demographic: {decoded_id}",
-            "description": f"{demographic.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{demographic.summary}",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
@@ -633,7 +628,7 @@ def browse_ministry(request, id):
         "Browse",
         {
             "title": f"Ministry: {decoded_id}",
-            "description": f"{ministry.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{ministry.summary}",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
@@ -980,7 +975,7 @@ def browse_topic(request, id):
         "Browse",
         {
             "title": f"Topic: {decoded_id}",
-            "description": f"{topic.summary} (page {page_num} of {paginator.num_pages})",
+            "description": f"{topic.summary}",
             "videos": video_card_props(paginated.object_list),
             "has_prev_page": paginated.has_previous(),
             "has_next_page": paginated.has_next(),
